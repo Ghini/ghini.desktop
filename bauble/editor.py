@@ -796,7 +796,7 @@ class MockView:
     '''mocking the view, but so generic that we share it among clients
     '''
     def __init__(self, **kwargs):
-        self.widgets = type('MockWidgets', (object, ), {})()
+        self.widgets = type(b'MockWidgets', (object, ), {})()
         self.models = {}  # dictionary of list of tuples
         self.invoked = []
         self.invoked_detailed = []

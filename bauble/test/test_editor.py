@@ -28,6 +28,7 @@ from bauble.editor import GenericEditorView
 import bauble.prefs as prefs
 import bauble.paths as paths
 import bauble.utils as utils
+prefs.testing = True
 
 from bauble.test import BaubleTestCase
 

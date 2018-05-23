@@ -26,6 +26,9 @@ from sqlalchemy import or_
 
 from nose import SkipTest
 
+from bauble import prefs
+prefs.testing = True
+
 import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
 from bauble.plugins.tag import Tag, TagEditorPresenter, TagInfoBox
@@ -508,41 +511,43 @@ class TagInfoBoxTest(BaubleTestCase):
         label = ib.general.table_cells[1].get_children()[0]
         self.assertEquals(label.get_text(), ' 3 ')
 
+class FakeGui:
+    def __init__(self):
+        self.invoked = []
+        self.window = self
+    def get_view(self):
+        view = MockView()
+        view.get_selected_values = lambda: []
+        return view
+    def show_message_box(self, *args, **kwargs):
+        self.invoked.append((args, kwargs))
+        pass
+    def add_to_insert_menu(self, *args, **kwargs):
+        self.invoked.append(('add_to_insert_menu', args, kwargs))
+        pass
+    def add_accel_group(self, *args, **kwargs):
+        self.invoked.append(('add_accel_group', args, kwargs))
+        pass
 
 class TagCallbackTest(BaubleTestCase):
     def test_on_add_tag_activated_wrong_view(self):
-        class FakeGui:
-            def __init__(self):
-                self.invoked = []
-            def get_view(self):
-                return MockView(selection=[])
-            def show_message_box(self, *args, **kwargs):
-                self.invoked.append((args, kwargs))
-                pass
         import bauble
         bauble.gui = localgui = FakeGui()
+        utils.message_dialog = bauble.gui.show_message_box
         tag_plugin._on_add_tag_activated()
         reload(bauble)
-        self.assertEquals(localgui.invoked[0],
+        self.assertEquals(len(localgui.invoked), 1)
+        self.assertEquals(localgui.invoked[0], 
                           (('In order to tag an item you must first search for something and select one of the results.', ), {}))
 
     def test_on_add_tag_activated_search_view_empty_selection(self):
-        class FakeGui:
-            def __init__(self):
-                self.invoked = []
-            def get_view(self):
-                view = MockView()
-                view.get_selected_values = lambda: []
-                return view
-            def show_message_box(self, *args, **kwargs):
-                self.invoked.append((args, kwargs))
-                pass
         import bauble
         bauble.gui = localgui = FakeGui()
         utils.message_dialog = bauble.gui.show_message_box
         tag_plugin._on_add_tag_activated()
         reload(bauble)
         reload(utils)
+        self.assertEquals(len(localgui.invoked), 1)
         self.assertEquals(localgui.invoked[0],
                           (('Nothing selected', ), {}))
 
