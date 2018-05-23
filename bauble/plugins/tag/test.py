@@ -516,9 +516,7 @@ class FakeGui:
         self.invoked = []
         self.window = self
     def get_view(self):
-        view = MockView()
-        view.get_selected_values = lambda: []
-        return view
+        return MockView(selection=[])
     def show_message_box(self, *args, **kwargs):
         self.invoked.append((args, kwargs))
         pass
@@ -528,6 +526,25 @@ class FakeGui:
     def add_accel_group(self, *args, **kwargs):
         self.invoked.append(('add_accel_group', args, kwargs))
         pass
+
+class TagCallbackTest(BaubleTestCase):
+    def test_on_add_tag_activated_wrong_view(self):
+        import bauble
+        bauble.gui = localgui = FakeGui()
+        tag_plugin._on_add_tag_activated()
+        reload(bauble)
+        self.assertEquals(localgui.invoked[0],
+                          (('In order to tag an item you must first search for something and select one of the results.', ), {}))
+
+    def test_on_add_tag_activated_search_view_empty_selection(self):
+        import bauble
+        bauble.gui = localgui = FakeGui()
+        utils.message_dialog = bauble.gui.show_message_box
+        tag_plugin._on_add_tag_activated()
+        reload(bauble)
+        reload(utils)
+        self.assertEquals(localgui.invoked[0],
+                          (('Nothing selected', ), {}))
 
 class TagCallbackTest(BaubleTestCase):
     def test_on_add_tag_activated_wrong_view(self):
