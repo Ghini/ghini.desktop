@@ -51,23 +51,23 @@ def get_species_in_geography(geo):
         stmt = select([geo_table.c.id], geo_table.c.parent_id == parent_id)
         kids = [r[0] for r in db.engine.execute(stmt).fetchall()]
         for kid in kids:
-            grand_kids = get_geography_children(kid)
+            grand_kids = get_geographic_area_children(kid)
             master_ids.update(grand_kids)
         return kids
-    geokids = get_geography_children(geo.id)
+    geokids = get_geographic_area_children(geo.id)
     master_ids.update(geokids)
     q = session.query(Species).join(SpeciesDistribution).\
-        filter(SpeciesDistribution.geography_id.in_(master_ids))
+        filter(SpeciesDistribution.geographic_area_id.in_(master_ids))
     return list(q)
 
 
-class GeographyMenu(Gtk.Menu):
+class GeographicAreaMenu(Gtk.Menu):
 
     def __init__(self, callback):
-        super(GeographyMenu, self).__init__()
-        geography_table = Geography.__table__
-        geos = select([geography_table.c.id, geography_table.c.name,
-                       geography_table.c.parent_id]).execute().fetchall()
+        super(GeographicAreaMenu, self).__init__()
+        geographic_area_table = GeographicArea.__table__
+        geos = select([geographic_area_table.c.id, geographic_area_table.c.name,
+                       geographic_area_table.c.parent_id]).execute().fetchall()
         geos_hash = {}
         # TODO: i think the geo_hash should be calculated in an idle
         # function so that starting the editor isn't delayed while the
@@ -125,11 +125,11 @@ class GeographyMenu(Gtk.Menu):
 
         def populate():
             """
-            add geography value to the menu, any top level items that don't
+            add geographic_area value to the menu, any top level items that don't
             have any kids are appended to the bottom of the menu
             """
             if not geos_hash:
-                # we would get here if the Geography menu is populate,
+                # we would get here if the GeographicArea menu is populate,
                 # usually during a unit test
                 return
             no_kids = []
@@ -148,11 +148,11 @@ class GeographyMenu(Gtk.Menu):
         GObject.idle_add(populate)
 
 
-class Geography(db.Base):
+class GeographicArea(db.Base):
     """
-    Represents a geography unit.
+    Represents a geographic_area unit.
 
-    :Table name: geography
+    :Table name: geographic_area
 
     :Columns:
         *name*:
@@ -168,23 +168,23 @@ class Geography(db.Base):
 
     :Constraints:
     """
-    __tablename__ = 'geography'
+    __tablename__ = 'geographic_area'
 
     # columns
     name = Column(Unicode(255), nullable=False)
     tdwg_code = Column(String(6))
     iso_code = Column(String(7))
-    parent_id = Column(Integer, ForeignKey('geography.id'))
+    parent_id = Column(Integer, ForeignKey('geographic_area.id'))
 
     def __str__(self):
         return self.name
 
 
 # late bindings
-Geography.children = relation(
-    Geography,
-    primaryjoin=Geography.parent_id == Geography.id,
+GeographicArea.children = relation(
+    GeographicArea,
+    primaryjoin=GeographicArea.parent_id == GeographicArea.id,
     cascade='all',
     backref=backref("parent",
-                    remote_side=[Geography.__table__.c.id]),
-    order_by=[Geography.name])
+                    remote_side=[GeographicArea.__table__.c.id]),
+    order_by=[GeographicArea.name])
