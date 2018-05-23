@@ -179,7 +179,7 @@ class ImageLoader(threading.Thread):
             logger.warning("picture %s caused Exception %s:%s" %
                            (self.url, type(e), e))
             label = Gtk.Label()
-            label.set_text(str(e))
+            label.set_text("%s" % e)
             self.box.add(label)
         self.box.show_all()
 
@@ -482,9 +482,9 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
         else:
             widget.set_text(utf8(value))
     elif isinstance(widget, Gtk.TextView):
-        widget.get_buffer().set_text(str(value))
+        widget.get_buffer().set_text("%s" % value)
     elif isinstance(widget, Gtk.TextBuffer):
-        widget.set_text(str(value))
+        widget.set_text("%s" % value)
     elif isinstance(widget, Gtk.Entry):
         widget.set_text(utf8(value))
     elif isinstance(widget, Gtk.ComboBox):
