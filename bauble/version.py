@@ -22,4 +22,4 @@
 # The Ghini version.
 # major, minor, revision version tuple
 
-version = "1.0.83"  # :bump
+version = "3.1.0"  # :bump
