@@ -144,28 +144,11 @@ class BaubleTests(BaubleTestCase):
         self.assertTrue(v.month == 12 and v.day == 30 and v.year == 2008,
                      '%s == %s' % (v, s))
 
-        # TODO: python-dateutil 1.4.1 has a bug where dayfirst=True,
-        # yearfirst=True always parses as dayfirst=False
-
-        # bauble.types.Date._dayfirst = True
-        # bauble.types.Date._yearfirst = True
-        # debug('--')
-        # s = '2008-30-12'
-        # #s = '2008-12-30'
-        # debug(s)
-        # v = dt.process_bind_param(s, None)
-        # debug(v)
-        # self.assert_(v.month==12 and v.day==30 and v.year==2008,
-        #              '%s == %s' % (v, s))
-
     def test_datetime_type(self):
         """
         Test bauble.types.DateTime
         """
         dt = bauble.btypes.DateTime()
-
-        # TODO: *** this needs to be updated since now we don't do our
-        # own date parsing and use the dateutils module instead
 
         # with negative timezone
         s = '2008-12-1 11:50:01.001-05:00'

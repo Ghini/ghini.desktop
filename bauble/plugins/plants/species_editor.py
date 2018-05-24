@@ -36,14 +36,13 @@ import weakref
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
-from types import StringTypes
 import bauble
 
 from bauble.prefs import prefs
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
-from bauble.plugins.plants.geography import GeographyMenu
+from bauble.plugins.plants.geography import GeographicAreaMenu
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import (
@@ -265,7 +264,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         # called when a genus is selected from the genus completions
         def on_select(value):
             logger.debug('on select: %s' % value)
-            if isinstance(value, StringTypes):
+            if isinstance(value, str):
                 value = self.session.query(Genus).filter(
                     Genus.genus == value).first()
             while self.genus_check_messages:
@@ -692,7 +691,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 
         def _init_geo():
             add_button = self.view.widgets.sp_dist_add_button
-            self.geo_menu = GeographyMenu(self.on_activate_add_menu_item)
+            self.geo_menu = GeographicAreaMenu(self.on_activate_add_menu_item)
             self.geo_menu.attach_to_widget(add_button, None)
             add_button.set_sensitive(True)
         GObject.idle_add(_init_geo)
@@ -720,13 +719,13 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 
     def on_activate_add_menu_item(self, widget, geoid=None):
         logger.debug('on_activate_add_menu_item %s %s' % (widget, geoid))
-        from bauble.plugins.plants.geography import Geography
-        geo = self.session.query(Geography).filter_by(id=geoid).one()
+        from bauble.plugins.plants.geography import GeographicArea
+        geo = self.session.query(GeographicArea).filter_by(id=geoid).one()
         # check that this geography isn't already in the distributions
-        if geo in [d.geography for d in self.model.distribution]:
+        if geo in [d.geographic_area for d in self.model.distribution]:
             logger.debug('%s already in %s' % (geo, self.model))
             return
-        dist = SpeciesDistribution(geography=geo)
+        dist = SpeciesDistribution(geographic_area=geo)
         self.model.distribution.append(dist)
         logger.debug([str(d) for d in self.model.distribution])
         self._dirty = True

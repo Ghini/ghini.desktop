@@ -71,7 +71,7 @@ from bauble import pb_set_fraction
 # and import into a different database, e.g. postgres->sqlite
 
 QUOTE_STYLE = csv.QUOTE_MINIMAL
-QUOTE_CHAR = b'"'
+QUOTE_CHAR = '"'
 
 
 class UnicodeReader(object):
@@ -181,7 +181,7 @@ class CSVImporter(Importer):
         foreign_key column and child is usually the column that the
         foreign key points to, e.g ('parent_id', 'id')
         """
-        f = open(filename, 'rb')
+        f = open(filename, 'r')
         reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                quoting=QUOTE_STYLE)
 
@@ -213,7 +213,7 @@ class CSVImporter(Importer):
         tmppath = tempfile.mkdtemp()
         head, tail = os.path.split(filename)
         filename = os.path.join(tmppath, tail)
-        tmpfile = open(filename, 'wb')
+        tmpfile = open(filename, 'w')
         tmpfile.write('%s\n' % ','.join(fields))
         writer = UnicodeWriter(tmpfile, fields=fields, quotechar=QUOTE_CHAR,
                                 quoting=QUOTE_STYLE)
@@ -389,7 +389,7 @@ class CSVImporter(Importer):
 
                 # open a temporary reader to get the column keys so we
                 # can later precompile our insert statement
-                f = open(filename, "rb")
+                f = open(filename, "r")
                 tmp = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                     quoting=QUOTE_STYLE)
                 next(tmp)
@@ -436,7 +436,7 @@ class CSVImporter(Importer):
 
                 isempty = lambda v: v in ('', None)
 
-                f = open(filename, "rb")
+                f = open(filename, "r")
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
                 # NOTE: we shouldn't get this far if the file doesn't
@@ -603,7 +603,7 @@ class CSVExporter(object):
             return s
 
         def write_csv(filename, rows):
-            f = open(filename, 'wb')
+            f = open(filename, 'w')
             writer = UnicodeWriter(f, quotechar=QUOTE_CHAR,
                                    quoting=QUOTE_STYLE)
             writer.writerows(rows)

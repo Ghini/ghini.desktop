@@ -26,6 +26,9 @@ except ImportError:
     from ez_setup import use_setuptools
     use_setuptools()
     import setuptools
+import gi
+gi.require_version('Gtk', '3.0')
+
 import os
 import sys
 import glob

@@ -41,12 +41,11 @@ from sqlalchemy.orm import relation, backref
 
 import bauble.db as db
 import bauble.editor as editor
-from bauble.plugins.plants.geography import Geography, GeographyMenu
+from bauble.plugins.plants.geography import GeographicArea, GeographicAreaMenu
 import bauble.utils as utils
 import bauble.btypes as types
 import bauble.view as view
 import bauble.paths as paths
-from types import StringTypes
 
 
 def collection_edit_callback(coll):
@@ -188,7 +187,7 @@ class Collection(db.Base):
 
             *habitat*: :class:`sqlalchemy.types.UnicodeText`
 
-            *geography_id*: :class:`sqlalchemy.types.Integer`
+            *geographic_area_id*: :class:`sqlalchemy.types.Integer`
 
             *notes*: :class:`sqlalchemy.types.UnicodeText`
 
@@ -226,8 +225,8 @@ class Collection(db.Base):
     # ITF2 - F18 - Collection Notes
     notes = Column(UnicodeText)
 
-    geography_id = Column(Integer, ForeignKey('geography.id'))
-    region = relation(Geography, uselist=False)
+    geographic_area_id = Column(Integer, ForeignKey('geographic_area.id'))
+    region = relation(GeographicArea, uselist=False)
 
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)
 
@@ -337,7 +336,7 @@ class CollectionPresenter(editor.ChildPresenter):
 
         def _init_geo():
             add_button = self.view.widgets.add_region_button
-            self.geo_menu = GeographyMenu(self.set_region)
+            self.geo_menu = GeographicAreaMenu(self.set_region)
             self.geo_menu.attach_to_widget(add_button, None)
             add_button.set_sensitive(True)
         GObject.idle_add(_init_geo)
@@ -345,10 +344,10 @@ class CollectionPresenter(editor.ChildPresenter):
         self._dirty = False
 
     def set_region(self, menu_item, geo_id):
-        geography = self.session.query(Geography).get(geo_id)
-        self.set_model_attr('region', geography)
-        self.set_model_attr('geography_id', geo_id)
-        self.view.widgets.add_region_button.props.label = str(geography)
+        geographic_area = self.session.query(GeographicArea).get(geo_id)
+        self.set_model_attr('region', geographic_area)
+        self.set_model_attr('geographic_area_id', geo_id)
+        self.view.widgets.add_region_button.props.label = str(geographic_area)
 
     def set_model_attr(self, field, value, validator=None):
         """
@@ -677,7 +676,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
         def on_select(value):
             logger.debug('on select: %s' % value)
-            if isinstance(value, StringTypes):
+            if isinstance(value, str):
                 return
             # populate the propagation browser
             treeview = self.view.widgets.source_prop_treeview

@@ -510,9 +510,8 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
             widget.get_child().text = value or ''
     elif isinstance(widget,
                     (Gtk.ToggleButton, Gtk.CheckButton, Gtk.RadioButton)):
-        from types import StringTypes
         if (isinstance(widget, Gtk.CheckButton)
-                and isinstance(value, StringTypes)):
+                and isinstance(value, str)):
             value = (value == Gtk.Buildable.get_name(widget))
         if value is True:
             widget.set_inconsistent(False)

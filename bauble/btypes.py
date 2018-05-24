@@ -21,7 +21,6 @@
 # types.py
 #
 
-import dateutil.parser as date_parser
 import sqlalchemy.types as types
 
 

@@ -66,7 +66,6 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
 from bauble.search import SearchStrategy
-from types import StringTypes
 from bauble.utils import safe_int
 
 # TODO: underneath the species entry create a label that shows information
@@ -214,15 +213,6 @@ remove_action = Action('acc_remove', _('_Delete'),
                        accelerator='<ctrl>Delete')
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
-
-
-# TODO: accession should have a one-to-many relationship on verifications
-    #ver_level = StringCol(length=2, default=None) # verification level
-    #ver_name = StringCol(length=50, default=None) # verifier's name
-    #ver_date = DateTimeCol(default=None) # verification date
-    #ver_hist = StringCol(default=None)  # verification history
-    #ver_lit = StringCol(default=None) # verification lit
-    #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
 
 ver_level_descriptions = \
@@ -1858,7 +1848,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         def on_select(value):
             logger.debug('on select: %s' % value)
-            if isinstance(value, StringTypes):
+            if isinstance(value, str):
                 value = Species.retrieve(
                     self.session, {'species': value})
             def set_model(v):

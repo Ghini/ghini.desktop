@@ -51,7 +51,7 @@ from bauble.plugins.garden.plant import Plant, PlantNote, \
 from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import Propagation, PropCuttingRooted, \
     PropCutting, PropSeed, PropagationEditor
-from bauble.plugins.plants.geography import Geography
+from bauble.plugins.plants.geography import GeographicArea
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
@@ -84,10 +84,10 @@ location_test_data = ({'id': 1, 'name': 'Somewhere Over The Rainbow',
                        'code': 'RBW'},
                       )
 
-geography_test_data = [{'id': 1, 'name': 'Somewhere'}]
+geographic_area_test_data = [{'id': 1, 'name': 'Somewhere'}]
 
 collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': 'Somewhere',
-                         'geography_id': 1},
+                         'geographic_area_id': 1},
                         )
 
 default_propagation_values = \
@@ -132,7 +132,7 @@ default_seed_values = {
 test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
                            (Plant, plant_test_data),
-                           (Geography, geography_test_data),
+                           (GeographicArea, geographic_area_test_data),
                            (Collection, collection_test_data))
 testing_today = datetime.date(2017, 1, 1)
 

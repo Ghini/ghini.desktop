@@ -62,7 +62,7 @@ from bauble.plugins.plants.species import (
     vernname_context_menu,
     )
 from bauble.plugins.plants.geography import (
-    Geography, get_species_in_geography)
+    GeographicArea, get_species_in_geography)
 from .taxonomy_check import (
     TaxonomyCheckTool)
 from .stored_queries import (
@@ -326,7 +326,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                 'Species': Species,
                 'SpeciesNote': SpeciesNote,
                 'VernacularName': VernacularName,
-                'Geography': Geography, }
+                'GeographicArea': GeographicArea, }
 
     @classmethod
     def init(cls):
@@ -364,8 +364,8 @@ class PlantsPlugin(pluginmgr.Plugin):
             infobox=VernacularNameInfoBox,
             context_menu=vernname_context_menu)
 
-        mapper_search.add_meta(('geography', 'geo'), Geography, ['name'])
-        SearchView.row_meta[Geography].set(children=get_species_in_geography)
+        mapper_search.add_meta(('geography', 'geo'), GeographicArea, ['name'])
+        SearchView.row_meta[GeographicArea].set(children=get_species_in_geography)
 
         ## now it's the turn of the DefaultView
         logger.debug('PlantsPlugin::init, registering splash info box')
@@ -408,7 +408,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
         filenames = [os.path.join(path, f) for f in ('family.txt',
                      'family_synonym.txt',
-                     'genus.txt', 'genus_synonym.txt', 'geography.txt',
+                     'genus.txt', 'genus_synonym.txt', 'geographic_area.txt',
                      'habit.txt')]
 
         from bauble.plugins.imex.csv_ import CSVImporter

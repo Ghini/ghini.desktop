@@ -580,6 +580,7 @@ def _find_plugins(path):
         plugin_names = ['bauble.plugins.%s' % m
                         for m in _find_module_names(path)]
 
+    import importlib, bauble.plugins
     for name in plugin_names:
         mod = None
         # Fast path: see if the module has already been imported.
@@ -588,7 +589,7 @@ def _find_plugins(path):
             mod = sys.modules[name]
         else:
             try:
-                mod = __import__(name, globals(), locals(), [name], -1)
+                mod = importlib.import_module(name, bauble.plugins)
             except Exception as e:
                 msg = _('Could not import the %(module)s module.\n\n'
                         '%(error)s') % {'module': name, 'error': e}

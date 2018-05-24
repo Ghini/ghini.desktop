@@ -354,10 +354,11 @@ def create(import_defaults=True):
         meta_table.insert(bind=connection).\
             execute(name=meta.VERSION_KEY,
                     value=str(bauble.version)).close()
-        from dateutil.tz import tzlocal
+        import time
+        tzlocal = datetime.timezone(-datetime.timedelta(hours=time.timezone/60/60))
         meta_table.insert(bind=connection).\
             execute(name=meta.CREATED_KEY,
-                    value=str(datetime.datetime.now(tz=tzlocal()))).close()
+                    value=str(datetime.datetime.now(tz=tzlocal))).close()
     except GeneratorExit as e:
         # this is here in case the main windows is closed in the middle
         # of a task

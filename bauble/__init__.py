@@ -23,7 +23,7 @@
 """
 The top level module for Ghini.
 """
-
+from gi.repository import Gtk
 
 
 import logging
