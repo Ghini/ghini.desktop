@@ -572,7 +572,7 @@ class WithNotes:
 
         result = []
         is_dict = False
-        for n in self.notes:
+        for n in super(WithNotes, self).notes:
             if n.category == ('[%s]' % name):
                 result.append(n.note)
             elif n.category.startswith('{%s:' % name) and n.category.endswith('}'):

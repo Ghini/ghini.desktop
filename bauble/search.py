@@ -864,7 +864,7 @@ class MapperSearch(SearchStrategy):
         self._session = session
 
         self._results.clear()
-        statement = self.parser.parse_string(text.decode()).statement
+        statement = self.parser.parse_string(text).statement
         logger.debug("statement : %s(%s)" % (type(statement), statement))
         self._results.update(statement.invoke(self))
         logger.debug('search returns %s(%s)'

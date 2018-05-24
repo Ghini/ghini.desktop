@@ -387,7 +387,7 @@ class AddOneDot(threading.Thread):
 
     def __init__(self, group=None, verbose=None, **kwargs):
         super(AddOneDot, self).__init__(
-            group=group, target=None, name=None, verbose=verbose)
+            group=group, target=None, name=None)
         self.__stopped = threading.Event()
         self.dotno = 0
 
@@ -404,7 +404,7 @@ class CountResultsTask(threading.Thread):
     def __init__(self, klass, ids, dots_thread,
                  group=None, verbose=None, **kwargs):
         super(CountResultsTask, self).__init__(
-            group=group, target=None, name=None, verbose=verbose)
+            group=group, target=None, name=None)
         self.klass = klass
         self.ids = ids
         self.dots_thread = dots_thread
@@ -936,7 +936,7 @@ class SearchView(pluginmgr.View):
         groups = []
 
         # sort by type so that groupby works properly
-        results = sorted(results, key=lambda x: type(x))
+        results = sorted(results, key=lambda x: type(x).__name__)
 
         for key, group in itertools.groupby(results, key=lambda x: type(x)):
             # return groups by type and natural sort each of the

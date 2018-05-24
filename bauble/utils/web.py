@@ -33,15 +33,8 @@ import bauble.utils.desktop as desktop
 
 def _open_link(data=None, *args, **kwargs):
     """Open a web link"""
-    # windows generates odd characters in the uri unless its in ascii
     logger.debug("_open_link received data=%s, args=%s, kwargs=%s" % (data, args, kwargs))
-    import sys
-    if sys.platform == 'win32':
-        udata = data.decode("utf-8")
-        asciidata = udata.encode("ascii", "ignore")
-        desktop.open(asciidata)
-    else:
-        desktop.open(data)
+    desktop.open(data)
 
 
 class BaubleLinkButton(Gtk.LinkButton):
