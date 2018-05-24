@@ -520,10 +520,20 @@ class TagCallbackTest(BaubleTestCase):
         class FakeGui:
             def __init__(self):
                 self.invoked = []
+                self.window = self
             def get_view(self):
                 return MockView(selection=[])
             def show_message_box(self, *args, **kwargs):
                 self.invoked.append((args, kwargs))
+                pass
+            def add_accel_group(self, *args, **kwargs):
+                self.invoked.append(('window.add_accel_group', args, kwargs))
+                pass
+            def add_to_insert_menu(self, *args, **kwargs):
+                self.invoked.append(('add_to_insert_menu', args, kwargs))
+                pass
+            def add_menu(self, *args, **kwargs):
+                self.invoked.append(('add_menu', args, kwargs))
                 pass
         import bauble
         bauble.gui = localgui = FakeGui()
@@ -536,12 +546,22 @@ class TagCallbackTest(BaubleTestCase):
         class FakeGui:
             def __init__(self):
                 self.invoked = []
+                self.window = self
             def get_view(self):
                 view = MockView()
                 view.get_selected_values = lambda: []
                 return view
             def show_message_box(self, *args, **kwargs):
                 self.invoked.append((args, kwargs))
+                pass
+            def add_accel_group(self, *args, **kwargs):
+                self.invoked.append(('window.add_accel_group', args, kwargs))
+                pass
+            def add_to_insert_menu(self, *args, **kwargs):
+                self.invoked.append(('add_to_insert_menu', args, kwargs))
+                pass
+            def add_menu(self, *args, **kwargs):
+                self.invoked.append(('add_menu', args, kwargs))
                 pass
         import bauble
         bauble.gui = localgui = FakeGui()
