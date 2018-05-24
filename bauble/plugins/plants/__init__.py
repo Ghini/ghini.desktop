@@ -62,7 +62,7 @@ from bauble.plugins.plants.species import (
     vernname_context_menu,
     )
 from bauble.plugins.plants.geography import (
-    GeographicArea, get_species_in_geography)
+    GeographicArea, get_species_in_geographic_area)
 from .taxonomy_check import (
     TaxonomyCheckTool)
 from .stored_queries import (
@@ -365,7 +365,7 @@ class PlantsPlugin(pluginmgr.Plugin):
             context_menu=vernname_context_menu)
 
         mapper_search.add_meta(('geography', 'geo'), GeographicArea, ['name'])
-        SearchView.row_meta[GeographicArea].set(children=get_species_in_geography)
+        SearchView.row_meta[GeographicArea].set(children=get_species_in_geographic_area)
 
         ## now it's the turn of the DefaultView
         logger.debug('PlantsPlugin::init, registering splash info box')

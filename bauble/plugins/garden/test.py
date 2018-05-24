@@ -1749,6 +1749,7 @@ class InstitutionPresenterTests(GardenTestCase):
         from bauble.editor import MockView
         view = MockView()
         o = Institution()
+        print(dir(o))
         presenter = InstitutionPresenter(o, view)
         self.assertEqual(presenter.view, view)
 
@@ -1780,6 +1781,7 @@ class InstitutionPresenterTests(GardenTestCase):
         o = Institution()
         o.name = 'bauble'
         o.email = ''
+        print(dir(o))
         InstitutionPresenter(o, view)
         self.assertFalse(view.widget_get_sensitive('inst_register'))
 
@@ -1790,6 +1792,7 @@ class InstitutionPresenterTests(GardenTestCase):
         o = Institution()
         o.name = 'bauble'
         o.email = 'mario'
+        print(dir(o))
         InstitutionPresenter(o, view)
         self.assertFalse(view.widget_get_sensitive('inst_register'))
 

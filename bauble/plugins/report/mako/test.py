@@ -32,7 +32,7 @@ from bauble.plugins.report import (
     get_species_pertinent_to, get_accessions_pertinent_to,
     get_plants_pertinent_to)
 from bauble.plugins.plants import Family, Genus, Species, \
-    SpeciesDistribution, VernacularName, Geography
+    SpeciesDistribution, VernacularName, GeographicArea
 from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.report.mako import MakoFormatterPlugin
 
@@ -57,10 +57,10 @@ class MakoFormatterTests(BaubleTestCase):
                 for s in range(2):
                     sctr+=1
                     sp = Species(id=sctr, genus=genus, sp='sp%s' % sctr)
-                    # TODO: why doesn't this geography, species
+                    # TODO: why doesn't this geographic_area, species
                     # distribution stuff seem to work
-                    geo = Geography(id=sctr, name='Mexico%s' % sctr)
-                    dist = SpeciesDistribution(geography_id=sctr)
+                    geo = GeographicArea(id=sctr, name='Mexico%s' % sctr)
+                    dist = SpeciesDistribution(geographic_area_id=sctr)
                     sp.distribution.append(dist)
                     vn = VernacularName(id=sctr, species=sp,
                                         name='name%s' % sctr)

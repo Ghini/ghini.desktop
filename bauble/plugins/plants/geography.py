@@ -30,24 +30,24 @@ from sqlalchemy.orm import object_session, relation, backref
 import bauble.db as db
 
 
-def get_species_in_geography(geo):
+def get_species_in_geographic_area(geo):
     """
     Return all the Species that have distribution in geo
     """
     session = object_session(geo)
     if not session:
-        ValueError('get_species_in_geography(): geography is not in a session')
+        ValueError('get_species_in_geographic_area(): geographic_area is not in a session')
 
-    # get all the geography children under geo
+    # get all the geographic_area children under geo
     from bauble.plugins.plants.species_model import SpeciesDistribution, \
         Species
     # get the children of geo
     geo_table = geo.__table__
     master_ids = set([geo.id])
-    # populate master_ids with all the geography ids that represent
-    # the children of particular geography id
+    # populate master_ids with all the geographic_area ids that represent
+    # the children of particular geographic_area id
 
-    def get_geography_children(parent_id):
+    def get_geographic_area_children(parent_id):
         stmt = select([geo_table.c.id], geo_table.c.parent_id == parent_id)
         kids = [r[0] for r in db.engine.execute(stmt).fetchall()]
         for kid in kids:

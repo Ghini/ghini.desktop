@@ -95,7 +95,7 @@ class ABCDTestCase(BaubleTestCase):
         accession.source = source
         source.sources_code = '1'
         collection = Collection(collector='Bob', collectors_code='1',
-                                geography_id=1, locale='locale',
+                                geographic_area_id=1, locale='locale',
                                 date=datetime.date.today(),
                                 latitude='1.1', longitude='1.1',
                                 habitat='habitat description',

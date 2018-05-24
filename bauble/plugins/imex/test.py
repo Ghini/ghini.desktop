@@ -99,7 +99,7 @@ class CSVTests(ImexTestCase):
                 ('species', species_data))
         for table_name, data in data:
             filename = os.path.join(self.path, '%s.txt' % table_name)
-            f = open(filename, 'wb')
+            f = open(filename, 'w')
             format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
                       'quotechar': QUOTE_CHAR}
 
@@ -124,8 +124,8 @@ class CSVTests(ImexTestCase):
                     {'id': 1, 'name': '1', 'parent_id': None},
                     {'id': 2, 'name': '2', 'parent_id': 1},
                     ]
-        filename = os.path.join(self.path, 'geography.txt')
-        f = open(filename, 'wb')
+        filename = os.path.join(self.path, 'geographic_area.txt')
+        f = open(filename, 'w')
         format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
                   'quotechar': QUOTE_CHAR}
         fields = list(geo_data[0].keys())
@@ -152,7 +152,7 @@ class CSVTests(ImexTestCase):
                 {'id': 3, 'col1': ''},
                 ]
         filename = os.path.join(self.path, 'bool_test.txt')
-        f = open(filename, 'wb')
+        f = open(filename, 'w')
         format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
                   'quotechar': QUOTE_CHAR}
         fields = list(data[0].keys())
@@ -182,7 +182,7 @@ class CSVTests(ImexTestCase):
         """
         list(self.session.query(Family))
         filename = os.path.join(self.path, 'family.txt')
-        f = open(filename, 'wb')
+        f = open(filename, 'w')
         format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
                   'quotechar': QUOTE_CHAR}
         fields = list(family_data[0].keys())
@@ -382,14 +382,14 @@ class CSVTests2(ImexTestCase):
 #        utils.log.echo(False)
 
     def test_unicode(self):
-        from bauble.plugins.plants.geography import Geography
-        geography_table = Geography.__table__
+        from bauble.plugins.plants.geography import GeographicArea
+        geographic_area_table = GeographicArea.__table__
         # u'Gal\xe1pagos' is the unencoded unicode object,
         # calling u.encode('utf-8') will convert the \xe1 to the a
         # with an accent
         data = {'name': 'Gal\xe1pagos'}
-        geography_table.insert().execute(data)
-        query = self.session.query(Geography)
+        geographic_area_table.insert().execute(data)
+        query = self.session.query(GeographicArea)
         row_name = [r.name for r in query.all()
                     if r.name.startswith("Gal")][0]
         self.assertEqual(row_name, data['name'])
