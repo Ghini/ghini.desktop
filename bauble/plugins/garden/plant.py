@@ -1418,7 +1418,7 @@ class PlantInfoBox(InfoBox):
     def __init__(self):
         '''
         '''
-        InfoBox.__init__(self)
+        super(PlantInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "plant_infobox.glade")
         self.widgets = utils.BuilderWidgets(filename)

@@ -838,7 +838,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
 from bauble.plugins.plants.species_model import Species
 
 #
-# Infobox and InfoExpanders
+# InfoBox and InfoExpander
 #
 
 
@@ -1012,7 +1012,7 @@ class GenusInfoBox(InfoBox):
             {'name': 'TPLButton', '_base_uri': "http://www.theplantlist.org/tpl1.1/search?q=%(genus)s", '_space': '+', 'title': _("Search TPL"), 'tooltip': _("Search The Plant List online database"), },
             {'name': 'TropicosButton', '_base_uri': "http://tropicos.org/NameSearch.aspx?name=%(genus)s", '_space': '+', 'title': _("Search Tropicos"), 'tooltip': _("Search Tropicos (MissouriBG) online database"), },
             ]
-        InfoBox.__init__(self)
+        super(GenusInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
         self.widgets = utils.BuilderWidgets(filename)

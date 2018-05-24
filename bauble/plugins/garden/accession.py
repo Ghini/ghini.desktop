@@ -298,7 +298,7 @@ class Verification(db.Base):
 #
 # First of all a ghini-1.1 issue: being 'Accession' an abstract concept, you
 # don't make a Voucher of an Accession, you make a Voucher of a Plant. As
-# with Photos, in the Accession Infobox you want to see all Vouchers of all
+# with Photos, in the Accession InfoBox you want to see all Vouchers of all
 # Plantings belonging to the Accession.
 #
 # 2: imagine you go on expedition and collect vouchers as well as seeds, or
@@ -312,7 +312,7 @@ class Verification(db.Base):
 # parent_voucher panel in the case of plants resulting of a garden
 # propagation.
 #
-# 3: Infobox (Accession AND Plant) are to show parent plant information as a
+# 3: InfoBox (Accession AND Plant) are to show parent plant information as a
 # link to the parent plant, or as the name of the parent plant voucher. At
 # the moment this is only partially the case for
 
