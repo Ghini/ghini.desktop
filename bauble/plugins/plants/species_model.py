@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
+
 from itertools import chain
 
 import logging
@@ -41,7 +41,7 @@ import bauble.btypes as types
 def _remove_zws(s):
     "remove_zero_width_space"
     if s:
-        return s.replace(u'\u200b', '')
+        return s.replace('\u200b', '')
     return s
 
 
@@ -62,12 +62,12 @@ class VNList(list):
             logger.debug(e)
 
 
-infrasp_rank_values = {u'subsp.': _('subsp.'),
-                       u'var.': _('var.'),
-                       u'subvar.': _('subvar'),
-                       u'f.': _('f.'),
-                       u'subf.': _('subf.'),
-                       u'cv.': _('cv.'),
+infrasp_rank_values = {'subsp.': _('subsp.'),
+                       'var.': _('var.'),
+                       'subvar.': _('subvar'),
+                       'f.': _('f.'),
+                       'subf.': _('subf.'),
+                       'cv.': _('cv.'),
                        None: ''}
 
 
@@ -84,9 +84,9 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
 def compare_rank(rank1, rank2):
     'implement the binary comparison operation needed for sorting'
 
-    ordering = [u'familia', u'subfamilia', u'tribus', u'subtribus',
-                u'genus', u'subgenus', u'species', None, u'subsp.',
-                u'var.', u'subvar.', u'f.', u'subf.', u'cv.']
+    ordering = ['familia', 'subfamilia', 'tribus', 'subtribus',
+                'genus', 'subgenus', 'species', None, 'subsp.',
+                'var.', 'subvar.', 'f.', 'subf.', 'cv.']
     return ordering.index(rank1).__cmp__(ordering.index(rank2))
 
 
@@ -179,7 +179,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 citation = citation.replace(authorship_text, '<span weight="light">' + authorship_text + '</span>')
             return citation + trail, substring
         except:
-            return u'...', u'...'
+            return '...', '...'
 
     @property
     def cites(self):
@@ -190,7 +190,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         '''
 
         cites_notes = [i.note for i in self.notes
-                       if i.category and i.category.upper() == u'CITES']
+                       if i.category and i.category.upper() == 'CITES']
         if not cites_notes:
             return self.genus.cites
         return cites_notes[0]
@@ -215,7 +215,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
          'NE': _('Not Evaluated (NE)')}
 
         notes = [i.note for i in self.notes
-                 if i.category and i.category.upper() == u'IUCN']
+                 if i.category and i.category.upper() == 'IUCN']
         return (notes + ['DD'])[0]
 
     @property
@@ -229,7 +229,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         [_('endemic'), _('indigenous'), _('native'), _('introduced')]
 
         notes = [i.note for i in self.notes
-                 if i.category.lower() == u'condition']
+                 if i.category.lower() == 'condition']
         return (notes + [None])[0]
 
     def __lowest_infraspecific(self):
@@ -241,22 +241,22 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                     self.infrasp3_author),
                    (self.infrasp4_rank, self.infrasp4,
                     self.infrasp4_author)]
-        infrasp = [i for i in infrasp if i[0] not in [u'cv.', '', None]]
+        infrasp = [i for i in infrasp if i[0] not in ['cv.', '', None]]
         if infrasp == []:
-            return (u'', u'', u'')
+            return ('', '', '')
         return sorted(infrasp, cmp=lambda a, b: compare_rank(a[0], b[0]))[-1]
 
     @property
     def infraspecific_rank(self):
-        return self.__lowest_infraspecific()[0] or u''
+        return self.__lowest_infraspecific()[0] or ''
 
     @property
     def infraspecific_epithet(self):
-        return self.__lowest_infraspecific()[1] or u''
+        return self.__lowest_infraspecific()[1] or ''
 
     @property
     def infraspecific_author(self):
-        return self.__lowest_infraspecific()[2] or u''
+        return self.__lowest_infraspecific()[2] or ''
 
     @property
     def cultivar_epithet(self):
@@ -269,9 +269,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                    (self.infrasp4_rank, self.infrasp4,
                     self.infrasp4_author))
         for rank, epithet, author in infrasp:
-            if rank == u'cv.':
+            if rank == 'cv.':
                 return epithet
-        return u''
+        return ''
 
     # columns
     sp = Column(Unicode(64), index=True)
@@ -285,22 +285,22 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     trade_name = Column(Unicode(64))
 
     infrasp1 = Column(Unicode(64))
-    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+    infrasp1_rank = Column(types.Enum(values=list(infrasp_rank_values.keys()),
                                       translations=infrasp_rank_values))
     infrasp1_author = Column(Unicode(64))
 
     infrasp2 = Column(Unicode(64))
-    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+    infrasp2_rank = Column(types.Enum(values=list(infrasp_rank_values.keys()),
                                       translations=infrasp_rank_values))
     infrasp2_author = Column(Unicode(64))
 
     infrasp3 = Column(Unicode(64))
-    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+    infrasp3_rank = Column(types.Enum(values=list(infrasp_rank_values.keys()),
                                       translations=infrasp_rank_values))
     infrasp3_author = Column(Unicode(64))
 
     infrasp4 = Column(Unicode(64))
-    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+    infrasp4_rank = Column(types.Enum(values=list(infrasp_rank_values.keys()),
                                       translations=infrasp_rank_values))
     infrasp4_author = Column(Unicode(64))
 
@@ -380,7 +380,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return ''
         else:
             dist = ['%s' % d for d in self.distribution]
-            return unicode(', ').join(sorted(dist))
+            return str(', ').join(sorted(dist))
 
     def markup(self, authors=False, genus=True):
         '''returns this object as a string with markup
@@ -392,7 +392,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         return self.str(authors, markup=True, genus=genus)
 
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = u'×'
+    hybrid_char = '×'
 
     def str(self, authors=False, markup=False, remove_zws=False, genus=True,
             qualification=None):
@@ -416,14 +416,14 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         else:
             genus = ''
         if self.sp and not remove_zws:
-            sp = u'\u200b' + self.sp  # prepend with zero_width_space
+            sp = '\u200b' + self.sp  # prepend with zero_width_space
         else:
             sp = self.sp
         sp2 = self.sp2
         if markup:
             escape = utils.xml_safe
             italicize = lambda s: (  # all but the multiplication signs
-                u'<i>%s</i>' % escape(s).replace(u'×', u'</i>×<i>'))
+                '<i>%s</i>' % escape(s).replace('×', '</i>×<i>'))
             genus = italicize(genus)
             if sp is not None:
                 sp = italicize(sp)
@@ -578,7 +578,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
+                      for col in list(self.__table__.columns.keys())
                       if col not in ['id', 'sp']
                       and col[0] != '_'
                       and getattr(self, col) is not None

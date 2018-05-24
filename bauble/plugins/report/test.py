@@ -71,33 +71,33 @@ class ReportTests(ReportTestCase):
     def setUp(self):
         super(ReportTests, self).setUp()
         fctr = gctr = sctr = actr = pctr = 0
-        for f in xrange(2):
+        for f in range(2):
             fctr += 1
-            family = Family(id=fctr, family=u'fam%s' % fctr)
+            family = Family(id=fctr, family='fam%s' % fctr)
             self.session.add(family)
             for g in range(2):
                 gctr += 1
-                genus = Genus(id=gctr, family=family, genus=u'gen%s' % gctr)
+                genus = Genus(id=gctr, family=family, genus='gen%s' % gctr)
                 self.session.add(genus)
                 for s in range(2):
                     sctr += 1
-                    sp = Species(id=sctr, genus=genus, sp=u'sp%s' % sctr)
+                    sp = Species(id=sctr, genus=genus, sp='sp%s' % sctr)
                     vn = VernacularName(id=sctr, species=sp,
-                                        name=u'name%s' % sctr)
+                                        name='name%s' % sctr)
                     self.session.add_all([sp, vn])
                     for a in range(2):
                         actr += 1
-                        acc = Accession(id=actr, species=sp, code=u'%s' % actr)
-                        contact = Contact(id=actr, name=u'contact%s' % actr)
+                        acc = Accession(id=actr, species=sp, code='%s' % actr)
+                        contact = Contact(id=actr, name='contact%s' % actr)
                         source = Source(id=actr, source_detail=contact,
                                 accession=acc)
                         self.session.add_all([acc, source, contact])
                         for p in range(2):
                             pctr += 1
-                            loc = Location(id=pctr, code=u'%s' % pctr,
-                                           name=u'site%s' % pctr)
+                            loc = Location(id=pctr, code='%s' % pctr,
+                                           name='site%s' % pctr)
                             plant = Plant(id=pctr, accession=acc, location=loc,
-                                          code=u'%s' % pctr, quantity=1)
+                                          code='%s' % pctr, quantity=1)
                             #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
                             #      % (fctr, gctr, actr, pctr))
                             self.session.add_all([loc, plant])
@@ -109,7 +109,7 @@ class ReportTests(ReportTestCase):
     def test_no_objects_in_FamilyNote(self):
         family = self.session.query(Family).get(1)
         from bauble.plugins.plants.family import FamilyNote
-        fn = FamilyNote(family=family, note=u'empty')
+        fn = FamilyNote(family=family, note='empty')
         self.session.add(fn)
         self.session.flush()
 
@@ -128,7 +128,7 @@ class ReportTests(ReportTestCase):
 
         family = self.session.query(Family).get(1)
         ids = get_ids(get_species_pertinent_to([family]))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
     def test_get_species_pertinent_to_element(self):
         """
@@ -138,7 +138,7 @@ class ReportTests(ReportTestCase):
 
         family = self.session.query(Family).get(1)
         ids = get_ids(get_species_pertinent_to(family, self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
     def test_get_species_pertinent_to_lists(self):
         """
@@ -148,52 +148,52 @@ class ReportTests(ReportTestCase):
 
         family = self.session.query(Family).get(1)
         ids = get_ids(get_species_pertinent_to([family], self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
         family = self.session.query(Family).get(1)
         family2 = self.session.query(Family).get(2)
         ids = get_ids(
             get_species_pertinent_to([family, family2], self.session))
-        self.assertEquals(ids, range(1, 9))
+        self.assertEqual(ids, list(range(1, 9)))
 
         genus = self.session.query(Genus).get(1)
         ids = get_ids(get_species_pertinent_to([genus], self.session))
-        self.assertEquals(ids, [1, 2])
+        self.assertEqual(ids, [1, 2])
 
         species = self.session.query(Species).get(1)
         ids = get_ids(get_species_pertinent_to([species], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         accession = self.session.query(Accession).get(1)
         ids = get_ids(get_species_pertinent_to([accession], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         contact = self.session.query(Contact).get(1)
         ids = get_ids(get_species_pertinent_to(contact, self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         plant = self.session.query(Plant).get(1)
         ids = get_ids(get_species_pertinent_to([plant], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         location = self.session.query(Location).get(1)
         ids = get_ids(get_species_pertinent_to([location], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         vn = self.session.query(VernacularName).get(1)
         ids = get_ids(get_species_pertinent_to([vn], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag=u'test').one()
+        tag = self.session.query(Tag).filter_by(tag='test').one()
         ids = get_ids(get_species_pertinent_to([tag], self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
         # now test all the objects
         ids = get_ids(get_species_pertinent_to(
             [family, genus, species, accession, plant, location],
             self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
     def test_get_accessions_pertinent_to(self):
         """
@@ -203,25 +203,25 @@ class ReportTests(ReportTestCase):
 
         family = self.session.query(Family).get(1)
         ids = get_ids(get_accessions_pertinent_to([family], self.session))
-        self.assertEquals(ids, range(1, 9))
+        self.assertEqual(ids, list(range(1, 9)))
 
         family = self.session.query(Family).get(1)
         family2 = self.session.query(Family).get(1)
         ids = get_ids(get_accessions_pertinent_to(
             [family, family2], self.session))
-        self.assertEquals(ids, range(1, 9))
+        self.assertEqual(ids, list(range(1, 9)))
 
         genus = self.session.query(Genus).get(1)
         ids = get_ids(get_accessions_pertinent_to(genus, self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
         species = self.session.query(Species).get(1)
         ids = get_ids(get_accessions_pertinent_to(species, self.session))
-        self.assertEquals(ids, [1, 2])
+        self.assertEqual(ids, [1, 2])
 
         accession = self.session.query(Accession).get(1)
         ids = get_ids(get_accessions_pertinent_to([accession], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         contact = self.session.query(Contact).get(1)
         ids = get_ids(get_accessions_pertinent_to(contact, self.session))
@@ -229,26 +229,26 @@ class ReportTests(ReportTestCase):
 
         plant = self.session.query(Plant).get(1)
         ids = get_ids(get_accessions_pertinent_to([plant], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         location = self.session.query(Location).get(1)
         ids = get_ids(get_accessions_pertinent_to([location], self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         vn = self.session.query(VernacularName).get(1)
         ids = get_ids(get_accessions_pertinent_to([vn], self.session))
-        self.assertEquals(ids, [1, 2])
+        self.assertEqual(ids, [1, 2])
 
         tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag=u'test').one()
+        tag = self.session.query(Tag).filter_by(tag='test').one()
         ids = get_ids(get_accessions_pertinent_to([tag], self.session))
-        self.assertEquals(ids, range(1, 9))
+        self.assertEqual(ids, list(range(1, 9)))
 
         # now test all the objects
         ids = get_ids(get_accessions_pertinent_to(
             [family, genus, species, accession, plant, location],
             self.session))
-        self.assertEquals(ids, range(1, 9))
+        self.assertEqual(ids, list(range(1, 9)))
 
     def test_get_plants_pertinent_to(self):
         """
@@ -259,53 +259,53 @@ class ReportTests(ReportTestCase):
         # get plants from one family
         family = self.session.query(Family).get(1)
         ids = get_ids(get_plants_pertinent_to(family, self.session))
-        self.assertEquals(ids, range(1, 17))
+        self.assertEqual(ids, list(range(1, 17)))
 
         # get plants from multiple families
         family = self.session.query(Family).get(1)
         family2 = self.session.query(Family).get(2)
         ids = get_ids(get_plants_pertinent_to([family, family2], self.session))
-        self.assertEquals(ids, range(1, 33))
+        self.assertEqual(ids, list(range(1, 33)))
 
         genus = self.session.query(Genus).get(1)
         ids = get_ids(get_plants_pertinent_to(genus, self.session))
-        self.assertEquals(ids, range(1, 9))
+        self.assertEqual(ids, list(range(1, 9)))
 
         species = self.session.query(Species).get(1)
         ids = get_ids(get_plants_pertinent_to(species, self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
         accession = self.session.query(Accession).get(1)
         ids = get_ids(get_plants_pertinent_to(accession, self.session))
-        self.assertEquals(ids, range(1, 3))
+        self.assertEqual(ids, list(range(1, 3)))
 
         contact = self.session.query(Contact).get(1)
         ids = get_ids(get_plants_pertinent_to(contact, self.session))
-        self.assertTrue(ids == range(1, 3), ids)
+        self.assertTrue(ids == list(range(1, 3)), ids)
 
         plant = self.session.query(Plant).get(1)
         ids = get_ids(get_plants_pertinent_to(plant, self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         location = self.session.query(Location).get(1)
         plants = get_plants_pertinent_to([location], self.session)
         ids = sorted([p.id for p in plants])
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         vn = self.session.query(VernacularName).get(1)
         ids = get_ids(get_plants_pertinent_to(vn, self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
         tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag=u'test').one()
+        tag = self.session.query(Tag).filter_by(tag='test').one()
         ids = get_ids(get_plants_pertinent_to(tag, self.session))
-        self.assertEquals(ids, range(1, 17))
+        self.assertEqual(ids, list(range(1, 17)))
 
         # now test all the objects
         plants = get_plants_pertinent_to(
             [family, genus, species, accession, plant, location], self.session)
         ids = get_ids(plants)
-        self.assertEquals(ids, range(1, 17))
+        self.assertEqual(ids, list(range(1, 17)))
 
     def test_get_locations_pertinent_to(self):
         """
@@ -316,51 +316,51 @@ class ReportTests(ReportTestCase):
         # get locations from one family
         family = self.session.query(Family).get(1)
         ids = get_ids(get_locations_pertinent_to(family, self.session))
-        self.assertEquals(ids, range(1, 17))
+        self.assertEqual(ids, list(range(1, 17)))
 
         # get locations from multiple families
         family = self.session.query(Family).get(1)
         family2 = self.session.query(Family).get(2)
         ids = get_ids(get_locations_pertinent_to([family, family2],
             self.session))
-        self.assertEquals(ids, range(1, 33))
+        self.assertEqual(ids, list(range(1, 33)))
 
         genus = self.session.query(Genus).get(1)
         ids = get_ids(get_locations_pertinent_to(genus, self.session))
-        self.assertEquals(ids, range(1, 9))
+        self.assertEqual(ids, list(range(1, 9)))
 
         species = self.session.query(Species).get(1)
         ids = get_ids(get_locations_pertinent_to(species, self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
         vn = self.session.query(VernacularName).get(1)
         ids = get_ids(get_locations_pertinent_to(vn, self.session))
-        self.assertEquals(ids, range(1, 5))
+        self.assertEqual(ids, list(range(1, 5)))
 
         plant = self.session.query(Plant).get(1)
         ids = get_ids(get_locations_pertinent_to(plant, self.session))
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         accession = self.session.query(Accession).get(1)
         ids = get_ids(get_locations_pertinent_to(accession, self.session))
-        self.assertEquals(ids, range(1, 3))
+        self.assertEqual(ids, list(range(1, 3)))
 
         contact = self.session.query(Contact).get(1)
         ids = get_ids(get_locations_pertinent_to(contact, self.session))
-        self.assertTrue(ids == range(1, 3))
+        self.assertTrue(ids == list(range(1, 3)))
 
         location = self.session.query(Location).get(1)
         locations = get_locations_pertinent_to([location], self.session)
         ids = [l.id for l in locations]
-        self.assertEquals(ids, [1])
+        self.assertEqual(ids, [1])
 
         tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag=u'test').one()
+        tag = self.session.query(Tag).filter_by(tag='test').one()
         ids = get_ids(get_locations_pertinent_to(tag, self.session))
-        self.assertEquals(ids, range(1, 17))
+        self.assertEqual(ids, list(range(1, 17)))
 
         # now test all the objects
         locations = get_locations_pertinent_to(
             [family, genus, species, accession, plant, location, tag], self.session)
         ids = get_ids(locations)
-        self.assertEquals(ids, range(1, 17))
+        self.assertEqual(ids, list(range(1, 17)))

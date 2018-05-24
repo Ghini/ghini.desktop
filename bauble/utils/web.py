@@ -50,7 +50,7 @@ class BaubleLinkButton(Gtk.LinkButton):
     _space = "_"
     title = _("Search")
     tooltip = None
-    pt = re.compile(ur'%\(([a-z_\.]*)\)s')
+    pt = re.compile(r'%\(([a-z_\.]*)\)s')
 
     def __init__(self, title=_("Search"), tooltip=None):
         super(BaubleLinkButton, self).__init__("", self.title)

@@ -353,11 +353,11 @@ def create(import_defaults=True):
         meta_table = meta.BaubleMeta.__table__
         meta_table.insert(bind=connection).\
             execute(name=meta.VERSION_KEY,
-                    value=unicode(bauble.version)).close()
+                    value=str(bauble.version)).close()
         from dateutil.tz import tzlocal
         meta_table.insert(bind=connection).\
             execute(name=meta.CREATED_KEY,
-                    value=unicode(datetime.datetime.now(tz=tzlocal()))).close()
+                    value=str(datetime.datetime.now(tz=tzlocal()))).close()
     except GeneratorExit as e:
         # this is here in case the main windows is closed in the middle
         # of a task
@@ -510,7 +510,7 @@ def make_note_class(name, compute_serializable_fields, as_dict=None, retrieve=No
                         category == '<picture>')):
             # dirty trick: making sure it's not going to be found!
             import uuid
-            keys['category'] = unicode(uuid.uuid4())
+            keys['category'] = str(uuid.uuid4())
         result = super(globals()[class_name], cls).retrieve_or_create(session, keys, create, update)
         keys['category'] = category
         if result:
@@ -587,7 +587,7 @@ class WithNotes:
                 try:
                     return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', n.note))
                 except Exception as e:
-                    logger.debug(u'not parsed %s(%s), returning literal text »%s«', type(e), e, n.note)
+                    logger.debug('not parsed %s(%s), returning literal text »%s«', type(e), e, n.note)
                     return n.note
         if result == []:
             # if nothing was found, do not break the proxy.
@@ -621,7 +621,7 @@ class Serializable:
 
     def as_dict(self):
         result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
+                      for col in list(self.__table__.columns.keys())
                       if col not in ['id']
                       and col[0] != '_'
                       and getattr(self, col) is not None
@@ -696,7 +696,7 @@ class Serializable:
 
         logger.debug("link_values : %s" % str(link_values))
 
-        for k in keys.keys():
+        for k in list(keys.keys()):
             if k not in class_mapper(cls).mapped_table.c:
                 del keys[k]
         if 'id' in keys:
@@ -709,7 +709,7 @@ class Serializable:
         # early construct object before building links
         if not is_in_session and create:
             ## completing the task of building the links
-            logger.debug("links? %s, %s" % (cls.link_keys, keys.keys()))
+            logger.debug("links? %s, %s" % (cls.link_keys, list(keys.keys())))
             for key in cls.link_keys:
                 d = link_values.get(key)
                 if d is None:
@@ -726,7 +726,7 @@ class Serializable:
             result = is_in_session
 
             ## completing the task of building the links
-            logger.debug("links? %s, %s" % (cls.link_keys, keys.keys()))
+            logger.debug("links? %s, %s" % (cls.link_keys, list(keys.keys())))
             for key in cls.link_keys:
                 d = link_values.get(key)
                 if d is None:
@@ -738,7 +738,7 @@ class Serializable:
         logger.debug("going to update %s with %s" % (result, keys))
         if 'id' in keys:
             del keys['id']
-        for k, v in keys.items():
+        for k, v in list(keys.items()):
             if isinstance(v, dict):
                 if v.get('__class__') == 'datetime':
                     m = v.get('millis', 0)

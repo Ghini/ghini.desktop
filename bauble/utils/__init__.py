@@ -23,7 +23,7 @@
 # 
 # A common set of utility functions used throughout Ghini.
 #
-from __future__ import unicode_literals
+
 import gi
 gi.require_version('Gtk', '3.0')
 
@@ -89,7 +89,7 @@ class Cache:
         else:
             if len(self.storage) == self.size:
                 # remove the oldest entry
-                k = min(zip(self.storage.values(), self.storage.keys()))[1]
+                k = min(list(zip(list(self.storage.values()), list(self.storage.keys()))))[1]
                 del self.storage[k]
             value = getter()
         import time
@@ -203,10 +203,10 @@ class ImageLoader(threading.Thread):
 
     def read_global_url(self):
         self.loader.connect("area-prepared", self.loader_notified)
-        import urllib
+        import urllib.request, urllib.parse, urllib.error
         import contextlib
         pieces = []
-        with contextlib.closing(urllib.urlopen(self.url)) as f:
+        with contextlib.closing(urllib.request.urlopen(self.url)) as f:
             for piece in read_in_chunks(f, 4096):
                 self.loader.write(piece)
                 pieces.append(piece)
@@ -265,7 +265,7 @@ class BuilderWidgets:
         '''
         :params filename: a Gtk.Builder XML UI file
         '''
-        if isinstance(ui, basestring):
+        if isinstance(ui, str):
             self.builder = Gtk.Builder()
             self.builder.add_from_file(ui)
         else:
@@ -358,7 +358,7 @@ def clear_model(obj_with_model):
     ncols = model.get_n_columns()
 
     def del_cb(model, path, iter, data=None):
-        for c in xrange(0, ncols):
+        for c in range(0, ncols):
             v = model.get_value(iter, c)
             del v
         del iter
@@ -723,7 +723,7 @@ def setup_text_combobox(combo, values=None, cell_data_func=None):
         if values is None:
             values = []
         model = Gtk.ListStore(str)
-        map(lambda v: model.append([v]), values)
+        list(map(lambda v: model.append([v]), values))
 
     combo.clear()
     combo.set_model(model)
@@ -808,9 +808,9 @@ def setup_date_button(view, entry, button, date_func=None):
     :param date_func: the function that returns a string represention
       of the date
     """
-    if isinstance(entry, basestring):
+    if isinstance(entry, str):
         entry = view.widgets[entry]
-    if isinstance(button, basestring):
+    if isinstance(button, str):
         button = view.widgets[button]
     icon = os.path.join(paths.lib_dir(), 'images', 'calendar.png')
     image = Gtk.Image()
@@ -839,14 +839,14 @@ def to_unicode(obj, encoding='utf-8'):
     """
     if obj is None:
         return None
-    if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
+    if isinstance(obj, str):
+        if not isinstance(obj, str):
+            obj = str(obj, encoding)
     else:
         try:
-            obj = unicode(obj, encoding)
+            obj = str(obj, encoding)
         except Exception:
-            obj = u"%s" % obj
+            obj = "%s" % obj
     return obj
 
 
@@ -1111,7 +1111,7 @@ def range_builder(text):
             start = int(rng[0])
             end = int(rng[1]) + 1
             check(start < end, 'start must be less than end')
-            values.update(range(start, end))
+            values.update(list(range(start, end)))
         else:
             # get here if the token is an integer
             values.add(int(rng))
@@ -1124,7 +1124,7 @@ def gc_objects_by_type(tipe):
     """
     import inspect
     import gc
-    if isinstance(tipe, basestring):
+    if isinstance(tipe, str):
         return [o for o in gc.get_objects() if type(o).__name__ == tipe]
     elif inspect.isclass(tipe):
         return [o for o in gc.get_objects() if isinstance(o, tipe)]
@@ -1194,7 +1194,7 @@ def topological_sort(items, partial_order):
 
     # Step 2 - find all roots (nodes with zero incoming arcs).
 
-    roots = [node for (node, nodeinfo) in graph.items() if nodeinfo[0] == 0]
+    roots = [node for (node, nodeinfo) in list(graph.items()) if nodeinfo[0] == 0]
 
     # step 3 - repeatedly emit a root and remove it from the graph. Removing
     # a node may convert some of the node's direct children into roots.
@@ -1224,7 +1224,7 @@ def topological_sort(items, partial_order):
                 roots.append(child)
         del graph[root]
 
-    if len(graph.items()) != 0:
+    if len(list(graph.items())) != 0:
         # There is a loop in the input.
         return None
 
@@ -1449,7 +1449,7 @@ def get_invalid_columns(obj, ignore_columns=['id']):
 
     table = obj.__table__
     invalid_columns = []
-    for column in filter(lambda c: c.name not in ignore_columns, table.c):
+    for column in [c for c in table.c if c.name not in ignore_columns]:
         v = getattr(obj, column.name)
         #debug('%s.%s = %s' % (table.name, column.name, v))
         if v is None and not column.nullable:

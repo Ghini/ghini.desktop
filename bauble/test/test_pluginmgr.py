@@ -171,7 +171,7 @@ class PluginMgrTests(BaubleTestCase):
                     logger.error(e)
                     raise
                 from bauble.plugins.plants import Family
-                self.assertEquals(self.session.query(Family).count(), 1387)
+                self.assertEqual(self.session.query(Family).count(), 1387)
         pluginmgr.plugins[Dummy.__name__] = Dummy
         pluginmgr.install([Dummy])
 
@@ -195,8 +195,8 @@ class LocalFunctions(unittest.TestCase):
         bauble.pluginmgr.plugins[B.__name__] = b
         bauble.pluginmgr.plugins[A.__name__] = a
         dep, unmet = bauble.pluginmgr._create_dependency_pairs([a, b, c])
-        self.assertEquals(dep, [(a, b), (b, c)])
-        self.assertEquals(unmet, {})
+        self.assertEqual(dep, [(a, b), (b, c)])
+        self.assertEqual(unmet, {})
 
     def test_create_dependency_pairs_missing_base(self):
         a, b, c = A(), B(), C()
@@ -206,8 +206,8 @@ class LocalFunctions(unittest.TestCase):
         bauble.pluginmgr.plugins[C.__name__] = c
         bauble.pluginmgr.plugins[B.__name__] = b
         dep, unmet = bauble.pluginmgr._create_dependency_pairs([b, c])
-        self.assertEquals(dep, [(b, c)])
-        self.assertEquals(unmet, {'B': ['A']})
+        self.assertEqual(dep, [(b, c)])
+        self.assertEqual(unmet, {'B': ['A']})
 
 
 class StandalonePluginMgrTests(unittest.TestCase):
@@ -291,7 +291,7 @@ class StandalonePluginMgrTests(unittest.TestCase):
         db.open(uri, verify=False)
         db.create(False)
         bauble.pluginmgr.install((pA, pB, pC), force=True)
-        self.assert_(A.installed and B.installed and C.installed)
+        self.assertTrue(A.installed and B.installed and C.installed)
 
     def test_dependencies_BA(self):
         "test that loading B will also load A but not C"
@@ -352,8 +352,8 @@ class PluginRegistryTests(BaubleTestCase):
 
         # test that adding works
         PluginRegistry.add(p)
-        self.assert_(PluginRegistry.exists(p))
+        self.assertTrue(PluginRegistry.exists(p))
 
         # test that removing works
         PluginRegistry.remove(p)
-        self.assert_(not PluginRegistry.exists(p))
+        self.assertTrue(not PluginRegistry.exists(p))

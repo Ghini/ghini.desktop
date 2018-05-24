@@ -18,7 +18,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import absolute_import
+
 from bauble.test import BaubleTestCase
 from .taxonomy_check import species_to_fix
 from bauble.plugins.plants.family import Family
@@ -29,25 +29,25 @@ class TestOne(BaubleTestCase):
 
     def setUp(self):
         super(TestOne, self).setUp()
-        family = Family(family=u'Amaranthaceae')
-        genus = Genus(family=family, genus=u'Salsola')
+        family = Family(family='Amaranthaceae')
+        genus = Genus(family=family, genus='Salsola')
         self.session.add_all([family, genus])
         self.session.commit()
 
     def test_species_author(self):
-        s = species_to_fix(self.session, u'Salsola kali', u'L.', True)
-        self.assertEquals(s.sp, u'kali')
-        self.assertEquals(s.sp_author, u'L.')
-        self.assertEquals(s.infraspecific_rank, '')
-        self.assertEquals(s.infraspecific_epithet, '')
-        self.assertEquals(s.infraspecific_author, '')
+        s = species_to_fix(self.session, 'Salsola kali', 'L.', True)
+        self.assertEqual(s.sp, 'kali')
+        self.assertEqual(s.sp_author, 'L.')
+        self.assertEqual(s.infraspecific_rank, '')
+        self.assertEqual(s.infraspecific_epithet, '')
+        self.assertEqual(s.infraspecific_author, '')
 
     def test_subspecies_author(self):
-        s = species_to_fix(self.session, u'Salsola kali subsp. tragus', u'(L.) Čelak.', True)
-        self.assertEquals(s.sp, u'kali')
-        self.assertEquals(s.sp_author, None)
-        self.assertEquals(s.infraspecific_rank, u'subsp.')
-        self.assertEquals(s.infraspecific_epithet, u'tragus')
-        self.assertEquals(s.infraspecific_author, u'(L.) Čelak.')
+        s = species_to_fix(self.session, 'Salsola kali subsp. tragus', '(L.) Čelak.', True)
+        self.assertEqual(s.sp, 'kali')
+        self.assertEqual(s.sp_author, None)
+        self.assertEqual(s.infraspecific_rank, 'subsp.')
+        self.assertEqual(s.infraspecific_epithet, 'tragus')
+        self.assertEqual(s.infraspecific_author, '(L.) Čelak.')
 
     

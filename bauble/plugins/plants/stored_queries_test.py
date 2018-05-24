@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
+
 from nose import SkipTest
 
 from bauble.plugins.plants.stored_queries import (
@@ -33,47 +33,47 @@ class StoredQueriesInitializeTests(BaubleTestCase):
     def test_initialize_model(self):
         m = StoredQueriesModel()
         for i in range(1, 9):
-            self.assertEquals(m[i], '::')
+            self.assertEqual(m[i], '::')
 
     def test_initialize_has_defaults(self):
         m = StoredQueriesModel()
         for i in range(9, 11):
-            self.assertNotEquals(m[i], '::')
+            self.assertNotEqual(m[i], '::')
 
 
 class StoredQueriesTests(BaubleTestCase):
     def test_define_label(self):
         m = StoredQueriesModel()
         m.label = 'n=1'
-        self.assertEquals(m.label, 'n=1')
+        self.assertEqual(m.label, 'n=1')
         m.page = 2
-        self.assertEquals(m.label, '')
+        self.assertEqual(m.label, '')
         m.label = 'n=2'
-        self.assertEquals(m.label, 'n=2')
+        self.assertEqual(m.label, 'n=2')
         m.page = 1
-        self.assertEquals(m.label, 'n=1')
+        self.assertEqual(m.label, 'n=1')
 
     def test_define_tooltip(self):
         m = StoredQueriesModel()
         m.tooltip = 'n=1'
-        self.assertEquals(m.tooltip, 'n=1')
+        self.assertEqual(m.tooltip, 'n=1')
         m.page = 2
-        self.assertEquals(m.tooltip, '')
+        self.assertEqual(m.tooltip, '')
         m.tooltip = 'n=2'
-        self.assertEquals(m.tooltip, 'n=2')
+        self.assertEqual(m.tooltip, 'n=2')
         m.page = 1
-        self.assertEquals(m.tooltip, 'n=1')
+        self.assertEqual(m.tooltip, 'n=1')
 
     def test_define_query(self):
         m = StoredQueriesModel()
         m.query = 'n=1'
-        self.assertEquals(m.query, 'n=1')
+        self.assertEqual(m.query, 'n=1')
         m.page = 2
-        self.assertEquals(m.query, '')
+        self.assertEqual(m.query, '')
         m.query = 'n=2'
-        self.assertEquals(m.query, 'n=2')
+        self.assertEqual(m.query, 'n=2')
         m.page = 1
-        self.assertEquals(m.query, 'n=1')
+        self.assertEqual(m.query, 'n=1')
 
     def test_loop(self):
         m = StoredQueriesModel()
@@ -89,13 +89,13 @@ class StoredQueriesTests(BaubleTestCase):
         m.query = 'q=2'
 
         after = [i for i in before]
-        after[0] = u'l=1:t=1:q=1'
-        after[1] = u'l=2:t=2:q=2'
-        self.assertEquals(m[1], after[0])
-        self.assertEquals(m[2], after[1])
-        self.assertEquals(m[3], '::')
+        after[0] = 'l=1:t=1:q=1'
+        after[1] = 'l=2:t=2:q=2'
+        self.assertEqual(m[1], after[0])
+        self.assertEqual(m[2], after[1])
+        self.assertEqual(m[3], '::')
 
-        self.assertEquals([i for i in m], after)
+        self.assertEqual([i for i in m], after)
 
     def test_setgetitem(self):
         m = StoredQueriesModel()
@@ -105,9 +105,9 @@ class StoredQueriesTests(BaubleTestCase):
         after = [i for i in m]
         for i, v in enumerate(after):
             if i in [0, 3]:
-                self.assertEquals(after[i], 'l:t:q')
+                self.assertEqual(after[i], 'l:t:q')
             else:
-                self.assertEquals(after[i], before[i])
+                self.assertEqual(after[i], before[i])
 
     def test_save(self):
         m = StoredQueriesModel()
@@ -115,7 +115,7 @@ class StoredQueriesTests(BaubleTestCase):
         m[4] = 'l:t:q'
         m.save()
         n = StoredQueriesModel()
-        self.assertEquals([i for i in n], [k for k in m])
+        self.assertEqual([i for i in n], [k for k in m])
         self.assertFalse(id(n) == id(m))
 
     def test_save_overwrite(self):
@@ -127,7 +127,7 @@ class StoredQueriesTests(BaubleTestCase):
         n[5] = 'l:t:q'
         n.save()
         m = StoredQueriesModel()
-        self.assertEquals([i for i in n], [k for k in m])
+        self.assertEqual([i for i in n], [k for k in m])
         self.assertFalse(id(n) == id(m))
 
 
@@ -137,8 +137,8 @@ class StoredQueriesPresenterTests(BaubleTestCase):
         view = MockView()
         m = StoredQueriesModel()
         presenter = StoredQueriesPresenter(m, view)
-        self.assertEquals(presenter.view, view)
-        self.assertEquals(id(presenter.model), id(m))
+        self.assertEqual(presenter.view, view)
+        self.assertEqual(id(presenter.model), id(m))
 
     def test_change_page(self):
         view = MockView()
@@ -159,30 +159,30 @@ class StoredQueriesPresenterTests(BaubleTestCase):
         view = MockView()
         m = StoredQueriesModel()
         presenter = StoredQueriesPresenter(m, view)
-        self.assertEquals(m.page, 1)
+        self.assertEqual(m.page, 1)
         presenter.on_next_button_clicked(None)
-        self.assertEquals(m.page, 2)
+        self.assertEqual(m.page, 2)
         presenter.on_next_button_clicked(None)
-        self.assertEquals(m.page, 3)
+        self.assertEqual(m.page, 3)
 
     def test_prev_page(self):
         view = MockView()
         m = StoredQueriesModel()
         presenter = StoredQueriesPresenter(m, view)
-        self.assertEquals(m.page, 1)
+        self.assertEqual(m.page, 1)
         presenter.on_prev_button_clicked(None)
-        self.assertEquals(m.page, 10)
+        self.assertEqual(m.page, 10)
         presenter.on_prev_button_clicked(None)
-        self.assertEquals(m.page, 9)
+        self.assertEqual(m.page, 9)
 
     def test_select_page(self):
         view = MockView()
         m = StoredQueriesModel()
         presenter = StoredQueriesPresenter(m, view)
-        self.assertEquals(m.page, 1)
+        self.assertEqual(m.page, 1)
         bname = 'stqr_05_button'
         presenter.on_button_clicked(bname)
-        self.assertEquals(m.page, 5)
+        self.assertEqual(m.page, 5)
         self.assertTrue(('widget_set_active', (bname, True)) in
                         presenter.view.invoked_detailed)
         self.assertTrue(('widget_set_active', ('stqr_01_button', False)) in
@@ -194,15 +194,15 @@ class StoredQueriesPresenterTests(BaubleTestCase):
         presenter = StoredQueriesPresenter(m, view)
         bname = 'stqr_04_button'
         presenter.on_button_clicked(bname)
-        self.assertEquals(m.page, 4)
+        self.assertEqual(m.page, 4)
         presenter.view.values['stqr_label_entry'] = 'abc'
         presenter.on_label_entry_changed('stqr_label_entry')
         print(presenter.view.invoked_detailed)
-        self.assertEquals(m.label, 'abc')
+        self.assertEqual(m.label, 'abc')
         self.assertTrue(('widget_set_text', ('stqr_04_label', 'abc')) in
                         presenter.view.invoked_detailed)
         presenter.view.values['stqr_label_entry'] = ''
         presenter.on_label_entry_changed('stqr_label_entry')
-        self.assertEquals(m.label, '')
+        self.assertEqual(m.label, '')
         self.assertTrue(('widget_set_text', ('stqr_04_label', '<empty>')) in
                         presenter.view.invoked_detailed)

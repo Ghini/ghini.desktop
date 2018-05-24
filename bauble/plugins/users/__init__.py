@@ -428,7 +428,7 @@ def set_privilege(role, privilege):
         # grant privileges on the tables and sequences
         for table in bauble.db.metadata.sorted_tables:
             logger.debug('granting privileges on table %s' % table)
-            tbl_privs = filter(lambda x: x.lower() in _table_privs, privs)
+            tbl_privs = [x for x in privs if x.lower() in _table_privs]
             for priv in tbl_privs:
                 stmt = 'grant %s on %s to %s' % (priv, table.name, role)
                 if privilege == 'admin':
@@ -436,8 +436,7 @@ def set_privilege(role, privilege):
                 logger.debug(stmt)
                 conn.execute(stmt)
             for col in table.c:
-                seq_privs = filter(lambda x: x.lower() in __sequence_privs,
-                                   privs)
+                seq_privs = [x for x in privs if x.lower() in __sequence_privs]
                 for priv in seq_privs:
                     if has_implicit_sequence(col):
                         sequence_name = "%s_%s_seq" % (table.name, col.name)
@@ -689,7 +688,7 @@ class UsersEditor(editor.GenericEditorView):
             logger.debug('%s: %s' % (role, mode))
             if mode:
                 self.widgets[self.buttons[mode]].set_active(True)
-            not_modes = filter(lambda p: p != mode, self.buttons.keys())
+            not_modes = [p for p in list(self.buttons.keys()) if p != mode]
             for m in not_modes:
                 self.widgets[self.buttons[m]].props.active = False
 

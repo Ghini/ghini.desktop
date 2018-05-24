@@ -43,39 +43,39 @@ import bauble.utils.desktop as desktop
 
 
 font = {
-    '\u200b': 0,
-    u'!': 20, u'A': 36, u'a': 31, u'á': 31, u'Á': 38,
-    u'"': 23, u'B': 34, u'b': 32, u'à': 31, u'À': 38,
-    u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
-    u'$': 32, u'D': 39, u'd': 31, u'å': 31, u'Å': 38,
-    u'%': 50, u'E': 32, u'e': 30, u'ä': 31, u'Ä': 38,
-    u'&': 46, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38, u'æ': 31, u'Æ': 38,
-    u"'": 13, u'G': 39, u'g': 31, u'ç': 28, u'Ç': 35,
-    u'(': 22, u'H': 38, u'h': 32, u'ð': 31, u'Ð': 39,
-    u')': 23, u'I': 11, u'i': 11, u'é': 30, u'É': 32,
-    u'*': 32, u'J': 22, u'j': 11, u'è': 30, u'È': 31,
-    u'+': 41, u'K': 35, u'k': 29, u'ê': 30, u'Ê': 32,
-    u',': 18, u'L': 28, u'l': 11, u'ë': 29, u'Ë': 32,
-    u'-': 41, u'M': 39, u'm': 52, u'í': 11, u'Í': 11, u'ì': 11, u'Ì': 11,
-    u'.': 18, u'N': 37, u'n': 31, u'î': 11, u'Î': 11,
-    u'/': 23, u'O': 40, u'o': 31, u'ï': 11, u'Ï': 11,
-    u'0': 32, u'P': 31, u'p': 32, u'ñ': 30, u'Ñ': 37,
-    u'1': 32, u'Q': 39, u'q': 32, u'ó': 31, u'Ó': 40,
-    u'2': 32, u'R': 35, u'r': 22, u'ò': 31, u'Ò': 40,
-    u'3': 32, u'S': 34, u's': 27, u'ô': 31, u'Ô': 40,
-    u'4': 32, u'T': 29, u't': 18, u'ö': 31, u'Ö': 40,
-    u'5': 32, u'U': 37, u'u': 32, u'õ': 31, u'Õ': 40,
-    u'6': 32, u'V': 36, u'v': 27, u'ø': 31, u'Ø': 40,
-    u'7': 32, u'W': 49, u'w': 41, u'ú': 32, u'Ú': 37,
-    u'8': 32, u'X': 34, u'x': 29, u'ù': 31, u'Ù': 36,
-    u'9': 32, u'Y': 31, u'y': 27, u'û': 32, u'Û': 37,
-    u':': 18, u'Z': 34, u'z': 26, u'ü': 32, u'Ü': 37,
-    u';': 18, u'[': 23, u'{': 32, u'ý': 29, u'Ý': 30,
-    u'<': 41, u'\\': 23, u'|': 23, u'ÿ': 30, u'Ÿ': 31,
-    u'=': 41, u']': 23, u'}': 32, u'ń': 31, u'Ń': 38,
-    u'>': 41, u'^': 40, u'~': 41, u'ł': 15, u'Ł': 27,
-    u'?': 27, u'_': 32, u' ': 18, u'č': 26, u'Č': 35,
-    u'@': 50, u'`': 32, u'×': 26, u'š': 26, u'Š': 35,
+    '\\u200b': 0,
+    '!': 20, 'A': 36, 'a': 31, 'á': 31, 'Á': 38,
+    '"': 23, 'B': 34, 'b': 32, 'à': 31, 'À': 38,
+    '#': 40, 'C': 35, 'c': 28, 'â': 31, 'Â': 38,
+    '$': 32, 'D': 39, 'd': 31, 'å': 31, 'Å': 38,
+    '%': 50, 'E': 32, 'e': 30, 'ä': 31, 'Ä': 38,
+    '&': 46, 'F': 29, 'f': 18, 'ã': 31, 'Ã': 38, 'æ': 31, 'Æ': 38,
+    "'": 13, 'G': 39, 'g': 31, 'ç': 28, 'Ç': 35,
+    '(': 22, 'H': 38, 'h': 32, 'ð': 31, 'Ð': 39,
+    ')': 23, 'I': 11, 'i': 11, 'é': 30, 'É': 32,
+    '*': 32, 'J': 22, 'j': 11, 'è': 30, 'È': 31,
+    '+': 41, 'K': 35, 'k': 29, 'ê': 30, 'Ê': 32,
+    ',': 18, 'L': 28, 'l': 11, 'ë': 29, 'Ë': 32,
+    '-': 41, 'M': 39, 'm': 52, 'í': 11, 'Í': 11, 'ì': 11, 'Ì': 11,
+    '.': 18, 'N': 37, 'n': 31, 'î': 11, 'Î': 11,
+    '/': 23, 'O': 40, 'o': 31, 'ï': 11, 'Ï': 11,
+    '0': 32, 'P': 31, 'p': 32, 'ñ': 30, 'Ñ': 37,
+    '1': 32, 'Q': 39, 'q': 32, 'ó': 31, 'Ó': 40,
+    '2': 32, 'R': 35, 'r': 22, 'ò': 31, 'Ò': 40,
+    '3': 32, 'S': 34, 's': 27, 'ô': 31, 'Ô': 40,
+    '4': 32, 'T': 29, 't': 18, 'ö': 31, 'Ö': 40,
+    '5': 32, 'U': 37, 'u': 32, 'õ': 31, 'Õ': 40,
+    '6': 32, 'V': 36, 'v': 27, 'ø': 31, 'Ø': 40,
+    '7': 32, 'W': 49, 'w': 41, 'ú': 32, 'Ú': 37,
+    '8': 32, 'X': 34, 'x': 29, 'ù': 31, 'Ù': 36,
+    '9': 32, 'Y': 31, 'y': 27, 'û': 32, 'Û': 37,
+    ':': 18, 'Z': 34, 'z': 26, 'ü': 32, 'Ü': 37,
+    ';': 18, '[': 23, '{': 32, 'ý': 29, 'Ý': 30,
+    '<': 41, '\\': 23, '|': 23, 'ÿ': 30, 'Ÿ': 31,
+    '=': 41, ']': 23, '}': 32, 'ń': 31, 'Ń': 38,
+    '>': 41, '^': 40, '~': 41, 'ł': 15, 'Ł': 27,
+    '?': 27, '_': 32, ' ': 18, 'č': 26, 'Č': 35,
+    '@': 50, '`': 32, '×': 26, 'š': 26, 'Š': 35,
     }
 
 
@@ -95,7 +95,7 @@ def add_text(x, y, s, size, align=0, italic=False, strokes=1, rotate=0):
         return '', x, y
     for i in s:
         if i not in font:
-            i = u'?'
+            i = '?'
         glyph_wid = font[i] / 2.0
         glyph_ref = "s%d-u%04x" % (strokes, ord(i))
         result_list.append(
@@ -126,8 +126,8 @@ def add_code39(x, y, s, unit=1, height=10, align=0, colour='#0000ff'):
         return '', x, y
     s = '!' + s + '!'
     for i in s:
-        if i not in Code39.MAP.keys():
-            i = u' '
+        if i not in list(Code39.MAP.keys()):
+            i = ' '
         result_list.append(Code39.letter(i, height, translate=(cumulative_x, 0), colour=colour))
         cumulative_x += 16
     cumulative_x -= 1
@@ -204,7 +204,7 @@ class Code39:
                         'M %(8)s,0 %(8)s,H')
         format = format.replace('H', str(height))
         blacks = [i for i, x in enumerate(cls.MAP[letter]) if x=='b']
-        d = dict(zip((str(i) for i in range(10)), blacks))
+        d = dict(list(zip((str(i) for i in range(10)), blacks)))
         return format % d
 
     @classmethod
@@ -223,9 +223,9 @@ class Code39:
 class add_qr_functor:
     import pyqrcode
     def __init__(self):
-        import StringIO
+        import io
         import re
-        self.buffer = StringIO.StringIO()
+        self.buffer = io.StringIO()
         self.pattern = {
             'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
             'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
@@ -303,14 +303,13 @@ class MakoFormatterSettingsBox(SettingsBox):
         self.defaults = []
         options_box = self.widgets.mako_options_box
         # empty the options box
-        map(options_box.remove, options_box.get_children())
+        list(map(options_box.remove, options_box.get_children()))
         # which options does the template accept? (can be None)
         try:
             with open(self.widgets.template_chooser.get_filename()) as f:
                 # scan the header filtering lines starting with # OPTION
-                option_lines = filter(None,
-                                      [self.pattern.match(i.strip())
-                                       for i in f.readlines()])
+                option_lines = [_f for _f in [self.pattern.match(i.strip())
+                                       for i in f.readlines()] if _f]
         except IOError:
             option_lines = []
 
@@ -410,16 +409,15 @@ class MakoFormatterPlugin(FormatterPlugin):
 
         # make sure the options dictionary is initialized at all
         with open(template_filename) as f:
-            option_lines = filter(None,
-                                  [MakoFormatterSettingsBox.pattern.match(i.strip())
-                                   for i in f.readlines()])
+            option_lines = [_f for _f in [MakoFormatterSettingsBox.pattern.match(i.strip())
+                                   for i in f.readlines()] if _f]
         option_fields = [i.groups() for i in option_lines]
         from bauble.plugins.report import options
         for fname, ftype, fdefault, ftooltip in option_fields:
             options.setdefault(fname, fdefault)
 
         session = db.Session()
-        values = map(session.merge, objs)
+        values = list(map(session.merge, objs))
         report = template.render(values=values)
         session.close()
         # assume the template is the same file type as the output file

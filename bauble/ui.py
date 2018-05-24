@@ -21,7 +21,7 @@
 # ui.py
 #
 
-from __future__ import absolute_import
+
 import os
 import traceback
 
@@ -549,7 +549,7 @@ class GUI(object):
         menu.show()
         tools = {'__root': []}
         # categorize the tools into a dict
-        for p in pluginmgr.plugins.values():
+        for p in list(pluginmgr.plugins.values()):
             for tool in p.tools:
                 if tool.category is not None:
                     try:
@@ -768,7 +768,7 @@ class GUI(object):
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(f)
         about.set_logo(pixbuf)
-        about.set_copyright(_(u'Copyright © by its contributors.'))
+        about.set_copyright(_('Copyright © by its contributors.'))
 
         import codecs
         with codecs.open(os.path.join(paths.installation_dir(), 'share', 'ghini',

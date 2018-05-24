@@ -345,7 +345,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         return self._dirty
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():
+        for widget, field in self.widget_to_field_map.items():
             value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
 

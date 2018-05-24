@@ -173,8 +173,8 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     # we use the blank string here instead of None so that the
     # contraints will work properly,
-    qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
-                       default=u'')
+    qualifier = Column(types.Enum(values=['s. lat.', 's. str.', '']),
+                       default='')
 
     # relations
     # `genera` relation is defined outside of `Family` class definition
@@ -452,7 +452,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
             or self.notes_presenter.dirty()
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():
+        for widget, field in self.widget_to_field_map.items():
             value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
 

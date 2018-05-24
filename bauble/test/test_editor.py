@@ -21,7 +21,7 @@
 # test_bauble.py
 #
 
-from __future__ import print_function
+
 import os
 
 from bauble.editor import GenericEditorView
@@ -46,7 +46,7 @@ class BaubleTests(BaubleTestCase):
         view = GenericEditorView(filename, root_widget_name='main_window')
         title = 'testing'
         view.set_title(title)
-        self.assertEquals(view.get_window().get_title(), title)
+        self.assertEqual(view.get_window().get_title(), title)
 
     def test_set_title_no_root(self):
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')

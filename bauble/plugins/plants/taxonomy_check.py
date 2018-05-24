@@ -155,9 +155,9 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
             for l in f.readlines():
                 l = l.strip()
                 values = [i.strip() for i in l.split("\t")]
-                responses.append(dict(zip(keys, values)))
+                responses.append(dict(list(zip(keys, values))))
         for binomial, response in zip(self.binomials, responses):
-            acceptable = response['Name_matched_rank'] == u'species'
+            acceptable = response['Name_matched_rank'] == 'species'
             row = [acceptable,
                    acceptable and YES_ICON or NO_ICON,
                    binomial]

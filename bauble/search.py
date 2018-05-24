@@ -20,7 +20,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import absolute_import
+
 import weakref
 
 from gi.repository import Gtk
@@ -48,7 +48,7 @@ from .querybuilderparser import BuiltQuery
 
 def search(text, session=None):
     results = set()
-    for strategy in _search_strategies.values():
+    for strategy in list(_search_strategies.values()):
         logger.debug("applying search strategy %s from module %s" %
                      (type(strategy).__name__, type(strategy).__module__))
         results.update(strategy.search(text, session))
@@ -496,7 +496,7 @@ class BinomialNameAction(object):
         from bauble.plugins.plants.species import Species
         result = search_strategy._session.query(Species).filter(
             or_(Species.sp.startswith(self.species_epithet),
-                and_(self.species_epithet == u'sp', Species.infrasp1 == u'sp'))).join(Genus).filter(
+                and_(self.species_epithet == 'sp', Species.infrasp1 == 'sp'))).join(Genus).filter(
             Genus.genus.startswith(self.genus_epithet)).all()
         result = set(result)
         if None in result:
@@ -561,7 +561,7 @@ class DomainExpressionAction(object):
                 lambda val: mapper.c[col].op(self.cond)(val)
 
         for col in properties:
-            ors = or_(*map(condition(col), self.values.express()))
+            ors = or_(*list(map(condition(col), self.values.express())))
             result.update(query.filter(ors).all())
 
         if None in result:
@@ -624,7 +624,7 @@ class ValueListAction(object):
             utils.ilike(table.c[col], ('%%%s%%' % val))
 
         result = set()
-        for cls, columns in search_strategy._properties.iteritems():
+        for cls, columns in search_strategy._properties.items():
             column_cross_value = [(c, v) for c in columns
                                   for v in self.express()]
             # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
@@ -634,7 +634,7 @@ class ValueListAction(object):
             def unicol(col, v):
                 table = class_mapper(cls)
                 if isinstance(table.c[col].type, (Unicode, UnicodeText)):
-                    return unicode(v)
+                    return str(v)
                 else:
                     return v
 
@@ -848,7 +848,7 @@ class MapperSearch(SearchStrategy):
     @classmethod
     def get_domain_classes(cls):
         d = {}
-        for domain, item in cls._domains.iteritems():
+        for domain, item in cls._domains.items():
             d.setdefault(domain, item[0])
         return d
 
@@ -925,17 +925,15 @@ class SchemaBrowser(Gtk.VBox):
         Insert the properties from mapper into the model at treeiter
         """
         column_properties = sorted(
-            filter(lambda x: isinstance(x, ColumnProperty)
-                   and not x.key.startswith('_'),
-                   mapper.iterate_properties),
+            [x for x in mapper.iterate_properties if isinstance(x, ColumnProperty)
+                   and not x.key.startswith('_')],
             key=lambda k: k.key)
         for prop in column_properties:
             model.append(treeiter, [prop.key, prop])
 
         relation_properties = sorted(
-            filter(lambda x: isinstance(x, RelationProperty)
-                   and not x.key.startswith('_'),
-                   mapper.iterate_properties),
+            [x for x in mapper.iterate_properties if isinstance(x, RelationProperty)
+                   and not x.key.startswith('_')],
             key=lambda k: k.key)
         for prop in relation_properties:
             it = model.append(treeiter, [prop.key, prop])
@@ -986,7 +984,7 @@ class SchemaMenu(Gtk.Menu):
         super(SchemaMenu, self).__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
-        map(self.append, self._get_prop_menuitems(mapper))
+        list(map(self.append, self._get_prop_menuitems(mapper)))
         self.show_all()
 
     def on_activate(self, menuitem, prop):
@@ -1013,7 +1011,7 @@ class SchemaMenu(Gtk.Menu):
 
         submenu = menuitem.get_submenu()
         if len(submenu.get_children()) == 0:
-            map(submenu.append, self._get_prop_menuitems(prop.mapper))
+            list(map(submenu.append, self._get_prop_menuitems(prop.mapper)))
         submenu.show_all()
 
     def _get_prop_menuitems(self, mapper):
@@ -1022,14 +1020,12 @@ class SchemaMenu(Gtk.Menu):
         # properties in column_properties and relation_properties
 
         column_properties = sorted(
-            filter(lambda x: isinstance(x, ColumnProperty)
-                   and not x.key.startswith('_'),
-                   mapper.iterate_properties),
+            [x for x in mapper.iterate_properties if isinstance(x, ColumnProperty)
+                   and not x.key.startswith('_')],
             key=lambda k: k.key)
         relation_properties = sorted(
-            filter(lambda x: isinstance(x, RelationProperty)
-                   and not x.key.startswith('_'),
-                   mapper.iterate_properties),
+            [x for x in mapper.iterate_properties if isinstance(x, RelationProperty)
+                   and not x.key.startswith('_')],
             key=lambda k: k.key)
 
         items = []
@@ -1102,7 +1098,7 @@ class ExpressionRow(object):
         self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = Gtk.ComboBoxText()
-        map(self.cond_combo.append_text, self.conditions)
+        list(map(self.cond_combo.append_text, self.conditions))
         self.cond_combo.set_active(0)
         self.table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
 
@@ -1239,7 +1235,7 @@ class QueryBuilder(GenericEditorPresenter):
         self.view.widgets.domain_combo.set_active(-1)
 
         table = self.view.widgets.expressions_table
-        map(table.remove, table.get_children())
+        list(map(table.remove, table.get_children()))
 
         self.view.widgets.domain_liststore.clear()
         for key in sorted(self.domain_map.keys()):
@@ -1263,7 +1259,7 @@ class QueryBuilder(GenericEditorPresenter):
 
         # remove all clauses, they became useless in new domain
         table = self.view.widgets.expressions_table
-        map(table.remove, table.get_children())
+        list(map(table.remove, table.get_children()))
         del self.expression_rows[:]
         # initialize view at 1 clause, however invalid
         self.table_row_count = 0

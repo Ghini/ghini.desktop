@@ -22,7 +22,7 @@
 # Genera table module
 #
 
-from __future__ import absolute_import
+
 import os
 import traceback
 import weakref
@@ -187,9 +187,9 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     def hybrid_epithet(self):
         '''strip the leading char if it is an hybrid marker
         '''
-        if self.genus[0] in [u'x', u'×']:
+        if self.genus[0] in ['x', '×']:
             return self.genus[1:]
-        if self.genus[0] in [u'+', u'➕']:
+        if self.genus[0] in ['+', '➕']:
             return self.genus[1:]
         return self.genus
 
@@ -197,21 +197,21 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     def hybrid_marker(self):
         """Intergeneric Hybrid Flag (ITF2)
         """
-        if self.genus[0] in [u'x', u'×']:
-            return u'×'
-        if self.genus[0] in [u'+', u'➕']:
-            return u'+'
-        if self.genus.find(u'×') > 0:
+        if self.genus[0] in ['x', '×']:
+            return '×'
+        if self.genus[0] in ['+', '➕']:
+            return '+'
+        if self.genus.find('×') > 0:
             # the genus field contains a formula
-            return u'H'
-        return u''
+            return 'H'
+        return ''
 
     # columns
     genus = Column(String(64), nullable=False, index=True)
     epithet = synonym('genus')
 
     # use '' instead of None so that the constraints will work propertly
-    author = Column(Unicode(255), default=u'')
+    author = Column(Unicode(255), default='')
 
     @validates('genus', 'author')
     def validate_stripping(self, key, value):
@@ -219,8 +219,8 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
             return None
         return value.strip()
 
-    qualifier = Column(types.Enum(values=['s. lat.', 's. str', u'']),
-                       default=u'')
+    qualifier = Column(types.Enum(values=['s. lat.', 's. str', '']),
+                       default='')
 
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
@@ -449,7 +449,7 @@ class GenusEditorView(editor.GenericEditorView):
         if v.author is None:
             author = ''
         else:
-            author = utils.xml_safe(unicode(v.author))
+            author = utils.xml_safe(str(v.author))
         renderer.set_property('markup', '<i>%s</i> %s (<small>%s</small>)'
                               % (Genus.str(v), author, Family.str(v.family)))
 
@@ -587,7 +587,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                 self.notes_presenter.dirty())
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():
+        for widget, field in self.widget_to_field_map.items():
             if field == 'family_id':
                 value = getattr(self.model, 'family')
             else:
@@ -662,7 +662,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             syn = v.synonym
             cell.set_property('markup', '<i>%s</i> %s (<small>%s</small>)'
                               % (Genus.str(syn),
-                                 utils.xml_safe(unicode(syn.author)),
+                                 utils.xml_safe(str(syn.author)),
                                  Family.str(syn.family)))
             # set background color to indicate it's new
             if v.id is None:
@@ -896,10 +896,10 @@ class GeneralGenusExpander(InfoExpander):
         session = object_session(row)
         self.current_obj = row
         self.widget_set_value('gen_name_data', '<big>%s</big> %s' %
-                              (row, utils.xml_safe(unicode(row.author))),
+                              (row, utils.xml_safe(str(row.author))),
                               markup=True)
         self.widget_set_value('gen_fam_data',
-                              (utils.xml_safe(unicode(row.family))))
+                              (utils.xml_safe(str(row.family))))
 
         # get the number of species
         nsp = (session.query(Species).

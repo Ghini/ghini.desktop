@@ -20,7 +20,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import absolute_import
+
 from gi.repository import Gtk
 
 import logging
@@ -399,7 +399,7 @@ class SpeciesInfoBox(InfoBox):
         super(SpeciesInfoBox, self).__init__(tabbed=True)
         page = SpeciesInfoPage()
         label = page.label
-        if isinstance(label, basestring):
+        if isinstance(label, str):
             label = Gtk.Label(label=label)
         self.insert_page(page, label, 0)
 

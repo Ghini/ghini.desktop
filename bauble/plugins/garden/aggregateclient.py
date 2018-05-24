@@ -56,7 +56,7 @@ def get_submissions(user, pw, host, form_id, to_skip=[]):
         item = dict([(re.sub(r'{.*}(.*)', r'\1', i.tag), i.text) for i in form])
         item['meta:uuid'] = uuid
         result.append(item)
-        for key in item.keys():
+        for key in list(item.keys()):
             if not key.endswith('_repeat'):
                 continue
             del item[key]

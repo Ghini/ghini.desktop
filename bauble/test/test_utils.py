@@ -46,11 +46,11 @@ class CacheTest(TestCase):
 
         cache = Cache(2)
         v = cache.get(1, partial(getter, 1))
-        self.assertEquals(v, 1)
-        self.assertEquals(invoked, [1])
+        self.assertEqual(v, 1)
+        self.assertEqual(invoked, [1])
         v = cache.get(1, partial(getter, 1))
-        self.assertEquals(v, 1)
-        self.assertEquals(invoked, [1])
+        self.assertEqual(v, 1)
+        self.assertEqual(invoked, [1])
 
     def test_respect_size(self):
         from bauble.utils import Cache
@@ -66,8 +66,8 @@ class CacheTest(TestCase):
         cache.get(2, partial(getter, 2))
         cache.get(3, partial(getter, 3))
         cache.get(4, partial(getter, 4))
-        self.assertEquals(invoked, [1, 2, 3, 4])
-        self.assertEquals(sorted(cache.storage.keys()), [3, 4])
+        self.assertEqual(invoked, [1, 2, 3, 4])
+        self.assertEqual(sorted(cache.storage.keys()), [3, 4])
 
     def test_respect_timing(self):
         from bauble.utils import Cache
@@ -85,8 +85,8 @@ class CacheTest(TestCase):
         cache.get(3, partial(getter, 3))
         cache.get(1, partial(getter, 1))
         cache.get(4, partial(getter, 4))
-        self.assertEquals(invoked, [1, 2, 3, 4])
-        self.assertEquals(sorted(cache.storage.keys()), [1, 4])
+        self.assertEqual(invoked, [1, 2, 3, 4])
+        self.assertEqual(sorted(cache.storage.keys()), [1, 4])
 
     def test_cache_on_hit(self):
         from bauble.utils import Cache
@@ -104,22 +104,22 @@ class CacheTest(TestCase):
         cache.get(3, partial(getter, 3), on_hit=invoked.append)
         cache.get(1, partial(getter, 1), on_hit=invoked.append)
         cache.get(4, partial(getter, 4), on_hit=invoked.append)
-        self.assertEquals(invoked, [1, 1, 1])
-        self.assertEquals(sorted(cache.storage.keys()), [1, 4])
+        self.assertEqual(invoked, [1, 1, 1])
+        self.assertEqual(sorted(cache.storage.keys()), [1, 4])
 
 
 class GlobalFuncs(TestCase):
     def test_safe_int_valid(self):
-        self.assertEquals(utils.safe_int('123'), 123)
+        self.assertEqual(utils.safe_int('123'), 123)
 
     def test_safe_int_valid_not(self):
-        self.assertEquals(utils.safe_int('123.2'), 0)
+        self.assertEqual(utils.safe_int('123.2'), 0)
 
     def test_safe_numeric_valid(self):
-        self.assertEquals(utils.safe_numeric('123'), 123)
+        self.assertEqual(utils.safe_numeric('123'), 123)
 
     def test_safe_numeric_valid_decimal(self):
-        self.assertEquals(utils.safe_numeric('123.2'), 123.2)
+        self.assertEqual(utils.safe_numeric('123.2'), 123.2)
 
     def test_safe_numeric_valid_not(self):
-        self.assertEquals(utils.safe_numeric('123a.2'), 0)
+        self.assertEqual(utils.safe_numeric('123a.2'), 0)

@@ -37,23 +37,23 @@ class MetaTests(BaubleTestCase):
         """
         # test the object isn't created if it doesn't exist and we
         # don't pass a default value
-        name = u'name'
+        name = 'name'
         obj = meta.get_default(name)
-        self.assert_(obj is None)
+        self.assertTrue(obj is None)
 
         # test that the obj is created if it doesn't exists and that
         # the default value is set
-        value = u'value'
+        value = 'value'
         meta.get_default(name, default=value)
         obj = self.session.query(meta.BaubleMeta).filter_by(name=name).one()
-        self.assert_(obj.value == value)
+        self.assertTrue(obj.value == value)
 
         # test that the value isn't changed if it already exists
-        value2 = u'value2'
+        value2 = 'value2'
         obj = meta.get_default(name, default=value2)
-        self.assert_(obj.value == value)
+        self.assertTrue(obj.value == value)
 
         # test that if we pass our own session when we are creating a
         # new value that the object is added to the session but not committed
-        obj = meta.get_default(u'name2', default=value, session=self.session)
-        self.assert_(obj in self.session.new)
+        obj = meta.get_default('name2', default=value, session=self.session)
+        self.assertTrue(obj in self.session.new)

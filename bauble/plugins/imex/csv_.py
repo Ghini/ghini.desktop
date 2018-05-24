@@ -24,7 +24,7 @@
 # Description: have to name this module csv_ in order to avoid conflict
 # with the system csv module
 #
-from __future__ import unicode_literals
+
 
 import os
 import csv
@@ -80,10 +80,10 @@ class UnicodeReader(object):
         self.reader = csv.DictReader(f, dialect=dialect, **kwds)
         self.encoding = encoding
 
-    def next(self):
+    def __next__(self):
         row = next(self.reader)
         t = {}
-        for k, v in row.iteritems():
+        for k, v in row.items():
             if len(v) == 0:
                 t[k] = None
             else:
@@ -197,13 +197,13 @@ class CSVImporter(Importer):
         # create pairs from the values in the lines where pair[0]
         # should come before pair[1] when the lines are sorted
         pairs = []
-        for line in bychild.values():
+        for line in list(bychild.values()):
             for parent, child in key_pairs:
                 if line[parent] and line[child]:
                     pairs.append((line[parent], line[child]))
 
         # sort the keys and flatten the lines back into a list
-        sorted_keys = utils.topological_sort(bychild.keys(), pairs)
+        sorted_keys = utils.topological_sort(list(bychild.keys()), pairs)
         sorted_lines = []
         for key in sorted_keys:
             sorted_lines.append(bychild[key])
@@ -405,24 +405,22 @@ class CSVImporter(Importer):
                 for column in table.c:
                     if isinstance(column.default, ColumnDefault):
                         defaults[column.name] = column.default.execute()
-                column_names = table.c.keys()
+                column_names = list(table.c.keys())
 
                 # check if there are any foreign keys to on the table
                 # that refer to itself, if so create a new file with
                 # the lines sorted in order of dependency so that we
                 # don't get errors about importing values into a
                 # foreign_key that don't reference and existin row
-                self_keys = filter(lambda f: f.column.table == table,
-                                   table.foreign_keys)
+                self_keys = [f for f in table.foreign_keys if f.column.table == table]
                 if self_keys:
-                    key_pairs = map(lambda x: (x.parent.name, x.column.name),
-                                    self_keys)
+                    key_pairs = [(x.parent.name, x.column.name) for x in self_keys]
                     filename = self._toposort_file(filename, key_pairs)
 
                 # the column keys for the insert are a union of the
                 # columns in the CSV file and the columns with
                 # defaults
-                column_keys = list(csv_columns.union(defaults.keys()))
+                column_keys = list(csv_columns.union(list(defaults.keys())))
                 insert = table.insert(bind=connection).\
                     compile(column_keys=column_keys)
 
@@ -452,7 +450,7 @@ class CSVImporter(Importer):
 
                     # fill in default values and None for "empty"
                     # columns in line
-                    for column in table.c.keys():
+                    for column in list(table.c.keys()):
                         if column in defaults \
                                 and (column not in line
                                      or isempty(line[column])):
@@ -600,7 +598,7 @@ class CSVExporter(object):
                     return
 
         def replace(s):
-            if isinstance(s, (str, unicode)):
+            if isinstance(s, str):
                 s.replace('\n', '\\n')
             return s
 
@@ -627,15 +625,15 @@ class CSVExporter(object):
 
             # create empty files with only the column names
             if len(results) == 0:
-                write_csv(filename, [table.c.keys()])
+                write_csv(filename, [list(table.c.keys())])
                 yield
                 continue
 
             rows = []
-            rows.append(table.c.keys())  # append col names
+            rows.append(list(table.c.keys()))  # append col names
             ctr = 0
             for row in results:
-                values = map(replace, row.values())
+                values = list(map(replace, list(row.values())))
                 rows.append(values)
                 if ctr == update_every:
                     yield

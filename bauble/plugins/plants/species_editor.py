@@ -21,7 +21,7 @@
 # Species table definition
 #
 
-from __future__ import absolute_import
+
 from gi.repository import Gtk
 from gi.repository import GObject
 
@@ -98,8 +98,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         combo = self.view.widgets.sp_habit_comboentry
         model = Gtk.ListStore(str, object)
-        map(lambda p: model.append(p),
-            [(str(h), h) for h in self.session.query(Habit)])
+        list(map(lambda p: model.append(p),
+            [(str(h), h) for h in self.session.query(Habit)]))
         utils.setup_text_combobox(combo, model)
 
         def on_focus_out(entry, event):
@@ -124,7 +124,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            clause = utils.ilike(Genus.genus, '%s%%' % unicode(text))
+            clause = utils.ilike(Genus.genus, '%s%%' % str(text))
             return self.session.query(Genus).filter(clause).\
                 order_by(Genus.genus)
 
@@ -141,14 +141,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.view.close_boxes()
             if found:
                 found = dict((k, utils.to_unicode(v))
-                             for k, v in found.items())
+                             for k, v in list(found.items()))
                 found_s = dict((k, utils.xml_safe(utils.to_unicode(v)))
-                               for k, v in found.items())
+                               for k, v in list(found.items()))
             if accepted:
                 accepted = dict((k, utils.to_unicode(v))
-                                for k, v in accepted.items())
+                                for k, v in list(accepted.items()))
                 accepted_s = dict((k, utils.xml_safe(utils.to_unicode(v)))
-                                  for k, v in accepted.items())
+                                  for k, v in list(accepted.items()))
 
             msg_box_msg = _('No match found on ThePlantList.org')
 
@@ -158,7 +158,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 if (self.model.sp == found['Species'] and
                         self.model.sp_author == found['Authorship'] and
                         self.model.hybrid == (
-                            found['Species hybrid marker'] == u'×')):
+                            found['Species hybrid marker'] == '×')):
                     msg_box_msg = _(
                         'your data finely matches ThePlantList.org')
                 else:
@@ -178,7 +178,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                             self.set_model_attr('sp_author', found['Authorship'])
                             self.set_model_attr(
                                 'hybrid',
-                                found['Species hybrid marker'] == u'×')
+                                found['Species hybrid marker'] == '×')
                             self.refresh_view()
                             self.refresh_fullname_label()
                     box.on_response = on_response_found
@@ -421,11 +421,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # get position from entry, can't trust position parameter
         position = entry.get_position()
-        if text.count(u'×'):
+        if text.count('×'):
             self.species_space = True
-        if text.count(u'*'):
+        if text.count('*'):
             self.species_space = True
-            text = text.replace(u'*', u" × ")
+            text = text.replace('*', " × ")
         if self.species_space is False:
             text = text.replace(' ', '')
         if text != '':
@@ -502,7 +502,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         return r
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():
+        for widget, field in self.widget_to_field_map.items():
             if field is 'genus_id':
                 value = self.model.genus
             else:
@@ -1171,14 +1171,14 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         save the current state of the gui to the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
+        for expander, pref in self.expanders_pref_map.items():
             prefs[pref] = self.widgets[expander].get_expanded()
 
     def restore_state(self):
         '''
         restore the state of the gui from the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
+        for expander, pref in self.expanders_pref_map.items():
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 

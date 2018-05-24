@@ -120,7 +120,7 @@ Values: True, False (Default: False)
 """
 
 
-from ConfigParser import RawConfigParser
+from configparser import RawConfigParser
 
 
 class _prefs(dict):
@@ -272,7 +272,7 @@ class PrefsView(pluginmgr.View):
     def update(self):
         self.widgets.prefs_prefs_ls.clear()
         global prefs
-        for key, value in sorted(prefs.iteritems()):
+        for key, value in sorted(prefs.items()):
             self.widgets.prefs_prefs_ls.append(
                 (key, value, prefs[key].__class__.__name__))
 

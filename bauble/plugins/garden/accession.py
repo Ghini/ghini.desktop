@@ -21,7 +21,7 @@
 #
 # accessions module
 #
-from __future__ import unicode_literals
+
 
 import datetime
 from decimal import Decimal, ROUND_DOWN
@@ -186,7 +186,7 @@ def remove_callback(accessions):
         return
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
-            utils.xml_safe(unicode(acc))
+            utils.xml_safe(str(acc))
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -195,7 +195,7 @@ def remove_callback(accessions):
         session.delete(obj)
         session.commit()
     except Exception as e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe(unicode(e))
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(str(e))
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=Gtk.MessageType.ERROR)
     finally:
@@ -367,12 +367,12 @@ class AccessionMapperExtension(MapperExtension):
 
 # ITF2 - E.1; Provenance Type Flag; Transfer code: prot
 prov_type_values = [
-    (u'Wild', _('Accession of wild source')),  # W
-    (u'Cultivated', _('Propagule(s) from a wild source plant')),  # Z
-    (u'NotWild', _("Accession not of wild source")),  # G
-    (u'Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
-    (u'InsufficientData', _("Insufficient Data")),  # U
-    (u'Unknown', _("Unknown")),  # COLLAPSE INTO U
+    ('Wild', _('Accession of wild source')),  # W
+    ('Cultivated', _('Propagule(s) from a wild source plant')),  # Z
+    ('NotWild', _("Accession not of wild source")),  # G
+    ('Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
+    ('InsufficientData', _("Insufficient Data")),  # U
+    ('Unknown', _("Unknown")),  # COLLAPSE INTO U
     (None, ''),  # do not transfer this field
     ]
 
@@ -389,22 +389,22 @@ prov_type_values = [
 # user not familiar with ITF2 standard.
 wild_prov_status_values = [
     # Endemic found within indigenous range
-    (u'WildNative', _("Wild native")),
+    ('WildNative', _("Wild native")),
     # found outside indigenous range
-    (u'WildNonNative', _("Wild non-native")),
+    ('WildNonNative', _("Wild non-native")),
     # Endemic, cultivated, reintroduced or translocated within its
     # indigenous range
-    (u'CultivatedNative', _("Cultivated native")),
+    ('CultivatedNative', _("Cultivated native")),
 
     # MISSING cultivated, found outside its indigenous range
     # (u'CultivatedNonNative', _("Cultivated non-native"))
 
     # TO REMOVE:
-    (u'Impound', _("Impound")),
-    (u'Collection', _("Collection")),
-    (u'Rescue', _("Rescue")),
-    (u'InsufficientData', _("Insufficient Data")),
-    (u'Unknown', _("Unknown")),
+    ('Impound', _("Impound")),
+    ('Collection', _("Collection")),
+    ('Rescue', _("Rescue")),
+    ('InsufficientData', _("Insufficient Data")),
+    ('Unknown', _("Unknown")),
 
     # Not transferred
     (None, '')]
@@ -412,87 +412,87 @@ wild_prov_status_values = [
 # not ITF2
 # - further specifies the Z prov type flag value
 cultivated_prov_status_values = [
-    (u'InVitro', _("In vitro")),
-    (u'Division', _("Division")),
-    (u'Seed', _("Seed")),
-    (u'Unknown', _("Unknown")),
+    ('InVitro', _("In vitro")),
+    ('Division', _("Division")),
+    ('Seed', _("Seed")),
+    ('Unknown', _("Unknown")),
     (None, '')]
 
 # not ITF2
 # - further specifies the G prov type flag value
 purchase_prov_status_values = [
-    (u'National', _("National")),
-    (u'Imported', _("Imported")),
-    (u'Unknown', _("Unknown")),
+    ('National', _("National")),
+    ('Imported', _("Imported")),
+    ('Unknown', _("Unknown")),
     (None, '')]
 
 # not ITF2
 recvd_type_values = {
-    u'ALAY': _('Air layer'),
-    U'BBPL': _('Balled & burlapped plant'),
-    u'BRPL': _('Bare root plant'),
-    u'BUDC': _('Bud cutting'),
-    u'BUDD': _('Budded'),
-    u'BULB': _('Bulb'),
-    u'CLUM': _('Clump'),
-    u'CORM': _('Corm'),
-    u'DIVI': _('Division'),
-    u'GRAF': _('Graft'),
-    u'LAYE': _('Layer'),
-    u'PLNT': _('Planting'),
-    u'PSBU': _('Pseudobulb'),
-    u'RCUT': _('Rooted cutting'),
-    u'RHIZ': _('Rhizome'),
-    u'ROOC': _('Root cutting'),
-    u'ROOT': _('Root'),
-    u'SCIO': _('Scion'),
-    u'SEDL': _('Seedling'),
-    u'SEED': _('Seed'),
-    u'SPOR': _('Spore'),
-    u'SPRL': _('Sporeling'),
-    u'TUBE': _('Tuber'),
-    u'UNKN': _('Unknown'),
-    u'URCU': _('Unrooted cutting'),
-    u'BBIL': _('Bulbil'),
-    u'VEGS': _('Vegetative spreading'),
-    u'SCKR': _('Root sucker'),
+    'ALAY': _('Air layer'),
+    'BBPL': _('Balled & burlapped plant'),
+    'BRPL': _('Bare root plant'),
+    'BUDC': _('Bud cutting'),
+    'BUDD': _('Budded'),
+    'BULB': _('Bulb'),
+    'CLUM': _('Clump'),
+    'CORM': _('Corm'),
+    'DIVI': _('Division'),
+    'GRAF': _('Graft'),
+    'LAYE': _('Layer'),
+    'PLNT': _('Planting'),
+    'PSBU': _('Pseudobulb'),
+    'RCUT': _('Rooted cutting'),
+    'RHIZ': _('Rhizome'),
+    'ROOC': _('Root cutting'),
+    'ROOT': _('Root'),
+    'SCIO': _('Scion'),
+    'SEDL': _('Seedling'),
+    'SEED': _('Seed'),
+    'SPOR': _('Spore'),
+    'SPRL': _('Sporeling'),
+    'TUBE': _('Tuber'),
+    'UNKN': _('Unknown'),
+    'URCU': _('Unrooted cutting'),
+    'BBIL': _('Bulbil'),
+    'VEGS': _('Vegetative spreading'),
+    'SCKR': _('Root sucker'),
     None: ''
     }
 
 accession_type_to_plant_material = {
     #u'Plant': _('Planting'),
-    U'BBPL': u'Plant',
-    u'BRPL': u'Plant',
-    u'PLNT': u'Plant',
-    u'SEDL': u'Plant',
+    'BBPL': 'Plant',
+    'BRPL': 'Plant',
+    'PLNT': 'Plant',
+    'SEDL': 'Plant',
     #u'Seed': _('Seed/Spore'),
-    u'SEED': u'Seed',
-    u'SPOR': u'Seed',
-    u'SPRL': u'Seed',
+    'SEED': 'Seed',
+    'SPOR': 'Seed',
+    'SPRL': 'Seed',
     #u'Vegetative': _('Vegetative Part'),
-    u'BUDC': u'Vegetative',
-    u'BUDD': u'Vegetative',
-    u'BULB': u'Vegetative',
-    u'CLUM': u'Vegetative',
-    u'CORM': u'Vegetative',
-    u'DIVI': u'Vegetative',
-    u'GRAF': u'Vegetative',
-    u'LAYE': u'Vegetative',
-    u'PSBU': u'Vegetative',
-    u'RCUT': u'Vegetative',
-    u'RHIZ': u'Vegetative',
-    u'ROOC': u'Vegetative',
-    u'ROOT': u'Vegetative',
-    u'SCIO': u'Vegetative',
-    u'TUBE': u'Vegetative',
-    u'URCU': u'Vegetative',
-    u'BBIL': u'Vegetative',
-    u'VEGS': u'Vegetative',
-    u'SCKR': u'Vegetative',
+    'BUDC': 'Vegetative',
+    'BUDD': 'Vegetative',
+    'BULB': 'Vegetative',
+    'CLUM': 'Vegetative',
+    'CORM': 'Vegetative',
+    'DIVI': 'Vegetative',
+    'GRAF': 'Vegetative',
+    'LAYE': 'Vegetative',
+    'PSBU': 'Vegetative',
+    'RCUT': 'Vegetative',
+    'RHIZ': 'Vegetative',
+    'ROOC': 'Vegetative',
+    'ROOT': 'Vegetative',
+    'SCIO': 'Vegetative',
+    'TUBE': 'Vegetative',
+    'URCU': 'Vegetative',
+    'BBIL': 'Vegetative',
+    'VEGS': 'Vegetative',
+    'SCKR': 'Vegetative',
     #u'Tissue': _('Tissue Culture'),
-    u'ALAY': u'Tissue',
+    'ALAY': 'Tissue',
     #u'Other': _('Other'),
-    u'UNKN': u'Other',
+    'UNKN': 'Other',
     None: None
     }
 
@@ -585,7 +585,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     # columns
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
-    code_format = u'%Y%PD####'
+    code_format = '%Y%PD####'
 
     @validates('code')
     def validate_stripping(self, key, value):
@@ -605,7 +605,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
     quantity_recvd = Column(Integer, autoincrement=False)
-    recvd_type = Column(types.Enum(values=recvd_type_values.keys(),
+    recvd_type = Column(types.Enum(values=list(recvd_type_values.keys()),
                                    translations=recvd_type_values),
                         default=None)
 
@@ -670,7 +670,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         format = today.strftime(format)
         if format.find('%{Y-1}') >= 0:
             format = format.replace('%{Y-1}', str(today.year - 1))
-        start = unicode(format.rstrip('#'))
+        start = str(format.rstrip('#'))
         if start == format:
             # fixed value
             return start
@@ -690,13 +690,13 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             pass
         finally:
             session.close()
-        return unicode(next)
+        return str(next)
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row.
 
         """
-        first, second = (utils.xml_safe(unicode(self)),
+        first, second = (utils.xml_safe(str(self)),
                          self.species_str(markup=True))
         suffix = _("%(1)s plant groups in %(2)s location(s)") % {
             '1': len(set(self.plants)),
@@ -825,7 +825,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             elif keys['rank'] == 'genus':
                 result['species'] = Species.retrieve_or_create(
                     session, {'ht-epithet': keys['taxon'],
-                              'epithet': u'sp'})
+                              'epithet': 'sp'})
             elif keys['rank'] == 'familia':
                 unknown_genus = 'Zzz-' + keys['taxon'][:-1]
                 Genus.retrieve_or_create(
@@ -833,7 +833,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                               'epithet': unknown_genus})
                 result['species'] = Species.retrieve_or_create(
                     session, {'ht-epithet': unknown_genus,
-                              'epithet': u'sp'})
+                              'epithet': 'sp'})
         return result
 
     @classmethod
@@ -970,14 +970,14 @@ class AccessionEditorView(editor.GenericEditorView):
         '''
         save the current state of the gui to the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
+        for expander, pref in self.expanders_pref_map.items():
             prefs.prefs[pref] = self.widgets[expander].get_expanded()
 
     def restore_state(self):
         '''
         restore the state of the gui from the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
+        for expander, pref in self.expanders_pref_map.items():
             expanded = prefs.prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
@@ -1134,7 +1134,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         # remove any verification boxes that would have been added to
         # the widget in a previous run
         box = self.view.widgets.verifications_parent_box
-        map(box.remove, box.get_children())
+        list(map(box.remove, box.get_children()))
 
         # order by date of the existing verifications
         for ver in model.verifications:
@@ -1248,7 +1248,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter().view.attach_completion(
                 ver_prev_taxon_entry, sp_cell_data_func)
             if self.model.prev_species:
-                ver_prev_taxon_entry.props.text = u"%s" % self.model.prev_species
+                ver_prev_taxon_entry.props.text = "%s" % self.model.prev_species
             self.presenter().assign_completions_handler(
                 ver_prev_taxon_entry, sp_get_completions, on_prevsp_select)
 
@@ -1285,7 +1285,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                   % (level, descr))
             combo.set_cell_data_func(renderer, cell_data_func)
             model = Gtk.ListStore(int, str)
-            for level, descr in ver_level_descriptions.iteritems():
+            for level, descr in ver_level_descriptions.items():
                 model.append([level, descr])
             combo.set_model(model)
             if self.model.level:
@@ -1633,7 +1633,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = Gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
-        map(lambda x: model.append([x]), self.session.query(Contact))
+        list(map(lambda x: model.append([x]), self.session.query(Contact)))
         combo.set_model(model)
         combo.get_child().get_completion().set_model(model)
 
@@ -1698,7 +1698,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             else:
                 #self.model.source.source_detail = value
                 widget_visibility['source_sw'] = True
-            for widget, value in widget_visibility.iteritems():
+            for widget, value in widget_visibility.items():
                 self.view.widgets[widget].props.visible = value
             self.view.widgets.source_alignment.props.sensitive = True
 
@@ -1995,7 +1995,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         if values is None:
             query = self.session.\
                 query(meta.BaubleMeta).\
-                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+                filter(meta.BaubleMeta.name.like('acidf_%')).\
                 order_by(meta.BaubleMeta.name)
             if query.count():
                 Accession.code_format = query.first().value
@@ -2017,7 +2017,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         ls.clear()
         query = self.session.\
             query(meta.BaubleMeta).\
-            filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+            filter(meta.BaubleMeta.name.like('acidf_%')).\
             order_by(meta.BaubleMeta.name)
         for i, row in enumerate(query):
             ls.append([i+1, row.value])
@@ -2040,7 +2040,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         if presenter.start() > 0:
             presenter.session.\
                 query(meta.BaubleMeta).\
-                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+                filter(meta.BaubleMeta.name.like('acidf_%')).\
                 delete(synchronize_session=False)
             i = 1
             iter = ls.get_iter_first()
@@ -2051,7 +2051,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 i += 1
                 if not value:
                     continue
-                obj = meta.BaubleMeta(name=u'acidf_%02d' % i,
+                obj = meta.BaubleMeta(name='acidf_%02d' % i,
                                       value=value)
                 values.append(value)
                 presenter.session.add(obj)
@@ -2073,8 +2073,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         active = None
         if self.model.id_qual_rank == 'genus':
             active = it
-        it = model.append([str(species.sp), u'sp'])
-        if self.model.id_qual_rank == u'sp':
+        it = model.append([str(species.sp), 'sp'])
+        if self.model.id_qual_rank == 'sp':
             active = it
 
         infrasp_parts = []
@@ -2159,7 +2159,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         text = entry.get_text()
         query = self.session.query(Accession)
         if text != self._original_code \
-                and query.filter_by(code=unicode(text)).count() > 0:
+                and query.filter_by(code=str(text)).count() > 0:
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
             self.set_model_attr('code', None)
@@ -2255,7 +2255,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             prop = self.model.source.propagation
             prop_ignore = ['id', 'propagation_id']
             prop_model = None
-            if prop and prop.prop_type == u'Seed':
+            if prop and prop.prop_type == 'Seed':
                 prop_model = prop._seed
             elif prop and prop.prop_type == 'UnrootedCutting':
                 prop_model = prop._cutting
@@ -2290,7 +2290,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         get the values from the model and put them in the view
         '''
         date_format = prefs.prefs[prefs.date_format_pref]
-        for widget, field in self.widget_to_field_map.iteritems():
+        for widget, field in self.widget_to_field_map.items():
             if field == 'species_id':
                 value = self.model.species
             else:
@@ -2378,7 +2378,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except DBAPIError as e:
                 msg = _('Error committing changes.\n\n%s') % \
-                    utils.xml_safe(unicode(e.orig))
+                    utils.xml_safe(str(e.orig))
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
             except Exception as e:
@@ -2485,7 +2485,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             logger.debug('creating plant for new accession')
             accession = self.model
             location = accession.intended_location
-            plant = Plant(accession=accession, code=u'1', quantity=accession.quantity_recvd, location=location,
+            plant = Plant(accession=accession, code='1', quantity=accession.quantity_recvd, location=location,
                           acc_type=accession_type_to_plant_material.get(self.model.recvd_type))
             self.session.add(plant)
             
@@ -2539,7 +2539,7 @@ class GeneralAccessionExpander(InfoExpander):
         '''
         self.current_obj = row
         self.widget_set_value('acc_code_data', '<big>%s</big>' %
-                              utils.xml_safe(unicode(row.code)),
+                              utils.xml_safe(str(row.code)),
                               markup=True)
 
         # TODO: i don't know why we can't just set the visible
@@ -2563,7 +2563,7 @@ class GeneralAccessionExpander(InfoExpander):
             plant_locations[plant.location] = q + plant.quantity
         if plant_locations:
             strs = []
-            for location, quantity in plant_locations.iteritems():
+            for location, quantity in plant_locations.items():
                 strs.append(_('%(quantity)s in %(location)s')
                             % dict(location=str(location), quantity=quantity))
             s = '\n'.join(strs)
@@ -2586,7 +2586,7 @@ class GeneralAccessionExpander(InfoExpander):
         self.widget_set_value('quantity_recvd_data', quantity_str)
 
         prov_str = dict(prov_type_values)[row.prov_type]
-        if row.prov_type == u'Wild' and row.wild_prov_status:
+        if row.prov_type == 'Wild' and row.wild_prov_status:
             prov_str = '%s (%s)' % \
                 (prov_str, dict(wild_prov_status_values)[row.wild_prov_status])
         self.widget_set_value('prov_data', prov_str, False)
@@ -2747,7 +2747,7 @@ class VouchersExpander(InfoExpander):
         self.set_expanded(True)
         self.set_sensitive(True)
 
-        parents = filter(lambda v: v.parent_material, row.vouchers)
+        parents = [v for v in row.vouchers if v.parent_material]
         for voucher in parents:
             s = '%s %s (parent)' % (voucher.herbarium, voucher.code)
             label = Gtk.Label(label=s)
@@ -2755,7 +2755,7 @@ class VouchersExpander(InfoExpander):
             self.vbox.pack_start(label, True, True, 0)
             label.show()
 
-        not_parents = filter(lambda v: not v.parent_material, row.vouchers)
+        not_parents = [v for v in row.vouchers if not v.parent_material]
         for voucher in not_parents:
             s = '%s %s' % (voucher.herbarium, voucher.code)
             label = Gtk.Label(label=s)
@@ -2806,8 +2806,7 @@ class AccessionInfoBox(InfoBox):
 
         # self.vouchers.update(row)
 
-        urls = filter(lambda x: x != [],
-                      [utils.get_urls(note.note) for note in row.notes])
+        urls = [x for x in [utils.get_urls(note.note) for note in row.notes] if x != []]
         if not urls:
             self.links.props.visible = False
             self.links._sep.props.visible = False

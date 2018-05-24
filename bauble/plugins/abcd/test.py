@@ -89,18 +89,18 @@ class ABCDTestCase(BaubleTestCase):
         """
         Test the ABCDExporter
         """
-        self.assert_(self.session.query(Plant).count() > 0)
+        self.assertTrue(self.session.query(Plant).count() > 0)
         accession = self.session.query(Accession).first()
         source = Source()
         accession.source = source
-        source.sources_code = u'1'
-        collection = Collection(collector=u'Bob', collectors_code=u'1',
-                                geography_id=1, locale=u'locale',
+        source.sources_code = '1'
+        collection = Collection(collector='Bob', collectors_code='1',
+                                geography_id=1, locale='locale',
                                 date=datetime.date.today(),
-                                latitude=u'1.1', longitude=u'1.1',
-                                habitat=u'habitat description',
+                                latitude='1.1', longitude='1.1',
+                                habitat='habitat description',
                                 elevation=1, elevation_accy=1,
-                                notes=u'some notes')
+                                notes='some notes')
         source.collection = collection
         from bauble.plugins.garden import Institution
         inst = Institution()

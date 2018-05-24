@@ -95,47 +95,47 @@ class UsersTests(BaubleTestCase):
         # test adding a member to a group
         users.add_member(self.user, [self.group])
         members = users.get_members(self.group)
-        self.assert_(self.user in members, members)
+        self.assertTrue(self.user in members, members)
 
         # test removing a member from a group
         users.remove_member(self.user, [self.group])
         members = users.get_members(self.group)
-        self.assert_(self.user not in members, members)
+        self.assertTrue(self.user not in members, members)
 
     def test_has_privileges(self):
 
         # test setting admin privileges
         users.set_privilege(self.user, 'admin')
-        self.assert_(users.has_privileges(self.user, 'admin'),
+        self.assertTrue(users.has_privileges(self.user, 'admin'),
                      "%s doesn't have admin privileges" % self.user)
-        self.assert_(users.has_privileges(self.user, 'write'),
+        self.assertTrue(users.has_privileges(self.user, 'write'),
                      "%s doesnt' have write privileges" % self.user)
-        self.assert_(users.has_privileges(self.user, 'read'),
+        self.assertTrue(users.has_privileges(self.user, 'read'),
                      "%s doesn't have read privileges" % self.user)
 
         users.set_privilege(self.user, 'write')
-        self.assert_(not users.has_privileges(self.user, 'admin'),
+        self.assertTrue(not users.has_privileges(self.user, 'admin'),
                      "%s has admin privileges" % self.user)
-        self.assert_(users.has_privileges(self.user, 'write'),
+        self.assertTrue(users.has_privileges(self.user, 'write'),
                      "%s doesn't have write privileges" % self.user)
-        self.assert_(users.has_privileges(self.user, 'read'),
+        self.assertTrue(users.has_privileges(self.user, 'read'),
                      "%s doesn't have read privileges" % self.user)
 
         users.set_privilege(self.user, 'read')
-        self.assert_(not users.has_privileges(self.user, 'admin'),
+        self.assertTrue(not users.has_privileges(self.user, 'admin'),
                      "%s has admin privileges" % self.user)
-        self.assert_(not users.has_privileges(self.user, 'write'),
+        self.assertTrue(not users.has_privileges(self.user, 'write'),
                      "%s has write privileges" % self.user)
-        self.assert_(users.has_privileges(self.user, 'read'),
+        self.assertTrue(users.has_privileges(self.user, 'read'),
                      "%s doesn't have read privileges" % self.user)
 
         # revoke all
         users.set_privilege(self.user, None)
-        self.assert_(not users.has_privileges(self.user, 'admin'),
+        self.assertTrue(not users.has_privileges(self.user, 'admin'),
                      "%s has admin privileges" % self.user)
-        self.assert_(not users.has_privileges(self.user, 'write'),
+        self.assertTrue(not users.has_privileges(self.user, 'write'),
                      "%s has write privileges" % self.user)
-        self.assert_(not users.has_privileges(self.user, 'read'),
+        self.assertTrue(not users.has_privileges(self.user, 'read'),
                      "%s has read privileges" % self.user)
 
     def test_tool(self):

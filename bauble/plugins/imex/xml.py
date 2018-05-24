@@ -22,7 +22,7 @@
 #
 # Description: handle import and exporting from a simple XML format
 #
-from __future__ import unicode_literals
+
 
 import os
 import traceback
@@ -50,9 +50,9 @@ def ElementFactory(parent, name, **kwargs):
     el = etree.SubElement(parent, name, **kwargs)
     try:
         if text is not None:
-            el.text = unicode(text, 'utf8')
+            el.text = str(text, 'utf8')
     except (AssertionError, TypeError):
-        el.text = unicode(str(text), 'utf8')
+        el.text = str(str(text), 'utf8')
     return el
 
 
@@ -95,14 +95,14 @@ class XMLExporter:
         if not one_file:
             tableset_el = etree.Element('tableset')
 
-        for table_name, table in db.metadata.tables.iteritems():
+        for table_name, table in db.metadata.tables.items():
             if one_file:
                 tableset_el = etree.Element('tableset')
             logger.info('exporting %s…' % table_name)
             table_el = ElementFactory(tableset_el, 'table',
                                       attrib={'name': table_name})
             results = table.select().execute().fetchall()
-            columns = table.c.keys()
+            columns = list(table.c.keys())
             try:
                 for row in results:
                     row_el = ElementFactory(table_el, 'row')

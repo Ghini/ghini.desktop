@@ -23,7 +23,7 @@
 #
 # Description: test for bauble.utils
 
-from __future__ import print_function
+
 import sys
 import unittest
 
@@ -87,7 +87,7 @@ addasdadadad"""
 
         root = model.get_iter_root()
         results = utils.search_tree_model(model[root], 'something')
-        self.assert_(sorted([model.get_path(r) for r in results]),
+        self.assertTrue(sorted([model.get_path(r) for r in results]),
                      sorted(to_find))
 
 
@@ -106,10 +106,10 @@ class UtilsTests(unittest.TestCase):
 
         import re
         assert re.match('&lt;.*?&gt;', utils.xml_safe(str(test())))
-        assert re.match('&lt;.*?&gt;', utils.xml_safe(unicode(test())))
+        assert re.match('&lt;.*?&gt;', utils.xml_safe(str(test())))
         assert utils.xml_safe('test string') == 'test string'
-        assert utils.xml_safe(u'test string') == u'test string'
-        assert utils.xml_safe(u'test< string') == u'test&lt; string'
+        assert utils.xml_safe('test string') == 'test string'
+        assert utils.xml_safe('test< string') == 'test&lt; string'
         assert utils.xml_safe('test< string') == 'test&lt; string'
 
 
@@ -134,23 +134,23 @@ class UtilsTests(unittest.TestCase):
     def test_get_urls(self):
         text = 'There a link in here: http://bauble.belizebotanic.org'
         urls = utils.get_urls(text)
-        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
+        self.assertTrue(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
 
         text = 'There a link in here: http://bauble.belizebotanic.org '\
                'and some text afterwards.'
         urls = utils.get_urls(text)
-        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
+        self.assertTrue(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
 
         text = 'There is a link here: http://bauble.belizebotanic.org '\
                'and here: https://belizebotanic.org and some text afterwards.'
         urls = utils.get_urls(text)
-        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org'),
+        self.assertTrue(urls == [(None, 'http://bauble.belizebotanic.org'),
                               (None, 'https://belizebotanic.org')], urls)
 
         text = 'There a labeled link in here: '\
                '[BBG]http://bauble.belizebotanic.org and some text afterwards.'
         urls = utils.get_urls(text)
-        self.assert_(urls == [('BBG', 'http://bauble.belizebotanic.org')],
+        self.assertTrue(urls == [('BBG', 'http://bauble.belizebotanic.org')],
                      urls)
 
 
@@ -187,22 +187,22 @@ class UtilsDBTests(BaubleTestCase):
         # tables that depend on table 1 are 3, 4, 2
         depends = list(utils.find_dependent_tables(table1, metadata))
         print('table1: %s' % [table.name for table in depends])
-        self.assert_(list(depends) == [table2, table4, table3])
+        self.assertTrue(list(depends) == [table2, table4, table3])
 
         # tables that depend on table 2 are 3, 4
         depends = list(utils.find_dependent_tables(table2, metadata))
         print('table2: %s' % [table.name for table in depends])
-        self.assert_(depends == [table4, table3])
+        self.assertTrue(depends == [table4, table3])
 
         # no tables depend on table 3
         depends = list(utils.find_dependent_tables(table3, metadata))
         print('table3: %s' % [table.name for table in depends])
-        self.assert_(depends == [])
+        self.assertTrue(depends == [])
 
         # table that depend on table 4 are 3
         depends = list(utils.find_dependent_tables(table4, metadata))
         print('table4: %s' % [table.name for table in depends])
-        self.assert_(depends == [table3])
+        self.assertTrue(depends == [table3])
 
 
 class ResetSequenceTests(BaubleTestCase):
@@ -279,7 +279,7 @@ class ResetSequenceTests(BaubleTestCase):
             table.insert().values(id=i).execute()
         utils.reset_sequence(table.c.id)
         currval = self.get_currval(table.c.id)
-        self.assert_(currval > rangemax, currval)
+        self.assertTrue(currval > rangemax, currval)
 
 from bauble.utils import topological_sort
 
@@ -295,9 +295,9 @@ class TopologicalSortTests(unittest.TestCase):
         self.assertTrue('a' in r)
         self.assertTrue('b' in r)
         self.assertTrue('c' in r)
-        self.assertEquals(r.pop(), 'c')
-        self.assertEquals(r.pop(), 'b')
-        self.assertEquals(r.pop(), 'a')
+        self.assertEqual(r.pop(), 'c')
+        self.assertEqual(r.pop(), 'b')
+        self.assertEqual(r.pop(), 'a')
 
     def test_partial_dependencies(self):
         r = topological_sort(['b', 'e'], [('a', 'b'), ('b', 'c'), ('b', 'd')])
@@ -305,8 +305,8 @@ class TopologicalSortTests(unittest.TestCase):
         self.assertTrue('e' in r)
         r.remove('e')
         any = set([r.pop(), r.pop()])
-        self.assertEquals(any, set(['c', 'd']))
-        self.assertEquals(r.pop(), 'b')
+        self.assertEqual(any, set(['c', 'd']))
+        self.assertEqual(r.pop(), 'b')
         #self.assertEquals(r, [])
 
     def test_empty_input_full_dependencies(self):

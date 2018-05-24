@@ -63,8 +63,8 @@ import bauble.view as view
 # location combo that shows the description of the currently selected
 # location
 
-plant_delimiter_key = u'plant_delimiter'
-default_plant_delimiter = u'.'
+plant_delimiter_key = 'plant_delimiter'
+default_plant_delimiter = '.'
 
 
 def edit_callback(plants):
@@ -155,7 +155,7 @@ def is_code_unique(plant, code):
     # if the range builder only creates one number then we assume the
     # code is not a range and so we test against the string version of
     # code
-    codes = map(utils.utf8, utils.range_builder(code))  # test if a range
+    codes = list(map(utils.utf8, utils.range_builder(code)))  # test if a range
     if len(codes) == 1:
         codes = [utils.utf8(code)]
 
@@ -198,8 +198,8 @@ class PlantSearch(SearchStrategy):
         try:
             from bauble.plugins.garden import Accession
             query = session.query(Plant).filter(
-                Plant.code == unicode(plant_code)).join(Accession).filter(
-                utils.ilike(Accession.code, u'%%%s' % unicode(acc_code)))
+                Plant.code == str(plant_code)).join(Accession).filter(
+                utils.ilike(Accession.code, '%%%s' % str(acc_code)))
             return query.all()
         except Exception as e:
             logger.debug("%s %s" % (e.__class__.name, e))
@@ -218,8 +218,8 @@ def retrieve(cls, session, keys):
         acc_code, plant_code = keys['plant'].rsplit(
             Plant.get_delimiter(), 1)
         q = q.join(
-            Plant).filter(Plant.code == unicode(plant_code)).join(
-            Accession).filter(Accession.code == unicode(acc_code))
+            Plant).filter(Plant.code == str(plant_code)).join(
+            Accession).filter(Accession.code == str(acc_code))
     if 'date' in keys:
         q = q.filter(cls.date == keys['date'])
     if 'category' in keys:
@@ -237,8 +237,8 @@ def compute_serializable_fields(cls, session, keys):
         Plant.get_delimiter(), 1)
     logger.debug("acc-plant: %s-%s" % (acc_code, plant_code))
     q = session.query(Plant).filter(
-        Plant.code == unicode(plant_code)).join(
-        Accession).filter(Accession.code == unicode(acc_code))
+        Plant.code == str(plant_code)).join(
+        Accession).filter(Accession.code == str(acc_code))
     plant = q.one()
 
     result['plant'] = plant
@@ -250,25 +250,25 @@ PlantNote = db.make_note_class('Plant', compute_serializable_fields, as_dict, re
 
 # TODO: some of these reasons are specific to UBC and could probably be culled.
 change_reasons = {
-    u'DEAD': _('Dead'),
-    u'DISC': _('Discarded'),
-    u'DISW': _('Discarded, weedy'),
-    u'LOST': _('Lost, whereabouts unknown'),
-    u'STOL': _('Stolen'),
-    u'WINK': _('Winter kill'),
-    u'ERRO': _('Error correction'),
-    u'DIST': _('Distributed elsewhere'),
-    u'DELE': _('Deleted, yr. dead. unknown'),
-    u'ASS#': _('Transferred to another acc.no.'),
-    u'FOGS': _('Given to FOGs to sell'),
-    u'PLOP': _('Area transf. to Plant Ops.'),
-    u'BA40': _('Given to Back 40 (FOGs)'),
-    u'TOTM': _('Transfered to Totem Field'),
-    U'SUMK': _('Summer Kill'),
-    u'DNGM': _('Did not germinate'),
-    u'DISN': _('Discarded seedling in nursery'),
-    u'GIVE': _('Given away (specify person)'),
-    u'OTHR': _('Other'),
+    'DEAD': _('Dead'),
+    'DISC': _('Discarded'),
+    'DISW': _('Discarded, weedy'),
+    'LOST': _('Lost, whereabouts unknown'),
+    'STOL': _('Stolen'),
+    'WINK': _('Winter kill'),
+    'ERRO': _('Error correction'),
+    'DIST': _('Distributed elsewhere'),
+    'DELE': _('Deleted, yr. dead. unknown'),
+    'ASS#': _('Transferred to another acc.no.'),
+    'FOGS': _('Given to FOGs to sell'),
+    'PLOP': _('Area transf. to Plant Ops.'),
+    'BA40': _('Given to Back 40 (FOGs)'),
+    'TOTM': _('Transfered to Totem Field'),
+    'SUMK': _('Summer Kill'),
+    'DNGM': _('Did not germinate'),
+    'DISN': _('Discarded seedling in nursery'),
+    'GIVE': _('Given away (specify person)'),
+    'OTHR': _('Other'),
     None: ''
     }
 
@@ -294,7 +294,7 @@ class PlantChange(db.Base):
     quantity = Column(Integer, autoincrement=False, nullable=False)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
-    reason = Column(types.Enum(values=change_reasons.keys(),
+    reason = Column(types.Enum(values=list(change_reasons.keys()),
                                translations=change_reasons))
 
     # date of change
@@ -316,34 +316,34 @@ class PlantChange(db.Base):
 
 
 condition_values = {
-    u'Excellent': _('Excellent'),
-    u'Good': _('Good'),
-    u'Fair': _('Fair'),
-    u'Poor': _('Poor'),
-    u'Questionable': _('Questionable'),
-    u'Indistinguishable': _('Indistinguishable Mass'),
-    u'UnableToLocate': _('Unable to Locate'),
-    u'Dead': _('Dead'),
+    'Excellent': _('Excellent'),
+    'Good': _('Good'),
+    'Fair': _('Fair'),
+    'Poor': _('Poor'),
+    'Questionable': _('Questionable'),
+    'Indistinguishable': _('Indistinguishable Mass'),
+    'UnableToLocate': _('Unable to Locate'),
+    'Dead': _('Dead'),
     None: ''}
 
 flowering_values = {
-    u'Immature': _('Immature'),
-    u'Flowering': _('Flowering'),
-    u'Old': _('Old Flowers'),
+    'Immature': _('Immature'),
+    'Flowering': _('Flowering'),
+    'Old': _('Old Flowers'),
     None: ''}
 
 fruiting_values = {
-    u'Unripe': _('Unripe'),
-    u'Ripe': _('Ripe'),
+    'Unripe': _('Unripe'),
+    'Ripe': _('Ripe'),
     None: '',
 }
 
 # TODO: should sex be recorded at the species, accession or plant
 # level or just as part of a check since sex can change in some species
 sex_values = {
-    u'Female': _('Female'),
-    u'Male': _('Male'),
-    u'Both': ''}
+    'Female': _('Female'),
+    'Male': _('Male'),
+    'Both': ''}
 
 # class Container(db.Base):
 #     __tablename__ = 'container'
@@ -361,32 +361,32 @@ class PlantStatus(db.Base):
     """
     __tablename__ = 'plant_status'
     date = Column(types.Date, default=func.now())
-    condition = Column(types.Enum(values=condition_values.keys(),
+    condition = Column(types.Enum(values=list(condition_values.keys()),
                                   translations=condition_values))
     comment = Column(UnicodeText)
     checked_by = Column(Unicode(64))
 
-    flowering_status = Column(types.Enum(values=flowering_values.keys(),
+    flowering_status = Column(types.Enum(values=list(flowering_values.keys()),
                                          translations=flowering_values))
-    fruiting_status = Column(types.Enum(values=fruiting_values.keys(),
+    fruiting_status = Column(types.Enum(values=list(fruiting_values.keys()),
                                         translations=fruiting_values))
 
     autumn_color_pct = Column(Integer, autoincrement=False)
     leaf_drop_pct = Column(Integer, autoincrement=False)
     leaf_emergence_pct = Column(Integer, autoincrement=False)
 
-    sex = Column(types.Enum(values=sex_values.keys(),
+    sex = Column(types.Enum(values=list(sex_values.keys()),
                             translations=sex_values))
 
     # TODO: needs container table
     #container_id = Column(Integer)
 
 
-acc_type_values = {u'Plant': _('Planting'),
-                   u'Seed': _('Seed/Spore'),
-                   u'Vegetative': _('Vegetative Part'),
-                   u'Tissue': _('Tissue Culture'),
-                   u'Other': _('Other'),
+acc_type_values = {'Plant': _('Planting'),
+                   'Seed': _('Seed/Spore'),
+                   'Vegetative': _('Vegetative Part'),
+                   'Tissue': _('Tissue Culture'),
+                   'Other': _('Other'),
                    None: ''}
 
 
@@ -444,7 +444,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return None
         return value.strip()
 
-    acc_type = Column(types.Enum(values=acc_type_values.keys(),
+    acc_type = Column(types.Enum(values=list(acc_type_values.keys()),
                                  translations=acc_type_values),
                       default=None)
     memorial = Column(Boolean, default=False)
@@ -520,8 +520,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 session.add(plant)
 
         ignore = ('id', 'code', 'changes', 'notes', 'propagations', '_created')
-        properties = filter(lambda p: p.key not in ignore,
-                            object_mapper(self).iterate_properties)
+        properties = [p for p in object_mapper(self).iterate_properties if p.key not in ignore]
         for prop in properties:
             setattr(plant, prop.key, getattr(self, prop.key))
         plant.code = code
@@ -603,7 +602,7 @@ class PlantEditorView(GenericEditorView):
             'The location of the planting in your collection.'),
         'plant_acc_type_combo': _('The type of the plant material.\n\n'
                                   'Possible values: %s') % (
-            ', '.join(acc_type_values.values())),
+            ', '.join(list(acc_type_values.values()))),
         'plant_loc_add_button': _('Create a new location.'),
         'plant_loc_edit_button': _('Edit the selected location.'),
         'prop_add_button': _(
@@ -681,7 +680,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # set default values for acc_type
         if self.model.id is None and self.model.acc_type is None:
-            self.model.acc_type = u'Plant'
+            self.model.acc_type = 'Plant'
 
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
@@ -739,7 +738,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # been filled in
         def acc_get_completions(text):
             query = self.session.query(Accession)
-            return query.filter(Accession.code.like(unicode('%s%%' % text))).\
+            return query.filter(Accession.code.like(str('%s%%' % text))).\
                 order_by(Accession.code)
 
         def on_select(value):
@@ -822,7 +821,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         Validates the accession number and the plant code from the editors.
         """
         text = utils.utf8(entry.get_text())
-        if text == u'':
+        if text == '':
             self.set_model_attr('code', None)
         else:
             self.set_model_attr('code', utils.utf8(text))
@@ -910,7 +909,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # testing has no impact on test results.
         if prefs.testing:
             return
-        for widget, field in self.widget_to_field_map.iteritems():
+        for widget, field in self.widget_to_field_map.items():
             value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
             logger.debug('%s: %s = %s' % (widget, field, value))
@@ -927,7 +926,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def cleanup(self):
         super(PlantEditorPresenter, self).cleanup()
         msg_box_parent = self.view.widgets.message_box_parent
-        map(msg_box_parent.remove, msg_box_parent.get_children())
+        list(map(msg_box_parent.remove, msg_box_parent.get_children()))
         # the entry is made not editable for branch mode
         self.view.widgets.plant_acc_entry.props.editable = True
         self.view.get_window().props.title = _('Plant Editor')
@@ -1077,7 +1076,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     setattr(new_note, prop.key, getattr(note, prop.key))
                 new_note.plant = new_plant
         try:
-            map(self.session.expunge, self.model.notes)
+            list(map(self.session.expunge, self.model.notes))
             self.session.expunge(self.model)
             super(PlantEditor, self).commit_changes()
         except:
@@ -1161,7 +1160,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             self.presenter.view.get_window().props.title += \
                 utils.utf8(' - %s' % _('Split Mode'))
             message_box_parent = self.presenter.view.widgets.message_box_parent
-            map(message_box_parent.remove, message_box_parent.get_children())
+            list(map(message_box_parent.remove, message_box_parent.get_children()))
             msg = _('Splitting from %(plant_code)s.  The quantity will '
                     'be subtracted from %(plant_code)s') \
                 % {'plant_code': str(self.branched_plant)}
@@ -1224,10 +1223,10 @@ class GeneralPlantExpander(InfoExpander):
         head, tail = plant_code[:len(acc_code)], plant_code[len(acc_code):]
 
         self.widget_set_value('acc_code_data', '<big>%s</big>' %
-                              utils.xml_safe(unicode(head)),
+                              utils.xml_safe(str(head)),
                               markup=True)
         self.widget_set_value('plant_code_data', '<big>%s</big>' %
-                              utils.xml_safe(unicode(tail)), markup=True)
+                              utils.xml_safe(str(tail)), markup=True)
         self.widget_set_value('name_data',
                               row.accession.species_str(markup=True),
                               markup=True)
@@ -1467,8 +1466,7 @@ class PlantInfoBox(InfoBox):
         self.transfers.update(row)
         self.propagations.update(row)
 
-        urls = filter(lambda x: x != [],
-                      [utils.get_urls(note.note) for note in row.notes])
+        urls = [x for x in [utils.get_urls(note.note) for note in row.notes] if x != []]
         if not urls:
             self.links.props.visible = False
             self.links._sep.props.visible = False

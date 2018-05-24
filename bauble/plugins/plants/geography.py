@@ -78,7 +78,7 @@ class GeographicAreaMenu(Gtk.Menu):
             except KeyError:
                 geos_hash[parent_id] = [(geo_id, name)]
 
-        for kids in geos_hash.values():
+        for kids in list(geos_hash.values()):
             kids.sort(key=itemgetter(1))  # sort by name
 
         def get_kids(pid):
@@ -134,7 +134,7 @@ class GeographicAreaMenu(Gtk.Menu):
                 return
             no_kids = []
             for geo_id, geo_name in geos_hash[None]:
-                if geo_id not in geos_hash.keys():
+                if geo_id not in list(geos_hash.keys()):
                     no_kids.append((geo_id, geo_name))
                 else:
                     self.append(build_menu(geo_id, geo_name))

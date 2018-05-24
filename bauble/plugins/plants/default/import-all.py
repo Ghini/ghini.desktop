@@ -40,7 +40,7 @@ genus_no = dict(((g['epithet'], g['author']), n)
                 for n, g in enumerated_genera)
 
 gtxt = '\n'.join(['%d,"%s","%s",%d' % (n, t[0], t[1], t[2])
-                  for n, t in genus.items()])
+                  for n, t in list(genus.items())])
 import codecs
 o = codecs.open("genus.txt", "w", "UTF8")
 o.write('"id","genus","author","family_id"\n')

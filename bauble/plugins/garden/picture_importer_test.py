@@ -33,89 +33,89 @@ class DecodePartsTest(TestCase):
 
     def test_decode_parts_complete(self):
         result = decode_parts("2018.0020.1 (4) Epidendrum.jpg")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '4',
                                    'species': 'Epidendrum'})
         result = decode_parts("Masdevallia-2018.0020-2.jpg")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '2',
                                    'species': 'Masdevallia'})
         result = decode_parts("2007.0001 Annona muricata.jpg")
-        self.assertEquals(result, {'accession': '2007.0001',
+        self.assertEqual(result, {'accession': '2007.0001',
                                    'plant': '1',
                                    'seq': '1',
                                    'species': 'Annona muricata'})
 
     def test_decode_parts_none(self):
         result = decode_parts("20x18.0020.1 (4).jpg")
-        self.assertEquals(result, None)
+        self.assertEqual(result, None)
 
     def test_decode_parts_optional(self):
         result = decode_parts("2018.0020 (4) Dracula.jpg")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '4',
                                    'species': 'Dracula'})
         result = decode_parts("2018.0020.2 (4).jpg")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '2',
                                    'seq': '4',
                                    'species': 'Zzz'})
         result = decode_parts("2018.0020 (4).jpg")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '4',
                                    'species': 'Zzz'})
 
     def test_decode_parts_seq_from_original(self):
         result = decode_parts("DSCN0123-2018.0020.JPG")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '123',
                                    'species': 'Zzz'})
         result = decode_parts("P1220810-2018.0020.JPG")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '1220810',
                                    'species': 'Zzz'})
         result = decode_parts("2018.0020 Vanda-P1220810.JPG")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '1220810',
                                    'species': 'Vanda'})
 
     def test_decode_parts_seq_from_original(self):
         result = decode_parts("DSCN0123-2018.0020.JPG")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '123',
                                    'species': 'Zzz'})
         result = decode_parts("P1220810-2018.0020.JPG")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '1220810',
                                    'species': 'Zzz'})
         result = decode_parts("2018.0020 Vanda-P1220810.JPG")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '1220810',
                                    'species': 'Vanda'})
 
     def test_decode_parts_custom_accession_format(self):
         result = decode_parts("2007.01.321 Annona muricata.jpg", '####.##.###')
-        self.assertEquals(result, {'accession': '2007.01.321',
+        self.assertEqual(result, {'accession': '2007.01.321',
                                    'plant': '1',
                                    'seq': '1',
                                    'species': 'Annona muricata'})
         result = decode_parts("2007.01.321.2 Annona sp.jpg", '####.##.###')
-        self.assertEquals(result, {'accession': '2007.01.321',
+        self.assertEqual(result, {'accession': '2007.01.321',
                                    'plant': '2',
                                    'seq': '1',
                                    'species': 'Annona sp'})
         result = decode_parts("2009.01.21.2 Opuntia ficus-indica.jpg", '####.##.##')
-        self.assertEquals(result, {'accession': '2009.01.21',
+        self.assertEqual(result, {'accession': '2009.01.21',
                                    'plant': '2',
                                    'seq': '1',
                                    'species': 'Opuntia ficus-indica'})
@@ -123,12 +123,12 @@ class DecodePartsTest(TestCase):
 
     def test_decode_parts_only_scan_name(self):
         result = decode_parts("Location/2018.0020.1 (4) Epidendrum.jpg")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '4',
                                    'species': 'Epidendrum'})
         result = decode_parts("Pictures/Masdevallia-2018.0020-2.jpg")
-        self.assertEquals(result, {'accession': '2018.0020',
+        self.assertEqual(result, {'accession': '2018.0020',
                                    'plant': '1',
                                    'seq': '2',
                                    'species': 'Masdevallia'})

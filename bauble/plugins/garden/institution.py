@@ -84,50 +84,50 @@ class MapViewer(Gtk.Dialog):
         self.buttons = buttons = Clutter.Actor()
         self.clutter_view.add_child(buttons)
 
-	button = self.make_button(_('OK'))
-	button.set_position(offset, PADDING)
-	(width, height) = button.get_size()
+        button = self.make_button(_('OK'))
+        button.set_position(offset, PADDING)
+        (width, height) = button.get_size()
         offset += width + PADDING
         buttons.add_child(button)
         button.set_reactive(True)
-	button.connect('button-release-event', self.on_clutter_ok_button)
+        button.connect('button-release-event', self.on_clutter_ok_button)
 
-	button = self.make_button(_('Cancel'))
-	button.set_position(offset, PADDING)
-	(width, height) = button.get_size()
+        button = self.make_button(_('Cancel'))
+        button.set_position(offset, PADDING)
+        (width, height) = button.get_size()
         offset += width + PADDING
-	buttons.add_child(button)
-        button.set_reactive(True)
-	button.connect('button-release-event', self.on_clutter_cancel_button)
-
-	self.place_button = button = self.make_button(_('Activate'))
-	button.set_position(PADDING, 2 * PADDING + height)
         buttons.add_child(button)
         button.set_reactive(True)
-	button.connect('button-release-event', self.on_clutter_place_button)
+        button.connect('button-release-event', self.on_clutter_cancel_button)
+
+        self.place_button = button = self.make_button(_('Activate'))
+        button.set_position(PADDING, 2 * PADDING + height)
+        buttons.add_child(button)
+        button.set_reactive(True)
+        button.connect('button-release-event', self.on_clutter_place_button)
 
         self.clutter_view.center_on(5.0, 13.0)
         self.clutter_view.set_zoom_level(1)
         self.show_all()
 
     def make_button(self, text):
-	black = Clutter.Color.new(0x00, 0x00, 0x00, 0xff)
-	white = Clutter.Color.new(0xff, 0xff, 0xff, 0xff)
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0xff)
+        white = Clutter.Color.new(0xff, 0xff, 0xff, 0xff)
 
-	button = Clutter.Actor()
+        button = Clutter.Actor()
 
-	button_bg = Clutter.Actor()
-	button_bg.set_background_color(white)
-	button_bg.set_opacity(0xcc)
-	button.add_child(button_bg)
+        button_bg = Clutter.Actor()
+        button_bg.set_background_color(white)
+        button_bg.set_opacity(0xcc)
+        button.add_child(button_bg)
 
-	button_text = Clutter.Text.new_full("Sans 10", text, black)
-	button.add_child(button_text)
+        button_text = Clutter.Text.new_full("Sans 10", text, black)
+        button.add_child(button_text)
 
-	(width, height) = button_text.get_size()
-	button_bg.set_size(width + PADDING * 2, height + PADDING * 2)
-	button_bg.set_position(0, 0)
-	button_text.set_position(PADDING, PADDING)
+        (width, height) = button_text.get_size()
+        button_bg.set_size(width + PADDING * 2, height + PADDING * 2)
+        button_bg.set_position(0, 0)
+        button_text.set_position(PADDING, PADDING)
 
         return button
 
@@ -195,7 +195,7 @@ class MapViewer(Gtk.Dialog):
             self.place_button = None
         
     def on_view_button_release(self, widget, event):
-        if event.button == 3L:
+        if event.button == 3:
             self.on_clutter_place_button(widget, event)
 
     def on_clutter_ok_button(self, widget, event):
@@ -276,7 +276,7 @@ class MapViewer(Gtk.Dialog):
         self.clutter_view.center_on(lat, lon)
 
     def get_centre(self):
-        import utm
+        from . import utm
         lat1 = self.marker_centre.get_latitude()
         lon1 = self.marker_centre.get_longitude()
         lat2 = self.marker_through.get_latitude()
@@ -286,7 +286,7 @@ class MapViewer(Gtk.Dialog):
         return (lat1, lon1, 2 * math.sqrt((x2-x1)**2 + (y2-y1)**2))
 
     def set_centre(self, lat, lon, diam):
-        import utm
+        from . import utm
         if self.layer is None:
             self.layer = self.add_marker_layer()
             self.clutter_view.add_layer(self.layer)
@@ -322,7 +322,7 @@ class Institution(object):
 
     def __init__(self):
         # initialize properties to None
-        map(lambda p: setattr(self, p, None), self.__properties)
+        list(map(lambda p: setattr(self, p, None), self.__properties))
 
         for prop in self.__properties:
             db_prop = utils.utf8('inst_' + prop)
@@ -380,7 +380,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self.on_email_text_entry_changed('inst_email')
         if not model.uuid:
             import uuid
-            model.uuid = unicode(uuid.uuid4())
+            model.uuid = str(uuid.uuid4())
 
     def cleanup(self):
         super(InstitutionPresenter, self).cleanup()
@@ -452,7 +452,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
 
         # produce the log record
         registrations.info([(key, getattr(self.model, key))
-                            for key in self.widget_to_field_map.values()])
+                            for key in list(self.widget_to_field_map.values())])
 
         # remove the handler after usage
         registrations.removeHandler(handler)

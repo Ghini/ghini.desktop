@@ -20,7 +20,7 @@
 #
 # propagation module
 #
-from __future__ import unicode_literals
+
 
 import datetime
 import os
@@ -47,14 +47,14 @@ import bauble.prefs as prefs
 import bauble.btypes as types
 
 
-prop_type_values = {u'Seed': _("Seed"),
-                    u'UnrootedCutting': _('Unrooted cutting'),
-                    u'Other': _('Other')}
+prop_type_values = {'Seed': _("Seed"),
+                    'UnrootedCutting': _('Unrooted cutting'),
+                    'Other': _('Other')}
 
 prop_type_results = {
-    u'Seed': u'SEDL',
-    u'UnrootedCutting': u'RCUT',
-    u'Other': u'UNKN',
+    'Seed': 'SEDL',
+    'UnrootedCutting': 'RCUT',
+    'Other': 'UNKN',
 }
 
 
@@ -77,7 +77,7 @@ class Propagation(db.Base):
     Propagation
     """
     __tablename__ = 'propagation'
-    prop_type = Column(types.Enum(values=prop_type_values.keys(),
+    prop_type = Column(types.Enum(values=list(prop_type_values.keys()),
                                   translations=prop_type_values),
                        nullable=False)
     notes = Column(UnicodeText)
@@ -114,11 +114,11 @@ class Propagation(db.Base):
         """
         quantity = None
         incomplete = True
-        if self.prop_type == u'UnrootedCutting':
+        if self.prop_type == 'UnrootedCutting':
             incomplete = self._cutting is None  # cutting without fields
             if not incomplete:
                 quantity = self._cutting.rooted_pct
-        elif self.prop_type == u'Seed':
+        elif self.prop_type == 'Seed':
             incomplete = self._seed is None  # seed without fields
             if not incomplete:
                 quantity = self._seed.nseedlings
@@ -159,7 +159,7 @@ class Propagation(db.Base):
         if partial == 1:
             return ';'.join(accession_codes)
 
-        if self.prop_type == u'UnrootedCutting':
+        if self.prop_type == 'UnrootedCutting':
             c = self._cutting
             values.append(_('Cutting'))
             if c.cutting_type is not None:
@@ -173,7 +173,7 @@ class Propagation(db.Base):
                 values.append(_('Tip') + ': %s' % tip_values[c.tip])
             if c.leaves:
                 s = _('Leaves') + ': %s' % leaves_values[c.leaves]
-                if c.leaves == u'Removed' and c.leaves_reduced_pct:
+                if c.leaves == 'Removed' and c.leaves_reduced_pct:
                     s.append('(%s%%)' % c.leaves_reduced_pct)
                 values.append(s)
             if c.flower_buds:
@@ -201,7 +201,7 @@ class Propagation(db.Base):
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)
-        elif self.prop_type == u'Seed':
+        elif self.prop_type == 'Seed':
             seed = self._seed
             values.append(_('Seed'))
             if seed.pretreatment:
@@ -240,14 +240,14 @@ class Propagation(db.Base):
         return s
 
     def clean(self):
-        if self.prop_type == u'UnrootedCutting':
+        if self.prop_type == 'UnrootedCutting':
             utils.delete_or_expunge(self._seed)
             self._seed = None
             if not self._cutting.bottom_heat_temp:
                 self._cutting.bottom_heat_unit = None
             if not self._cutting.length:
                 self._cutting.length_unit = None
-        elif self.prop_type == u'Seed':
+        elif self.prop_type == 'Seed':
             utils.delete_or_expunge(self._cutting)
             self._cutting = None
         else:
@@ -269,41 +269,41 @@ class PropCuttingRooted(db.Base):
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
 
 
-cutting_type_values = {u'Nodal': _('Nodal'),
-                       u'InterNodal': _('Internodal'),
-                       u'Other': _('Other')}
+cutting_type_values = {'Nodal': _('Nodal'),
+                       'InterNodal': _('Internodal'),
+                       'Other': _('Other')}
 
-tip_values = {u'Intact': _('Intact'),
-              u'Removed': _('Removed'),
-              u'None': _('None'),
+tip_values = {'Intact': _('Intact'),
+              'Removed': _('Removed'),
+              'None': _('None'),
               None: ''}
 
-leaves_values = {u'Intact': _('Intact'),
-                 u'Removed': _('Removed'),
-                 u'None': _('None'),
+leaves_values = {'Intact': _('Intact'),
+                 'Removed': _('Removed'),
+                 'None': _('None'),
                  None: ''}
 
-flower_buds_values = {u'Removed': _('Removed'),
-                      u'None': _('None'),
+flower_buds_values = {'Removed': _('Removed'),
+                      'None': _('None'),
                       None: ''}
 
-wound_values = {u'No': _('No'),
-                u'Single': _('Singled'),
-                u'Double': _('Double'),
-                u'Slice': _('Slice'),
+wound_values = {'No': _('No'),
+                'Single': _('Singled'),
+                'Double': _('Double'),
+                'Slice': _('Slice'),
                 None: ''}
 
-hormone_values = {u'Liquid': _('Liquid'),
-                  u'Powder': _('Powder'),
-                  u'No': _('No')}
+hormone_values = {'Liquid': _('Liquid'),
+                  'Powder': _('Powder'),
+                  'No': _('No')}
 
-bottom_heat_unit_values = {u'F': _('°F'),
-                           u'C': _('°C'),
+bottom_heat_unit_values = {'F': _('°F'),
+                           'C': _('°C'),
                            None: ''}
 
-length_unit_values = {u'mm': _('mm'),
-                      u'cm': _('cm'),
-                      u'in': _('in'),
+length_unit_values = {'mm': _('mm'),
+                      'cm': _('cm'),
+                      'in': _('in'),
                       None: ''}
 
 
@@ -312,24 +312,24 @@ class PropCutting(db.Base):
     A cutting
     """
     __tablename__ = 'prop_cutting'
-    cutting_type = Column(types.Enum(values=cutting_type_values.keys(),
+    cutting_type = Column(types.Enum(values=list(cutting_type_values.keys()),
                                      translations=cutting_type_values),
-                          default=u'Other')
-    tip = Column(types.Enum(values=tip_values.keys(),
+                          default='Other')
+    tip = Column(types.Enum(values=list(tip_values.keys()),
                             translations=tip_values))
-    leaves = Column(types.Enum(values=leaves_values.keys(),
+    leaves = Column(types.Enum(values=list(leaves_values.keys()),
                                translations=leaves_values))
     leaves_reduced_pct = Column(Integer, autoincrement=False)
     length = Column(Integer, autoincrement=False)
-    length_unit = Column(types.Enum(values=length_unit_values.keys(),
+    length_unit = Column(types.Enum(values=list(length_unit_values.keys()),
                                     translations=length_unit_values))
 
     # single/double/slice
-    wound = Column(types.Enum(values=wound_values.keys(),
+    wound = Column(types.Enum(values=list(wound_values.keys()),
                               translations=wound_values))
 
     # removed/None
-    flower_buds = Column(types.Enum(values=flower_buds_values.keys(),
+    flower_buds = Column(types.Enum(values=list(flower_buds_values.keys()),
                                     translations=flower_buds_values))
 
     fungicide = Column(UnicodeText)  # fungal soak
@@ -347,7 +347,7 @@ class PropCutting(db.Base):
     # not null
 
     # F/C
-    bottom_heat_unit = Column(types.Enum(values=bottom_heat_unit_values.keys(),
+    bottom_heat_unit = Column(types.Enum(values=list(bottom_heat_unit_values.keys()),
                                          translations=bottom_heat_unit_values),
                               nullable=True)
     rooted_pct = Column(Integer, autoincrement=False)
@@ -630,12 +630,12 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
         # set default units
         units = prefs.prefs[prefs.units_pref]
-        if units == u'imperial':
-            self.model.length_unit = u'in'
-            self.model.bottom_heat_unit = u'F'
+        if units == 'imperial':
+            self.model.length_unit = 'in'
+            self.model.bottom_heat_unit = 'F'
         else:
-            self.model.length_unit = u'mm'
-            self.model.bottom_heat_unit = u'C'
+            self.model.length_unit = 'mm'
+            self.model.bottom_heat_unit = 'C'
 
         # the liststore for rooted cuttings contains PropCuttingRooted
         # objects, not just their fields, so we cannot define it in the
@@ -741,7 +741,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
     def refresh_view(self):
         # TODO: not so sure. is this a 'refresh', or a 'init' view?
-        for widget, attr in self.widget_to_field_map.iteritems():
+        for widget, attr in self.widget_to_field_map.items():
             value = getattr(self.model, attr)
             self.view.widget_set_value(widget, value)
         rooted_liststore = self.view.widgets.rooted_treeview.get_model()
@@ -837,7 +837,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
     def refresh_view(self):
         date_format = prefs.prefs[prefs.date_format_pref]
-        for widget, attr in self.widget_to_field_map.iteritems():
+        for widget, attr in self.widget_to_field_map.items():
             value = getattr(self.model, attr)
             if isinstance(value, datetime.date):
                 value = value.strftime(date_format)
@@ -895,7 +895,7 @@ class PropagationPresenter(editor.ChildPresenter):
                                    editor.UnicodeOrNoneValidator())
 
         def on_expanded(*args):
-            if self.model.prop_type == u'Other':
+            if self.model.prop_type == 'Other':
                 # i don't really understand why setting the expanded
                 # property to false here cause the notes_expander to
                 # always stay expanded but it works
@@ -909,14 +909,14 @@ class PropagationPresenter(editor.ChildPresenter):
             # only call set_model_attr() if the value is changed to
             # avoid prematuraly calling dirty() and refresh_sensitivity()
             self.set_model_attr('prop_type', prop_type)
-        prop_box_map = {u'Seed': self.view.widgets.seed_box,
-                        u'UnrootedCutting': self.view.widgets.cutting_box,
+        prop_box_map = {'Seed': self.view.widgets.seed_box,
+                        'UnrootedCutting': self.view.widgets.cutting_box,
                         }
-        for type_, box in prop_box_map.iteritems():
+        for type_, box in prop_box_map.items():
             box.props.visible = (prop_type == type_)
 
         self.view.widgets.notes_box.props.visible = True
-        if prop_type == u'Other' or self.model.notes:
+        if prop_type == 'Other' or self.model.notes:
             self.view.widgets.notes_expander.props.expanded = True
 
         self.view.widgets.prop_details_box.props.visible = True
@@ -925,9 +925,9 @@ class PropagationPresenter(editor.ChildPresenter):
             self.view.widgets.prop_date_entry.emit('changed')
 
     def is_dirty(self):
-        if self.model.prop_type == u'UnrootedCutting':
+        if self.model.prop_type == 'UnrootedCutting':
             return self._cutting_presenter.is_dirty() or self._dirty
-        elif self.model.prop_type == u'Seed':
+        elif self.model.prop_type == 'Seed':
             return self._seed_presenter.is_dirty() or self._dirty
         else:
             return self._dirty
@@ -1052,9 +1052,9 @@ class PropagationEditorPresenter(PropagationPresenter):
 
         model = None
         if object_session(self.model):
-            if self.model.prop_type == u'UnrootedCutting':
+            if self.model.prop_type == 'UnrootedCutting':
                 model = self.model._cutting
-            elif self.model.prop_type == u'Seed':
+            elif self.model.prop_type == 'Seed':
                 model = self.model._seed
 
         if model:
@@ -1119,7 +1119,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                     self.commit_changes()
             except DBAPIError as e:
                 msg = _('Error committing changes.\n\n%s') % \
-                    utils.xml_safe(unicode(e.orig))
+                    utils.xml_safe(str(e.orig))
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 self.session.rollback()
                 return False

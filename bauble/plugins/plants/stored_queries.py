@@ -38,7 +38,7 @@ class StoredQueriesModel(object):
         self.__query = [''] * 11
         ssn = db.Session()
         q = ssn.query(meta.BaubleMeta)
-        stqrq = q.filter(meta.BaubleMeta.name.startswith(u'stqr_'))
+        stqrq = q.filter(meta.BaubleMeta.name.startswith('stqr_'))
         for item in stqrq:
             if item.name[4] != '_':
                 continue
@@ -56,18 +56,18 @@ class StoredQueriesModel(object):
         for index in range(1, 11):
             if self.__label[index] == '':
                 ssn.query(meta.BaubleMeta).\
-                    filter_by(name=u'stqr_%02d' % index).\
+                    filter_by(name='stqr_%02d' % index).\
                     delete()
             else:
                 obj = db.get_or_create(ssn, meta.BaubleMeta,
-                                       name=u'stqr_%02d' % index)
+                                       name='stqr_%02d' % index)
                 if obj.value != self[index]:
                     obj.value = self[index]
         ssn.commit()
         ssn.close()
 
     def __getitem__(self, index):
-        return u'%s:%s:%s' % (self.__label[index],
+        return '%s:%s:%s' % (self.__label[index],
                               self.__tooltip[index],
                               self.__query[index])
 
@@ -79,7 +79,7 @@ class StoredQueriesModel(object):
         self.__index = 0
         return self
 
-    def next(self):
+    def __next__(self):
         if self.__index == 10:
             raise StopIteration
         else:

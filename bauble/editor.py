@@ -23,7 +23,7 @@
 # editors for Ghini data
 #
 
-from __future__ import unicode_literals
+
 
 import datetime
 import os
@@ -111,7 +111,7 @@ class StringOrNoneValidator(Validator):
     """
 
     def to_python(self, value):
-        if value in (u'', '', None):
+        if value in ('', '', None):
             return None
         return str(value)
 
@@ -126,7 +126,7 @@ class UnicodeOrNoneValidator(Validator):
         self.encoding = encoding
 
     def to_python(self, value):
-        if value in (u'', '', None):
+        if value in ('', '', None):
             return None
         return utils.to_unicode(value, self.encoding)
 
@@ -155,7 +155,7 @@ class IntOrNoneStringValidator(Validator):
     def to_python(self, value):
         if value is None or (isinstance(value, str) and value == ''):
             return None
-        elif isinstance(value, (int, long)):
+        elif isinstance(value, int):
             return value
         try:
             return int(value)
@@ -173,7 +173,7 @@ class FloatOrNoneStringValidator(Validator):
     def to_python(self, value):
         if value is None or (isinstance(value, str) and value == ''):
             return None
-        elif isinstance(value, (int, long, float)):
+        elif isinstance(value, (int, float)):
             return value
         try:
             return float(value)
@@ -234,7 +234,7 @@ class GenericEditorView(object):
         self.boxes = set()
 
         # set the tooltips...use Gtk.Tooltip api introducted in GTK+ 2.12
-        for widget_name, markup in self._tooltips.iteritems():
+        for widget_name, markup in self._tooltips.items():
             try:
                 self.widgets[widget_name].set_tooltip_markup(markup)
             except Exception as e:
@@ -406,7 +406,7 @@ class GenericEditorView(object):
 
         :param args: extra args to pass the the callback
         """
-        if isinstance(obj, basestring):
+        if isinstance(obj, str):
             obj = self.widgets[obj]
         sid = obj.connect(signal, callback, *args)
         self.__attached_signals.append((obj, sid))
@@ -427,7 +427,7 @@ class GenericEditorView(object):
 
         :param args: extra args to pass the the callback
         """
-        if isinstance(obj, basestring):
+        if isinstance(obj, str):
             obj = self.widgets[obj]
         sid = obj.connect_after(signal, callback, *args)
         # if data:
@@ -696,7 +696,7 @@ class GenericEditorView(object):
         completion.set_minimum_key_length(minimum_key_length)
         completion.set_popup_completion(True)
         completion.props.popup_set_width = False
-        if isinstance(entry, basestring):
+        if isinstance(entry, str):
             self.widgets[entry].set_completion(completion)
         else:
             entry.set_completion(completion)
@@ -722,13 +722,13 @@ class GenericEditorView(object):
         :param translations: a list of pairs, or a dictionary,
             of values->translation.
         """
-        if isinstance(combo, basestring):
+        if isinstance(combo, str):
             combo = self.widgets[combo]
         combo.clear()
         # using 'object' avoids SA unicode warning
         model = Gtk.ListStore(object, str)
         if isinstance(translations, dict):
-            translations = sorted(translations.iteritems(), key=lambda x: x[1])
+            translations = sorted(iter(translations.items()), key=lambda x: x[1])
         if cmp is not None:
             translations = sorted(translations,
                                   cmp=lambda a, b: cmp(a[0], b[0]))
@@ -810,7 +810,7 @@ class MockView:
         self.reply_yes_no_dialog = []
         self.reply_file_chooser_dialog = []
         self.__window = MockDialog()
-        for name, value in kwargs.items():
+        for name, value in list(kwargs.items()):
             setattr(self, name, value)
         self.boxes = set()
 
@@ -1187,7 +1187,7 @@ class GenericEditorPresenter(object):
         to the same model attribute.
 
          '''
-        for widget, attr in self.widget_to_field_map.items():
+        for widget, attr in list(self.widget_to_field_map.items()):
             value = getattr(self.model, attr)
             value = (value is not None) and value or ''
             self.view.widget_set_value(widget, value)
@@ -1418,7 +1418,7 @@ class GenericEditorPresenter(object):
         Clear all the problems from all widgets associated with the presenter
         """
         tmp = self.problems.copy()
-        map(lambda p: self.remove_problem(p[0], p[1]), tmp)
+        list(map(lambda p: self.remove_problem(p[0], p[1]), tmp))
         self.problems.clear()
 
     def remove_problem(self, problem_id, widget=None):
@@ -1474,7 +1474,7 @@ class GenericEditorPresenter(object):
         logger.debug('add_problem(%s, %s, %s)' %
                      (self, problem_id, problem_widgets))
         if isinstance(problem_widgets, (tuple, list)):
-            map(lambda w: self.add_problem(problem_id, w), problem_widgets)
+            list(map(lambda w: self.add_problem(problem_id, w), problem_widgets))
             return
 
         ## here single widget.
@@ -2057,7 +2057,7 @@ class PictureBox(NoteBox):
     def __init__(self, presenter, model=None):
         super(PictureBox, self).__init__(presenter, model)
         utils.set_widget_value(self.widgets.category_comboentry,
-                               u'<picture>')
+                               '<picture>')
         self.presenter._dirty = False
 
         self.widgets.picture_button.connect(
@@ -2116,13 +2116,13 @@ class PictureBox(NoteBox):
             filename = fileChooserDialog.get_filename()
             if filename:
                 ## remember chosen location for next time
-                PictureBox.last_folder, basename = os.path.split(unicode(filename))
+                PictureBox.last_folder, basename = os.path.split(str(filename))
                 logger.debug('new current folder is: %s' % self.last_folder)
                 ## copy file to picture_root_dir (if not yet there),
                 ## also receiving thumbnail base64
                 thumb = utils.copy_picture_with_thumbnail(self.last_folder, basename)
                 ## make sure the category is <picture>
-                self.set_model_attr('category', u'<picture>')
+                self.set_model_attr('category', '<picture>')
                 ## append thumbnail base64 to content string
                 basename = basename + "|data:image/jpeg;base64," + thumb
                 ## store basename in note field and fire callbacks.
@@ -2138,7 +2138,7 @@ class PictureBox(NoteBox):
 
     @classmethod
     def is_valid_note(cls, note):
-        return note.category == u'<picture>'
+        return note.category == '<picture>'
 
 
 # TODO: create a separate class for browsing notes in a treeview

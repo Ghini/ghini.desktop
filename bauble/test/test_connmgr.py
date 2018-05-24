@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
+
 import os
 
 ## just keeping it here because I am forgetful and I never recall how to
@@ -51,7 +51,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
         presenter = ConnMgrPresenter(view)
-        self.assertEquals(presenter.view, view)
+        self.assertEqual(presenter.view, view)
 
     def test_no_connections_then_message(self):
         view = MockView(combos={'name_combo': [],
@@ -134,9 +134,9 @@ class ConnMgrPresenterTests(BaubleTestCase):
                      'file': 'btuu.db'}}
         prefs.prefs[bauble.conn_default_pref] = 'nugkui'
         presenter = ConnMgrPresenter(view)
-        self.assertEquals(presenter.connection_name, 'nugkui')
+        self.assertEqual(presenter.connection_name, 'nugkui')
         params = presenter.connections[presenter.connection_name]
-        self.assertEquals(params['default'], True)
+        self.assertEqual(params['default'], True)
         self.assertTrue(view.widget_get_value('usedefaults_chkbx'))
 
     def test_two_connection_initialize_default_second(self):
@@ -153,9 +153,9 @@ class ConnMgrPresenterTests(BaubleTestCase):
                      'file': 'btuu.db'}}
         prefs.prefs[bauble.conn_default_pref] = 'bruu'
         presenter = ConnMgrPresenter(view)
-        self.assertEquals(presenter.connection_name, 'btuu')
+        self.assertEqual(presenter.connection_name, 'btuu')
         params = presenter.connections[presenter.connection_name]
-        self.assertEquals(params['default'], False)
+        self.assertEqual(params['default'], False)
         self.assertFalse(view.widget_get_value('usedefaults_chkbx'))
 
     def test_two_connection_on_remove_confirm_positive(self):
@@ -190,7 +190,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                        'file': 'nugkui.db'}}
         prefs.prefs[bauble.conn_default_pref] = 'nugkui'
         presenter = ConnMgrPresenter(view)
-        self.assertEquals(presenter.connection_name, 'nugkui')
+        self.assertEqual(presenter.connection_name, 'nugkui')
         self.assertTrue(presenter.view.widget_get_visible(
             'expander'))
         self.assertFalse(presenter.view.widget_get_visible(
@@ -208,7 +208,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                          'type': 'PostgreSQL'}}
         prefs.prefs[bauble.conn_default_pref] = 'quisquis'
         presenter = ConnMgrPresenter(view)
-        self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertEqual(presenter.connection_name, 'quisquis')
         self.assertTrue(presenter.view.widget_get_visible(
             'expander'))
         self.assertTrue(presenter.view.widget_get_visible(
@@ -230,7 +230,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                          'type': 'Oracle'}}
         prefs.prefs[bauble.conn_default_pref] = 'quisquis'
         presenter = ConnMgrPresenter(view)
-        self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertEqual(presenter.connection_name, 'quisquis')
         self.assertTrue(presenter.view.widget_get_visible(
             'expander'))
         self.assertTrue(presenter.view.widget_get_visible(
@@ -258,7 +258,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         prefs.prefs[bauble.conn_default_pref] = 'nonce'
         presenter = ConnMgrPresenter(view)
         as_list = presenter.connection_names
-        self.assertEquals(presenter.connection_name, as_list[0])
+        self.assertEqual(presenter.connection_name, as_list[0])
 
     def test_when_user_selects_different_type(self):
         view = MockView(combos={'name_combo': [],
@@ -277,7 +277,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                          'user': 'pg'}}
         presenter = ConnMgrPresenter(view)
         # T_0
-        self.assertEquals(presenter.connection_name, 'nugkui')
+        self.assertEqual(presenter.connection_name, 'nugkui')
         self.assertTrue(presenter.view.widget_get_visible(
             'sqlite_parambox'))
         # action
@@ -285,9 +285,9 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter.dbtype = 'PostgreSQL'  # who to trigger this in tests?
         presenter.on_name_combo_changed('name_combo')
         # result
-        self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertEqual(presenter.connection_name, 'quisquis')
         presenter.refresh_view()  # in reality this is triggered by gtk view
-        self.assertEquals(presenter.dbtype, 'PostgreSQL')
+        self.assertEqual(presenter.dbtype, 'PostgreSQL')
         ## if the above succeeds, the following is riggered by the view!
         #presenter.on_combo_changed('type_combo', 'PostgreSQL')
         # T_1
@@ -359,7 +359,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                   'default': False,
                   'file': '/tmp/test.db',
                   'pictures': '/tmp/'}
-        self.assertEquals(presenter.parameters_to_uri(params),
+        self.assertEqual(presenter.parameters_to_uri(params),
                           'sqlite:////tmp/test.db')
         params = {'type': 'PostgreSQL',
                   'passwd': False,
@@ -367,7 +367,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                   'db': 'quisquis',
                   'host': 'localhost',
                   'user': 'pg'}
-        self.assertEquals(presenter.parameters_to_uri(params),
+        self.assertEqual(presenter.parameters_to_uri(params),
                           'postgresql://pg@localhost/quisquis')
         params = {'type': 'PostgreSQL',
                   'passwd': True,
@@ -376,7 +376,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                   'host': 'localhost',
                   'user': 'pg'}
         view.reply_entry_dialog.append('secret')
-        self.assertEquals(presenter.parameters_to_uri(params),
+        self.assertEqual(presenter.parameters_to_uri(params),
                           'postgresql://pg:secret@localhost/quisquis')
         params = {'type': 'PostgreSQL',
                   'passwd': False,
@@ -385,7 +385,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                   'db': 'quisquis',
                   'host': 'localhost',
                   'user': 'pg'}
-        self.assertEquals(presenter.parameters_to_uri(params),
+        self.assertEqual(presenter.parameters_to_uri(params),
                           'postgresql://pg@localhost:9876/quisquis')
         params = {'type': 'PostgreSQL',
                   'passwd': True,
@@ -395,7 +395,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                   'host': 'localhost',
                   'user': 'pg'}
         view.reply_entry_dialog.append('secret')
-        self.assertEquals(presenter.parameters_to_uri(params),
+        self.assertEqual(presenter.parameters_to_uri(params),
                           'postgresql://pg:secret@localhost:9876/quisquis')
         params = {'type': 'PostgreSQL',
                   'passwd': False,
@@ -405,7 +405,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
                   'db': 'quisquis',
                   'host': 'localhost',
                   'user': 'pg'}
-        self.assertEquals(presenter.parameters_to_uri(params),
+        self.assertEqual(presenter.parameters_to_uri(params),
                           'postgresql://pg@localhost/quisquis?'
                           'is_this_possible=no&why_do_we_test=because')
 
@@ -421,8 +421,8 @@ class ConnMgrPresenterTests(BaubleTestCase):
                          'host': 'localhost',
                          'user': 'pg'}}
         presenter = ConnMgrPresenter(view)
-        self.assertEquals(presenter.connection_name, 'quisquis')
-        self.assertEquals(presenter.dbtype, 'PostgreSQL')
+        self.assertEqual(presenter.connection_name, 'quisquis')
+        self.assertEqual(presenter.dbtype, 'PostgreSQL')
         ## we need trigger all signals that would go by gtk
         p = presenter.connections[presenter.connection_name]
         presenter.view.widget_set_value('database_entry', p['db'])
@@ -431,7 +431,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter.on_text_entry_changed('user_entry')
         presenter.view.widget_set_value('host_entry', p['host'])
         presenter.on_text_entry_changed('host_entry')
-        self.assertEquals(presenter.connection_uri,
+        self.assertEqual(presenter.connection_uri,
                           'postgresql://pg@localhost/quisquis')
 
 
@@ -506,9 +506,9 @@ class GlobalFunctionsTests(BaubleTestCase):
         for iter, name in enumerate(bauble.connmgr.dbtypes):
             bauble.connmgr.type_combo_cell_data_func(
                 None, renderer, bauble.connmgr.dbtypes, iter)
-            self.assertEquals(renderer['sensitive'],
+            self.assertEqual(renderer['sensitive'],
                               name in bauble.connmgr.working_dbtypes)
-            self.assertEquals(renderer['text'], name)
+            self.assertEqual(renderer['text'], name)
 
         bauble.connmgr.working_dbtypes, bauble.connmgr.dbtypes = wt, at
 
@@ -526,7 +526,7 @@ class ButtonBrowseButtons(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         presenter.on_file_btnbrowse_clicked()
         presenter.on_text_entry_changed('file_entry')
-        self.assertEquals(presenter.filename, 'chosen')
+        self.assertEqual(presenter.filename, 'chosen')
 
     def test_file_not_chosen(self):
         view = MockView(combos={'name_combo': [],
@@ -535,7 +535,7 @@ class ButtonBrowseButtons(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         presenter.filename = 'previously'
         presenter.on_file_btnbrowse_clicked()
-        self.assertEquals(presenter.filename, 'previously')
+        self.assertEqual(presenter.filename, 'previously')
 
     def test_pictureroot_chosen(self):
         view = MockView(combos={'name_combo': [],
@@ -544,7 +544,7 @@ class ButtonBrowseButtons(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         presenter.on_pictureroot_btnbrowse_clicked()
         presenter.on_text_entry_changed('pictureroot_entry')
-        self.assertEquals(presenter.pictureroot, 'chosen')
+        self.assertEqual(presenter.pictureroot, 'chosen')
 
     def test_pictureroot_not_chosen(self):
         view = MockView(combos={'name_combo': [],
@@ -553,7 +553,7 @@ class ButtonBrowseButtons(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         presenter.pictureroot = 'previously'
         presenter.on_pictureroot_btnbrowse_clicked()
-        self.assertEquals(presenter.pictureroot, 'previously')
+        self.assertEqual(presenter.pictureroot, 'previously')
 
     def test_pictureroot2_chosen(self):
         view = MockView(combos={'name_combo': [],
@@ -562,7 +562,7 @@ class ButtonBrowseButtons(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         presenter.on_pictureroot2_btnbrowse_clicked()
         presenter.on_text_entry_changed('pictureroot2_entry')
-        self.assertEquals(presenter.pictureroot, 'chosen')
+        self.assertEqual(presenter.pictureroot, 'chosen')
 
     def test_pictureroot2_not_chosen(self):
         view = MockView(combos={'name_combo': [],
@@ -571,7 +571,7 @@ class ButtonBrowseButtons(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         presenter.pictureroot = 'previously'
         presenter.on_pictureroot2_btnbrowse_clicked()
-        self.assertEquals(presenter.pictureroot, 'previously')
+        self.assertEqual(presenter.pictureroot, 'previously')
 
 
 class OnDialogResponseTests(BaubleTestCase):
@@ -603,7 +603,7 @@ class OnDialogResponseTests(BaubleTestCase):
         presenter.on_dialog_response(dialog, Gtk.ResponseType.OK)
         self.assertFalse('run_message_dialog' in view.invoked)
         self.assertTrue(dialog.hidden)
-        self.assertEquals(prefs.prefs[prefs.picture_root_pref], '/tmp/nugkui')
+        self.assertEqual(prefs.prefs[prefs.picture_root_pref], '/tmp/nugkui')
 
     def test_on_dialog_response_cancel(self):
         view = MockView(combos={'name_combo': [],

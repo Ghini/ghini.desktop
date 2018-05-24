@@ -81,7 +81,7 @@ def _get_pertinent_objects(cls, get_query_func, objs, session):
         session = db.Session()
     if not isinstance(objs, (tuple, list)):
         objs = [objs]
-    queries = map(lambda o: get_query_func(o, session), objs)
+    queries = [get_query_func(o, session) for o in objs]
     # TODO: what is the problem with the following form?
     # results = session.query(cls).order_by(None).union(*queries)
     unions = union(*[q.statement for q in queries])
@@ -539,7 +539,7 @@ class ReportToolDialogPresenter(object):
 
     def init_formatter_combo(self):
         plugins = []
-        for p in pluginmgr.plugins.values():
+        for p in list(pluginmgr.plugins.values()):
             if isinstance(p, FormatterPlugin):
                 logger.debug('recognized %s as a FormatterPlugin', p)
                 plugins.append(p)
@@ -572,7 +572,7 @@ class ReportToolDialogPresenter(object):
             return
         try:
             model = Gtk.ListStore(str)
-            for cfg in configs.keys():
+            for cfg in list(configs.keys()):
                 model.append([cfg])
             combo.set_model(model)
         except AttributeError as e:

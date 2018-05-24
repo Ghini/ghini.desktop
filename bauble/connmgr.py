@@ -132,18 +132,18 @@ def retrieve_latest_release_date():
         '/ghini-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
 
     try:
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         import ssl
         import json
         ## from github retrieve the date of the latest release
-        stream = urllib2.urlopen(
+        stream = urllib.request.urlopen(
             "https://api.github.com/repos/Ghini/ghini.desktop/branches/ghini-1.0",
             timeout=5)
         response = json.load(stream)
         bauble.release_date = response['commit']['commit']['committer']['date']
 
         ## from github retrieve the version number
-        github_version_stream = urllib2.urlopen(version_on_github, timeout=5)
+        github_version_stream = urllib.request.urlopen(version_on_github, timeout=5)
         bauble.release_version = newer_version_on_github(github_version_stream, force=True)
 
         ## locally, read the installation timestamp
@@ -153,11 +153,11 @@ def retrieve_latest_release_date():
         import datetime
         last_modified_date = datetime.datetime(1970, 1, 1) + datetime.timedelta(0, int(last_modified_seconds))
         bauble.installation_date = last_modified_date.isoformat() + "Z"
-    except urllib2.URLError:
+    except urllib.error.URLError:
         logger.info('connection is slow or down')
     except ssl.SSLError as e:
         logger.info('SSLError %s while checking for newer version' % e)
-    except urllib2.HTTPError:
+    except urllib.error.HTTPError:
         logger.info('HTTPError while checking for newer version')
     except Exception as e:
         logger.warning('unhandled %s(%s) while checking for newer version'
@@ -171,9 +171,9 @@ def check_and_notify_new_version(view):
         'https://raw.githubusercontent.com/Ghini/ghini' +
         '.desktop/ghini-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
     try:
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         import ssl
-        github_version_stream = urllib2.urlopen(
+        github_version_stream = urllib.request.urlopen(
             version_on_github, timeout=5)
         remote = newer_version_on_github(github_version_stream)
         if remote:
@@ -191,11 +191,11 @@ def check_and_notify_new_version(view):
             # asynchronously in the main loop, with GObject.idle_add.
             from gi.repository import GObject
             GObject.idle_add(show_message_box)
-    except urllib2.URLError:
+    except urllib.error.URLError:
         logger.info('connection is slow or down')
     except ssl.SSLError as e:
         logger.info('SSLError %s while checking for newer version' % e)
-    except urllib2.HTTPError:
+    except urllib.error.HTTPError:
         logger.info('HTTPError while checking for newer version')
     except Exception as e:
         logger.warning('unhandled %s(%s) while checking for newer version'
@@ -308,7 +308,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
     def refresh_view(self):
         GenericEditorPresenter.refresh_view(self)
         conn_dict = self.connections
-        if conn_dict is None or len(conn_dict.keys()) == 0:
+        if conn_dict is None or len(list(conn_dict.keys())) == 0:
             self.view.widget_set_visible('noconnectionlabel', True)
             self.view.widget_set_visible('expander', False)
             self.prev_connection_name = None

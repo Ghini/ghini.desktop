@@ -116,7 +116,7 @@ def query_session_new(session, cls, **kwargs):
         found = False
         if type(i) == cls:
             found = True
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 if getattr(i, k) != v:
                     found = False
         if found:
@@ -244,7 +244,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
         from bauble.plugins.garden import (Location, Accession, Plant, PlantNote)
         # make sure selected location exists
         if self.model.location is None:
-            self.model.location = u'imported'
+            self.model.location = 'imported'
         location = session.query(Location).filter_by(code=self.model.location).first()
         if location is not None:
             logger.log(11, 'location %s already in database' % (location, ))
@@ -260,9 +260,9 @@ class PictureImporterPresenter(GenericEditorPresenter):
             if not row[use_me_col]:
                 continue
             # get unicode strings from row
-            epgn, epsp = unicode(row[binomial_col] + ' sp').split(' ')[:2]
-            filename = unicode(row[filename_col])
-            complete_plant_code = unicode(row[accno_col])
+            epgn, epsp = str(row[binomial_col] + ' sp').split(' ')[:2]
+            filename = str(row[filename_col])
+            complete_plant_code = str(row[accno_col])
             accession_code, plant_code = complete_plant_code.rsplit(Plant.get_delimiter(), 1)
 
             # create or retrieve genus and species
@@ -309,13 +309,13 @@ class PictureImporterPresenter(GenericEditorPresenter):
             utils.copy_picture_with_thumbnail(self.model.filepath, filename)
 
             # add picture note
-            note = session.query(PlantNote).filter_by(plant=plant, note=filename, category=u'<picture>').first()
+            note = session.query(PlantNote).filter_by(plant=plant, note=filename, category='<picture>').first()
             if note is not None:
                 logger.log(11, 'picture %s already in plant %s' % (filename, complete_plant_code))
             else:
-                note = query_session_new(session, PlantNote, plant=plant, note=filename, category=u'<picture>')
+                note = query_session_new(session, PlantNote, plant=plant, note=filename, category='<picture>')
                 if note is None:
-                    note = PlantNote(plant=plant, note=filename, category=u'<picture>', user=u'initial-import')
+                    note = PlantNote(plant=plant, note=filename, category='<picture>', user='initial-import')
                     session.add(note)
                     logger.log(13, 'picture %s added to plant %s' % (filename, complete_plant_code))
                 else:

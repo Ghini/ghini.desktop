@@ -32,7 +32,7 @@
 # TODO: should create the table the first time this plugin is loaded, if a new
 # database is created there should be a way to recreate everything from scratch
 
-from __future__ import absolute_import
+
 import os
 import sys
 from gi.repository import Gtk
@@ -198,7 +198,7 @@ class SplashInfoBox(pluginmgr.View):
 
         ssn = db.Session()
         q = ssn.query(bauble.meta.BaubleMeta)
-        q = q.filter(bauble.meta.BaubleMeta.name.startswith(u'stqr'))
+        q = q.filter(bauble.meta.BaubleMeta.name.startswith('stqr'))
         name_tooltip_query = dict(
             (int(i.name[5:]), (i.value.split(':', 2)))
             for i in q.all())
@@ -379,20 +379,20 @@ class PlantsPlugin(pluginmgr.Plugin):
         # suggest some useful defaults for stored queries
         import bauble.meta as meta
         session = db.Session()
-        default = u'false'
-        q = session.query(bauble.meta.BaubleMeta).filter(bauble.meta.BaubleMeta.name.startswith(u'stqr-'))
+        default = 'false'
+        q = session.query(bauble.meta.BaubleMeta).filter(bauble.meta.BaubleMeta.name.startswith('stqr-'))
         for i in q.all():
             default = i.name
             session.delete(i)
             session.commit()
-        init_marker = meta.get_default(u'stqv_initialized', default, session)
-        if init_marker.value == u'false':
-            init_marker.value = u'true'
+        init_marker = meta.get_default('stqv_initialized', default, session)
+        if init_marker.value == 'false':
+            init_marker.value = 'true'
             for index, name, tooltip, query in [
                     (9, _('history'), _('the history in this database'), ':history'),
                     (10, _('preferences'), _('your user preferences'), ':prefs')]:
-                meta.get_default(u'stqr_%02d' % index,
-                                 u"%s:%s:%s" % (name, tooltip, query),
+                meta.get_default('stqr_%02d' % index,
+                                 "%s:%s:%s" % (name, tooltip, query),
                                  session)
             session.commit()
         session.close()

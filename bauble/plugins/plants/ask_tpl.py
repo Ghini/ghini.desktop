@@ -72,7 +72,7 @@ class AskTPL(threading.Thread):
                                                 for k in l if k)]
             header = result[0]
             result = result[1:]
-            return [dict(zip(header, k)) for k in result if k[7] == '']
+            return [dict(list(zip(header, k))) for k in result if k[7] == '']
 
         class ShouldStopNow(Exception):
             pass

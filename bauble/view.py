@@ -20,8 +20,8 @@
 #
 # Description: the default view
 #
-from __future__ import print_function
-from __future__ import absolute_import
+
+
 import itertools
 import os
 import sys
@@ -271,7 +271,7 @@ class InfoBoxPage(Gtk.ScrolledWindow):
         :param row: the mapper instance to use to update this infobox,
           this is passed to each of the infoexpanders in turn
         """
-        for expander in self.expanders.values():
+        for expander in list(self.expanders.values()):
             expander.update(row)
 
 
@@ -357,7 +357,7 @@ class LinksExpander(InfoExpander):
 
     def update(self, row):
         from gi.repository import Pango
-        map(self.dynamic_box.remove, self.dynamic_box.get_children())
+        list(map(self.dynamic_box.remove, self.dynamic_box.get_children()))
         for b in self.buttons:
             b.set_string(row)
         if self.notes:
@@ -421,7 +421,7 @@ class CountResultsTask(threading.Thread):
             item = session.query(klass).filter(klass.id == ndx).one()
             if self.__cancel:  # check whether caller asks to cancel
                 break
-            for k, v in item.top_level_count().items():
+            for k, v in list(item.top_level_count().items()):
                 if isinstance(v, set):
                     d[k] = v.union(d.get(k, set()))
                 else:
@@ -494,8 +494,7 @@ class SearchView(pluginmgr.View):
                 self.context_menu = context_menu
                 self.actions = []
                 if self.context_menu:
-                    self.actions = filter(lambda x: isinstance(x, Action),
-                                          self.context_menu)
+                    self.actions = [x for x in self.context_menu if isinstance(x, Action)]
 
             def get_children(self, obj):
                 '''
@@ -628,7 +627,7 @@ class SearchView(pluginmgr.View):
         row = values[0]  # the selected row
 
         ## loop over bottom_info plugin classes (eg: Tag)
-        for klass, bottom_info in self.bottom_info.items():
+        for klass, bottom_info in list(self.bottom_info.items()):
             if 'label' not in bottom_info:  # late initialization
                 self.add_page_to_bottom_notebook(bottom_info)
             label = bottom_info['label']
@@ -645,7 +644,7 @@ class SearchView(pluginmgr.View):
                 label.set_use_markup(True)
                 label.set_label('<b>%s</b>' % bottom_info['name'])
                 for obj in objs:
-                    model.append([u"%s" % getattr(obj, k)
+                    model.append(["%s" % getattr(obj, k)
                                   for k in bottom_info['fields_used']])
 
     def update_infobox(self):
@@ -669,7 +668,7 @@ class SearchView(pluginmgr.View):
             selected_type = type(row)
 
             # if we have already created an infobox of this type:
-            if selected_type in self.infobox_cache.keys():
+            if selected_type in list(self.infobox_cache.keys()):
                 new_infobox = self.infobox_cache[selected_type]
             # if selected_type defines an infobox class:
             elif selected_type in self.row_meta and \
@@ -678,7 +677,7 @@ class SearchView(pluginmgr.View):
                              % (selected_type,
                                 self.row_meta[selected_type].infobox))
                 # it might be in cache under different name
-                for ib in self.infobox_cache.values():
+                for ib in list(self.infobox_cache.values()):
                     if isinstance(ib, self.row_meta[selected_type].infobox):
                         logger.debug('found same infobox under different name')
                         new_infobox = ib
@@ -1008,7 +1007,7 @@ class SearchView(pluginmgr.View):
         value = model[treeiter][0]
         #logger.debug('TBR: far too detailed, please do not keep us here')
         #logger.debug('TBR: %s' % value)
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             cell.set_property('markup', value)
         else:
             # if the value isn't part of a session then add it to the
@@ -1373,14 +1372,14 @@ class HistoryView(pluginmgr.View):
             eval(v)
             return v
         except:
-            return u"»%s«" % v
+            return "»%s«" % v
 
     def add_row(self, item):
         d = eval(item.values)
         del d['_created']
         del d['_last_updated']
-        friendly = ', '.join(u"%s: %s" % (k, self.show_typed_value(v))
-                             for k, v in sorted(d.items(), self.cmp_items)
+        friendly = ', '.join("%s: %s" % (k, self.show_typed_value(v))
+                             for k, v in sorted(list(d.items()), self.cmp_items)
                              )
         self.liststore.append([
             ("%s" % item.timestamp)[:19], item.operation, item.user,

@@ -31,8 +31,8 @@ db.sqlalchemy_debug(True)
 
 class GlobalFunctionsTests(BaubleTestCase):
     def test_get_next_code_first_this_year(self):
-        self.assertEquals(db.class_of_object("genus"),
+        self.assertEqual(db.class_of_object("genus"),
                           bauble.plugins.plants.genus.Genus)
-        self.assertEquals(db.class_of_object("accession_note"),
+        self.assertEqual(db.class_of_object("accession_note"),
                           bauble.plugins.garden.accession.AccessionNote)
-        self.assertEquals(db.class_of_object("not_existing"), None)
+        self.assertEqual(db.class_of_object("not_existing"), None)

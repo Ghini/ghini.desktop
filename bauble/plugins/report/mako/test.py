@@ -46,35 +46,35 @@ class MakoFormatterTests(BaubleTestCase):
     def setUp(self, *args):
         super(MakoFormatterTests, self).setUp()
         fctr = gctr = sctr = actr = pctr = 0
-        for f in xrange(2):
+        for f in range(2):
             fctr+=1
-            family = Family(id=fctr, family=u'fam%s' % fctr)
+            family = Family(id=fctr, family='fam%s' % fctr)
             self.session.add(family)
             for g in range(2):
                 gctr+=1
-                genus = Genus(id=gctr, family=family, genus=u'gen%s' % gctr)
+                genus = Genus(id=gctr, family=family, genus='gen%s' % gctr)
                 self.session.add(genus)
                 for s in range(2):
                     sctr+=1
-                    sp = Species(id=sctr, genus=genus, sp=u'sp%s' % sctr)
+                    sp = Species(id=sctr, genus=genus, sp='sp%s' % sctr)
                     # TODO: why doesn't this geography, species
                     # distribution stuff seem to work
-                    geo = Geography(id=sctr, name=u'Mexico%s' % sctr)
+                    geo = Geography(id=sctr, name='Mexico%s' % sctr)
                     dist = SpeciesDistribution(geography_id=sctr)
                     sp.distribution.append(dist)
                     vn = VernacularName(id=sctr, species=sp,
-                                        name=u'name%s' % sctr)
+                                        name='name%s' % sctr)
                     self.session.add_all([sp, geo, dist, vn])
                     for a in range(2):
                         actr+=1
-                        acc = Accession(id=actr, species=sp, code=u'%s' % actr)
+                        acc = Accession(id=actr, species=sp, code='%s' % actr)
                         self.session.add(acc)
                         for p in range(2):
                             pctr+=1
-                            loc = Location(id=pctr, code=u'%s' % pctr,
-                                           name=u'site%s' % pctr)
+                            loc = Location(id=pctr, code='%s' % pctr,
+                                           name='site%s' % pctr)
                             plant = Plant(id=pctr, accession=acc, location=loc,
-                                          code=u'%s' % pctr, quantity=1)
+                                          code='%s' % pctr, quantity=1)
                             #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
                             #      % (fctr, gctr, actr, pctr))
                             self.session.add_all([loc, plant])
@@ -96,109 +96,109 @@ class MakoFormatterTests(BaubleTestCase):
                 continue
             filename = os.path.join(td, tn)
             report = MakoFormatterPlugin.format(plants, template=filename)
-            self.assertTrue(isinstance(report, basestring))
+            self.assertTrue(isinstance(report, str))
 
 
 class SvgProductionTest(BaubleTestCase):
     def test_add_text_a(self):
         g, x, y = add_text(0, 0, 'a', 2)
-        self.assertEquals(y, 0)
-        self.assertEquals(x, 31)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
+        self.assertEqual(y, 0)
+        self.assertEqual(x, 31)
+        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 
     def test_add_text_tildes(self):
-        g, x, y = add_text(0, 0, u'áà', 2)
-        self.assertEquals(y, 0)
-        self.assertEquals(x, 62)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
+        g, x, y = add_text(0, 0, 'áà', 2)
+        self.assertEqual(y, 0)
+        self.assertEqual(x, 62)
+        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u00e1"/>\n'
                           '<use transform="translate(15.5,0)" xlink:href="#s1-u00e0"/>\n'
                           '</g>')
 
     def test_add_text_align_right(self):
-        g, x, y = add_text(0, 0, u'áà', 2, align=1)
-        self.assertEquals(y, 0)
-        self.assertEquals(x, 0)
-        self.assertEquals(g, '<g transform="translate(-62.0, 0.0)scale(2)">\n'
+        g, x, y = add_text(0, 0, 'áà', 2, align=1)
+        self.assertEqual(y, 0)
+        self.assertEqual(x, 0)
+        self.assertEqual(g, '<g transform="translate(-62.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u00e1"/>\n'
                           '<use transform="translate(15.5,0)" xlink:href="#s1-u00e0"/>\n'
                           '</g>')
 
     def test_add_text_align_right(self):
-        g, x, y = add_text(0, 0, u'áà', 2, align=0.5)
-        self.assertEquals(y, 0)
-        self.assertEquals(x, 31.0)
-        self.assertEquals(g, '<g transform="translate(-31.0, 0.0)scale(2)">\n'
+        g, x, y = add_text(0, 0, 'áà', 2, align=0.5)
+        self.assertEqual(y, 0)
+        self.assertEqual(x, 31.0)
+        self.assertEqual(g, '<g transform="translate(-31.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u00e1"/>\n'
                           '<use transform="translate(15.5,0)" xlink:href="#s1-u00e0"/>\n'
                           '</g>')
 
     def test_add_text_a_rotated_endpoint(self):
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=0)
-        self.assertAlmostEquals(y, 0)
-        self.assertAlmostEquals(x, 31)
+        self.assertAlmostEqual(y, 0)
+        self.assertAlmostEqual(x, 31)
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
-        self.assertAlmostEquals(y, 31)
-        self.assertAlmostEquals(x, 0)
+        self.assertAlmostEqual(y, 31)
+        self.assertAlmostEqual(x, 0)
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
-        self.assertAlmostEquals(y, -31)
-        self.assertAlmostEquals(x, 0)
+        self.assertAlmostEqual(y, -31)
+        self.assertAlmostEqual(x, 0)
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
-        self.assertAlmostEquals(y, 0)
-        self.assertAlmostEquals(x, -31)
+        self.assertAlmostEqual(y, 0)
+        self.assertAlmostEqual(x, -31)
 
     def test_add_text_a_rotated_aligned_endpoint(self):
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=0)
-        self.assertAlmostEquals(y, 0)
-        self.assertAlmostEquals(x, 15.5)
+        self.assertAlmostEqual(y, 0)
+        self.assertAlmostEqual(x, 15.5)
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=90)
-        self.assertAlmostEquals(y, 15.5)
-        self.assertAlmostEquals(x, 0)
+        self.assertAlmostEqual(y, 15.5)
+        self.assertAlmostEqual(x, 0)
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
-        self.assertAlmostEquals(y, -15.5)
-        self.assertAlmostEquals(x, 0)
+        self.assertAlmostEqual(y, -15.5)
+        self.assertAlmostEqual(x, 0)
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=180)
-        self.assertAlmostEquals(y, 0)
-        self.assertAlmostEquals(x, -15.5)
+        self.assertAlmostEqual(y, 0)
+        self.assertAlmostEqual(x, -15.5)
 
     def test_add_text_a_rotated_glyph(self):
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=0)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
+        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(90)">\n'
+        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(-90)">\n'
+        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(-90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(180)">\n'
+        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(180)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 
     def test_add_text_a_rotated_aligned_glyph(self):
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=0)
-        self.assertEquals(g, '<g transform="translate(-15.5, 0.0)scale(2)">\n'
+        self.assertEqual(g, '<g transform="translate(-15.5, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=90)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
-        self.assertEquals(g, '<g transform="translate(0.0, -15.5)scale(2)rotate(90)">\n'
+        self.assertEqual(g, '<g transform="translate(0.0, -15.5)scale(2)rotate(90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
-        self.assertEquals(g, '<g transform="translate(0.0, 15.5)scale(2)rotate(-90)">\n'
+        self.assertEqual(g, '<g transform="translate(0.0, 15.5)scale(2)rotate(-90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=180)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
-        self.assertEquals(g, '<g transform="translate(15.5, 0.0)scale(2)rotate(180)">\n'
+        self.assertEqual(g, '<g transform="translate(15.5, 0.0)scale(2)rotate(180)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 
@@ -208,7 +208,7 @@ class Code39Tests(BaubleTestCase):
         # 0123456789abcde
         # | |   ||| ||| |
         g = Code39.path('0', 10)
-        self.assertEquals(g,
+        self.assertEqual(g,
                           'M 0,0 0,10 '
                           'M 2,10 2,0 '
                           'M 6,0 6,10 '
@@ -223,7 +223,7 @@ class Code39Tests(BaubleTestCase):
         # 0123456789abcde
         # |||   | | ||| |
         g = Code39.path('.', 10)
-        self.assertEquals(g,
+        self.assertEqual(g,
                           'M 0,0 0,10 '
                           'M 1,10 1,0 '
                           'M 2,0 2,10 '
@@ -238,7 +238,7 @@ class Code39Tests(BaubleTestCase):
         # 0123456789abcde
         # |||   | | ||| |
         g = Code39.path('.', 5)
-        self.assertEquals(g,
+        self.assertEqual(g,
                           'M 0,0 0,5 '
                           'M 1,5 1,0 '
                           'M 2,0 2,5 '
@@ -251,41 +251,41 @@ class Code39Tests(BaubleTestCase):
 
     def test_code39_letter_dot_5(self):
         g = Code39.letter('.', 5)
-        self.assertEquals(g,'<path d="M 0,0 0,5 M 1,5 1,0 M 2,0 2,5 M 6,5 6,0 M 8,0 8,5 M 10,5 10,0 M 11,0 11,5 M 12,5 12,0 M 14,0 14,5" style="stroke:#0000ff;stroke-width:1"/>')
+        self.assertEqual(g,'<path d="M 0,0 0,5 M 1,5 1,0 M 2,0 2,5 M 6,5 6,0 M 8,0 8,5 M 10,5 10,0 M 11,0 11,5 M 12,5 12,0 M 14,0 14,5" style="stroke:#0000ff;stroke-width:1"/>')
 
     def test_code39_translated_letter_dot_5(self):
         g = Code39.letter('.', 5, (5,8))
-        self.assertEquals(g,'<path transform="translate(5,8)" d="M 0,0 0,5 M 1,5 1,0 M 2,0 2,5 M 6,5 6,0 M 8,0 8,5 M 10,5 10,0 M 11,0 11,5 M 12,5 12,0 M 14,0 14,5" style="stroke:#0000ff;stroke-width:1"/>')
+        self.assertEqual(g,'<path transform="translate(5,8)" d="M 0,0 0,5 M 1,5 1,0 M 2,0 2,5 M 6,5 6,0 M 8,0 8,5 M 10,5 10,0 M 11,0 11,5 M 12,5 12,0 M 14,0 14,5" style="stroke:#0000ff;stroke-width:1"/>')
 
     def test_code39_text(self):
-        g, x, y = add_code39(0, 0, u'010810', unit=1, height=7)
-        self.assertEquals(y, 0)
-        self.assertEquals(x, 127)
-        self.assertEquals(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(48,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(64,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(80,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(96,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(112,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
+        g, x, y = add_code39(0, 0, '010810', unit=1, height=7)
+        self.assertEqual(y, 0)
+        self.assertEqual(x, 127)
+        self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(48,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(64,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(80,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(96,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(112,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
 
     def test_code39_text_centre(self):
-        g, x, y = add_code39(0, 0, u'0', unit=1, height=7, align=0.5)
-        self.assertEquals(y, 0)
-        self.assertEquals(g, '<g transform="translate(0,0)scale(1,1)translate(-23.5,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
-        self.assertEquals(x, 23.5)
+        g, x, y = add_code39(0, 0, '0', unit=1, height=7, align=0.5)
+        self.assertEqual(y, 0)
+        self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(-23.5,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
+        self.assertEqual(x, 23.5)
 
     def test_code39_text_left(self):
-        g, x, y = add_code39(0, 0, u'0', unit=1, height=7, align=0)
-        self.assertEquals(y, 0)
-        self.assertEquals(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
-        self.assertEquals(x, 47)
+        g, x, y = add_code39(0, 0, '0', unit=1, height=7, align=0)
+        self.assertEqual(y, 0)
+        self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
+        self.assertEqual(x, 47)
 
     def test_code39_text_right(self):
-        g, x, y = add_code39(0, 0, u'0', unit=1, height=7, align=1)
-        self.assertEquals(y, 0)
-        self.assertEquals(g, '<g transform="translate(0,0)scale(1,1)translate(-47,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
-        self.assertEquals(x, 0)
+        g, x, y = add_code39(0, 0, '0', unit=1, height=7, align=1)
+        self.assertEqual(y, 0)
+        self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(-47,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
+        self.assertEqual(x, 0)
 
     def test_code39_shortblack(self):
-        g, x, y = add_code39(0, 0, u'M+/-%', unit=1, height=7, align=0)
-        self.assertEquals(y, 0)
-        self.assertEquals(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 5,0 5,7 M 6,7 6,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(48,0)" d="M 0,0 0,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(64,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 8,7 8,0 M 9,0 9,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(80,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(96,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
-        self.assertEquals(x, 111)
+        g, x, y = add_code39(0, 0, 'M+/-%', unit=1, height=7, align=0)
+        self.assertEqual(y, 0)
+        self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 5,0 5,7 M 6,7 6,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(48,0)" d="M 0,0 0,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(64,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 8,7 8,0 M 9,0 9,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(80,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(96,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
+        self.assertEqual(x, 111)
 
 
 class QRCodeTests(BaubleTestCase):
@@ -293,32 +293,32 @@ class QRCodeTests(BaubleTestCase):
     def test_can_get_qr_as_string(self):
         g = add_qr(0, 0, 'test')
         parts = g.split('\n')
-        self.assertEquals(len(parts), 1)
-        self.assertEquals(parts[0], self.path)
+        self.assertEqual(len(parts), 1)
+        self.assertEqual(parts[0], self.path)
 
     def test_can_get_qr_as_string_translated(self):
         g = add_qr(30, 10, 'test')
         parts = g.split('\n')
-        self.assertEquals(len(parts), 3)
-        self.assertEquals(parts[0], '<g transform="translate(30,10)">')
-        self.assertEquals(parts[1], self.path)
-        self.assertEquals(parts[2], '</g>')
+        self.assertEqual(len(parts), 3)
+        self.assertEqual(parts[0], '<g transform="translate(30,10)">')
+        self.assertEqual(parts[1], self.path)
+        self.assertEqual(parts[2], '</g>')
 
     def test_can_get_qr_as_string_translated_framed(self):
         g = add_qr(30, 10, 'http://ghini.readthedocs.io/en/ghini-1.0-dev/', side=30)
         parts = g.split('\n')
-        self.assertEquals(len(parts), 3)
-        self.assertEquals(parts[0], '<g transform="translate(30,10)scale(0.731707317073)">')
-        self.assertEquals(parts[2], '</g>')
+        self.assertEqual(len(parts), 3)
+        self.assertEqual(parts[0], '<g transform="translate(30,10)scale(0.731707317073)">')
+        self.assertEqual(parts[2], '</g>')
 
         g = add_qr(30, 10, '2014.0018.2', side=30)
         parts = g.split('\n')
-        self.assertEquals(len(parts), 3)
-        self.assertEquals(parts[0], '<g transform="translate(30,10)scale(1.2)">')
-        self.assertEquals(parts[2], '</g>')
+        self.assertEqual(len(parts), 3)
+        self.assertEqual(parts[0], '<g transform="translate(30,10)scale(1.2)">')
+        self.assertEqual(parts[2], '</g>')
 
         g = add_qr(30, 10, '2014.0018', side=30)
         parts = g.split('\n')
-        self.assertEquals(len(parts), 3)
-        self.assertEquals(parts[0], '<g transform="translate(30,10)scale(1.42857142857)">')
-        self.assertEquals(parts[2], '</g>')
+        self.assertEqual(len(parts), 3)
+        self.assertEqual(parts[0], '<g transform="translate(30,10)scale(1.42857142857)">')
+        self.assertEqual(parts[2], '</g>')

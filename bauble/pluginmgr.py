@@ -136,7 +136,7 @@ def load(path=None):
     # same...and if not then it doesn't really help anyways
     if errors:
         name = ', '.join(sorted(errors.keys()))
-        exc_info = errors.values()[0]
+        exc_info = list(errors.values())[0]
         exc_str = utils.xml_safe(exc_info[1])
         tb_str = ''.join(traceback.format_tb(exc_info[2]))
         utils.message_details_dialog('Could not load plugin: '
@@ -183,7 +183,7 @@ def init(force=False):
     # ******
 
     # search for plugins that are in the plugins dict but not in the registry
-    registered = plugins.values()
+    registered = list(plugins.values())
     logger.debug('registered plugins: %s' % plugins)
     try:
         # try to access the plugin registry, if the table does not exist
@@ -193,7 +193,7 @@ def init(force=False):
         # allows you to connect to a pre bauble 0.9 database and use it to
         # upgrade to a >=0.9 database
         registered_names = PluginRegistry.names()
-        not_installed = [p for n, p in plugins.iteritems()
+        not_installed = [p for n, p in plugins.items()
                          if n not in registered_names]
         if len(not_installed) > 0:
             msg = _('The following plugins were not found in the plugin '
@@ -300,7 +300,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
 
     logger.debug('pluginmgr.install(%s)' % str(plugins_to_install))
     if plugins_to_install is 'all':
-        to_install = plugins.values()
+        to_install = list(plugins.values())
     else:
         to_install = plugins_to_install
 
@@ -309,7 +309,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
         return
 
     # sort the plugins by their dependency
-    depends, unmet = _create_dependency_pairs(plugins.values())
+    depends, unmet = _create_dependency_pairs(list(plugins.values()))
     logger.debug("%s - the dependencies pairs" % str(depends))
     if unmet != {}:
         logger.debug(unmet)
@@ -403,7 +403,7 @@ class PluginRegistry(db.Base):
         """
         Check if plugin exists in the plugin registry.
         """
-        if isinstance(plugin, basestring):
+        if isinstance(plugin, str):
             name = plugin
             version = None
         else:

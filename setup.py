@@ -115,7 +115,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
 
     # py2exe doesn't seem to respect packages_data so build data_files from
     # package_data
-    for package, patterns in package_data.iteritems():
+    for package, patterns in package_data.items():
         pkg_dir = all_package_dirs[package]
         for p in patterns:
             matches = glob.glob(pkg_dir + '/' + p)
@@ -219,7 +219,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                                 % self.nsis_script)
 
         def run(self):
-            print('using %s to build %s' % (self.makensis, self.nsis_script))
+            print(('using %s to build %s' % (self.makensis, self.nsis_script)))
             os.system('"%s" %s' % (self.makensis, self.nsis_script))
 
 else:
@@ -238,7 +238,7 @@ else:
 
         def run(self):
             print("**Error: Can't run this command.")
-            print(sys.exit(1))
+            print((sys.exit(1)))
 
     class py2exe_cmd(_empty_cmd):
         description = 'build Windows executable *ONLY AVAILABLE IN WINDOWS'
@@ -284,7 +284,7 @@ class build(_build):
                 spawn.spawn(['msgfmt', po, '-o', mo])
 
         # copy .desktop and icons
-        if sys.platform in ('linux3', 'linux2'):
+        if sys.platform in ('linux', ):
             app_dir = os.path.join(self.build_base, 'share', 'applications')
             dir_util.mkpath(app_dir)
             file_util.copy_file('data/ghini.desktop', app_dir)
@@ -326,7 +326,7 @@ class install(_install):
         _install.finalize_options(self)
 
     def run(self):
-        if sys.platform not in ('linux3', 'linux2', 'win32', 'darwin'):
+        if sys.platform not in ('linux', 'win32', 'darwin'):
             msg = "**Error: Can't install on this platform: %s" % sys.platform
             print(msg)
             sys.exit(1)
@@ -347,7 +347,7 @@ class install(_install):
             _install.run(self)
 
         # install ghini.desktop and icons
-        if sys.platform in ('linux3', 'linux2'):
+        if sys.platform in ('linux', ):
             # install everything in share
             dir_util.copy_tree(os.path.join(self.build_base, 'share'),
                                os.path.join(self.install_data, 'share'))
@@ -414,7 +414,7 @@ class clean(Command):
                 matches = fnmatch.filter(files, pattern)
                 if matches:
                     def delete(p):
-                        print('removing %s' % p)
+                        print(('removing %s' % p))
                         os.remove(p)
                     map(delete, [os.path.join(path, m) for m in matches])
         if os.path.exists('dist'):
@@ -480,7 +480,7 @@ setuptools.setup(name="ghini.desktop",
                                    "mako==0.9.1",
                                    "gdata==2.0.18",
                                    "requests",
-                                   "fibra==0.0.17",
+                                   "fibra==0.0.18",
                                    "pyparsing==2.0.1",
                                    'python-dateutil<2.0'] + needs_sqlite,
                  test_suite="nose.collector",

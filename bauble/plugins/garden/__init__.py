@@ -179,7 +179,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     model = Gtk.ListStore(object)
     locations = [''] + sorted(presenter.session.query(Location).all(),
                        key=lambda loc: utils.natsort_key(loc.code))
-    map(lambda loc: model.append([loc]), locations)
+    list(map(lambda loc: model.append([loc]), locations))
     combo.set_model(model)
     completion.set_model(model)
 

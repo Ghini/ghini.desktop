@@ -75,7 +75,7 @@ class TagsMenuManager:
         self.show_active_tag()
 
     def show_active_tag(self):
-        for c in self.item_list.values():
+        for c in list(self.item_list.values()):
             c.set_image(None)
         widget = self.item_list.get(self.active_tag_name)
         if widget:
@@ -323,7 +323,7 @@ class TagItemGUI(editor.GenericEditorView):
         session = db.Session()
         try:
             query = session.query(Tag)
-            tag = query.filter_by(tag=unicode(tag_name)).one()
+            tag = query.filter_by(tag=str(tag_name)).one()
             session.delete(tag)
             session.commit()
             model.remove(row_iter)
@@ -346,7 +346,7 @@ class TagItemGUI(editor.GenericEditorView):
         # we remove the old columns and create new ones each time the
         # tag editor is started since we have to connect and
         # disconnect the toggled signal each time
-        map(self.tag_tree.remove_column, self.tag_tree.get_columns())
+        list(map(self.tag_tree.remove_column, self.tag_tree.get_columns()))
         columns = self.build_tag_tree_columns()
         for col in columns:
             self.tag_tree.append_column(col)
@@ -608,7 +608,7 @@ def untag_objects(name, objs):
 
 
 # create the classname stored in the tagged_obj table
-_classname = lambda x: unicode('%s.%s', 'utf-8') % (
+_classname = lambda x: str('%s.%s', 'utf-8') % (
     type(x).__module__, type(x).__name__)
 
 

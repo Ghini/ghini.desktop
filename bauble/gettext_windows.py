@@ -78,7 +78,7 @@ def get_language_windows(system_lang=True):
         lcids = [lcid_user, lcid_system]
     else:
         lcids = [lcid_user]
-    return filter(None, [locale.windows_locale.get(i) for i in lcids]) or None
+    return [_f for _f in [locale.windows_locale.get(i) for i in lcids] if _f] or None
 
 
 def setup_env_other(system_lang=True):
