@@ -562,7 +562,7 @@ class GUI(object):
                     tools['__root'].append(tool)
 
         # add the tools with no category to the root menu
-        root_tools = sorted(tools.pop('__root'))
+        root_tools = tools.pop('__root')
         for tool in root_tools:
             item = Gtk.MenuItem(tool.label)
             item.show()
@@ -578,7 +578,7 @@ class GUI(object):
             submenu_item.set_submenu(submenu)
             menu.append(submenu_item)
             for tool in sorted(tools[category],
-                               cmp=lambda x, y: cmp(x.label, y.label)):
+                               key=lambda x: x.label):
                 item = Gtk.MenuItem(tool.label)
                 item.connect("activate", self.on_tools_menu_item_activate,
                              tool)

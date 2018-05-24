@@ -333,6 +333,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
                 PluginRegistry.add(p)
     except Exception as e:
         logger.warning('bauble.pluginmgr.install(): %s' % utils.utf8(e))
+        logger.debug(traceback.print_exc())
         raise
 
 

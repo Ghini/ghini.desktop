@@ -1274,25 +1274,7 @@ class ChangesExpander(InfoExpander):
         date_format = prefs.prefs[prefs.date_format_pref]
         current_row = 0
 
-        def _cmp(x, y):
-            """
-            Sort by change.date and then change._created.  If they are
-            equal then removals sort before transfers.
-            """
-            if x.date < y.date:
-                return -1
-            elif x.date > y.date:
-                return 1
-            elif x.date == y.date and x._created < y._created:
-                return -1
-            elif x.date == y.date and x._created > y._created:
-                return 1
-            elif x.quantity < 0:
-                return -1
-            else:
-                return 1
-
-        for change in sorted(row.changes, cmp=_cmp, reverse=True):
+        for change in sorted(row.changes, key=lambda x: (x.date, x._created), reverse=True):
             try:
                 seconds, divided_plant = min(
                     [(abs((i.plant._created - change.date).total_seconds()), i.plant)

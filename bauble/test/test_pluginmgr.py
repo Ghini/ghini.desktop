@@ -28,11 +28,6 @@ import unittest
 import logging
 logger = logging.getLogger(__name__)
 
-#from pyparsing import *
-#from sqlalchemy import *
-#from bauble.view import SearchView
-#from bauble.search import SearchParser, MapperSearch
-
 import bauble
 import bauble.db as db
 from bauble.test import BaubleTestCase, uri

@@ -97,7 +97,7 @@ class AskTPL(threading.Thread):
                                                   b='%s %s' % (g, s))
                     item['_score_'] = seq.ratio()
 
-                found = sorted(candidates, cmp=lambda a, b: cmp(a['_score_'], b['_score_']) or cmp(b['Taxonomic status in TPL'], a['Taxonomic status in TPL']))[-1]
+                found = sorted(candidates, key=lambda a: (a['_score_'], -a['Taxonomic status in TPL']))[-1]
                 logger.debug('best match has score %s', found['_score_'])
                 if found['_score_'] < self.threshold:
                     found['_score_'] = 0

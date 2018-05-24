@@ -413,8 +413,6 @@ class PlantsPlugin(pluginmgr.Plugin):
 
         from bauble.plugins.imex.csv_ import CSVImporter
         csv = CSVImporter()
-        #import_error = False
-        #import_exc = None
         csv.start(filenames, metadata=db.metadata, force=True)
 
 

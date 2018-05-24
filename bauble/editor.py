@@ -729,7 +729,7 @@ class GenericEditorView(object):
             translations = sorted(iter(translations.items()), key=lambda x: x[1])
         if cmp is not None:
             translations = sorted(translations,
-                                  cmp=lambda a, b: cmp(a[0], b[0]))
+                                  key=lambda a: a[0])
         for key, value in translations:
             model.append([key, value])
         combo.set_model(model)

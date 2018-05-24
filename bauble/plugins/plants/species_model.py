@@ -81,13 +81,19 @@ infrasp_rank_values = {'subsp.': _('subsp.'),
 # or cultivar group is specificed
 
 
-def compare_rank(rank1, rank2):
-    'implement the binary comparison operation needed for sorting'
+def rank_level(rank):
+    'define rank order'
 
     ordering = ['familia', 'subfamilia', 'tribus', 'subtribus',
                 'genus', 'subgenus', 'species', None, 'subsp.',
                 'var.', 'subvar.', 'f.', 'subf.', 'cv.']
-    return ordering.index(rank1).__cmp__(ordering.index(rank2))
+    return ordering.index(rank)
+
+
+def compare_rank(rank1, rank2):
+    'implement the binary comparison operation needed for sorting'
+
+    return rank_level(rank1).__cmp__(rank_level(rank2))
 
 
 class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
@@ -244,7 +250,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         infrasp = [i for i in infrasp if i[0] not in ['cv.', '', None]]
         if infrasp == []:
             return ('', '', '')
-        return sorted(infrasp, cmp=lambda a, b: compare_rank(a[0], b[0]))[-1]
+        return sorted(infrasp, key=lambda a: rank_level(a[0]))[-1]
 
     @property
     def infraspecific_rank(self):
