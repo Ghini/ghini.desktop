@@ -77,6 +77,8 @@ class Validator(object):
         raise NotImplementedError
 
 
+from dateutil.parser import parse as parse_date
+
 class DateValidator(Validator):
     """
     Validate that string is parseable with dateutil
@@ -89,8 +91,8 @@ class DateValidator(Validator):
         default_year = 1
         default = datetime.date(1, 1, default_year)
         try:
-            date = date_parser.parse(value, dayfirst=dayfirst,
-                                     yearfirst=yearfirst, default=default)
+            date = parse_date(value, dayfirst=dayfirst,
+                              yearfirst=yearfirst, default=default)
             if date.year == default_year:
                 raise ValueError
         except Exception as e:
@@ -794,7 +796,7 @@ class MockView:
     '''mocking the view, but so generic that we share it among clients
     '''
     def __init__(self, **kwargs):
-        self.widgets = type(b'MockWidgets', (object, ), {})()
+        self.widgets = type('MockWidgets', (object, ), {})()
         self.models = {}  # dictionary of list of tuples
         self.invoked = []
         self.invoked_detailed = []

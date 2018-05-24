@@ -97,3 +97,38 @@ class PleaseIgnoreMe:
         view.widget_set_visible('noconnectionlabel', False)
         self.assertFalse(view.widget_get_visible('noconnectionlabel'))
         self.assertFalse(view.widgets.noconnectionlabel.get_visible())
+
+
+from dateutil.parser import parse as parse_date
+import datetime
+import unittest
+class TimeStampParserTests(unittest.TestCase):
+
+    def test_date_parser_generic(self):
+        target = datetime.datetime(2019, 1, 18, 18, 20, tzinfo=datetime.timezone(datetime.timedelta(hours=5)))
+        result = parse_date('18 January 2019 18:20 +0500')
+        self.assertEquals(result, target)
+        result = parse_date('18:20, 18 January 2019 +0500')
+        self.assertEquals(result, target)
+        result = parse_date('18:20+0500, 18 January 2019')
+        self.assertEquals(result, target)
+        result = parse_date('18:20+0500, 18 Jan 2019')
+        self.assertEquals(result, target)
+        result = parse_date('18:20+0500, 2019-01-18')
+        self.assertEquals(result, target)
+        result = parse_date('18:20+0500, 1/18 2019')
+        self.assertEquals(result, target)
+        result = parse_date('18:20+0500, 18/1 2019')
+        self.assertEquals(result, target)
+
+    def test_date_parser_ambiguous(self):
+        result = parse_date('5 1 4')
+        self.assertEquals(result, datetime.datetime(2004, 5, 1, 0, 0))
+        result = parse_date('5 1 4', dayfirst=False, yearfirst=True)
+        self.assertEquals(result, datetime.datetime(2005, 1, 4, 0, 0))
+        result = parse_date('5 1 4', dayfirst=True, yearfirst=True)
+        self.assertEquals(result, datetime.datetime(2005, 4, 1, 0, 0))
+        result = parse_date('5 1 4', dayfirst=False, yearfirst=False)
+        self.assertEquals(result, datetime.datetime(2004, 5, 1, 0, 0))
+        result = parse_date('5 1 4', dayfirst=True, yearfirst=False)
+        self.assertEquals(result, datetime.datetime(2004, 1, 5, 0, 0))

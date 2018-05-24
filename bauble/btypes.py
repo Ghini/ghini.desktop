@@ -99,6 +99,8 @@ class Enum(types.TypeDecorator):
         return Enum(self.values, self.empty_to_none, self.strict)
 
 
+from dateutil.parser import parse as parse_date
+
 class DateTime(types.TypeDecorator):
     """
     A DateTime type that allows strings
@@ -118,9 +120,8 @@ class DateTime(types.TypeDecorator):
             import bauble.prefs as prefs
             DateTime._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
             DateTime._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
-        result = date_parser.parse(
-            value, dayfirst=DateTime._dayfirst,
-            yearfirst=DateTime._yearfirst)
+        result = parse_date(
+            value, dayfirst=DateTime._dayfirst, yearfirst=DateTime._yearfirst)
         return result
 
     def process_result_value(self, value, dialect):
@@ -146,11 +147,12 @@ class Date(types.TypeDecorator):
             import bauble.prefs as prefs
             Date._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
             Date._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
-        return date_parser.parse(value, dayfirst=Date._dayfirst,
-                                 yearfirst=Date._yearfirst).date()
+        return parse_date(
+            value, dayfirst=Date._dayfirst, yearfirst=Date._yearfirst).date()
 
     def process_result_value(self, value, dialect):
         return value
 
     def copy(self):
         return Date()
+
