@@ -1,3 +1,9 @@
+ghini.desktop (1.0.84-1) unstable; urgency=medium
+
+  * merging with upstream.
+
+ -- Mario Frasca <mario@anche.no>  Fri, 25 May 2018 10:30:00 -0500
+
 ghini.desktop (1.0.83-2) unstable; urgency=medium
 
   * updating to upstream, which is now mostly compatible with Python3
