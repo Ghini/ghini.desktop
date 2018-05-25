@@ -857,11 +857,11 @@ def utf8(obj):
 
 
 def xml_safe(obj, encoding='utf-8'):
+    '''Return a string with character entities escaped safe for xml
+
     '''
-    Return a string with character entities escaped safe for xml, if the
-    str parameter is a string a string is returned, if str is a unicode object
-    then a unicode object is returned
-    '''
+    if obj is None:
+        return ''
     obj = to_unicode(obj, encoding)
     return saxutils.escape(obj)
 
