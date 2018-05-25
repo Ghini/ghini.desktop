@@ -1,6 +1,12 @@
+ghini.desktop (1.0.83-2) unstable; urgency=medium
+
+  * updating to upstream, which is now mostly compatible with Python3
+
+ -- Mario Frasca <mario@anche.no>  Fri, 25 May 2018 10:28:27 -0500
+
 ghini.desktop (1.0.83-1) unstable; urgency=medium
 
-  * Initial release (closes: #nnnn)
+  * Initial release
 
  -- Mario Frasca <mario@anche.no>  Fri, 18 May 2018 10:28:27 -0500
 

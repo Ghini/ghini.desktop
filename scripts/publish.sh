@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# make sure we are in the project root dir
+cd $(dirname $0)/..
+
 # let's check what Debian says first
 python setup.py sdist | awk 'BEGIN{count=0}/^.*$/{count++; printf("running setup sdist: %d\r", count)}END{printf("\r\n")}'
 VERSION=$(ls dist/*.tar.gz | tail -n 1 | sed -ne 's/[^-]*-\(.*\).tar.gz/\1/p')
@@ -16,12 +19,9 @@ cp debian/* /tmp/ghini.desktop-${VERSION}/debian
 
 # decide whether we continue
 # in case, we should really dput the following to mentors.debian.org
-echo "do we continue? (Ctrl-C to interrupt)"
-read
-dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1)
-
-# make sure we are in the project root dir
-cd $(dirname $0)/..
+echo "do we continue? (Ctrl-C to interrupt, 'skip' to skip this single step)"
+read i
+if [ "$i"!="skip" ]; then echo dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1); fi
 
 # LINE is hard-coded and committed
 # PUBLISHING is in the form 1.0.x
