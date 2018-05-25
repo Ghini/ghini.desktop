@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# make sure we are in the project root dir
+cd $(dirname $0)/..
+
 # let's check what Debian says first
 python setup.py sdist | awk 'BEGIN{count=0}/^.*$/{count++; printf("running setup sdist: %d\r", count)}END{printf("\r\n")}'
 VERSION=$(ls dist/*.tar.gz | tail -n 1 | sed -ne 's/[^-]*-\(.*\).tar.gz/\1/p')
@@ -17,16 +20,13 @@ cp debian/* /tmp/ghini.desktop-${VERSION}/debian
 # decide whether we continue
 # in case, we should really dput the following to mentors.debian.org
 echo "do we continue? (Ctrl-C to interrupt)"
-read
-dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1)
-
-# make sure we are in the project root dir
-cd $(dirname $0)/..
+read i
+if [ "$i"!="skip" ]; then echo dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1); fi
 
 # LINE is hard-coded and committed
-# PUBLISHING is in the form 1.0.x
+# PUBLISHING is in the form 3.1.x
 #
-LINE=ghini-1.0
+LINE=ghini-3.1
 PUBLISHING=$(grep :bump bauble/version.py | grep -o '[1-9]\.[0-9]\.[0-9]*')
 
 # make sure you have locally all remote branches
@@ -36,7 +36,7 @@ git remote update
 # publish on github
 #
 git checkout $LINE
-git merge $LINE-dev --no-edit -m "Merge branch 'ghini-1.0-dev' into ghini-1.0, as $PUBLISHING"
+git merge $LINE-dev --no-edit -m "Merge branch 'ghini-3.1-dev' into ghini-3.1, as $PUBLISHING"
 git push
 
 # publish on pypi
