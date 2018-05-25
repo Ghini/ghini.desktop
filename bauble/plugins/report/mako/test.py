@@ -92,7 +92,7 @@ class MakoFormatterTests(BaubleTestCase):
         for tn in MakoFormatterPlugin.templates:
             filename = os.path.join(td, tn)
             report = MakoFormatterPlugin.format(plants, template=filename)
-            self.assertEquals(type(report), str)
+            self.assertEquals(type(report), bytes)
 
 
 class SvgProductionTest(BaubleTestCase):
