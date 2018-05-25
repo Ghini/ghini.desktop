@@ -384,8 +384,10 @@ class MakoFormatterPlugin(FormatterPlugin):
         cls.install()  # plugins still not versioned...
 
         src_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako', 'templates')
-        for template in os.listdir(src_dir):
+        for template in list(os.walk(src_dir))[0][2]:
             if template.endswith('~'):
+                continue
+            if template.startswith('__'):
                 continue
             src = os.path.join(src_dir, template)
             dst = os.path.join(cls.plugin_dir, template)
