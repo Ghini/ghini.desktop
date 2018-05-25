@@ -41,7 +41,7 @@ git push
 
 # publish on pypi
 #
-python setup.py sdist --formats zip upload -r pypi
+echo python setup.py sdist --formats zip upload -r pypi
 
 # some day also produce a debian package
 
