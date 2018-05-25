@@ -141,11 +141,11 @@ CRCCheck on
 
 ; NsisMultiUser - all settings need to be set before including the NsisMultiUser.nsh header file.
 ; thanks to Richard Drizin https://github.com/Drizin/NsisMultiUser
-!include "NsisMultiUser.nsh"
-!include "UAC.nsh"
-!include "MUI2.nsh"
-!include "WordFunc.nsh"
-!include "FileFunc.nsh"
+!include ..\data\nsis\Include\NsisMultiUser.nsh
+!include ..\data\nsis\Include\UAC.nsh
+!include MUI2.nsh
+!include WordFunc.nsh
+!include FileFunc.nsh
 
 
 ;------------------------------
