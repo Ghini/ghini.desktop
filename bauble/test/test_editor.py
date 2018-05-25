@@ -99,7 +99,7 @@ class PleaseIgnoreMe:
         self.assertFalse(view.widgets.noconnectionlabel.get_visible())
 
 
-from dateutil.parser import parse as parse_date
+from bauble.utils import parse_date
 import datetime
 import unittest
 class TimeStampParserTests(unittest.TestCase):
@@ -122,13 +122,18 @@ class TimeStampParserTests(unittest.TestCase):
         self.assertEquals(result, target)
 
     def test_date_parser_ambiguous(self):
+        # defaults to European: day, month, year
         result = parse_date('5 1 4')
-        self.assertEquals(result, datetime.datetime(2004, 5, 1, 0, 0))
-        result = parse_date('5 1 4', dayfirst=False, yearfirst=True)
-        self.assertEquals(result, datetime.datetime(2005, 1, 4, 0, 0))
-        result = parse_date('5 1 4', dayfirst=True, yearfirst=True)
-        self.assertEquals(result, datetime.datetime(2005, 4, 1, 0, 0))
+        self.assertEquals(result, datetime.datetime(2004, 1, 5, 0, 0))
+        # explicit, American: month, day, year
         result = parse_date('5 1 4', dayfirst=False, yearfirst=False)
         self.assertEquals(result, datetime.datetime(2004, 5, 1, 0, 0))
+        # explicit, European: day, month, year
         result = parse_date('5 1 4', dayfirst=True, yearfirst=False)
         self.assertEquals(result, datetime.datetime(2004, 1, 5, 0, 0))
+        # explicit, Japanese: year, month, day (month, day, year)
+        result = parse_date('5 1 4', dayfirst=False, yearfirst=True)
+        self.assertEquals(result, datetime.datetime(2005, 1, 4, 0, 0))
+        # explicit, illogical: year, day, month
+        result = parse_date('5 1 4', dayfirst=True, yearfirst=True)
+        self.assertEquals(result, datetime.datetime(2005, 4, 1, 0, 0))

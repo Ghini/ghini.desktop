@@ -100,7 +100,7 @@ class Enum(types.TypeDecorator):
         return Enum(self.values, self.empty_to_none, self.strict)
 
 
-from dateutil.parser import parse as parse_date
+from bauble.utils import parse_date
 
 class DateTime(types.TypeDecorator):
     """

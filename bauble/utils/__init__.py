@@ -1468,3 +1468,13 @@ def get_urls(text):
         #print match.groups()
         matches.append(match.groups())
     return matches
+
+import re
+sloppy_iso8601 = re.compile('^[12][0-9][0-9][0-9]-[0-9][0-9]?-[0-9][0-9]?.*$')
+import dateutil.parser
+
+def parse_date(value, dayfirst=True, yearfirst=False, **kwargs):
+    if sloppy_iso8601.match(value) is not None:
+        dayfirst = False
+        yearfirst = True
+    return dateutil.parser.parse(value, dayfirst=dayfirst, yearfirst=yearfirst, **kwargs)

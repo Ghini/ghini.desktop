@@ -38,8 +38,12 @@ from bauble.btypes import Enum, EnumError
 from bauble.test import BaubleTestCase, check_dupids
 import bauble.meta as meta
 
-"""
-Tests for the main bauble module.
+"""Tests for the main bauble module.
+
+don't please give docstrings to tests, better make sure they have a
+meaningful name.  docstrings complicate the debugging task of finding back
+which function is being invoked.
+
 """
 
 
@@ -118,9 +122,6 @@ class EnumTests(BaubleTestCase):
 
 class BaubleTests(BaubleTestCase):
     def test_date_type(self):
-        """
-        Test bauble.types.Date
-        """
         dt = bauble.btypes.Date()
 
         bauble.btypes.Date._dayfirst = False
@@ -145,16 +146,13 @@ class BaubleTests(BaubleTestCase):
                      '%s == %s' % (v, s))
 
     def test_datetime_type(self):
-        """
-        Test bauble.types.DateTime
-        """
         dt = bauble.btypes.DateTime()
 
         # with negative timezone
         s = '2008-12-1 11:50:01.001-05:00'
-        result = '2008-12-01 11:50:01.001000-05:00'
-        v = dt.process_bind_param(s, None)
-        self.assertTrue(str(v) == result, '%s == %s' % (v, result))
+        expect = '2008-12-01 11:50:01.001000-05:00'
+        result = dt.process_bind_param(s, None)
+        self.assertEquals(str(result), expect)
 
         # test with positive timezone
         s = '2008-12-1 11:50:01.001+05:00'
@@ -175,9 +173,7 @@ class BaubleTests(BaubleTestCase):
         self.assertTrue(v.isoformat(' ') == result)
 
     def test_base_table(self):
-        """
-        Test db.Base is setup correctly
-        """
+
         m = meta.BaubleMeta(name='name', value='value')
         self.session.add(m)
         self.session.commit()
@@ -205,9 +201,6 @@ class BaubleTests(BaubleTestCase):
         self.assertTrue(m._last_updated != last_updated)
 
     def test_duplicate_ids(self):
-        """
-        Test for duplicate ids for all .glade files in the bauble module
-        """
         import bauble as mod
         import glob
         head, tail = os.path.split(mod.__file__)
@@ -220,9 +213,6 @@ class BaubleTests(BaubleTestCase):
 class HistoryTests(BaubleTestCase):
 
     def test(self):
-        """
-        Test the HistoryMapperExtension
-        """
         from bauble.plugins.plants import Family
         f = Family(family='Family')
         self.session.add(f)

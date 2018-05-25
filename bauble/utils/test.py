@@ -41,9 +41,6 @@ from bauble.test import BaubleTestCase
 class UtilsGTKTests(unittest.TestCase):
 
     def test_create_message_details_dialog(self):
-        """
-        Interactive test for bauble.utils.create_message_details_dialog()
-        """
         raise SkipTest('Not Implemented')
         details = """these are the lines that i want to test
 asdasdadasddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
@@ -55,9 +52,6 @@ addasdadadad"""
         d.run()
 
     def test_create_message_dialog(self):
-        """
-        Interactive test for bauble.utils.create_message_details_dialog()
-        """
         raise SkipTest('Not Implemented')
         msg = 'msg'
         #msg = ' this is a longer message to test that the dialog width is correct.....but what if it keeps going'
@@ -65,9 +59,6 @@ addasdadadad"""
         d.run()
 
     def test_search_tree_model(self):
-        """
-        Test bauble.utils.search_tree_model
-        """
         from gi.repository import Gtk
         model = Gtk.TreeStore(str)
 
@@ -85,7 +76,7 @@ addasdadadad"""
 
         to_find.append(model.append(None, ['something']))
 
-        root = model.get_iter_root()
+        root = model.get_iter_first()
         results = utils.search_tree_model(model[root], 'something')
         self.assertTrue(sorted([model.get_path(r) for r in results]),
                      sorted(to_find))
@@ -95,9 +86,6 @@ addasdadadad"""
 class UtilsTests(unittest.TestCase):
 
     def test_xml_safe(self):
-        """
-        Test bauble.utils.xml_safe
-        """
         class test(object):
             def __str__(self):
                 return repr(self)
@@ -114,8 +102,6 @@ class UtilsTests(unittest.TestCase):
 
 
     def test_range_builder(self):
-        """Test bauble.utils.range_builder
-        """
         assert utils.range_builder('1-3') == [1, 2, 3]
         assert utils.range_builder('1-3,5-7') == [1, 2, 3, 5, 6 ,7]
         assert utils.range_builder('1-3,5') == [1, 2, 3, 5]
@@ -157,9 +143,6 @@ class UtilsTests(unittest.TestCase):
 class UtilsDBTests(BaubleTestCase):
 
     def test_find_dependent_tables(self):
-        """
-        Test bauble.utils.find_dependent_tables
-        """
         metadata = MetaData()
         metadata.bind = db.engine
 
@@ -230,12 +213,10 @@ class ResetSequenceTests(BaubleTestCase):
 
 
     def test_no_col_sequence(self):
-        """
-        Test utils.reset_sequence on a column without a Sequence()
-
-        This only tests that reset_sequence() doesn't fail if there is
-        no sequence.
-        """
+        # Test utils.reset_sequence on a column without a Sequence()
+        #
+        # This only tests that reset_sequence() doesn't fail if there is
+        # no sequence.
 
         # test that a column without an explicit sequence works
         table = Table('test_reset_sequence', self.metadata,
@@ -247,12 +228,10 @@ class ResetSequenceTests(BaubleTestCase):
 
 
     def test_empty_col_sequence(self):
-        """
-        Test utils.reset_sequence on a column without a Sequence()
-
-        This only tests that reset_sequence() doesn't fail if there is
-        no sequence.
-        """
+        # Test utils.reset_sequence on a column without a Sequence()
+        #
+        # This only tests that reset_sequence() doesn't fail if there is
+        # no sequence.
 
         # test that a column without an explicit sequence works
         table = Table('test_reset_sequence', self.metadata,
@@ -263,9 +242,6 @@ class ResetSequenceTests(BaubleTestCase):
         utils.reset_sequence(table.c.id)
 
     def test_with_col_sequence(self):
-        """
-        Test utils.reset_sequence on a column that has an Sequence()
-        """
         # UPDATE: 10/18/2011 -- we don't use Sequence() explicitly,
         # just autoincrement=True on primary_key columns so this test
         # probably isn't necessary

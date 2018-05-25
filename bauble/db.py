@@ -34,6 +34,7 @@ import os
 import re
 import bauble.error as error
 import json
+from bauble.utils import parse_date
 
 
 try:
@@ -686,6 +687,13 @@ class Serializable:
             raise
             
         logger.debug('3 value of keys: %s' % keys)
+
+        # correct any timestamp, parsing it as good as possible
+        for k in ['_created', '_last_updated']:
+            if k in keys:
+                keys[k] = parse_date(keys[k])
+        
+        logger.debug('3½ value of keys: %s' % keys)
 
         ## at this point, resulting object is either in database or not. in
         ## either case, the database is going to be updated.

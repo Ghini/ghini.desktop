@@ -100,7 +100,7 @@ class SvgProductionTest(BaubleTestCase):
         g, x, y = add_text(0, 0, 'a', 2)
         self.assertEqual(y, 0)
         self.assertEqual(x, 31)
-        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
+        self.assertEqual(g, '<g transform="translate(0, 0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 
@@ -108,7 +108,7 @@ class SvgProductionTest(BaubleTestCase):
         g, x, y = add_text(0, 0, 'áà', 2)
         self.assertEqual(y, 0)
         self.assertEqual(x, 62)
-        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
+        self.assertEqual(g, '<g transform="translate(0, 0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u00e1"/>\n'
                           '<use transform="translate(15.5,0)" xlink:href="#s1-u00e0"/>\n'
                           '</g>')
@@ -161,19 +161,19 @@ class SvgProductionTest(BaubleTestCase):
 
     def test_add_text_a_rotated_glyph(self):
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=0)
-        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
+        self.assertEqual(g, '<g transform="translate(0, 0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
-        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(90)">\n'
+        self.assertEqual(g, '<g transform="translate(0, 0)scale(2)rotate(90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
-        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(-90)">\n'
+        self.assertEqual(g, '<g transform="translate(0, 0)scale(2)rotate(-90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
-        self.assertEqual(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(180)">\n'
+        self.assertEqual(g, '<g transform="translate(0, 0)scale(2)rotate(180)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 

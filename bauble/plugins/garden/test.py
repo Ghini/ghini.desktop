@@ -651,7 +651,7 @@ class PropagationTests(GardenTestCase):
             accs.append(a)
         self.session.commit()
         self.assertEqual(len(prop.accessions), 2)
-        self.assertEqual(sorted(accs), sorted(prop.accessions))
+        self.assertEqual(sorted(accs, key=lambda x: x.code), sorted(prop.accessions, key=lambda x: x.code))
 
     def test_accession_source_plant_propagation_points_at_parent_plant(self):
         self.add_plants(['1'])

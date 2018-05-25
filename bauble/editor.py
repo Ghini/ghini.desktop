@@ -77,7 +77,7 @@ class Validator(object):
         raise NotImplementedError
 
 
-from dateutil.parser import parse as parse_date
+from bauble.utils import parse_date
 
 class DateValidator(Validator):
     """

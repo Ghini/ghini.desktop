@@ -103,7 +103,7 @@ class Propagation(db.Base):
         for us in self.used_source:
             if us.accession not in session.new:
                 accessions.append(us.accession)
-        return sorted(accessions)
+        return sorted(accessions, key=lambda x: x.code)
 
     @property
     def accessible_quantity(self):
