@@ -104,6 +104,12 @@
   <object class="GtkEntryCompletion" id="main_entrycompletion">
     <property name="model">many_liststore</property>
     <property name="text_column">0</property>
+    <child>
+      <object class="GtkCellRendererText" id="main_entrycompletion_renderer"/>
+      <attributes>
+        <attribute name="text">0</attribute>
+      </attributes>
+    </child>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">True</property>
