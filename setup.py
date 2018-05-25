@@ -494,7 +494,7 @@ setuptools.setup(name="ghini.desktop",
                  license="GPLv2+",
                  keywords="database biodiversity botanic collection "
                  "botany herbarium arboretum",
-                 url="http://github.com/Ghini/ghini.desktop/",
+                 url="http:///ghini.github.io/",
                  options=py2exe_options,
                  **py2exe_setup_args
                  )
