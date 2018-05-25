@@ -486,7 +486,6 @@ accession_type_to_plant_material = {
     None: None
     }
 
-
 def compute_serializable_fields(cls, session, keys):
     result = {'accession': None}
 
@@ -543,7 +542,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                 * incorrect
 
         *id_qual_rank*: :class:`sqlalchemy.types.Unicode`
-            The rank of the species that the id_qaul refers to.
+            The rank of the species that the id_qual refers to.
 
         *private*: :class:`sqlalchemy.types.Boolean`
             Flag to indicate where this information is sensitive and
@@ -606,8 +605,9 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
     # ITF2 - C25 - Identification Qualifier - Transfer code: idql
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
-                                        'forsan', 'near', '?', None]),
-                     default=None)
+                                        'forsan', 'near', '?', '']),
+                     nullable=False,
+                     default='')
 
     # "private" new in 0.8b2
     private = Column(Boolean, default=False)
@@ -713,7 +713,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         return reduce(operator.add, [p.pictures for p in self.plants], [])
 
     def __init__(self, *args, **kwargs):
-        super(Accession, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__cached_species_str = {}
 
     @reconstructor
@@ -909,7 +909,7 @@ class AccessionEditorView(editor.GenericEditorView):
         """
 
         """
-        super(AccessionEditorView, self).\
+        super().\
             __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                   'acc_editor.glade'),
                      parent=parent)
@@ -1007,7 +1007,7 @@ class AccessionEditorView(editor.GenericEditorView):
 class VoucherPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
-        super(VoucherPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self._dirty = False
@@ -1116,7 +1116,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     PROBLEM_INVALID_DATE = random()
 
     def __init__(self, parent, model, view, session):
-        super(VerificationPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.view.connect('ver_add_button', 'clicked', self.on_add_clicked)
@@ -1162,7 +1162,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     class VerificationBox(Gtk.HBox):
 
         def __init__(self, parent, model):
-            super(VerificationPresenter.VerificationBox, self).__init__(self)
+            super().__init__(self)
             check(not model or isinstance(model, Verification))
 
             self.presenter = weakref.ref(parent)
@@ -1422,7 +1422,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
     garden_prop_str = _('Garden Propagation')
 
     def __init__(self, parent, model, view, session):
-        super(SourcePresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self._dirty = False
@@ -1538,7 +1538,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 self.source_prop_presenter.problems)
 
     def cleanup(self):
-        super(SourcePresenter, self).cleanup()
+        super().cleanup()
         self.collection_presenter.cleanup()
         self.prop_chooser_presenter.cleanup()
         self.source_prop_presenter.cleanup()
@@ -1778,7 +1778,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         :param model: an instance of class Accession
         ;param view: an instance of AccessionEditorView
         '''
-        super(AccessionEditorPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.create_toolbar()
         self._dirty = False
         self.session = object_session(model)
@@ -2186,7 +2186,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         Set attributes on the model and update the GUI as expected.
         """
         #debug('set_model_attr(%s, %s)' % (field, value))
-        super(AccessionEditorPresenter, self).set_model_attr(field, value,
+        super().set_model_attr(field, value,
                                                              validator)
         self._dirty = True
         # TODO: add a test to make sure that the change notifiers are
@@ -2309,7 +2309,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
 
     def cleanup(self):
-        super(AccessionEditorPresenter, self).cleanup()
+        super().cleanup()
         self.ver_presenter.cleanup()
         self.voucher_presenter.cleanup()
         self.source_presenter.cleanup()
@@ -2335,7 +2335,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         if model is None:
             model = Accession()
 
-        super(AccessionEditor, self).__init__(model, parent)
+        super().__init__(model, parent)
         self.parent = parent
         self._committed = []
 
@@ -2479,7 +2479,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                           acc_type=accession_type_to_plant_material.get(self.model.recvd_type))
             self.session.add(plant)
             
-        return super(AccessionEditor, self).commit_changes()
+        return super().commit_changes()
 
 
 # import at the bottom to avoid circular dependencies
@@ -2502,7 +2502,7 @@ class GeneralAccessionExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        super(GeneralAccessionExpander, self).__init__(_("General"), widgets)
+        super().__init__(_("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.general_window.remove(general_box)
         self.vbox.pack_start(general_box, True, True, 0)
@@ -2606,7 +2606,7 @@ class GeneralAccessionExpander(InfoExpander):
 
 class SourceExpander(InfoExpander):
     def __init__(self, widgets):
-        super(SourceExpander, self).__init__(_('Source'), widgets)
+        super().__init__(_('Source'), widgets)
         source_box = self.widgets.source_box
         self.widgets.source_window.remove(source_box)
         self.vbox.pack_start(source_box, True, True, 0)
@@ -2705,7 +2705,7 @@ class VerificationsExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        super(VerificationsExpander, self).__init__(
+        super().__init__(
             _("Verifications"), widgets)
         # notes_box = self.widgets.notes_box
         # self.widgets.notes_window.remove(notes_box)
@@ -2722,7 +2722,7 @@ class VouchersExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        super(VouchersExpander, self).__init__(_("Vouchers"), widgets)
+        super().__init__(_("Vouchers"), widgets)
 
     def update(self, row):
         for kid in self.vbox.get_children():
@@ -2760,7 +2760,7 @@ class AccessionInfoBox(InfoBox):
     - source
     """
     def __init__(self):
-        super(AccessionInfoBox, self).__init__()
+        super().__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "acc_infobox.glade")
         self.widgets = utils.BuilderWidgets(filename)
