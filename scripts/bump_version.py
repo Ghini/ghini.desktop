@@ -145,7 +145,7 @@ rx = "(^version=)[0-9]*\.[0-9]*\.[0-9]*(.*?%s.*$)" % bump_tag
 bump_file(os.path.join(root_of_clone(), 'scripts/installer.cfg'), rx)
 
 # TODO: commit the changes
-print
-print 'git commit -m "bumping_to_%s" bauble/version.py doc/conf.py'\
-    ' data/ghini.desktop packages/builddeb.sh' \
-    ' scripts/installer.cfg scripts/build-multiuser.nsi' % version
+print()
+print('git commit -m "bumping_to_%s" bauble/version.py doc/conf.py'
+      ' data/ghini.desktop packages/builddeb.sh'
+      ' scripts/installer.cfg scripts/build-multiuser.nsi' % version)
