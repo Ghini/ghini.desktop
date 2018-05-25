@@ -184,7 +184,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             if authorship_text:
                 citation = citation.replace(authorship_text, '<span weight="light">' + authorship_text + '</span>')
             return citation + trail, substring
-        except:
+        except Exception as e:
+            import traceback
+            logger.warning(traceback.format_exc())
             return '...', '...'
 
     @property
