@@ -279,7 +279,7 @@ def init(force=False):
 
     # don't build the tools menu if we're running from the tests and
     # we don't have a gui
-    if bauble.gui:
+    if type(bauble.gui).__name__ == 'GUI':
         bauble.gui.build_tools_menu()
 
 

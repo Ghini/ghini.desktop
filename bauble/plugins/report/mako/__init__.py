@@ -225,10 +225,10 @@ class add_qr_functor:
     def __init__(self):
         import io
         import re
-        self.buffer = io.StringIO()
+        self.buffer = io.BytesIO()
         self.pattern = {
-            'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
-            'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
+            'svg': re.compile(b'<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
+            'ps': re.compile(b'.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
         }
 
     def __call__(self, x, y, text, scale=1, side=None, format='svg'):
@@ -240,7 +240,7 @@ class add_qr_functor:
         else:
             qr.eps(self.buffer, quiet_zone=0)
         match = self.pattern[format].match(self.buffer.getvalue())
-        result_list = [match.group(2)]
+        result_list = [match.group(2).decode()]
         transform = []
         if x != 0 or y != 0:
             if format == 'ps':

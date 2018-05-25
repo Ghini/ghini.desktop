@@ -608,8 +608,7 @@ def untag_objects(name, objs):
 
 
 # create the classname stored in the tagged_obj table
-_classname = lambda x: str('%s.%s', 'utf-8') % (
-    type(x).__module__, type(x).__name__)
+_classname = lambda x: '%s.%s' % (type(x).__module__, type(x).__name__)
 
 
 def tag_objects(name, objects):

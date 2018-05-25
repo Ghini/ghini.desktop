@@ -41,6 +41,10 @@ import bauble.utils as utils
 from functools import partial
 from gi.repository import Gtk
 
+try:
+    from importlib import reload
+except:
+    from imp import reload
 
 def test_duplicate_ids():
     """

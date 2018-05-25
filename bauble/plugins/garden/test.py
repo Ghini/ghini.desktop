@@ -466,7 +466,7 @@ class PropagationTests(GardenTestCase):
             elif pt == 'UnrootedCutting':
                 specifically = PropCutting(**default_cutting_values)
             else:
-                specifically = type(b'FooBar', (object,), {})()
+                specifically = type('FooBar', (object,), {})()
             specifically.propagation = prop
         self.session.commit()
 

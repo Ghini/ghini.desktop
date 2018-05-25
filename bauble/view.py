@@ -1305,7 +1305,7 @@ class AppendThousandRows(threading.Thread):
 
     def __init__(self, view, group=None, verbose=None, **kwargs):
         super().__init__(
-            group=group, target=None, name=None, verbose=verbose)
+            group=group, target=None, name=None)
         self.__stopped = threading.Event()
         self.view = view
 

@@ -308,7 +308,7 @@ class QRCodeTests(BaubleTestCase):
         g = add_qr(30, 10, 'http://ghini.readthedocs.io/en/ghini-1.0-dev/', side=30)
         parts = g.split('\n')
         self.assertEqual(len(parts), 3)
-        self.assertEqual(parts[0], '<g transform="translate(30,10)scale(0.731707317073)">')
+        self.assertTrue(parts[0].startswith('<g transform="translate(30,10)scale(0.731707317073'))
         self.assertEqual(parts[2], '</g>')
 
         g = add_qr(30, 10, '2014.0018.2', side=30)
@@ -320,5 +320,5 @@ class QRCodeTests(BaubleTestCase):
         g = add_qr(30, 10, '2014.0018', side=30)
         parts = g.split('\n')
         self.assertEqual(len(parts), 3)
-        self.assertEqual(parts[0], '<g transform="translate(30,10)scale(1.42857142857)">')
+        self.assertTrue(parts[0].startswith('<g transform="translate(30,10)scale(1.4285714'))
         self.assertEqual(parts[2], '</g>')

@@ -256,7 +256,7 @@ class MVPTests(BaubleTestCase):
 
         model = db.History()
         import tempfile
-        ntf = tempfile.NamedTemporaryFile()
+        ntf = tempfile.NamedTemporaryFile(mode='w+')
         ntf.write('''\
 <interface>
   <requires lib="gtk+" version="2.24"/>
@@ -269,7 +269,7 @@ class MVPTests(BaubleTestCase):
         view = GenericEditorView(fn, None, 'handler-defining-view')
         presenter = HandlerDefiningPresenter(model, view)
         natural_number_for_dialog_box = len(presenter.view._GenericEditorView__attached_signals)
-        ntf = tempfile.NamedTemporaryFile()
+        ntf = tempfile.NamedTemporaryFile(mode='w+')
         ntf.write('''\
 <interface>
   <requires lib="gtk+" version="2.24"/>
