@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Copyright 2004-2010 Brett Adams <brett@bauble.io>
@@ -39,9 +39,9 @@ def root_of_clone():
 
 
 def usage_and_exit(msg=None):
-    print >>sys.stderr, usage
+    print(usage, file=sys.stderr)
     if msg:
-        print >>sys.stderr, msg
+        print(msg, file=sys.stderr)
     sys.exit(1)
 
 if len(sys.argv) != 2:
@@ -90,17 +90,17 @@ def bump_file(filename, rx):
     # TODO; make sure that there is only one instance of
     # version=some_version in a file...don't have to if we can add
     # :bump somewhere in the comment on the same line
-    if isinstance(rx, basestring):
+    if isinstance(rx, str):
         rx = re.compile(rx)
 
-    from StringIO import StringIO
+    from io import StringIO
     buf = StringIO()
     for line in open(filename, 'r'):
         match = rx.match(line)
         if match:
             s = rx.sub(r'\1%s\2', line)
             line = s % version
-            print ('%s: %s' % (filename, line)).strip()
+            print(('%s: %s' % (filename, line)).strip())
         buf.write(line)
 
     f = open(filename, 'w')
