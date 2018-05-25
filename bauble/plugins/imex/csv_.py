@@ -148,7 +148,7 @@ class CSVImporter(Importer):
     """
 
     def __init__(self):
-        super(CSVImporter, self).__init__()
+        super().__init__()
         self.__error = False   # flag to indicate error on import
         self.__cancel = False  # flag to cancel importing
         self.__pause = False   # flag to pause importing

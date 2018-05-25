@@ -257,11 +257,11 @@ class SearchParserTests(unittest.TestCase):
 
 class SearchTests(BaubleTestCase):
     def __init__(self, *args):
-        super(SearchTests, self).__init__(*args)
+        super().__init__(*args)
         prefs.testing = True
 
     def setUp(self):
-        super(SearchTests, self).setUp()
+        super().setUp()
         db.engine.execute('delete from genus')
         db.engine.execute('delete from family')
         from bauble.plugins.plants.family import Family
@@ -274,7 +274,7 @@ class SearchTests(BaubleTestCase):
         self.session.commit()
 
     def tearDown(self):
-        super(SearchTests, self).tearDown()
+        super().tearDown()
 
     def test_find_correct_strategy_internal(self):
         "verify the MapperSearch strategy is available (low-level)"
@@ -794,10 +794,10 @@ class SearchTests(BaubleTestCase):
 
 class InOperatorSearch(BaubleTestCase):
     def __init__(self, *args):
-        super(InOperatorSearch, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(InOperatorSearch, self).setUp()
+        super().setUp()
         db.engine.execute('delete from genus')
         db.engine.execute('delete from family')
         from bauble.plugins.plants.family import Family
@@ -855,10 +855,10 @@ class InOperatorSearch(BaubleTestCase):
 
 class BinomialSearchTests(BaubleTestCase):
     def __init__(self, *args):
-        super(BinomialSearchTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(BinomialSearchTests, self).setUp()
+        super().setUp()
         db.engine.execute('delete from genus')
         db.engine.execute('delete from family')
         from bauble.plugins.plants.family import Family
@@ -880,7 +880,7 @@ class BinomialSearchTests(BaubleTestCase):
         self.ixora, self.ic, self.pc = g3, sp, sp4
 
     def tearDown(self):
-        super(BinomialSearchTests, self).tearDown()
+        super().tearDown()
 
     def test_binomial_complete(self):
         mapper_search = search.get_strategy('MapperSearch')
@@ -1099,11 +1099,11 @@ class BuildingSQLStatements(BaubleTestCase):
 
 class FilterThenMatchTests(BaubleTestCase):
     def __init__(self, *args):
-        super(FilterThenMatchTests, self).__init__(*args)
+        super().__init__(*args)
         prefs.testing = True
 
     def setUp(self):
-        super(FilterThenMatchTests, self).setUp()
+        super().setUp()
         db.engine.execute('delete from genus')
         db.engine.execute('delete from family')
         db.engine.execute('delete from genus_note')
@@ -1123,7 +1123,7 @@ class FilterThenMatchTests(BaubleTestCase):
         self.session.commit()
 
     def tearDown(self):
-        super(FilterThenMatchTests, self).tearDown()
+        super().tearDown()
 
     def test_can_filter_match_notes(self):
         mapper_search = search.get_strategy('MapperSearch')
@@ -1236,11 +1236,11 @@ class EmptySetEqualityTest(unittest.TestCase):
 
 class AggregatingFunctions(BaubleTestCase):
     def __init__(self, *args):
-        super(AggregatingFunctions, self).__init__(*args)
+        super().__init__(*args)
         prefs.testing = True
 
     def setUp(self):
-        super(AggregatingFunctions, self).setUp()
+        super().setUp()
         db.engine.execute('delete from genus')
         db.engine.execute('delete from family')
         db.engine.execute('delete from species')
@@ -1266,7 +1266,7 @@ class AggregatingFunctions(BaubleTestCase):
         self.session.commit()
 
     def tearDown(self):
-        super(AggregatingFunctions, self).tearDown()
+        super().tearDown()
 
     def test_count(self):
         mapper_search = search.get_strategy('MapperSearch')

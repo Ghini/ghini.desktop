@@ -174,14 +174,14 @@ def is_code_unique(plant, code):
 class PlantSearch(SearchStrategy):
 
     def __init__(self):
-        super(PlantSearch, self).__init__()
+        super().__init__()
 
     def search(self, text, session):
         """returns a result if the text looks like a quoted plant code
 
         special search strategy, can't be obtained in MapperSearch
         """
-        super(PlantSearch, self).search(text, session)
+        super().search(text, session)
 
         if text[0] == text[-1] and text[0] in ['"', "'"]:
             text = text[1:-1]
@@ -618,7 +618,7 @@ class PlantEditorView(GenericEditorView):
     def __init__(self, parent=None):
         glade_file = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                   'plant_editor.glade')
-        super(PlantEditorView, self).__init__(glade_file, parent=parent)
+        super().__init__(glade_file, parent=parent)
         self.widgets.pad_ok_button.set_sensitive(False)
         self.widgets.pad_next_button.set_sensitive(False)
 
@@ -661,7 +661,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         :param model: should be an instance of Plant class
         :param view: should be an instance of PlantEditorView
         '''
-        super(PlantEditorPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.create_toolbar()
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
@@ -882,7 +882,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def set_model_attr(self, field, value, validator=None):
         logger.debug('set_model_attr(%s, %s)' % (field, value))
-        super(PlantEditorPresenter, self)\
+        super()\
             .set_model_attr(field, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
@@ -924,7 +924,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
 
     def cleanup(self):
-        super(PlantEditorPresenter, self).cleanup()
+        super().cleanup()
         msg_box_parent = self.view.widgets.message_box_parent
         list(map(msg_box_parent.remove, msg_box_parent.get_children()))
         # the entry is made not editable for branch mode
@@ -985,7 +985,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             self.branched_plant, model = model, model.duplicate(code=None)
             model.quantity = 1
 
-        super(PlantEditor, self).__init__(model, parent)
+        super().__init__(model, parent)
 
         if self.branched_plant and self.branched_plant not in self.session:
             # make a copy of the branched plant for this session
@@ -1041,7 +1041,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 else:
                     # removal
                     change.quantity = -change.quantity
-            super(PlantEditor, self).commit_changes()
+            super().commit_changes()
             self._committed.append(self.model)
             return
 
@@ -1078,7 +1078,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         try:
             list(map(self.session.expunge, self.model.notes))
             self.session.expunge(self.model)
-            super(PlantEditor, self).commit_changes()
+            super().commit_changes()
         except:
             self.session.add(self.model)
             raise
@@ -1191,7 +1191,7 @@ class GeneralPlantExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        super(GeneralPlantExpander, self).__init__(_("General"), widgets)
+        super().__init__(_("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box, True, True, 0)
@@ -1256,7 +1256,7 @@ class ChangesExpander(InfoExpander):
     def __init__(self, widgets):
         """
         """
-        super(ChangesExpander, self).__init__(_('Changes'), widgets)
+        super().__init__(_('Changes'), widgets)
         self.vbox.props.spacing = 5
         self.table = Gtk.Table()
         self.vbox.pack_start(self.table, False, False, 0)
@@ -1359,7 +1359,7 @@ class PropagationExpander(InfoExpander):
     def __init__(self, widgets):
         """
         """
-        super(PropagationExpander, self).__init__(_('Propagations'), widgets)
+        super().__init__(_('Propagations'), widgets)
         self.vbox.set_spacing(4)
 
     def update(self, row):
@@ -1418,7 +1418,7 @@ class PlantInfoBox(InfoBox):
     def __init__(self):
         '''
         '''
-        super(PlantInfoBox, self).__init__()
+        super().__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "plant_infobox.glade")
         self.widgets = utils.BuilderWidgets(filename)

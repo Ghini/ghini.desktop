@@ -110,7 +110,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
     does not create a valid ABCDUnit since we can't provide the required UnitID
     """
     def __init__(self, species, for_labels=False):
-        super(SpeciesABCDAdapter, self).__init__(species)
+        super().__init__(species)
 
         # hold on to the accession so it doesn't get cleaned up and closed
         self.session = object_session(species)
@@ -201,7 +201,7 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     An adapter to convert a Plant to an ABCD Unit
     """
     def __init__(self, accession, for_labels=False):
-        super(AccessionABCDAdapter, self).__init__(accession.species,
+        super().__init__(accession.species,
                                                    for_labels)
         self.accession = accession
 
@@ -241,7 +241,7 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         return utils.xml_safe(notes)
 
     def extra_elements(self, unit):
-        super(AccessionABCDAdapter, self).extra_elements(unit)
+        super().extra_elements(unit)
         if self.for_labels:
             if self.species.label_distribution:
                 etree.SubElement(unit, 'distribution').text = \
@@ -318,7 +318,7 @@ class PlantABCDAdapter(AccessionABCDAdapter):
     An adapter to convert a Plant to an ABCD Unit
     """
     def __init__(self, plant, for_labels=False):
-        super(PlantABCDAdapter, self).__init__(plant.accession, for_labels)
+        super().__init__(plant.accession, for_labels)
         self.plant = plant
 
     def get_UnitID(self):
@@ -354,7 +354,7 @@ class PlantABCDAdapter(AccessionABCDAdapter):
         # TODO: AccessionStatus, AccessionMaterialtype,
         # ProvenanceCategory, AccessionLineage, DonorCategory,
         # PlantingDate, Propagation
-        super(PlantABCDAdapter, self).extra_elements(unit)
+        super().extra_elements(unit)
 
 
 class SettingsBoxPresenter(object):
@@ -377,7 +377,7 @@ class FileChooserButton(Gtk.Button):
     _default_label = _("Select a file…")
 
     def __init__(self, dialog_parent):
-        super(FileChooserButton, self).__init__(self._default_label)
+        super().__init__(self._default_label)
         self._filename = False
         self.props.use_underline = False
         self.props.xalign = 0
@@ -419,7 +419,7 @@ class FileChooserButton(Gtk.Button):
 class XSLFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
-        super(XSLFormatterSettingsBox, self).__init__(*args)
+        super().__init__(*args)
         filename = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl',
                                 'gui.glade')
         self.widgets = utils.BuilderWidgets(filename)

@@ -269,7 +269,7 @@ class SettingsBox(Gtk.VBox):
     method
     """
     def __init__(self):
-        super(SettingsBox, self).__init__()
+        super().__init__()
 
     def get_settings(self):
         raise NotImplementedError

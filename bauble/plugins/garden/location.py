@@ -336,7 +336,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.view.set_accept_buttons_sensitive(sensitive)
 
     def set_model_attr(self, attr, value, validator=None):
-        super(LocationEditorPresenter, self).\
+        super().\
             set_model_attr(attr, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
@@ -371,7 +371,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Location()
-        super(LocationEditor, self).__init__(model, parent)
+        super().__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent

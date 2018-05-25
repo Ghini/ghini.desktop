@@ -178,7 +178,7 @@ class MapperBase(DeclarativeMeta):
                 utils.xml_safe(str(x)),
                 '(%s)' % type(x).__name__)
 
-        super(MapperBase, cls).__init__(classname, bases, dict_)
+        super().__init__(classname, bases, dict_)
 
 
 engine = None
@@ -570,9 +570,12 @@ class WithNotes:
         the result can be an atomic value, a list, or a dictionary.
         '''
 
+        if name.startswith('_sa'):  # it's a SA field, don't even try to look it up
+            raise AttributeError(name)
+        
         result = []
         is_dict = False
-        for n in super(WithNotes, self).notes:
+        for n in self.notes:
             if n.category == ('[%s]' % name):
                 result.append(n.note)
             elif n.category.startswith('{%s:' % name) and n.category.endswith('}'):

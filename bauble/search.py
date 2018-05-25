@@ -318,7 +318,7 @@ class AggregatedExpression(IdentExpression):
     '''
 
     def __init__(self, t):
-        super(AggregatedExpression, self).__init__(t)
+        super().__init__(t)
         logger.debug('AggregatedExpression::__init__(%s)' % t)
 
     def evaluate(self, env):
@@ -808,7 +808,7 @@ class MapperSearch(SearchStrategy):
     _properties = {}
 
     def __init__(self):
-        super(MapperSearch, self).__init__()
+        super().__init__()
         self._results = set()
         self.parser = SearchParser()
 
@@ -860,7 +860,7 @@ class MapperSearch(SearchStrategy):
         have been processed or it is possible that some database backends
         could cause deadlocks.
         """
-        super(MapperSearch, self).search(text, session)
+        super().search(text, session)
         self._session = session
 
         self._results.clear()
@@ -890,7 +890,7 @@ def get_strategy(name):
 class SchemaBrowser(Gtk.VBox):
 
     def __init__(self, *args, **kwargs):
-        super(SchemaBrowser, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.props.spacing = 10
         # WARNING: this is a hack from MapperSearch
         self.domain_map = {}
@@ -981,7 +981,7 @@ class SchemaMenu(Gtk.Menu):
 
     def __init__(self, mapper, activate_cb=None,
                  relation_filter=lambda p: True):
-        super(SchemaMenu, self).__init__()
+        super().__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
         list(map(self.append, self._get_prop_menuitems(mapper)))

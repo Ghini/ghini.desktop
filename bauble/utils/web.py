@@ -46,7 +46,7 @@ class BaubleLinkButton(Gtk.LinkButton):
     pt = re.compile(r'%\(([a-z_\.]*)\)s')
 
     def __init__(self, title=_("Search"), tooltip=None):
-        super(BaubleLinkButton, self).__init__("", self.title)
+        super().__init__("", self.title)
         self.set_tooltip_text(self.tooltip or self.title)
         self.__class__.fields = self.pt.findall(self._base_uri)
 

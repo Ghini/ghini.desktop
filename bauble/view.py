@@ -85,7 +85,7 @@ class Action(Gtk.Action):
         The activate signal is not automatically connected to the
         callback method.
         """
-        super(Action, self).__init__(name, label, tooltip, stock_id)
+        super().__init__(name, label, tooltip, stock_id)
         self.callback = callback
         self.multiselect = multiselect
         self.singleselect = singleselect
@@ -120,7 +120,7 @@ class InfoExpander(Gtk.Expander):
 
         :param widgets: a bauble.utils.BuilderWidgets instance
         """
-        super(InfoExpander, self).__init__()
+        super().__init__()
         self.set_label(label)
         self.vbox = Gtk.VBox(False)
         self.vbox.set_border_width(5)
@@ -152,7 +152,7 @@ class InfoExpander(Gtk.Expander):
 class PropertiesExpander(InfoExpander):
 
     def __init__(self):
-        super(PropertiesExpander, self).__init__(_('Properties'))
+        super().__init__(_('Properties'))
         table = Gtk.Table(rows=4, columns=2)
         table.set_col_spacings(15)
         table.set_row_spacings(8)
@@ -220,7 +220,7 @@ class InfoBoxPage(Gtk.ScrolledWindow):
     """
 
     def __init__(self):
-        super(InfoBoxPage, self).__init__()
+        super().__init__()
         self.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.vbox = Gtk.VBox()
         self.vbox.set_spacing(10)
@@ -291,7 +291,7 @@ class InfoBox(Gtk.Notebook):
     """
 
     def __init__(self, tabbed=False):
-        super(InfoBox, self).__init__()
+        super().__init__()
         self.row = None
         self.set_property('show-border', False)
         if not tabbed:
@@ -337,7 +337,7 @@ class LinksExpander(InfoExpander):
         """
         :param notes: the name of the notes property on the row
         """
-        super(LinksExpander, self).__init__(_("Links"))
+        super().__init__(_("Links"))
         self.dynamic_box = Gtk.VBox()
         self.vbox.pack_start(self.dynamic_box, True, True, 0)
         self.notes = notes
@@ -386,7 +386,7 @@ class AddOneDot(threading.Thread):
         statusbar.push(sbcontext_id, _('counting results') + '.' * dotno)
 
     def __init__(self, group=None, verbose=None, **kwargs):
-        super(AddOneDot, self).__init__(
+        super().__init__(
             group=group, target=None, name=None)
         self.__stopped = threading.Event()
         self.dotno = 0
@@ -403,7 +403,7 @@ class AddOneDot(threading.Thread):
 class CountResultsTask(threading.Thread):
     def __init__(self, klass, ids, dots_thread,
                  group=None, verbose=None, **kwargs):
-        super(CountResultsTask, self).__init__(
+        super().__init__(
             group=group, target=None, name=None)
         self.klass = klass
         self.ids = ids
@@ -522,7 +522,7 @@ class SearchView(pluginmgr.View):
         the constructor
         '''
         logger.debug('SearchView::__init__')
-        super(SearchView, self).__init__()
+        super().__init__()
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
         self.widgets = utils.BuilderWidgets(filename)
         self.view = editor.GenericEditorView(
@@ -1304,7 +1304,7 @@ class AppendThousandRows(threading.Thread):
         self.view.liststore.append(row)
 
     def __init__(self, view, group=None, verbose=None, **kwargs):
-        super(AppendThousandRows, self).__init__(
+        super().__init__(
             group=group, target=None, name=None, verbose=verbose)
         self.__stopped = threading.Event()
         self.view = view
@@ -1341,7 +1341,7 @@ class HistoryView(pluginmgr.View):
 
     def __init__(self):
         logger.debug('PrefsView::__init__')
-        super(HistoryView, self).__init__(
+        super().__init__(
             filename=os.path.join(paths.lib_dir(), 'bauble.glade'),
             root_widget_name='history_window')
         self.view.connect_signals(self)
@@ -1426,7 +1426,7 @@ class HistoryCommandHandler(pluginmgr.CommandHandler):
     view = None
 
     def __init__(self):
-        super(HistoryCommandHandler, self).__init__()
+        super().__init__()
 
     def get_view(self):
         if not self.view:
@@ -1471,7 +1471,7 @@ def select_in_search_results(obj):
 class DefaultCommandHandler(pluginmgr.CommandHandler):
 
     def __init__(self):
-        super(DefaultCommandHandler, self).__init__()
+        super().__init__()
 
     command = [None]
     view = None

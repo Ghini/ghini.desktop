@@ -28,7 +28,7 @@ from bauble.plugins.plants.genus import Genus
 class TestOne(BaubleTestCase):
 
     def setUp(self):
-        super(TestOne, self).setUp()
+        super().setUp()
         family = Family(family='Amaranthaceae')
         genus = Genus(family=family, genus='Salsola')
         self.session.add_all([family, genus])

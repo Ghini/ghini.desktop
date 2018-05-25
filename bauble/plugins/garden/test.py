@@ -137,12 +137,6 @@ test_data_table_control = ((Accession, accession_test_data),
 testing_today = datetime.date(2017, 1, 1)
 
 def setUp_data():
-    """
-    create_test_data()
-    # if this method is called again before tearDown_test_data is called you
-    # will get an error about the test data rows already existing in the
-    # database
-    """
     for cls, data in test_data_table_control:
         table = cls.__table__
         for row in data:
@@ -168,9 +162,6 @@ def setUp_data():
 
 class DuplicateIdsGlade(TestCase):
     def test_duplicate_ids(self):
-        """
-        Test for duplicate ids for all .glade files in the gardens plugin.
-        """
         import bauble.plugins.garden as mod
         import glob
         head, tail = os.path.split(mod.__file__)
@@ -182,11 +173,11 @@ class DuplicateIdsGlade(TestCase):
 class GardenTestCase(BaubleTestCase):
 
     def __init__(self, *args, **kwargs):
-        super(GardenTestCase, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         prefs.testing = True
 
     def setUp(self):
-        super(GardenTestCase, self).setUp()
+        super().setUp()
         plants_test.setUp_data()
         self.family = Family(family='Cactaceae')
         self.genus = Genus(family=self.family, genus='Echinocactus')
@@ -196,7 +187,7 @@ class GardenTestCase(BaubleTestCase):
         self.session.commit()
 
     def tearDown(self):
-        super(GardenTestCase, self).tearDown()
+        super().tearDown()
 
     def create(self, class_, **kwargs):
         obj = class_(**kwargs)
@@ -207,10 +198,10 @@ class GardenTestCase(BaubleTestCase):
 class PlantTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(PlantTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(PlantTests, self).setUp()
+        super().setUp()
         self.accession = self.create(Accession,
                                      species=self.species, code='1')
         self.location = self.create(Location, name='site', code='STE')
@@ -219,12 +210,9 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
     def tearDown(self):
-        super(PlantTests, self).tearDown()
+        super().tearDown()
 
     def test_constraints(self):
-        """
-        Test the contraints on the plant table.
-        """
         # test that we can't have duplicate codes with the same accession
         plant2 = Plant(accession=self.accession, location=self.location,
                        code=self.plant.code, quantity=1)
@@ -234,18 +222,12 @@ class PlantTests(GardenTestCase):
         self.session.rollback()
 
     def test_delete(self):
-        """
-        Test that when a plant is deleted...
-        """
         raise SkipTest('Not Implemented')
 
     def test_editor_addnote(self):
         raise SkipTest('Not Implemented')
 
     def test_duplicate(self):
-        """
-        Test Plant.duplicate()
-        """
         p = Plant(accession=self.accession, location=self.location, code='2',
                   quantity=52)
         self.session.add(p)
@@ -278,9 +260,6 @@ class PlantTests(GardenTestCase):
                            '<i>Echinocactus</i> <i>grusonii</i>'))
 
     def test_bulk_plant_editor(self):
-        """
-        Test creating multiple plants with the plant editor.
-        """
         from gi.repository import Gtk
 
         # use our own plant because PlantEditor.commit_changes() will
@@ -322,9 +301,6 @@ class PlantTests(GardenTestCase):
                          (self.accession, code))
 
     def test_editor(self):
-        """
-        Interactively test the PlantEditor
-        """
         raise SkipTest('separate view from presenter, then test presenter')
         for plant in self.session.query(Plant):
             self.session.delete(plant)
@@ -418,9 +394,6 @@ class PlantTests(GardenTestCase):
             'change.parent_plant != original plant'
 
     def test_branch_callback(self):
-        """
-        Test bauble.plugins.garden.plant.branch_callback()
-        """
         raise SkipTest('Not Implemented')
         for plant in self.session.query(Plant):
             self.session.delete(plant)
@@ -445,9 +418,6 @@ class PlantTests(GardenTestCase):
         self.assertEqual(new_plant.changes[0].quantity, new_plant.quantity)
 
     def test_is_code_unique(self):
-        """
-        Test bauble.plugins.garden.plant.is_code_unique()
-        """
         self.assertFalse(is_code_unique(self.plant, '1'))
         self.assertTrue(is_code_unique(self.plant, '01'))
         self.assertFalse(is_code_unique(self.plant, '1-2'))
@@ -470,10 +440,10 @@ class PlantTests(GardenTestCase):
 class PropagationTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(PropagationTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(PropagationTests, self).setUp()
+        super().setUp()
         self.accession = self.create(
             Accession, species=self.species, code='1')
         self.plants = []
@@ -505,7 +475,7 @@ class PropagationTests(GardenTestCase):
         self.session.query(Location).delete()
         self.session.query(Accession).delete()
         self.session.commit()
-        super(PropagationTests, self).tearDown()
+        super().tearDown()
 
     def test_propagation_cutting_quantity_new_zero(self):
         self.add_plants(['1'])
@@ -894,9 +864,6 @@ class PropagationTests(GardenTestCase):
             self.assertEqual(value, default)
 
     def test_editor(self):
-        """
-        Interactively test the PropagationEditor
-        """
         raise SkipTest('separate view from presenter, then test presenter')
         from bauble.plugins.garden.propagation import PropagationEditor
         propagation = Propagation()
@@ -911,7 +878,7 @@ class PropagationTests(GardenTestCase):
 class AccessionEditorSpeciesMatchTests(GardenTestCase):
 
     def setUp(self):
-        super(AccessionEditorSpeciesMatchTests, self).setUp()
+        super().setUp()
         self.sp3 = Species(genus=self.genus, sp='inexistente')
         self.session.add_all([self.sp3])
         self.session.commit()
@@ -958,21 +925,18 @@ class AccessionEditorSpeciesMatchTests(GardenTestCase):
 class VoucherTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(VoucherTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(VoucherTests, self).setUp()
+        super().setUp()
         self.accession = self.create(
             Accession, species=self.species, code='1')
         self.session.commit()
 
     def tearDown(self):
-        super(VoucherTests, self).tearDown()
+        super().tearDown()
 
     def test_voucher(self):
-        """
-        Test the Accession.voucher property
-        """
         voucher = Voucher(herbarium='ABC', code='1234567')
         voucher.accession = self.accession
         self.session.commit()
@@ -997,15 +961,15 @@ class VoucherTests(GardenTestCase):
 class SourceTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(SourceTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(SourceTests, self).setUp()
+        super().setUp()
         self.accession = self.create(
             Accession, species=self.species, code='1')
 
     def tearDown(self):
-        super(SourceTests, self).tearDown()
+        super().tearDown()
 
     def _make_prop(self, source):
         '''associate a seed Propagation to source
@@ -1027,9 +991,6 @@ class SourceTests(GardenTestCase):
                 source.propagation._cutting.id)
 
     def test_propagation(self):
-        """
-        Test cascading for the Source.propagation relation
-        """
         source = Source()
         self.accession.source = source
         prop_id, seed_id, cutting_id = self._make_prop(source)
@@ -1045,9 +1006,6 @@ class SourceTests(GardenTestCase):
         self.assertTrue(not self.session.query(Propagation).get(prop_id))
 
     def test(self):
-        """
-        Test bauble.plugins.garden.Source and related properties
-        """
         # I consider this test a very good example of how NOT TO write unit
         # tests: it has a non-descriptive name, it does not state what it
         # tests, it uses a non-standard 'assert_' method, it tests several
@@ -1095,10 +1053,10 @@ class SourceTests(GardenTestCase):
 class AccessionQualifiedTaxon(GardenTestCase):
 
     def __init__(self, *args):
-        super(AccessionQualifiedTaxon, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(AccessionQualifiedTaxon, self).setUp()
+        super().setUp()
         self.sp3 = Species(genus=self.genus, sp='grusonii',
                            infrasp1_rank='var.', infrasp1='albispinus')
         self.session.add(self.sp3)
@@ -1107,7 +1065,7 @@ class AccessionQualifiedTaxon(GardenTestCase):
         self.ac2 = self.create(Accession, species=self.sp3, code='2')
 
     def tearDown(self):
-        super(AccessionQualifiedTaxon, self).tearDown()
+        super().tearDown()
 
     def test_species_str_plain(self):
         s = 'Echinocactus grusonii'
@@ -1279,19 +1237,15 @@ class AccessionQualifiedTaxon(GardenTestCase):
 class AccessionTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(AccessionTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(AccessionTests, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(AccessionTests, self).tearDown()
+        super().tearDown()
 
     def test_delete(self):
-        """
-        Test that when an accession is deleted any orphaned rows are
-        cleaned up.
-        """
         acc = self.create(Accession, species=self.species, code='1')
         plant = self.create(Plant, accession=acc, quantity=1,
                             location=Location(name='site', code='STE'),
@@ -1305,9 +1259,6 @@ class AccessionTests(GardenTestCase):
         self.assertTrue(not self.session.query(Plant).get(plant_id))
 
     def test_constraints(self):
-        """
-        Test the constraints on the accession table.
-        """
         acc = Accession(species=self.species, code='1')
         self.session.add(acc)
         self.session.commit()
@@ -1413,9 +1364,6 @@ class AccessionTests(GardenTestCase):
         self.editor.session.close()
 
     def test_editor(self):
-        """
-        Interactively test the AccessionEditor
-        """
         raise SkipTest('separate view from presenter, then test presenter')
         #donor = self.create(Donor, name=u'test')
         sp2 = Species(genus=self.genus, sp='species')
@@ -1570,13 +1518,13 @@ class AccessionTests(GardenTestCase):
 class VerificationTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(VerificationTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(VerificationTests, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(VerificationTests, self).tearDown()
+        super().tearDown()
 
     def test_verifications(self):
         acc = self.create(Accession, species=self.species, code='1')
@@ -1598,13 +1546,13 @@ class VerificationTests(GardenTestCase):
 class LocationTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(LocationTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(LocationTests, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(LocationTests, self).tearDown()
+        super().tearDown()
 
     def test_location_editor(self):
         loc = self.create(Location, name='some site', code='STE')
@@ -1669,18 +1617,15 @@ class LocationTests(GardenTestCase):
 class CollectionTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(CollectionTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(CollectionTests, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(CollectionTests, self).tearDown()
+        super().tearDown()
 
     def test_collection_search_view_markup_pair(self):
-        """Test Collection.accession property
-
-        """
         acc = Accession(code='2001.0002', species=self.species)
         acc.source = Source()
         collection = Collection(locale='some location')
@@ -1919,8 +1864,6 @@ class DMSConversionTests(TestCase):
 
 
 class FromAndToDictTest(GardenTestCase):
-    """tests the retrieve_or_create and the as_dict methods
-    """
 
     def test_add_accession_at_species_rank(self):
         acc = Accession.retrieve_or_create(
@@ -2137,10 +2080,10 @@ import bauble.search as search
 
 class PlantSearchTest(GardenTestCase):
     def __init__(self, *args):
-        super(PlantSearchTest, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(PlantSearchTest, self).setUp()
+        super().setUp()
         setUp_data()
 
     def test_searchbyplantcode_unquoted(self):
@@ -2371,7 +2314,7 @@ class GlobalFunctionsTests(GardenTestCase):
 class ContactTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(ContactTests, self).__init__(*args)
+        super().__init__(*args)
 
     def test_delete(self):
 

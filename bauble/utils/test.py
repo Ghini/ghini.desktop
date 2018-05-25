@@ -208,13 +208,13 @@ class UtilsDBTests(BaubleTestCase):
 class ResetSequenceTests(BaubleTestCase):
 
     def setUp(self):
-        super(ResetSequenceTests, self).setUp()
+        super().setUp()
         self.metadata = MetaData()
         self.metadata.bind = db.engine
 
 
     def tearDown(self):
-        super(ResetSequenceTests, self).tearDown()
+        super().tearDown()
         self.metadata.drop_all()
 
 

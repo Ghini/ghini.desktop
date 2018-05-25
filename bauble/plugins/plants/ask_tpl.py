@@ -33,7 +33,7 @@ class AskTPL(threading.Thread):
 
     def __init__(self, binomial, callback, threshold=0.8, timeout=4, gui=False,
                  group=None, verbose=None, **kwargs):
-        super(AskTPL, self).__init__(
+        super().__init__(
             group=group, target=None, name=None, verbose=verbose)
         logger.debug("new %s, already running %s.",
                      self.name, self.running and self.running.name)

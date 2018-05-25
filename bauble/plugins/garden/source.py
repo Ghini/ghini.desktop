@@ -276,7 +276,7 @@ class CollectionPresenter(editor.ChildPresenter):
     PROBLEM_INVALID_LOCALE = str(random())
 
     def __init__(self, parent, model, view, session):
-        super(CollectionPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.refresh_view()
@@ -353,7 +353,7 @@ class CollectionPresenter(editor.ChildPresenter):
         """
         Validates the fields when a field changes.
         """
-        super(CollectionPresenter, self).set_model_attr(
+        super().set_model_attr(
             field, value, validator)
         self._dirty = True
         if self.model.locale is None or self.model.locale in ('', ''):
@@ -604,7 +604,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
     PROBLEM_INVALID_DATE = random()
 
     def __init__(self, parent, model, view, session):
-        super(PropagationChooserPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self._dirty = False
@@ -837,7 +837,7 @@ class ContactPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, model, view):
         view.init_translatable_combo('source_type_combo', source_type_values)
-        super(ContactPresenter, self).__init__(model, view, refresh_view=True,
+        super().__init__(model, view, refresh_view=True,
                                                do_commit=True)
         self.create_toolbar()
         view.set_accept_buttons_sensitive(False)
@@ -852,7 +852,7 @@ class GeneralSourceDetailExpander(view.InfoExpander):
     type of contact
     '''
     def __init__(self, widgets):
-        super(GeneralSourceDetailExpander, self).__init__(
+        super().__init__(
             _('General'), widgets)
         gen_box = self.widgets.sd_gen_box
         self.widgets.remove_parent(gen_box)
@@ -882,7 +882,7 @@ class GeneralSourceDetailExpander(view.InfoExpander):
 class ContactInfoBox(view.InfoBox):
 
     def __init__(self):
-        super(ContactInfoBox, self).__init__()
+        super().__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "source_detail_infobox.glade")
         self.widgets = utils.BuilderWidgets(filename)

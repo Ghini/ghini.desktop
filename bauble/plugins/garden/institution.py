@@ -53,7 +53,7 @@ import math
 class MapViewer(Gtk.Dialog):
 
     def __init__(self, title="", parent=None, *args, **kwargs):
-        super(MapViewer, self).__init__(title, parent, *args, **kwargs)
+        super().__init__(title, parent, *args, **kwargs)
         self.result = None
         GtkClutter.init([])
 
@@ -373,7 +373,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
     def __init__(self, model, view):
         self.message_box = None
         self.email_regexp = re.compile(r'.+@.+\..+')
-        super(InstitutionPresenter, self).__init__(
+        super().__init__(
             model, view, refresh_view=True)
         self.view.widget_grab_focus('inst_name')
         self.on_non_empty_text_entry_changed('inst_name')
@@ -383,13 +383,13 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             model.uuid = str(uuid.uuid4())
 
     def cleanup(self):
-        super(InstitutionPresenter, self).cleanup()
+        super().cleanup()
         if self.message_box:
             self.view.remove_box(self.message_box)
             self.message_box = None
 
     def on_non_empty_text_entry_changed(self, widget, value=None):
-        value = super(InstitutionPresenter, self
+        value = super(
                       ).on_non_empty_text_entry_changed(widget, value)
         box = self.message_box
         if value:
@@ -405,7 +405,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             self.message_box = box
 
     def on_email_text_entry_changed(self, widget, value=None):
-        value = super(InstitutionPresenter, self
+        value = super(
                       ).on_text_entry_changed(widget, value)
         self.view.widget_set_sensitive(
             'inst_register', self.email_regexp.match(value or ''))

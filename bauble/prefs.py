@@ -251,7 +251,7 @@ class PrefsView(pluginmgr.View):
 
     def __init__(self):
         logger.debug('PrefsView::__init__')
-        super(PrefsView, self).__init__(
+        super().__init__(
             filename=os.path.join(paths.lib_dir(), 'bauble.glade'),
             root_widget_name='prefs_window')
         self.view.connect_signals(self)

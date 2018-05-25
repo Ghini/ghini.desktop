@@ -54,7 +54,7 @@ class VNList(list):
     list.
     """
     def remove(self, vn):
-        super(VNList, self).remove(vn)
+        super().remove(vn)
         try:
             if vn.species.default_vernacular_name == vn:
                 del vn.species.default_vernacular_name
@@ -353,7 +353,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     awards = Column(UnicodeText)
 
     def __init__(self, *args, **kwargs):
-        super(Species, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         'return the default string representation for self.'
@@ -693,7 +693,7 @@ class SpeciesSynonym(db.Base):
         # it is necessary that the first argument here be synonym for
         # the Species.synonyms association_proxy to work
         self.synonym = synonym
-        super(SpeciesSynonym, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __str__(self):
         return str(self.synonym)

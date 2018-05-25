@@ -72,7 +72,7 @@ class RegistryError(DatabaseError):
 class VersionError(DatabaseError):
 
     def __init__(self, version):
-        super(VersionError, self).__init__()
+        super().__init__()
         self.version = version
 
 

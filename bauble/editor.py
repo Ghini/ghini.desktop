@@ -1773,7 +1773,7 @@ class ChildPresenter(GenericEditorPresenter):
     """
 
     def __init__(self, model, view):
-        super(ChildPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         #self._view_ref = weakref.ref(view)
 
     def _get_view(self):
@@ -1850,7 +1850,7 @@ class NoteBox(Gtk.HBox):
         buff.connect('changed', self.on_note_buffer_changed, self.widgets.note_textview)
 
     def __init__(self, presenter, model=None):
-        super(NoteBox, self).__init__()
+        super().__init__()
 
         # open the glade file and extract the markup that the
         # expander will use
@@ -2052,7 +2052,7 @@ class PictureBox(NoteBox):
     last_folder = '.'
 
     def __init__(self, presenter, model=None):
-        super(PictureBox, self).__init__(presenter, model)
+        super().__init__(presenter, model)
         utils.set_widget_value(self.widgets.category_comboentry,
                                '<picture>')
         self.presenter._dirty = False
@@ -2159,7 +2159,7 @@ class NotesPresenter(GenericEditorPresenter):
     ContentBox = NoteBox
 
     def __init__(self, presenter, notes_property, parent_container):
-        super(NotesPresenter, self).__init__(presenter.model, None)
+        super().__init__(presenter.model, None)
 
         # The glade file named in ContentBox is structured with two top
         # GtkWindow next to each other. Here, by not doing any lookup, we
@@ -2227,7 +2227,7 @@ class PicturesPresenter(NotesPresenter):
     ContentBox = PictureBox
 
     def __init__(self, presenter, notes_property, parent_container):
-        super(PicturesPresenter, self).__init__(
+        super().__init__(
             presenter, notes_property, parent_container)
 
         notes = self.box.get_children()

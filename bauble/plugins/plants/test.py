@@ -276,26 +276,20 @@ class DuplicateIdsGlade(TestCase):
 class PlantTestCase(BaubleTestCase):
 
     def __init__(self, *args):
-        super(PlantTestCase, self).__init__(*args)
+        super().__init__(*args)
         from bauble import prefs
         prefs.testing = True
 
     def setUp(self):
-        super(PlantTestCase, self).setUp()
+        super().setUp()
         setUp_data()
 
     def tearDown(self):
-        super(PlantTestCase, self).tearDown()
+        super().tearDown()
 
 
 class FamilyTests(PlantTestCase):
-    """
-    Test for Family and FamilySynonym
-    """
     def test_cascades(self):
-        """
-        Test that cascading is set up properly
-        """
         family = Family(family='family')
         genus = Genus(family=family, genus='genus')
         self.session.add_all([family, genus])
@@ -308,9 +302,6 @@ class FamilyTests(PlantTestCase):
         self.assertRaises(NoResultFound, query.one)
 
     def test_synonyms(self):
-        """
-        Test that Family.synonyms works correctly
-        """
         family = Family(family='family')
         family2 = Family(family='family2')
         family.synonyms.append(family2)
@@ -367,9 +358,6 @@ class FamilyTests(PlantTestCase):
         self.assertTrue(self.session.query(FamilySynonym).count() == 0)
 
     def test_constraints(self):
-        """
-        Test that the family constraints were created correctly
-        """
         values = [dict(family='family'),
                   dict(family='family', qualifier='s. lat.')]
         for v in values:
@@ -384,9 +372,6 @@ class FamilyTests(PlantTestCase):
         self.session.rollback()
 
     def test_str(self):
-        """
-        Test that the family str function works as expected
-        """
         f = Family()
         self.assertTrue(str(f) == repr(f))
         f = Family(family='fam')
@@ -395,9 +380,6 @@ class FamilyTests(PlantTestCase):
         self.assertTrue(str(f) == 'fam s. lat.')
 
     def test_editor(self):
-        """
-        Interactively test the FamilyEditor
-        """
         raise SkipTest('Not Implemented')
         #loc = self.create(Family, name=u'some site')
         fam = Family(family='some family')
@@ -716,7 +698,7 @@ class GenusTests(PlantTestCase):
 class GenusSynonymyTests(PlantTestCase):
 
     def setUp(self):
-        super(GenusSynonymyTests, self).setUp()
+        super().setUp()
         f = self.session.query(Family).filter(Family.family == 'Orchidaceae'
                                               ).one()
         bu = Genus(family=f, genus='Bulbophyllum')  # accepted
@@ -796,10 +778,10 @@ class GenusSynonymyTests(PlantTestCase):
 class SpeciesTests(PlantTestCase):
 
     def setUp(self):
-        super(SpeciesTests, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(SpeciesTests, self).tearDown()
+        super().tearDown()
 
     def test_editor(self):
         raise SkipTest('Not Implemented')
@@ -1201,10 +1183,10 @@ class SpeciesTests(PlantTestCase):
 class GeographicAreaTests(PlantTestCase):
 
     def __init__(self, *args):
-        super(GeographicAreaTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(GeographicAreaTests, self).setUp()
+        super().setUp()
         self.family = Family(family='family')
         self.genus = Genus(genus='genus', family=self.family)
         self.session.add_all([self.family, self.genus])
@@ -1219,7 +1201,7 @@ class GeographicAreaTests(PlantTestCase):
         self.session.commit()
 
     def tearDown(self):
-        super(GeographicAreaTests, self).tearDown()
+        super().tearDown()
 
     def test_get_species(self):
         mexico_id = 53

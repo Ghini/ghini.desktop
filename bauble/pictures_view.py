@@ -46,7 +46,7 @@ class PicturesView(Gtk.HBox):
     def __init__(self, parent=None, fake=False):
         logger.debug("entering PicturesView.__init__(parent=%s, fake=%s)"
                      % (parent, fake))
-        super(PicturesView, self).__init__()
+        super().__init__()
         if fake:
             self.fake = True
             return

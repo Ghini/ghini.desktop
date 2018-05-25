@@ -138,7 +138,7 @@ class ImageLoader(threading.Thread):
     cache = Cache(12)  # class-global cached results
 
     def __init__(self, box, url, *args, **kwargs):
-        super(ImageLoader, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.box = box  # will hold image or label
         self.loader = GdkPixbuf.PixbufLoader()
         self.inline_picture_marker = "|data:image/jpeg;base64,"
@@ -1235,7 +1235,7 @@ class GenericMessageBox(Gtk.EventBox):
     Abstract class for showing a message box at the top of an editor.
     """
     def __init__(self):
-        super(GenericMessageBox, self).__init__()
+        super().__init__()
         self.box = Gtk.HBox()
         self.box.set_spacing(10)
         self.add(self.box)
@@ -1263,7 +1263,7 @@ class MessageBox(GenericMessageBox):
     """
 
     def __init__(self, msg=None, details=None):
-        super(MessageBox, self).__init__()
+        super().__init__()
         self.vbox = Gtk.VBox()
         self.box.pack_start(self.vbox, True, True, 0)
 
@@ -1316,7 +1316,7 @@ class MessageBox(GenericMessageBox):
             self.set_color(*color)
 
     def show_all(self):
-        super(MessageBox, self).show_all()
+        super().show_all()
         if not self.details_label.get_text():
             self.details_expander.hide()
 
@@ -1357,7 +1357,7 @@ class YesNoMessageBox(GenericMessageBox):
         func(button, response) where response is True/False
         depending on whether the user selected Yes or No, respectively.
         """
-        super(YesNoMessageBox, self).__init__()
+        super().__init__()
         self.label = Gtk.Label()
         if msg:
             self.label.set_markup(msg)

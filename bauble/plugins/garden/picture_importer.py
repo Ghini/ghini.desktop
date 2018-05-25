@@ -99,7 +99,7 @@ def none(function, *args):
 
 class ListStoreHandler(logging.Handler):
     def __init__(self, container, *args, **kwargs):
-        super(ListStoreHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.container = container
         GObject.idle_add(none, self.container.clear)
 
@@ -144,7 +144,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
     def __init__(self, model, view, **kwargs):
         kwargs['refresh_view'] = True
-        super(PictureImporterPresenter, self).__init__(model, view, **kwargs)
+        super().__init__(model, view, **kwargs)
         self.panes = [getattr(self.view.widgets, 'box_define'),
                       getattr(self.view.widgets, 'box_review'),
                       getattr(self.view.widgets, 'box_log'),]

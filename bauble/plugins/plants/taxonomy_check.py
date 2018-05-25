@@ -132,7 +132,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
     view_accept_buttons = ['ok_button']
 
     def __init__(self, *args, **kwargs):
-        super(BatchTaxonomicCheckPresenter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.refresh_visible_frame()
         self.tick_off_list = self.view.widgets.liststore2
         self.binomials = [item.str(remove_zws=True)

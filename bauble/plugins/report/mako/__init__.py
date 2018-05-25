@@ -274,7 +274,7 @@ class MakoFormatterSettingsBox(SettingsBox):
                          "tooltip: '(.*)'\)$")
 
     def __init__(self, report_dialog=None, *args):
-        super(MakoFormatterSettingsBox, self).__init__(*args)
+        super().__init__(*args)
         self.widgets = utils.BuilderWidgets(
             os.path.join(paths.lib_dir(),
                          "plugins", "report", 'mako', 'gui.glade'))

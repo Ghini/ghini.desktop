@@ -82,7 +82,7 @@ from gi.repository import GObject
 
 class LabelUpdater(Thread):
     def __init__(self, widget, query, *args, **kwargs):
-        super(LabelUpdater, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.query = query
         self.widget = widget
 
@@ -102,7 +102,7 @@ class SplashInfoBox(pluginmgr.View):
         '''
         '''
         logger.debug('SplashInfoBox::__init__')
-        super(SplashInfoBox, self).__init__()
+        super().__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
         self.widgets = utils.BuilderWidgets(filename)

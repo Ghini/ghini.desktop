@@ -139,14 +139,14 @@ class SynonymSearch(search.SearchStrategy):
     return_synonyms_pref = 'bauble.search.return_synonyms'
 
     def __init__(self):
-        super(SynonymSearch, self).__init__()
+        super().__init__()
         if self.return_synonyms_pref not in prefs:
             prefs[self.return_synonyms_pref] = True
             prefs.save()
 
     def search(self, text, session):
         from .genus import Genus, GenusSynonym
-        super(SynonymSearch, self).search(text, session)
+        super().search(text, session)
         if not prefs[self.return_synonyms_pref]:
             return []
         mapper_search = search.get_strategy('MapperSearch')
@@ -396,7 +396,7 @@ class GeneralSpeciesExpander(InfoExpander):
 class SpeciesInfoBox(InfoBox):
 
     def __init__(self):
-        super(SpeciesInfoBox, self).__init__(tabbed=True)
+        super().__init__(tabbed=True)
         page = SpeciesInfoPage()
         label = page.label
         if isinstance(label, str):
@@ -428,7 +428,7 @@ class SpeciesInfoPage(InfoBoxPage):
             {'name': 'TPLButton', '_base_uri': "http://www.theplantlist.org/tpl1.1/search?q=%(genus.genus)s+%(sp)s", '_space': '+', 'title': _("Search TPL"), 'tooltip': _("Search The Plant List online database"), },
             {'name': 'TropicosButton', '_base_uri': "http://tropicos.org/NameSearch.aspx?name=%(genus.genus)s+%(sp)s", '_space': '+', 'title': _("Search Tropicos"), 'tooltip': _("Search Tropicos (MissouriBG) online database"), },
             ]
-        super(SpeciesInfoPage, self).__init__()
+        super().__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
         # load the widgets directly instead of using BuilderWidgets()
@@ -475,4 +475,4 @@ class VernacularNameInfoBox(SpeciesInfoBox):
         logger.info("VernacularNameInfoBox.update %s(%s)" % (
             row.__class__.__name__, row))
         if isinstance(row, VernacularName):
-            super(VernacularNameInfoBox, self).update(row.species)
+            super().update(row.species)

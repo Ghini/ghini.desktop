@@ -92,18 +92,18 @@ class TagMenuTests(BaubleTestCase):
 class TagTests(BaubleTestCase):
 
     def __init__(self, *args, **kwargs):
-        super(TagTests, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         import bauble.prefs
         bauble.prefs.testing = True
 
     def setUp(self):
-        super(TagTests, self).setUp()
+        super().setUp()
         self.family = Family(family='family')
         self.session.add(self.family)
         self.session.commit()
 
     def tearDown(self):
-        super(TagTests, self).tearDown()
+        super().tearDown()
 
     def test_str(self):
         """
@@ -270,7 +270,7 @@ class TagTests(BaubleTestCase):
 class GetTagIdsTests(BaubleTestCase):
 
     def setUp(self):
-        super(GetTagIdsTests, self).setUp()
+        super().setUp()
         self.fam1 = Family(family='Fabaceae')
         self.fam2 = Family(family='Poaceae')
         self.fam3 = Family(family='Solanaceae')
@@ -286,7 +286,7 @@ class GetTagIdsTests(BaubleTestCase):
         self.session.query(Family).delete()
         self.session.query(Tag).delete()
         self.session.commit()
-        super(GetTagIdsTests, self).tearDown()
+        super().tearDown()
 
     def test_get_tag_ids1(self):
         s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam1, self.fam2])
@@ -371,7 +371,7 @@ class TagPresenterTests(BaubleTestCase):
     'Presenter manages view and model, implements view callbacks.'
 
     def __init__(self, *args, **kwargs):
-        super(TagPresenterTests, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         import bauble.prefs
         bauble.prefs.testing = True
 
@@ -452,12 +452,12 @@ class TagPresenterTests(BaubleTestCase):
 class AttachedToTests(BaubleTestCase):
 
     def __init__(self, *args, **kwargs):
-        super(AttachedToTests, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         import bauble.prefs
         bauble.prefs.testing = True
 
     def setUp(self):
-        super(AttachedToTests, self).setUp()
+        super().setUp()
         obj1 = Tag(tag='medicinal')
         obj2 = Tag(tag='maderable')
         obj3 = Tag(tag='frutal')

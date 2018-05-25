@@ -81,7 +81,7 @@ class JSONExporter(editor.GenericEditorPresenter):
         self.export_includes = 'ei_referred'
         self.include_private = True
         self.filename = ''
-        super(JSONExporter, self).__init__(
+        super().__init__(
             model=self, view=view, refresh_view=True)
 
     def get_objects(self):
@@ -266,7 +266,7 @@ class JSONImporter(editor.GenericEditorPresenter):
         self.filename = ''
         self.update = True
         self.create = True
-        super(JSONImporter, self).__init__(
+        super().__init__(
             model=self, view=view, refresh_view=True)
         self.__error = False   # flag to indicate error on import
         self.__cancel = False  # flag to cancel importing

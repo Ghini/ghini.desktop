@@ -44,10 +44,10 @@ import bauble.plugins.garden.test as garden_test
 class ABCDTestCase(BaubleTestCase):
 
     def __init__(self, *args):
-        super(ABCDTestCase, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(ABCDTestCase, self).setUp()
+        super().setUp()
         plants_test.setUp_data()
         garden_test.setUp_data()
 

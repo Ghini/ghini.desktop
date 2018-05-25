@@ -101,7 +101,7 @@ class MockLoggingHandler(logging.Handler):
 class BaubleTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
-        super(BaubleTestCase, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         prefs.testing = True
 
     def setUp(self):

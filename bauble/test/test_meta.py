@@ -28,7 +28,7 @@ from bauble.test import BaubleTestCase
 class MetaTests(BaubleTestCase):
 
     def __init__(self, *args):
-        super(MetaTests, self).__init__(*args)
+        super().__init__(*args)
 
 
     def test_get_default(self):

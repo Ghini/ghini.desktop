@@ -54,10 +54,10 @@ class UsersTests(BaubleTestCase):
     def __init__(self, *args):
         self.user = '_test_user'
         self.group = '_test_group'
-        super(UsersTests, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(UsersTests, self).setUp()
+        super().setUp()
 
         # these tests are for postgres only
         if db.engine.name != 'postgresql':
@@ -86,7 +86,7 @@ class UsersTests(BaubleTestCase):
         users.delete(self.group, revoke=True)
         users.delete(self.user, revoke=True)
         self.table.drop(checkfirst=True)
-        super(UsersTests, self).tearDown()
+        super().tearDown()
 
     def test_group_members(self):
         if db.engine.name != 'postgresql':

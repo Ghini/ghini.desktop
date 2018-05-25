@@ -57,19 +57,19 @@ def test_duplicate_ids():
 class ReportTestCase(BaubleTestCase):
 
     def __init__(self, *args):
-        super(ReportTestCase, self).__init__(*args)
+        super().__init__(*args)
 
     def setUp(self):
-        super(ReportTestCase, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(ReportTestCase, self).tearDown()
+        super().tearDown()
 
 
 class ReportTests(ReportTestCase):
 
     def setUp(self):
-        super(ReportTests, self).setUp()
+        super().setUp()
         fctr = gctr = sctr = actr = pctr = 0
         for f in range(2):
             fctr += 1
@@ -104,7 +104,7 @@ class ReportTests(ReportTestCase):
         self.session.commit()
 
     def tearDown(self):
-        super(ReportTests, self).tearDown()
+        super().tearDown()
 
     def test_no_objects_in_FamilyNote(self):
         family = self.session.query(Family).get(1)

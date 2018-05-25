@@ -325,7 +325,7 @@ class FamilySynonym(db.Base):
         # it is necessary that the first argument here be synonym for
         # the Family.synonyms association_proxy to work
         self.synonym = synonym
-        super(FamilySynonym, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __str__(self):
         return Family.str(self.synonym)
@@ -367,7 +367,7 @@ class FamilyEditorView(editor.GenericEditorView):
     def __init__(self, parent=None):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'family_editor.glade')
-        super(FamilyEditorView, self).__init__(filename, parent=parent)
+        super().__init__(filename, parent=parent)
         self.attach_completion('fam_syn_entry')
         self.set_accept_buttons_sensitive(False)
         self.widgets.notebook.set_current_page(0)
@@ -405,7 +405,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         :param model: should be an instance of class Family
         :param view: should be an instance of FamilyEditorView
         '''
-        super(FamilyEditorPresenter, self).__init__(model, view)
+        super().__init__(model, view)
         self.create_toolbar()
         self.session = object_session(model)
 
@@ -442,7 +442,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     def set_model_attr(self, field, value, validator=None):
         # debug('set_model_attr(%s, %s)' % (field, value))
-        super(FamilyEditorPresenter, self).set_model_attr(field, value,
+        super().set_model_attr(field, value,
                                                           validator)
         self._dirty = True
         self.refresh_sensitivity()
@@ -457,7 +457,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
             self.view.widget_set_value(widget, value)
 
     def cleanup(self):
-        super(FamilyEditorPresenter, self).cleanup()
+        super().cleanup()
         self.synonyms_presenter.cleanup()
         self.notes_presenter.cleanup()
 
@@ -475,7 +475,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         :param parent: FamilyEditorPresenter
         '''
         self.parent_ref = weakref.ref(parent)
-        super(SynonymsPresenter, self).__init__(self.parent_ref().model,
+        super().__init__(self.parent_ref().model,
                                                 self.parent_ref().view)
         self.session = self.parent_ref().session
         self.view.widgets.fam_syn_entry.props.text = ''
@@ -607,7 +607,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
         '''
         if model is None:
             model = Family()
-        super(FamilyEditor, self).__init__(model, parent)
+        super().__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent

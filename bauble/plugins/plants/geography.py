@@ -64,7 +64,7 @@ def get_species_in_geographic_area(geo):
 class GeographicAreaMenu(Gtk.Menu):
 
     def __init__(self, callback):
-        super(GeographicAreaMenu, self).__init__()
+        super().__init__()
         geographic_area_table = GeographicArea.__table__
         geos = select([geographic_area_table.c.id, geographic_area_table.c.name,
                        geographic_area_table.c.parent_id]).execute().fetchall()
