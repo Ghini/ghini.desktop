@@ -22,6 +22,8 @@
 #
 
 import sqlalchemy.types as types
+import logging
+logger = logging.getLogger(__name__)
 
 
 import bauble.error as error
@@ -51,21 +53,17 @@ class Enum(types.TypeDecorator):
         # create the translations from the values and set those from
         # the translations argument, this way if some translations are
         # missing then the translation will be the same as value
-        if values is None or len(values) is 0:
+        logger.debug('Enum::init %s %s %s' % (type(self).__name__, values, empty_to_none))
+        if values is None or len(values) == 0:
             raise EnumError(_('Enum requires a list of values'))
-        try:
-            [len(x) for x in values if x is not None]
-        except TypeError:
-            raise EnumError(_('Enum requires string values (or None)'))
-        if set(type(x) for x in values if x is not None) - \
-                set([type(''), type('')]) != set():
+        if not set(type(x) for x in values).issubset({type(None), str}):
             raise EnumError(_('Enum requires string values (or None)'))
         if len(values) != len(set(values)):
             raise EnumError(_('Enum requires the values to be different'))
         self.translations = dict((v, v) for v in values)
         for key, value in translations.items():
             self.translations[key] = value
-        if empty_to_none and None not in values:
+        if empty_to_none and (None not in values):
             raise EnumError(_('You have configured empty_to_none=True but '
                               'None is not in the values lists'))
         self.values = values[:]
@@ -74,17 +72,20 @@ class Enum(types.TypeDecorator):
         # the length of the string/unicode column should be the
         # longest string in values
         size = max([len(v) for v in values if v is not None])
-        super(Enum, self).__init__(size, **kwargs)
+        super().__init__(size, **kwargs)
 
     def process_bind_param(self, value, dialect):
         """
         Process the value going into the database.
         """
-        if self.empty_to_none and value is '':
+        logger.debug('Enum::process_bind_param %s %s(%s)' % (type(self).__name__, type(value).__name__, value))
+        if (self.empty_to_none) and (not value):
             value = None
         if value not in self.values:
-            raise EnumError(_('"%(value)s" not in Enum.values: %(all_values)s'
-                              ) % dict(value=value, all_values=self.values))
+            raise EnumError(_('%(type_name)s(%(value)s) not in Enum.values: %(all_values)s'
+                              ) % {'value': value,
+                                   'type_name': type(value).__name__,
+                                   'all_values': self.values})
         return value
 
     def process_result_value(self, value, dialect):
