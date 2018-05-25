@@ -465,6 +465,9 @@ if sys.platform == 'win32':
     scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
                "scripts/ghini-update.bat"]
 
+with open("README.rst", "r") as fh:
+    long_description = fh.read()
+
 setuptools.setup(name="ghini.desktop",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': NsisCmd,
@@ -489,8 +492,8 @@ setuptools.setup(name="ghini.desktop",
                  test_suite="nose.collector",
                  author="Mario Frasca",
                  author_email="mario@anche.no",
-                 description="Ghini is a biodiversity collection manager "
-                 "software application",
+                 description="Ghini: a biodiversity collection manager",
+                 long_description=long_description,
                  license="GPLv2+",
                  keywords="database biodiversity botanic collection "
                  "botany herbarium arboretum",
