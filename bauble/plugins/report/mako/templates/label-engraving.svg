@@ -309,8 +309,8 @@ xpos = ypos = 0
     <path d="m 35,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
     <path d="m 650,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
 <% x_base = 40 %>\
-<% text_genus, x, y = add_text(x_base, 90, unicode(v.genus) + ' ', 2, italic=True, strokes=2) %>\
-<% text_species, x, y = add_text(x, y, unicode(v.sp), 2, italic=(v.sp != u'sp'), strokes=2) %>\
+<% text_genus, x, y = add_text(x_base, 90, v.genus.epithet + ' ', 2, italic=True, strokes=2) %>\
+<% text_species, x, y = add_text(x, y, v.sp, 2, italic=(v.sp != u'sp'), strokes=2) %>\
     % if (x-x_base) > 600:
       <g transform="translate(${x_base},0)scale(${600.0/(x-x_base)},1)translate(-${x_base},0)">${text_genus}${text_species}</g>
     % else:
@@ -318,8 +318,8 @@ xpos = ypos = 0
       ${text_species}
     % endif
     % if v.infraspecific_rank:
-<% text_rank, x, y = add_text(x_base, 150, unicode(v.infraspecific_rank), 2, italic=False, strokes=2) %>\
-<% text_epithet, x, y = add_text(x, y, unicode(v.infraspecific_epithet), 2, italic=True, strokes=2) %>\
+<% text_rank, x, y = add_text(x_base, 150, v.infraspecific_rank, 2, italic=False, strokes=2) %>\
+<% text_epithet, x, y = add_text(x, y, v.infraspecific_epithet, 2, italic=True, strokes=2) %>\
       <g transform="translate(${x_base},0)scale(${min(1,600.0/(x-x_base))},1)translate(-${x_base},0)">${text_rank}${text_epithet}</g>
     % elif v.sp_author:
       <% text, x, y = add_text(min(x, 600+x_base), 140, v.sp_author, 1.25, italic=False, align=1) %>\
