@@ -119,15 +119,18 @@
     <property name="default_height">600</property>
     <property name="startup_id">bauble</property>
     <child>
-      <object class="GtkVBox" id="top_box">
+      <object class="GtkBox" id="top_box">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
-          <object class="GtkVBox" id="main_box">
+          <object class="GtkBox" id="main_box">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkVBox" id="menu_box">
+              <object class="GtkBox" id="menu_box">
+                <property name="orientation">vertical</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
@@ -261,7 +264,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox1">
+              <object class="GtkBox" id="vbox1">
+                <property name="orientation">vertical</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
@@ -279,7 +283,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="view_box">
+                  <object class="GtkBox" id="view_box">
+                    <property name="orientation">vertical</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
@@ -332,7 +337,7 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkWindow" id="notes_window">
+  <object class="GtkWindow" id="notes_parent">
     <property name="can_focus">False</property>
     <child>
       <object class="GtkScrolledWindow" id="notes_scrolledwindow">
@@ -566,19 +571,21 @@
   <object class="GtkWindow" id="search_window">
     <property name="can_focus">True</property>
     <child>
-      <object class="GtkVBox" id="search_vbox">
+      <object class="GtkBox" id="search_vbox">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
-          <object class="GtkHPaned" id="search_hpane">
+          <object class="GtkPaned" id="search_hpane">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkHPaned" id="search_h2pane">
+              <object class="GtkPaned" id="search_h2pane">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkVPaned" id="search_vpane">
+                  <object class="GtkPaned" id="search_vpane">
+                    <property name="orientation">vertical</property>
                     <property name="width_request">400</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>

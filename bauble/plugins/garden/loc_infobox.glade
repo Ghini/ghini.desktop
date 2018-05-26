@@ -4,10 +4,12 @@
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="loc_window">
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <object class="GtkBox" id="vbox1">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <child>
-          <object class="GtkVBox" id="loc_gen_box">
+          <object class="GtkBox" id="loc_gen_box">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="border_width">5</property>
             <child>
@@ -72,7 +74,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="loc_descr_box">
+          <object class="GtkBox" id="loc_descr_box">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="border_width">5</property>
             <child>

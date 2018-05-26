@@ -57,7 +57,8 @@
     <property name="type_hint">dialog</property>
     <signal name="response" handler="on_picture_importer_dialog_response" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>

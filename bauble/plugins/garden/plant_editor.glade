@@ -10,7 +10,8 @@
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox7">
+      <object class="GtkBox" id="dialog-vbox7">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child internal-child="action_area">
@@ -109,7 +110,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="vbox1">
+          <object class="GtkBox" id="vbox1">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
@@ -131,7 +133,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkVBox" id="vbox2">
+                  <object class="GtkBox" id="vbox2">
+                    <property name="orientation">vertical</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="spacing">10</property>
@@ -893,7 +896,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="prop_tab_box">
+                  <object class="GtkBox" id="prop_tab_box">
+                    <property name="orientation">vertical</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="border_width">10</property>
@@ -945,7 +949,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="notes_parent_box">
+                  <object class="GtkBox" id="notes_parent_box">
+                    <property name="orientation">vertical</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -968,7 +973,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="pictures_parent_box">
+                  <object class="GtkBox" id="pictures_parent_box">
+                    <property name="orientation">vertical</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -1017,7 +1023,8 @@
     <property name="border_width">5</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox2">
+      <object class="GtkBox" id="dialog-vbox2">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>

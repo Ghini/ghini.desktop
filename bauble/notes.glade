@@ -4,7 +4,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window2">
     <child>
-      <object class="GtkVBox" id="notes_box">
+      <object class="GtkBox" id="notes_box">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <child>
@@ -15,7 +15,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkVBox" id="vbox2">
+                  <object class="GtkBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
@@ -230,7 +230,7 @@
   </object>
   <object class="GtkWindow" id="notes_editor">
     <child>
-      <object class="GtkVBox" id="notes_editor_box">
+      <object class="GtkBox" id="notes_editor_box">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">3</property>
@@ -283,7 +283,7 @@
                 <property name="resize_mode">queue</property>
                 <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkVBox" id="notes_expander_box">
+                  <object class="GtkBox" id="notes_expander_box">
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
@@ -309,12 +309,12 @@
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
-          <object class="GtkVBox" id="vbox1">
+          <object class="GtkBox" id="vbox1">
             <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <property name="spacing">5</property>

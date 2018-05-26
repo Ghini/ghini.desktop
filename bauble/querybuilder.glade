@@ -14,7 +14,8 @@
     <property name="title" translatable="yes">Query Builder</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="outer_vbox">
+      <object class="GtkBox" id="outer_vbox">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
@@ -59,7 +60,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="inner_vbox">
+          <object class="GtkBox" id="inner_vbox">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>

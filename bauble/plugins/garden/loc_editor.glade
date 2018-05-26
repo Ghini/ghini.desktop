@@ -9,7 +9,8 @@
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox4">
+      <object class="GtkBox" id="dialog-vbox4">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child internal-child="action_area">
@@ -134,7 +135,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="vbox2">
+          <object class="GtkBox" id="vbox2">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="border_width">5</property>

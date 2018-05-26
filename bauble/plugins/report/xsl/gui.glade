@@ -4,7 +4,8 @@
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="window1">
     <child>
-      <object class="GtkVBox" id="settings_box">
+      <object class="GtkBox" id="settings_box">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="border_width">10</property>
         <property name="spacing">15</property>
@@ -181,10 +182,12 @@
     <property name="default_height">480</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <child>
-          <object class="GtkVBox" id="vbox5">
+          <object class="GtkBox" id="vbox5">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow1">

@@ -9,16 +9,16 @@
     <property name="resizable">False</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox4">
+      <object class="GtkBox" id="dialog-vbox4">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
-          <object class="GtkVBox" id="prop_main_box">
+          <object class="GtkBox" id="prop_main_box">
             <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkVBox" id="prop_type_box">
+              <object class="GtkBox" id="prop_type_box">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
@@ -159,11 +159,11 @@
                 <property name="visible">True</property>
                 <property name="top_padding">10</property>
                 <child>
-                  <object class="GtkVBox" id="prop_details_box">
+                  <object class="GtkBox" id="prop_details_box">
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkVBox" id="cutting_box">
+                      <object class="GtkBox" id="cutting_box">
                         <property name="orientation">vertical</property>
                         <property name="spacing">15</property>
                         <child>
@@ -458,7 +458,7 @@
                                 <property name="top_padding">5</property>
                                 <property name="left_padding">12</property>
                                 <child>
-                                  <object class="GtkVBox" id="vbox2">
+                                  <object class="GtkBox" id="vbox2">
                                     <property name="visible">True</property>
                                     <property name="orientation">vertical</property>
                                     <property name="spacing">5</property>
@@ -767,7 +767,7 @@
                                         <property name="visible">True</property>
                                         <property name="spacing">10</property>
                                         <child>
-                                          <object class="GtkVBox" id="vbox3">
+                                          <object class="GtkBox" id="vbox3">
                                             <property name="visible">True</property>
                                             <property name="orientation">vertical</property>
                                             <property name="spacing">5</property>
@@ -956,7 +956,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkVBox" id="seed_box">
+                      <object class="GtkBox" id="seed_box">
                         <property name="orientation">vertical</property>
                         <property name="spacing">15</property>
                         <child>
@@ -1503,7 +1503,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkVBox" id="notes_box">
+                      <object class="GtkBox" id="notes_box">
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkExpander" id="notes_expander">

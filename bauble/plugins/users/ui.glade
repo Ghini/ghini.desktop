@@ -7,7 +7,7 @@
     <property name="default_height">260</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -16,7 +16,7 @@
             <property name="visible">True</property>
             <property name="spacing">12</property>
             <child>
-              <object class="GtkVBox" id="vbox2">
+              <object class="GtkBox" id="vbox2">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">12</property>
@@ -31,7 +31,7 @@
                         <property name="visible">True</property>
                         <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkVBox" id="vbox4">
+                          <object class="GtkBox" id="vbox4">
                             <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <child>
@@ -142,7 +142,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox1">
+              <object class="GtkBox" id="vbox1">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">20</property>
@@ -156,7 +156,7 @@
                         <property name="visible">True</property>
                         <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkVBox" id="vbox3">
+                          <object class="GtkBox" id="vbox3">
                             <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <child>
@@ -291,12 +291,12 @@
     <property name="type_hint">normal</property>
     <property name="transient_for">main_dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox2">
+      <object class="GtkBox" id="dialog-vbox2">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
-          <object class="GtkVBox" id="vbox5">
+          <object class="GtkBox" id="vbox5">
             <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <property name="spacing">25</property>

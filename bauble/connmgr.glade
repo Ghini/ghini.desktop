@@ -185,7 +185,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
-                      <object class="GtkVBox" id="expander_box">
+                      <object class="GtkBox" id="expander_box">
+                        <property name="orientation">vertical</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="spacing">10</property>

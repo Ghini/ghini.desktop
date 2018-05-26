@@ -6,12 +6,14 @@
     <property name="can_focus">False</property>
     <property name="title">general</property>
     <child>
-      <object class="GtkVBox" id="general_box">
+      <object class="GtkBox" id="general_box">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">5</property>
         <child>
-          <object class="GtkVBox" id="vbox1">
+          <object class="GtkBox" id="vbox1">
+            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
@@ -449,7 +451,8 @@
     <property name="can_focus">False</property>
     <property name="title">window1</property>
     <child>
-      <object class="GtkVBox" id="notes_box">
+      <object class="GtkBox" id="notes_box">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
@@ -481,7 +484,8 @@
   <object class="GtkWindow" id="source_window">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkVBox" id="source_box">
+      <object class="GtkBox" id="source_box">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">10</property>
@@ -656,7 +660,8 @@
                 <property name="top_padding">5</property>
                 <property name="left_padding">15</property>
                 <child>
-                  <object class="GtkVBox" id="collections_box">
+                  <object class="GtkBox" id="collections_box">
+                    <property name="orientation">vertical</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="spacing">8</property>

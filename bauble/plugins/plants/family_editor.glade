@@ -6,7 +6,7 @@
     <property name="title" translatable="yes">Family Editor</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox3">
+      <object class="GtkBox" id="dialog-vbox3">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <child>
@@ -14,7 +14,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkVBox" id="vbox6">
+              <object class="GtkBox" id="vbox6">
                 <property name="visible">True</property>
                 <property name="border_width">5</property>
                 <property name="orientation">vertical</property>
@@ -130,7 +130,7 @@
                         <property name="top_padding">5</property>
                         <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkVBox" id="fam_syn_box">
+                          <object class="GtkBox" id="fam_syn_box">
                             <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <property name="spacing">2</property>
@@ -234,7 +234,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="notes_parent_box">
+              <object class="GtkBox" id="notes_parent_box">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>

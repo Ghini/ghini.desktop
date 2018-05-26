@@ -7,11 +7,11 @@
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox2">
+      <object class="GtkBox" id="dialog-vbox2">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkVBox" id="vbox1">
+          <object class="GtkBox" id="vbox1">
             <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>
@@ -30,7 +30,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkVBox" id="vbox7">
+                  <object class="GtkBox" id="vbox7">
                     <property name="visible">True</property>
                     <property name="border_width">5</property>
                     <property name="orientation">vertical</property>
@@ -186,7 +186,7 @@
                             <property name="top_padding">5</property>
                             <property name="left_padding">12</property>
                             <child>
-                              <object class="GtkVBox" id="gen_syn_box">
+                              <object class="GtkBox" id="gen_syn_box">
                                 <property name="visible">True</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">2</property>
@@ -288,7 +288,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="notes_parent_box">
+                  <object class="GtkBox" id="notes_parent_box">
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>

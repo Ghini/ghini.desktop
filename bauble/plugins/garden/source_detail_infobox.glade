@@ -4,7 +4,8 @@
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="source_detail_window">
     <child>
-      <object class="GtkVBox" id="sd_gen_box">
+      <object class="GtkBox" id="sd_gen_box">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="border_width">5</property>
         <child>
