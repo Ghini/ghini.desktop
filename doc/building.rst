@@ -775,13 +775,24 @@ steps for a normal Windows :ref:`installation`.
 
 #. A **reboot** is recommended.
 
+#. Clone ghini.desktop to wherever you want to keep it (replace 
+   ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Local\github\Ghini\``) 
+   and checkout a production branch (``ghini-1.0`` is recommended as 
+   used in the example).  To do this, open a command prompt and type these 
+   commands::
+
+      cd <path-to-keep-ghini>
+      git clone https://github.com/Ghini/ghini.desktop.git
+      cd ghini.desktop
+      git checkout ghini-1.0
+
    .. admonition:: we have a script that automates the remaining steps
       :class: toggle
 
       A batch file is available that can complete the last few steps.  To use 
       it use this command::
 
-         scripts\build_win.bat
+         nsis\build_win.bat
 
       ``build_win.bat`` accepts 2 arguments:
 
@@ -793,18 +804,7 @@ steps for a normal Windows :ref:`installation`.
 
       e.g. to produce an executable only and use a virtual environment in 
       a folder beside where you have ghini.desktop you could execute 
-      ``scripts\build_win.bat /e ..\ghi2exe``
-
-#. Clone ghini.desktop to wherever you want to keep it (replace 
-   ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Local\github\Ghini\``) 
-   and checkout a production branch (``ghini-1.0`` is recommended as 
-   used in the example).  To do this, open a command prompt and type these 
-   commands::
-
-      cd <path-to-keep-ghini>
-      git clone https://github.com/Ghini/ghini.desktop.git
-      cd ghini.desktop
-      git checkout ghini-1.0
+      ``nsis\build_win.bat /e ..\ghi2exe``
 
 #. Install virtualenv, create a virtual environment and activate it.  With only 
    Python 2.7 on your system (where ``<path-to-venv>`` is the path to where you 
@@ -837,8 +837,8 @@ steps for a normal Windows :ref:`installation`.
    explorer (or create a shortcut to it). If you have issues with the UI not 
    displaying correctly you need to run the script ``win_gtk.bat`` from the 
    ``dist`` folder to set up paths to the GTK components correctly.  (Running 
-   ``build_win /e`` will place this script in the dist folder for you or you 
-   can copy it from the ``scripts`` folder yourself.)  You will only need to 
+   ``build_win /e`` will place this script in the ``dist`` folder for you or 
+   you can copy it from the ``nsis`` folder yourself.)  You will only need to 
    run this once each time the location of the folder changes.  Thereafter 
    ``ghini.exe`` will run as expected.
 
@@ -847,7 +847,7 @@ steps for a normal Windows :ref:`installation`.
       python setup.py nsis
 
    This should leave a file named ``ghini.desktop-<version>-setup.exe`` in the 
-   ``scripts`` folder.  This is your Windows installer.
+   ``nsis`` folder.  This is your Windows installer.
 
 .. admonition:: about the installer
    :class: toggle

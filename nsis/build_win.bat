@@ -6,9 +6,9 @@ REM only other argument proccessed must be a pathname to a virtualenv)
 :Loop
 IF [%1]==[] GOTO Continue
 IF "%1"=="/e" (
-	set exeonly=y
+  set exeonly=y
 ) ELSE (
-	set venv="%~f1"
+  set venv="%~f1"
 )
 SHIFT
 GOTO Loop
@@ -18,7 +18,8 @@ if defined exeonly ECHO build exe only
 if defined venv (
   echo using venv %venv%
 ) else (
-  set venv="%HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe"
+  for /f %%i in ('git rev-parse --abbrev-ref HEAD') do set branch=%%i
+  set venv="%HOMEDRIVE%%HOMEPATH%\.virtualenvs\%branch%-2exe"
 )
 
 IF NOT EXIST %venv%\Scripts\activate.bat (
@@ -71,7 +72,7 @@ python setup.py nsis
 GOTO :END
 
 :SKIP_NSIS
-copy scripts\win_gtk.bat dist
+copy nsis\win_gtk.bat dist
 
 :END
 ENDLOCAL
