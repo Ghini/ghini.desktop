@@ -572,6 +572,7 @@ class SearchView(pluginmgr.View):
         self.view.widgets.notes_treeview.connect("row-activated", self.on_note_row_activated)
 
     def on_note_row_activated(self, tree, path, column):
+        logger.debug('entering on_note_row_activated')
         try:
             # retrieve the selected row from the results view (we know it's
             # one), and we only need it's domain name
@@ -585,12 +586,13 @@ class SearchView(pluginmgr.View):
             bauble.gui.widgets.main_comboentry.child.set_text(query)
             bauble.gui.widgets.go_button.emit("clicked")            
         except Exception as e:
-            print(type(e), e)
+            logger.debug("%s(%s)" % (type(e), e))
         pass
         
     def add_page_to_bottom_notebook(self, bottom_info):
         '''add notebook page for a plugin class
         '''
+        logger.debug('entering add_page_to_bottom_notebook')
         glade_name = bottom_info['glade_name']
         widgets = utils.BuilderWidgets(glade_name)
         page = getattr(widgets, bottom_info['page_widget'])
@@ -617,17 +619,21 @@ class SearchView(pluginmgr.View):
         be stored in the model is in bottom_info['fields_used'].
 
         """
+        logger.debug('update_bottom_notebook - entering')
         values = self.get_selected_values()
         ## Only one should be selected
         if values is None or len(values) != 1:
+            logger.debug('update_bottom_notebook - need one single row')
             self.view.widget_set_visible('bottom_notebook', False)
             return
 
         self.view.widget_set_visible('bottom_notebook', True)
         row = values[0]  # the selected row
+        logger.debug('update_bottom_notebook - for %s(%s)' % (type(row).__name__, row))
 
         ## loop over bottom_info plugin classes (eg: Tag)
         for klass, bottom_info in list(self.bottom_info.items()):
+            logger.debug('update_bottom_notebook - for %s(%s)' % (klass, bottom_info))
             if 'label' not in bottom_info:  # late initialization
                 self.add_page_to_bottom_notebook(bottom_info)
             label = bottom_info['label']
