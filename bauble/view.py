@@ -557,19 +557,18 @@ class SearchView(pluginmgr.View):
         generic add_page_to_bottom_notebook.
 
         '''
-        page = self.view.widgets.notes_scrolledwindow
-        # detach it from parent (its container)
-        self.view.widgets.remove_parent(page)
-        # create the label object
+        page = self.widgets['notes_scrolledwindow']
+        self.widgets.remove_parent(page)
         label = Gtk.Label(label='Notes')
-        self.view.widgets.bottom_notebook.append_page(page, label)
+        self.widgets['bottom_notebook'].append_page(page, label)
         self.bottom_info[Note] = {
             'fields_used': ['date', 'user', 'category', 'note'],
             'tree': page.get_children()[0],
             'label': label,
             'name': _('Notes'),
             }
-        self.view.widgets.notes_treeview.connect("row-activated", self.on_note_row_activated)
+        self.widgets.notes_treeview.connect("row-activated", self.on_note_row_activated)
+        logger.debug('exiting add_notes_page_to_bottom_notebook')
 
     def on_note_row_activated(self, tree, path, column):
         logger.debug('entering on_note_row_activated')
@@ -593,18 +592,19 @@ class SearchView(pluginmgr.View):
         '''add notebook page for a plugin class
         '''
         logger.debug('entering add_page_to_bottom_notebook')
-        glade_name = bottom_info['glade_name']
-        widgets = utils.BuilderWidgets(glade_name)
-        page = getattr(widgets, bottom_info['page_widget'])
-        # 2: detach it from parent (its container)
-        widgets.remove_parent(page)
+        # 1: get the intended content page
+        builder = utils.BuilderWidgets(bottom_info['glade_name'])
+        page = builder[bottom_info['page_widget']]
+        # 2: detach the page from parent (its container)
+        builder.remove_parent(page)
         # 3: create the label object
         label = Gtk.Label(label=bottom_info['name'])
-        # 4: add the page, non sensitive
-        self.view.widget_append_page('bottom_notebook', page, label)
+        # 4: append the page to the bottom notebook
+        self.widgets['bottom_notebook'].append_page(page, label)
         # 5: store the values for later use
         bottom_info['tree'] = page.get_children()[0]
         bottom_info['label'] = label
+        logger.debug('exiting add_page_to_bottom_notebook')
 
     def update_bottom_notebook(self):
         """
@@ -633,7 +633,7 @@ class SearchView(pluginmgr.View):
 
         ## loop over bottom_info plugin classes (eg: Tag)
         for klass, bottom_info in list(self.bottom_info.items()):
-            logger.debug('update_bottom_notebook - for %s(%s)' % (klass, bottom_info))
+            logger.debug('update_bottom_notebook - for %s(%s)' % (klass.__name__, bottom_info))
             if 'label' not in bottom_info:  # late initialization
                 self.add_page_to_bottom_notebook(bottom_info)
             label = bottom_info['label']
@@ -652,6 +652,8 @@ class SearchView(pluginmgr.View):
                 for obj in objs:
                     model.append(["%s" % getattr(obj, k)
                                   for k in bottom_info['fields_used']])
+            logger.debug('done %s for %s' % (len(objs), klass.__name__))
+        logger.debug('update_bottom_notebook - exiting')
 
     def update_infobox(self):
         '''
