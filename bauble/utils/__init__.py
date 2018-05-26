@@ -283,9 +283,6 @@ class BuilderWidgets:
         return w
 
     def __getattr__(self, name):
-        '''
-        :param name:
-        '''
         if name == '_builder_':
             return self.builder
         w = self.builder.get_object(name)
@@ -295,16 +292,12 @@ class BuilderWidgets:
                 {'widget_name': name})
         return w
 
-    def remove_parent(self, widget):
+    def remove_parent(self, w):
+        """Remove widgets from its parent.
+
         """
-        Remove widgets from its parent.
-        """
-        # if parent is the last reference to widget then widget may be
-        # automatically destroyed
-        if isinstance(widget, str):
-            w = self[widget]
-        else:
-            w = widget
+        if isinstance(w, str):
+            w = self.builder.get_object(w)
         parent = w.get_parent()
         if parent is not None:
             parent.remove(w)
@@ -831,17 +824,12 @@ def setup_date_button(view, entry, button, date_func=None):
 
 
 def to_unicode(obj, encoding='utf-8'):
-    """
-    Return obj converted to unicode.  If obj is already a unicode
-    object it will not try to decode it to converted it to <encoding>
-    but will just return the original obj
+    """Convert obj to Python3 standard unicode string
+
     """
     if obj is None:
         return None
-    if isinstance(obj, str):
-        if not isinstance(obj, str):
-            obj = str(obj, encoding)
-    else:
+    if not isinstance(obj, str):
         try:
             obj = str(obj, encoding)
         except Exception:
