@@ -25559,7 +25559,7 @@ page = 1
 
 if options['accession_format']:
     format = options['accession_format']
-    start = unicode(format.rstrip('#'))
+    start = format.rstrip('#')
     if start != format:
         digits = len(format) - len(start)
         format = start + '%%0%dd' % digits
