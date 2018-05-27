@@ -293,7 +293,8 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
         del result['genus']
-        del result['qualifier']
+        if 'qualifier' in result:
+            del result['qualifier']
         result['object'] = 'taxon'
         result['rank'] = 'genus'
         result['epithet'] = self.genus
