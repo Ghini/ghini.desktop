@@ -16,9 +16,9 @@ GOTO Loop
 
 if defined exeonly ECHO build exe only
 if defined venv (
-  echo using venv %venv%
+  ECHO using venv %venv%
 ) else (
-  for /f %%i in ('git rev-parse --abbrev-ref HEAD') do set branch=%%i
+  for /f %%i in ('git rev-parse --abbrev-ref HEAD') do (set branch=%%i)
   set venv="%HOMEDRIVE%%HOMEPATH%\.virtualenvs\%branch%-2exe"
 )
 

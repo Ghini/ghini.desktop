@@ -200,7 +200,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             self.makensis = (
                 [loc for loc in locs if spawn.find_executable(loc)] +
                 [spawn.find_executable('makensis')])[0]
-            self.nsis_script = 'scripts\\build-multiuser.nsi'
+            self.nsis_script = 'nsis\\build-multiuser.nsi'
 
         def finalize_options(self):
             if self.makensis:
