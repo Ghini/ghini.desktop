@@ -448,8 +448,7 @@ class JSONExportTests(BaubleTestCase):
         super().tearDown()
         os.remove(self.temp_path)
 
-    def test_writes_complete_database(self):
-        "exporting without specifying what: export complete database"
+    def test_export_empty_selection_writes_complete_database(self):
 
         exporter = JSONExporter(MockView())
         exporter.view.selection = None
@@ -484,6 +483,9 @@ class JSONExportTests(BaubleTestCase):
             {"code": "1", "object": "location"},
             {"accession": "2015.0001", "code": "1", "location": "1", "memorial": False, "object": "plant", "quantity": 1},
             {"accession": "2015.0003", "code": "1", "location": "1", "memorial": False, "object": "plant", "quantity": 1}]
+        logger.debug(result)
+        logger.debug(target)
+        self.assertEqual(len(result), len(target))
         for o1 in result:
             self.assertTrue(o1 in target, o1)
         for o2 in target:
@@ -1025,11 +1027,9 @@ class JSONImportTests(BaubleTestCase):
         importer.on_btnok_clicked(None)
 
         self.session.commit()
-        synonym = Genus.retrieve_or_create(
-            self.session, {'epithet': "Zygoglossum"})
+        synonym = self.session.query(Genus).filter_by(epithet="Zygoglossum").first()
         self.assertEqual(synonym.accepted.__class__, Genus)
-        accepted = Genus.retrieve_or_create(
-            self.session, {'epithet': "Bulbophyllum"})
+        accepted = self.session.query(Genus).filter_by(epithet="Bulbophyllum").first()
         self.assertEqual(synonym.accepted, accepted)
 
     def test_use_author_to_break_ties(self):
