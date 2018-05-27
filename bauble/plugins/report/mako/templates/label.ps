@@ -37,7 +37,7 @@
 </%text><%
 font = {'serif': {},
         'sans': {}}
-for l in unicode(u"""\
+for l in """\
 !AaáÁ 01 17 21 32 41 24 61 23 81 37
 "BbàÀ 02 20 22 33 42 25 62 22 82 36
 #CcâÂ 03 25 23 34 43 22 63 22 83 36
@@ -70,7 +70,7 @@ $DdåÅ 04 25 24 36 44 25 64 22 84 36
 >^~łŁ 1E 29 3E 23 5E 27 7E 12 9E 31
 ?_ čČ 1F 21 3F 25 5F 12 7F 23 9F 33
 @`×šŠ 20 47 40 17 60 23 80 19 A0 28
-""").split('\n'):
+""".split('\n'):
     if not l:
         break
     for c in range(5):
@@ -79,7 +79,7 @@ $DdåÅ 04 25 24 36 44 25 64 22 84 36
         wd = l[9 + c * 6:11 + c * 6]
         font['serif'][ch] = (gl, wd)
 
-for l in unicode(u"""\
+for l in """\
 !AaáÁ 01 20 21 34 41 30 61 30 81 35
 "BbàÀ 02 23 22 34 42 31 62 30 82 34
 #CcâÂ 03 40 23 35 43 26 63 30 83 34
@@ -112,7 +112,7 @@ $DdåÅ 04 32 24 39 44 31 64 30 84 34
 >^~łŁ 1E 41 3E 40 5E 41 7E 15 9E 27
 ?_ čČ 1F 27 3F 32 5F 18 7F 26 9F 35
 @`×šŠ 20 50 40 32 60 26 80 26 A0 35
-""").split('\n'):
+""".split('\n'):
     if not l:
         break
     for c in range(5):
@@ -25457,14 +25457,14 @@ newpath 50 645 moveto 1165 0 rlineto 4 setlinewidth stroke
 newpath 25 50 moveto 0 570 rlineto 4 setlinewidth stroke
 newpath 1240 50 moveto 0 570 rlineto 4 setlinewidth stroke
 (Verdana-ItalicFID315HGSet2) cvn findfont 120 -120 matrix scale makefont setfont
-${add_text(45, 180, v.genus.genus, 'sans', 2.3)}
-${add_text(45, 290, v.sp, 'sans', 2.3)}
+${add_text(45, 180, v.genus.epithet, 'sans', 2.3)}
+${add_text(45, 290, v.epithet, 'sans', 2.3)}
 (VerdanaFID313HGSet2) cvn findfont 70 -70 matrix scale makefont setfont
 ${add_text(1215, 400, v.sp_author, 'sans', 1.4, True)}
 (VerdanaFID313HGSet2) cvn findfont 60 -60 matrix scale makefont setfont
 ${add_text(50, 506, v.default_vernacular_name and v.default_vernacular_name.name or '', 'sans', 1.2)}
 newpath 50 530 moveto 1165 0 rlineto 4 setlinewidth stroke
-${add_text(50, 600, v.genus.family.family, 'sans', 1.2)}
+${add_text(50, 600, v.genus.family.epithet, 'sans', 1.2)}
 (VerdanaFID313HGSet2) cvn findfont 45 -45 matrix scale makefont setfont
 ${add_text(1215, 595, 'NATIVE CQCB', 'sans', 1, True)}
 grestore
