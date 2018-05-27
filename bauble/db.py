@@ -630,6 +630,7 @@ class Serializable:
                       if col not in ['id']
                       and col[0] != '_'
                       and getattr(self, col) is not None
+                      and getattr(self, col) != ''
                       and not col.endswith('_id'))
         result['object'] = self.single_cap_re.sub(
             r'_\1', self.__class__.__name__).lower()[1:]
