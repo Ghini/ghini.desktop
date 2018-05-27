@@ -67,12 +67,11 @@ class AskTPL(threading.Thread):
                 '&csv=true',
                 timeout=self.timeout)
             logger.debug(result.text)
-            l = result.text[1:].split('\n')
-            result = [row for row in csv.reader(k.encode('utf-8')
-                                                for k in l if k)]
+            l = result.text.split('\n')
+            result = [row for row in csv.reader(k for k in l if k)]
             header = result[0]
             result = result[1:]
-            return [dict(list(zip(header, k))) for k in result if k[7] == '']
+            return [dict(list(zip(header, k))) for k in result if k[7] == '' and k[10] in ['Accepted', 'Synonym']]
 
         class ShouldStopNow(Exception):
             pass
@@ -97,7 +96,7 @@ class AskTPL(threading.Thread):
                                                   b='%s %s' % (g, s))
                     item['_score_'] = seq.ratio()
 
-                found = sorted(candidates, key=lambda a: (a['_score_'], -a['Taxonomic status in TPL']))[-1]
+                found = sorted(candidates, key=lambda a: (a['_score_'], a['Taxonomic status in TPL']))[-1]
                 logger.debug('best match has score %s', found['_score_'])
                 if found['_score_'] < self.threshold:
                     found['_score_'] = 0
@@ -105,8 +104,8 @@ class AskTPL(threading.Thread):
                 found = candidates.pop()
             else:
                 raise NoResult
+            logger.debug("found this: %s", str(found))
             if found['Accepted ID']:
-                logger.debug("found this: %s", str(found))
                 accepted = ask_tpl(found['Accepted ID'])
                 logger.debug("ask_tpl on the Accepted ID returns %s", accepted)
                 if accepted:
@@ -125,6 +124,8 @@ class AskTPL(threading.Thread):
                          self.name)
             return
         except Exception as e:
+            import traceback
+            logger.warning(traceback.format_exc())
             logger.debug("%s (%s)%s : completed with trouble",
                          self.name, type(e).__name__, e)
             self.__class__.running = None
