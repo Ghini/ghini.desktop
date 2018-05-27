@@ -225,7 +225,7 @@ class add_qr_functor:
     def __init__(self):
         import re
         self.pattern = {
-            'svg': re.compile(b'<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
+            'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
             'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
         }
 
@@ -235,13 +235,12 @@ class add_qr_functor:
         if format == 'svg':
             self.buffer = io.BytesIO()
             qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
-            match = self.pattern[format].match(self.buffer.getvalue())
-            result_list = [match.group(2).decode()]
+            match = self.pattern[format].match(self.buffer.getvalue().decode())
         else:
             self.buffer = io.StringIO()
             qr.eps(self.buffer, quiet_zone=0)
             match = self.pattern[format].match(self.buffer.getvalue())
-            result_list = [match.group(2)]
+        result_list = [match.group(2)]
         transform = []
         if x != 0 or y != 0:
             if format == 'ps':
@@ -262,7 +261,9 @@ class add_qr_functor:
                 result_list.append('</g>')
         if format == 'ps':
             result_list = ['gsave'] + result_list + ["grestore"]
-        return '\n'.join(result_list)
+        result = '\n'.join(result_list)
+        logging.debug("qr-svg: %s(%s)" % (type(result).__name__, result))
+        return result
 
 add_qr = add_qr_functor()
     
