@@ -1594,7 +1594,7 @@ class GenericEditorPresenter(object):
                 value = model[combo.get_active_iter()][0]
                 value = combo.get_model()[combo.get_active_iter()][0]
                 if isinstance(widget, Gtk.ComboBox) and isinstance(widget.get_child(), Gtk.Entry):
-                    widget.get_child().set_text(utils.utf8(value))
+                    widget.get_child().set_text(utils.utf8(value) or '')
                 self.set_model_attr(model_attr, value, validator)
 
             def entry_changed(entry, data=None):
