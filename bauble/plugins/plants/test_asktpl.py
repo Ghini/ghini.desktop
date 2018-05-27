@@ -21,8 +21,6 @@
 # Description: test for the Plant plugin
 #
 
-
-
 from bauble.test import BaubleTestCase
 import requests
 
@@ -59,8 +57,8 @@ class TestOne(BaubleTestCase):
         AskTPL(binomial, what_to_do_with_it, timeout=2).run()
         infolog = self.handler.messages['bauble.plugins.plants.ask_tpl']['info']
         self.assertEqual(len(infolog), 2)
-        self.assertEqual(infolog[0], 'Iris \xc3\x97florentina L. (Iridaceae)')
-        self.assertEqual(infolog[1], 'Iris \xc3\x97germanica L. (Iridaceae) - is its accepted form')
+        self.assertEqual(infolog[0], 'Iris ×florentina L. (Iridaceae)')
+        self.assertEqual(infolog[1], 'Iris ×germanica L. (Iridaceae) - is its accepted form')
 
     def test_empty_answer(self):
         self.handler.reset()
