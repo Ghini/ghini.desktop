@@ -18,9 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
-
-
+from __future__ import print_function
 
 
 import os
@@ -724,6 +722,8 @@ class PropagationTests(GardenTestCase):
         self.assertTrue(not self.session.query(PropSeed).get(seed_id))
 
     def test_cutting_editor(self):
+
+        # we create a new propagation and invoke the propagation editor;
         loc = Location(name='name', code='code')
         plant = Plant(accession=self.accession, location=loc, code='1',
                       quantity=1)
@@ -733,22 +733,30 @@ class PropagationTests(GardenTestCase):
         widgets = self.editor.presenter.view.widgets
         self.assertTrue(widgets is not None)
         view = self.editor.presenter.view
+
+        # we write some values in the view, simulating user action;
         view.widget_set_value('prop_type_combo', 'UnrootedCutting')
         view.widget_set_value('prop_date_entry', utils.today_str())
+        # we add the cutting_presenter manually (GUI does it)
         cutting_presenter = self.editor.presenter._cutting_presenter
+        # we set values simulating user action;
         for widget, attr in cutting_presenter.widget_to_field_map.items():
-            #debug('%s=%s' % (widget, default_cutting_values[attr]))
+            logger.debug('attribute %s in widget %s is now set to %s' % (attr, widget, default_cutting_values[attr]))
             view.widget_set_value(widget, default_cutting_values[attr])
+        # without a real GUI we manually force all events;
         update_gui()
         self.editor.handle_response(Gtk.ResponseType.OK)
         self.editor.commit_changes()
         model = self.editor.model
         s = object_session(model)
+        # accessing attributes will cause a query
+        s.expire(model._cutting)
         s.expire(model)
         self.assertEqual(model.prop_type, 'UnrootedCutting')
         for attr, value in default_cutting_values.items():
             v = getattr(model._cutting, attr)
-            self.assertEqual(v, value)
+            self.assertEqual(v, value, 'attribute %s in model is %s, not %s' % (attr, v, value))
+            logger.debug('attribute %s in model is %s, equal to %s' % (attr, v, value))
         self.editor.session.close()
 
     def test_seed_editor_commit(self):
@@ -1279,13 +1287,13 @@ class AccessionTests(GardenTestCase):
         prop = self.create(Propagation, prop_type='Seed')
         plant.propagations.append(prop)
         ## commit all the above to the database
+
         self.session.commit()
         self.assertTrue(prop.id > 0)  # we got a valid id after the commit
         plant_prop_id = prop.id
 
         acc = Accession(code='code', species=self.species, quantity_recvd=2)
         self.editor = AccessionEditor(acc)
-        # normally called by editor.presenter.start() but we don't call it here
         self.editor.presenter.source_presenter.start()
         widgets = self.editor.presenter.view.widgets
         update_gui()
@@ -1302,6 +1310,7 @@ class AccessionTests(GardenTestCase):
         widgets.source_prop_plant_entry.props.text = str(plant)
         logger.debug('about to update the gui')
         update_gui()
+
         comp = widgets.source_prop_plant_entry.get_completion()
         comp.emit('match-selected', comp.get_model(),
                   comp.get_model().get_iter_first())
