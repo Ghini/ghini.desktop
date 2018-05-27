@@ -83,16 +83,39 @@ class MakoFormatterTests(BaubleTestCase):
     def tearDown(self, *args):
         super().tearDown(*args)
 
-    def test_format_all_templates(self):
-        """
-        MakoFormatterPlugin.format() runs without raising an error for all templates.
-        """
+    def test_format_all_templates_not_using_qr(self):
         plants = self.session.query(Plant).all()
         td = os.path.join(os.path.dirname(__file__), 'templates')
         for tn in MakoFormatterPlugin.templates:
+            if tn.find('qr') != -1:
+                continue
             filename = os.path.join(td, tn)
             report = MakoFormatterPlugin.format(plants, template=filename)
-            self.assertEquals(type(report), bytes)
+            self.assertEquals(type(report), str)
+
+    def test_format_qr_postscript_templates(self):
+        plants = self.session.query(Plant).all()
+        td = os.path.join(os.path.dirname(__file__), 'templates')
+        for tn in MakoFormatterPlugin.templates:
+            if tn.find('qr') == -1:
+                continue
+            if not tn.endswith('.ps') or not tn.endswith('.eps'):
+                continue
+            filename = os.path.join(td, tn)
+            report = MakoFormatterPlugin.format(plants, template=filename)
+            self.assertEquals(type(report), str)
+
+    def test_format_qr_svg_templates(self):
+        plants = self.session.query(Plant).all()
+        td = os.path.join(os.path.dirname(__file__), 'templates')
+        for tn in MakoFormatterPlugin.templates:
+            if tn.find('qr') == -1:
+                continue
+            if not tn.endswith('.svg'):
+                continue
+            filename = os.path.join(td, tn)
+            report = MakoFormatterPlugin.format(plants, template=filename)
+            self.assertEquals(type(report), str)
 
 
 class SvgProductionTest(BaubleTestCase):

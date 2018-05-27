@@ -223,24 +223,22 @@ class Code39:
 class add_qr_functor:
     import pyqrcode
     def __init__(self):
-        import io
         import re
-        self.buffer = io.BytesIO()
         self.pattern = {
-            'svg': re.compile(b'<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
-            'ps': re.compile(b'.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
+            'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
+            'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
         }
 
     def __call__(self, x, y, text, scale=1, side=None, format='svg'):
         qr = self.pyqrcode.create(text)
-        self.buffer.truncate(0)
-        self.buffer.seek(0)
+        import io
+        self.buffer = io.StringIO()
         if format == 'svg':
             qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
         else:
             qr.eps(self.buffer, quiet_zone=0)
         match = self.pattern[format].match(self.buffer.getvalue())
-        result_list = [match.group(2).decode()]
+        result_list = [match.group(2)]
         transform = []
         if x != 0 or y != 0:
             if format == 'ps':
@@ -409,9 +407,8 @@ class MakoFormatterPlugin(FormatterPlugin):
             msg = _('Please select a template.')
             utils.message_dialog(msg, Gtk.MessageType.WARNING)
             return False
-        template = Template(
-            filename=template_filename, input_encoding='utf-8',
-            output_encoding='utf-8')
+        template = Template(filename=template_filename,
+                            input_encoding='utf-8', output_encoding='utf-8')
 
         # make sure the options dictionary is initialized at all
         with open(template_filename) as f:
@@ -437,7 +434,7 @@ class MakoFormatterPlugin(FormatterPlugin):
             utils.message_dialog(_('Could not open the report with the '
                                    'default program. You can open the '
                                    'file manually at %s') % filename)
-        return report
+        return report.decode()
 
 
 formatter_plugin = MakoFormatterPlugin
