@@ -97,7 +97,7 @@ class MakoFormatterTests(BaubleTestCase):
         plants = self.session.query(Plant).all()
         td = os.path.join(os.path.dirname(__file__), 'templates')
         for tn in MakoFormatterPlugin.templates:
-            if tn.find('qr') == -1:
+            if tn.find('-qr.') == -1:
                 continue
             if not tn.endswith('.ps') or not tn.endswith('.eps'):
                 continue
@@ -109,7 +109,7 @@ class MakoFormatterTests(BaubleTestCase):
         plants = self.session.query(Plant).all()
         td = os.path.join(os.path.dirname(__file__), 'templates')
         for tn in MakoFormatterPlugin.templates:
-            if tn.find('qr') == -1:
+            if tn.find('-qr.') == -1:
                 continue
             if not tn.endswith('.svg'):
                 continue

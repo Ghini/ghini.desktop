@@ -225,20 +225,23 @@ class add_qr_functor:
     def __init__(self):
         import re
         self.pattern = {
-            'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
+            'svg': re.compile(b'<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
             'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
         }
 
     def __call__(self, x, y, text, scale=1, side=None, format='svg'):
-        qr = self.pyqrcode.create(text)
         import io
-        self.buffer = io.StringIO()
+        qr = self.pyqrcode.create(text)
         if format == 'svg':
+            self.buffer = io.BytesIO()
             qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
+            match = self.pattern[format].match(self.buffer.getvalue())
+            result_list = [match.group(2).decode()]
         else:
+            self.buffer = io.StringIO()
             qr.eps(self.buffer, quiet_zone=0)
-        match = self.pattern[format].match(self.buffer.getvalue())
-        result_list = [match.group(2)]
+            match = self.pattern[format].match(self.buffer.getvalue())
+            result_list = [match.group(2)]
         transform = []
         if x != 0 or y != 0:
             if format == 'ps':
