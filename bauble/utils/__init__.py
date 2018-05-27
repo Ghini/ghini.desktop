@@ -476,15 +476,15 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
         # or we should just catch the error(is there an error) and call
         # set_text if set_markup fails
         if markup:
-            widget.set_markup(utf8(value))
+            widget.set_markup(utf8(value) or '')
         else:
-            widget.set_text(utf8(value))
+            widget.set_text(utf8(value) or '')
     elif isinstance(widget, Gtk.TextView):
         widget.get_buffer().set_text("%s" % value)
     elif isinstance(widget, Gtk.TextBuffer):
         widget.set_text("%s" % value)
     elif isinstance(widget, Gtk.Entry):
-        widget.set_text(utf8(value))
+        widget.set_text(utf8(value) or "")
     elif isinstance(widget, Gtk.ComboBox):
         # handles Gtk.ComboBox and Gtk.ComboBoxEntry
         treeiter = None
@@ -1312,13 +1312,8 @@ class MessageBox(GenericMessageBox):
         return self.buffer.text
 
     def _set_message(self, msg):
-        # TODO: we could probably do something smarter here that
-        # involved check the font size and window width and adjust the
-        # wrap widget accordingly
-        if msg:
-            self.buffer.set_text(msg)
-        else:
-            self.buffer.set_text('')
+        self.buffer.set_text(msg or '')
+
     message = property(_get_message, _set_message)
 
     def _get_details(self, msg):
@@ -1380,10 +1375,7 @@ class YesNoMessageBox(GenericMessageBox):
         return self.label.text
 
     def _set_message(self, msg):
-        if msg:
-            self.label.set_markup(msg)
-        else:
-            self.label.set_markup('')
+        self.label.set_markup(msg or '')
     message = property(_get_message, _set_message)
 
 
