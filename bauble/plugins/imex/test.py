@@ -472,7 +472,7 @@ class JSONExportTests(BaubleTestCase):
             {"epithet": "Orchidaceae", "object": "taxon", "rank": "familia"},
             {"epithet": "Myrtaceae", "object": "taxon", "rank": "familia"},
             {"author": "R. Br.", "epithet": "Calopogon", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},
-            {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},
+            {"epithet": "Panisea", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},
             {'ht-epithet': 'Calopogon', 'hybrid': False, 'object': 'taxon', 'ht-rank': 'genus', 'rank': 'species', 'epithet': 'tuberosus'},
             {'ht-epithet': 'Panisea', 'hybrid': False, 'object': 'taxon', 'ht-rank': 'genus', 'rank': 'species', 'sp_author': '(L.) Britton', 'epithet': 'albiflora', 'sp_author': '(Ridl.) Seidenf.'},
             {'ht-epithet': 'Panisea', 'hybrid': False, 'object': 'taxon', 'ht-rank': 'genus', 'rank': 'species', 'sp_author': '(L.) Britton', 'epithet': 'distelidia', 'sp_author': 'I.D.Lund'},
