@@ -594,7 +594,7 @@ class CSVExporter(object):
                         '<b>%(table)s</b> table already exists.\n\n<i>Would '
                         'you like to continue?</i>')\
                     % {'filename': filename, 'table': table.name}
-                if utils.yes_no_dialog(msg):
+                if not utils.yes_no_dialog(msg):  # if NO: return
                     return
 
         def replace(s):
@@ -610,13 +610,16 @@ class CSVExporter(object):
             f.close()
 
         update_every = 30
+        spinner = '⣀⣄⣆⣃⣉⣘⣰⣠'
         for table in db.metadata.sorted_tables:
             filename = filename_template % table.name
             steps_so_far += 1
             fraction = float(steps_so_far)/float(ntables)
             pb_set_fraction(fraction)
+            spinner_index = 0
             msg = _('exporting %(table)s table to %(filename)s')\
                 % {'table': table.name, 'filename': filename}
+            msg = msg + '  ' + spinner[spinner_index]
             bauble.task.set_message(msg)
             logger.info("exporting %s" % table.name)
 
@@ -636,6 +639,9 @@ class CSVExporter(object):
                 values = list(map(replace, list(row.values())))
                 rows.append(values)
                 if ctr == update_every:
+                    spinner_index = (spinner_index + 1) % len(spinner)
+                    msg = msg[:-1] + spinner[spinner_index]
+                    bauble.task.set_message(msg)
                     yield
                     ctr = 0
                 ctr += 1
