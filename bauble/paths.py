@@ -117,10 +117,10 @@ def appdata_dir():
     """
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
-            d = os.path.join(os.environ["APPDATA"], "Bauble")
+            d = os.path.join(os.environ["APPDATA"], 'Bauble', '3.1')
         elif 'USERPROFILE' in os.environ:
             d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
-                             'Bauble')
+                             'Bauble', '3.1')
         else:
             raise Exception('Could not get path for user settings: no '
                             'APPDATA or USERPROFILE variable')
@@ -130,7 +130,7 @@ def appdata_dir():
         # return the path of the user that used sudo instead of ~root
         try:
             d = os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
-                             '.bauble')
+                             '.bauble', '3.1')
         except Exception:
             raise Exception('Could not get path for user settings: '
                             'could not expand $HOME for user %(username)s' %
