@@ -137,9 +137,10 @@ def retrieve_latest_release_date():
         import json
         ## from github retrieve the date of the latest release
         stream = urllib.request.urlopen(
-            "https://api.github.com/repos/Ghini/ghini.desktop/branches/ghini-1.0",
+            "https://api.github.com/repos/Ghini/ghini.desktop/branches/ghini-%s.%s" % bauble.version_tuple[:2],
             timeout=5)
-        response = json.load(stream)
+        text = stream.read().decode()
+        response = json.loads(text)
         bauble.release_date = response['commit']['commit']['committer']['date']
 
         ## from github retrieve the version number
