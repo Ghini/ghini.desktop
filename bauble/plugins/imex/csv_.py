@@ -312,11 +312,11 @@ class CSVImporter(Importer):
             if len(depends) > 0:
                 if not force:
                     msg = _('In order to import the files the following '
-                            'tables will need to be dropped:'
+                            'tables will be dropped:'
                             '\n\n<b>%s</b>\n\n'
                             'Would you like to continue?') % \
                         ', '.join(sorted([d.name for d in depends]))
-                    response = utils.yes_no_dialog(msg)
+                    force = response = utils.yes_no_dialog(msg)
                 else:
                     response = True
 
@@ -343,7 +343,7 @@ class CSVImporter(Importer):
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
                     % {'table': table.name, 'filename': filename}
-                #log.info(msg)
+                logger.info(msg)
                 bauble.task.set_message(msg)
                 yield  # allow progress bar update
 
@@ -680,9 +680,9 @@ class CSVImportTool(pluginmgr.Tool):
         Start the CSV importer.  This tool will also reinitialize the
         plugins after importing.
         """
-        msg = _('It is possible that importing data into this database could '
-                'destroy or corrupt your existing data.\n\n<i>Would you '
-                'like to continue?</i>')
+        msg = _('Importing data into an existing database will '
+                'replace all your existing data.\n\n'
+                '<i>Would you like to continue?</i>')
         if utils.yes_no_dialog(msg):
             c = CSVImporter()
             c.start()
