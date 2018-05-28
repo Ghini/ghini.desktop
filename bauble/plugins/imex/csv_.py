@@ -514,7 +514,7 @@ class CSVImporter(Importer):
             transaction.rollback()
             raise
         except Exception, e:
-            logger.error(e)
+            logger.error("%s(%s)" % (type(e).__name__, e))
             logger.error(traceback.format_exc())
             transaction.rollback()
             self.__error = True
@@ -591,8 +591,6 @@ class CSVExporter(object):
             raise ValueError(_("CSVExporter: path does not exist.\n%s") % path)
 
         try:
-            # TODO: should we support exporting other metadata
-            # besides db.metadata
             bauble.task.queue(self.__export_task(path))
         except Exception, e:
             logger.debug(e)
@@ -652,8 +650,11 @@ class CSVExporter(object):
             rows.append(table.c.keys())  # append col names
             ctr = 0
             for row in results:
-                values = map(replace, row.values())
-                rows.append(values)
+                try:
+                    rows.append(map(replace, row.values()))
+                except:
+                    import traceback
+                    logger.error(traceback.format_exc())
                 if ctr == update_every:
                     spinner_index = (spinner_index + 1) % len(spinner)
                     msg = msg[:-1] + spinner[spinner_index]
