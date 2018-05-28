@@ -713,6 +713,3 @@ class CSVExportTool(pluginmgr.Tool):
     def start(cls):
         c = CSVExporter()
         c.start()
-
-
-# TODO: add support to import from the command line
