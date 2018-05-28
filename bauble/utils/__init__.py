@@ -328,7 +328,6 @@ def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
 
     def func(model, path, iter, dummy=None):
         if cmp(model[iter], data):
-            #debug('add: %s' % model[iter])
             results.add(iter)
         return False
     parent.model.foreach(func)
@@ -499,7 +498,7 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
                 widget.set_active_iter(treeiter)
             else:
                 widget.set_active(-1)
-        if isinstance(widget, Gtk.ComboBox):
+        if widget.get_child():
             widget.get_child().text = value or ''
     elif isinstance(widget,
                     (Gtk.ToggleButton, Gtk.CheckButton, Gtk.RadioButton)):
