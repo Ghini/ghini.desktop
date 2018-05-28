@@ -394,17 +394,6 @@ class GeneralSpeciesExpander(InfoExpander):
 
 
 class SpeciesInfoBox(InfoBox):
-
-    def __init__(self):
-        super().__init__(tabbed=True)
-        page = SpeciesInfoPage()
-        label = page.label
-        if isinstance(label, str):
-            label = Gtk.Label(label=label)
-        self.insert_page(page, label, 0)
-
-
-class SpeciesInfoPage(InfoBoxPage):
     '''
     general info, fullname, common name, num of accessions and clones,
     distribution
