@@ -137,3 +137,8 @@ class TimeStampParserTests(unittest.TestCase):
         # explicit, illogical: year, day, month
         result = parse_date('5 1 4', dayfirst=True, yearfirst=True)
         self.assertEquals(result, datetime.datetime(2005, 4, 1, 0, 0))
+
+    def test_date_parser_365(self):
+        target = datetime.datetime(2014, 1, 1, 20)
+        result = parse_date('2014-01-01 20')
+        self.assertEquals(result, target)
