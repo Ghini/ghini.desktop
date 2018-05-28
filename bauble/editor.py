@@ -1631,7 +1631,7 @@ class GenericEditorPresenter(object):
         """
 
         logger.debug('assign_completions_handler %s' % widget)
-        if not isinstance(widget, Gtk.Entry):
+        if isinstance(widget, str):
             widget = self.view.widgets[widget]
         PROBLEM = hash(Gtk.Buildable.get_name(widget))
 
@@ -1730,7 +1730,7 @@ class GenericEditorPresenter(object):
 
         completion = widget.get_completion()
         check(completion is not None, 'the Gtk.Entry %s doesn\'t have a '
-              'completion attached to it' % widget.get_name())
+              'completion attached to it' % Gtk.Buildable.get_name(widget))
 
         _changed_sid = self.view.connect(widget, 'changed', on_changed)
         self.view.connect(completion, 'match-selected', on_match_select)
