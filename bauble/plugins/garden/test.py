@@ -88,28 +88,27 @@ collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': 'Somewhere',
                          'geographic_area_id': 1},
                         )
 
-default_propagation_values = \
-    {'notes': 'test notes',
-     'date': datetime.date(2011, 11, 25)}
+default_propagation_values = {
+    'date': datetime.date(2011, 11, 25)}
 
-default_cutting_values = \
-    {'cutting_type': 'Nodal',
-     'length': 2,
-     'length_unit': 'mm',
-     'tip': 'Intact',
-     'leaves': 'Intact',
-     'leaves_reduced_pct': 25,
-     'flower_buds': 'None',
-     'wound': 'Single',
-     'fungicide': 'Physan',
-     'media': 'standard mix',
-     'container': '4" pot',
-     'hormone': 'Auxin powder',
-     'cover': 'Poly cover',
-     'location': 'Mist frame',
-     'bottom_heat_temp': 65,
-     'bottom_heat_unit': 'F',
-     'rooted_pct': 90}
+default_cutting_values = {
+    'cutting_type': 'Nodal',
+    'length': 2,
+    'length_unit': 'mm',
+    'tip': 'Intact',
+    'leaves': 'Intact',
+    'leaves_reduced_pct': 25,
+    'flower_buds': 'None',
+    'wound': 'Single',
+    'fungicide': 'Physan',
+    'media': 'standard mix',
+    'container': '4" pot',
+    'hormone': 'Auxin powder',
+    'cover': 'Poly cover',
+    'location': 'Mist frame',
+    'bottom_heat_temp': 65,
+    'bottom_heat_unit': 'F',
+    'rooted_pct': 90}
 
 default_seed_values = {
     'pretreatment': 'Soaked in peroxide solution',
@@ -774,8 +773,6 @@ class PropagationTests(GardenTestCase):
         view.widget_set_value('prop_type_combo', 'Seed')
         view.widget_set_value('prop_date_entry',
                               default_propagation_values['date'])
-        view.widget_set_value('notes_textview',
-                              default_propagation_values['notes'])
         for widget, attr in seed_presenter.widget_to_field_map.items():
             w = widgets[widget]
             if isinstance(w, Gtk.ComboBox) and w.get_child() and not w.get_model():
