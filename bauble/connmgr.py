@@ -98,7 +98,7 @@ def newer_version_on_github(input_stream, force=False):
     """
 
     try:
-        version_lines = input_stream.read().split('\n')
+        version_lines = input_stream.read().decode().split('\n')
         valid_lines = [i for i in version_lines
                        if not i.startswith('#') and i.strip()]
         if len(valid_lines) == 1:
