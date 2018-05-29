@@ -95,7 +95,20 @@ remove_action = Action('loc_remove', _('_Delete'),
 loc_context_menu = [edit_action, add_plant_action, remove_action]
 
 
-class Location(db.Base, db.Serializable):
+def compute_serializable_fields(cls, session, keys):
+    result = {'location': None}
+
+    annotated_object_keys = {'code': keys['location']}
+    result['location'] = Location.retrieve_or_create(
+        session, annotated_object_keys, create=False)
+
+    return result
+
+
+LocationNote = db.make_note_class('Location', compute_serializable_fields)
+
+
+class Location(db.Base, db.Serializable, db.WithNotes):
     """
     :Table name: location
 
