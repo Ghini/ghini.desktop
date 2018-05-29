@@ -444,15 +444,6 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         map = MapViewer(_('Zoom to garden'), self.view.get_window())
         try:
             map.set_centre(float(self.model.geo_latitude), float(self.model.geo_longitude), float(self.model.geo_diameter))
-            from .plant import Plant
-            session = self.session
-            for p in session.query(Plant).all():
-                try:
-                    coords = p.coords
-                    lat, lon = coords['lat'], coords['lon']
-                except Exception as e:
-                    continue
-                map.add_plant(str(p), lat, lon)
         except Exception as e:
             pass
         if map.run() == Gtk.ResponseType.OK:
