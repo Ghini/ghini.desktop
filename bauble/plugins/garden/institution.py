@@ -315,7 +315,7 @@ class MapViewer(Gtk.Dialog):
         plant_marker = Champlain.Point()
         plant_marker.set_location(lat, lon)
         plant_marker.set_color(black)
-        plant_marker.set_size(4)
+        plant_marker.set_size(5)
         self.plant_layer.add_marker(plant_marker)
         def on_select_this(widget, ev):
             self.plant_highlighted.set_text(text)
