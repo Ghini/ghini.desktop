@@ -529,22 +529,6 @@ class PropagationTests(GardenTestCase):
         prop = self.plants[0].propagations[0]
         self.assertEqual(prop.accessible_quantity, 13)
 
-    def test_propagation_other_unaccessed_remaining_quantity_1(self):
-        self.add_plants(['1'])
-        self.add_propagations(['Other'])
-        prop = self.plants[0].propagations[0]
-        self.assertEqual(prop.accessible_quantity, 1)
-
-    def test_propagation_other_accessed_remaining_quantity_1(self):
-        self.add_plants(['1'])
-        self.add_propagations(['Other'])
-        accession2 = self.create(Accession, species=self.species, code='2', quantity_recvd=10)
-        source2 = self.create(Source, plant_propagation=self.plants[0].propagations[0])
-        accession2.source = source2
-        self.session.commit()
-        prop = self.plants[0].propagations[0]
-        self.assertEqual(prop.accessible_quantity, 1)
-
     def test_accession_propagations_is_union_of_plant_propagations(self):
         self.add_plants(['1', '2'])
         self.add_propagations(['UnrootedCutting', 'Seed'])
