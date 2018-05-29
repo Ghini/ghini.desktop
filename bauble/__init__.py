@@ -154,11 +154,9 @@ def quit():
         task.kill()
     try:
         save_state()
-        Gtk.main_quit()
     except RuntimeError as e:
-        # in case main_quit is called before main, e.g. before
-        # bauble.main() is called
-        sys.exit(1)
+        pass
+    sys.exit(1)
 
 
 last_handler = None
