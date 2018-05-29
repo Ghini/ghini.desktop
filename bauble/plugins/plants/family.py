@@ -117,6 +117,18 @@ family_context_menu = [edit_action, add_species_action, remove_action]
 #
 # Family
 #
+def compute_serializable_fields(cls, session, keys):
+    result = {'family': None}
+
+    family_keys = {'epithet': keys['family']}
+    result['family'] = Family.retrieve_or_create(
+        session, family_keys, create=False)
+
+    return result
+
+FamilyNote = db.make_note_class('Family', compute_serializable_fields)
+
+
 class Family(db.Base, db.Serializable, db.WithNotes):
     """
     :Table name: family
@@ -170,6 +182,9 @@ class Family(db.Base, db.Serializable, db.WithNotes):
     # columns
     family = Column(String(45), nullable=False, index=True)
     epithet = synonym('family')
+
+    # use '' instead of None so that the constraints will work propertly
+    author = Column(Unicode(255), default='')
 
     # we use the blank string here instead of None so that the
     # contraints will work properly,
@@ -283,18 +298,6 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
 ## defining the latin alias to the class.
 Familia = Family
-
-
-def compute_serializable_fields(cls, session, keys):
-    result = {'family': None}
-
-    family_keys = {'epithet': keys['family']}
-    result['family'] = Family.retrieve_or_create(
-        session, family_keys, create=False)
-
-    return result
-
-FamilyNote = db.make_note_class('Family', compute_serializable_fields)
 
 
 class FamilySynonym(db.Base):
