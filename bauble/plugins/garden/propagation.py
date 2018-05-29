@@ -72,7 +72,9 @@ class PlantPropagation(db.Base):
     plant = relation('Plant', uselist=False)
 
 
-class Propagation(db.Base):
+PropagationNote = db.make_note_class('Propagation')
+
+class Propagation(db.Base, db.WithNotes):
     """
     Propagation
     """
@@ -80,7 +82,6 @@ class Propagation(db.Base):
     prop_type = Column(types.Enum(values=list(prop_type_values.keys()),
                                   translations=prop_type_values),
                        nullable=False)
-    notes = Column(UnicodeText)
     date = Column(types.Date)
 
     _cutting = relation(
