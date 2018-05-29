@@ -645,73 +645,67 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             set_cell_data_func(self.view.widgets.prop_summary_cell,
                                self.summary_cell_data_func)
 
-        #assign_completions_handler
-        def plant_cell_data_func(column, renderer, model, iter, data=None):
-            v = model[iter][0]
-            renderer.set_property('text', '%s (%s)' %
-                                  (str(v), str(v.accession.species)))
-
-        self.view.attach_completion('source_prop_plant_entry',
-                                    plant_cell_data_func, minimum_key_length=1)
-
-        def plant_get_completions(text):
+        def get_accessible_plants():
             logger.debug('in PropagationChooserPresenter:plant_get_completions')
             from bauble.plugins.garden.accession import Accession
             from bauble.plugins.garden.plant import Plant
             query = self.session.query(Plant).\
                     filter(Plant.propagations.any()).\
                     join('accession').\
-                    filter(utils.ilike(Accession.code, '%s%%' % text)).\
                     filter(Accession.id != self.model.accession.id).\
                     order_by(Accession.code, Plant.code)
-            result = []
+            result = self.view.widgets.source_prop_plant_liststore
             for plant in query:
                 has_accessible = False
                 for propagation in plant.propagations:
                     if propagation.accessible_quantity > 0:
                         has_accessible = True
                 if has_accessible:
-                    result.append(plant)
-            return result
+                    result.append([str(plant), plant.id])
 
-        def on_select(value):
-            logger.debug('on select: %s' % value)
-            if isinstance(value, str):
+        get_accessible_plants()
+
+        def on_select(widget):
+            # change or select, let's check if the code is complete…
+            inserted_code = widget.get_child().get_text()
+            matches = [False]
+            model = widget.get_model()
+            def step(model, path, iter):
+                if (model[iter][0]==inserted_code):
+                    matches[0] = iter
+            model.foreach(step)
+            if matches[0] is False:  # code not complete, stop here
                 return
+            # tree model holds plant id
+            from bauble.plugins.garden.plant import Plant
+            plant = self.session.query(Plant).filter(Plant.id==model[matches[0]][1]).one()
             # populate the propagation browser
             treeview = self.view.widgets.source_prop_treeview
-            if not value:
+            if not plant:
                 treeview.props.sensitive = False
                 return
             utils.clear_model(treeview)
             model = Gtk.ListStore(object)
-            for propagation in value.propagations:
+            for propagation in plant.propagations:
                 if propagation.accessible_quantity == 0:
                     continue
                 model.append([propagation])
             treeview.set_model(model)
             treeview.props.sensitive = True
 
-        self.assign_completions_handler('source_prop_plant_entry',
-                                        plant_get_completions,
-                                        on_select=on_select)
-
-    # def on_acc_entry_changed(entry, *args):
-    #     # TODO: desensitize the propagation tree until on_select is called
-    #     pass
+        self.view.connect_after(self.view.widgets.source_prop_plant_combo, 'changed', on_select)
 
     def refresh_view(self):
         treeview = self.view.widgets.source_prop_treeview
         if not self.model.plant_propagation:
-            self.view.widgets.source_prop_plant_entry.props.text = ''
+            self.view.widget_set_value('source_prop_plant_combo', '')
             utils.clear_model(treeview)
             treeview.props.sensitive = False
             return
 
         parent_plant = self.model.plant_propagation.plant
         # set the parent accession
-        self.view.widgets.source_prop_plant_entry.props.text = str(
-            parent_plant)
+        self.view.widget_set_value('source_prop_plant_combo', str(parent_plant))
 
         if not parent_plant.propagations:
             treeview.props.sensitive = False

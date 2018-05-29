@@ -1307,11 +1307,11 @@ class AccessionTests(GardenTestCase):
         self.assertTrue(not self.editor.presenter.problems)
 
         # set the source plant
-        widgets.source_prop_plant_entry.props.text = str(plant)
+        self.editor.presenter.view.widget_set_value('source_prop_plant_combo', str(plant))
         logger.debug('about to update the gui')
         update_gui()
 
-        comp = widgets.source_prop_plant_entry.get_completion()
+        comp = widgets.source_prop_plant_combo.get_child().get_completion()
         comp.emit('match-selected', comp.get_model(),
                   comp.get_model().get_iter_first())
 
