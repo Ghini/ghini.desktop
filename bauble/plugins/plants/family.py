@@ -288,7 +288,7 @@ Familia = Family
 def compute_serializable_fields(cls, session, keys):
     result = {'family': None}
 
-    family_dict = {'epithet': keys['family']}
+    family_keys = {'epithet': keys['family']}
     result['family'] = Family.retrieve_or_create(
         session, family_keys, create=False)
 
