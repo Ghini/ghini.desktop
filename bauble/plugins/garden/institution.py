@@ -55,7 +55,6 @@ class MapViewer(Gtk.Dialog):
     def __init__(self, title="", parent=None, *args, **kwargs):
         super().__init__(title, parent, *args, **kwargs)
         self.result = None
-        GtkClutter.init([])
 
         self.connect("key-press-event", self.on_key_press)
 
@@ -73,6 +72,13 @@ class MapViewer(Gtk.Dialog):
         self.clutter_view.set_horizontal_wrap(True)
 
         self.layer = None
+
+        self.plant_layer = Champlain.MarkerLayer()
+        self.clutter_view.add_layer(self.plant_layer)
+        orange = Clutter.Color.new(0xf3, 0x94, 0x07, 0xa0)
+        self.plant_highlighted = Champlain.Label.new_with_text("", "Serif 14", None, orange)
+        self.plant_layer.add_marker(self.plant_highlighted)
+        self.plant_layer.show()
 
         self.clutter_view.center_on(5.0, 13.0)
         self.clutter_view.set_zoom_level(1)
@@ -298,11 +304,24 @@ class MapViewer(Gtk.Dialog):
         lat2, lon2 = utm.to_latlon(x + diam / 2, y, zone_number, zone_letter)
         self.marker_through.set_location(lat2, lon2)
         self.clutter_view.center_on(lat, lon)
-        zoom_level = int(-math.sqrt(2) * math.log(diam) + 26.2)
+        zoom_level = int(-math.sqrt(2) * math.log(diam) + 25.4)
         zoom_level = max(1, zoom_level)
         zoom_level = min(19, zoom_level)
         self.clutter_view.set_zoom_level(zoom_level)
         self.on_marker_through_button_release(self.marker_through, 0, 0, None)
+
+    def add_plant(self, text, lat, lon, icon=None):
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7f)
+        plant_marker = Champlain.Point()
+        plant_marker.set_location(lat, lon)
+        plant_marker.set_color(black)
+        plant_marker.set_size(4)
+        self.plant_layer.add_marker(plant_marker)
+        def on_select_this(widget, ev):
+            self.plant_highlighted.set_text(text)
+            self.plant_highlighted.set_location(lat, lon)
+            self.plant_layer.set_child_above_sibling(self.plant_highlighted)
+        plant_marker.connect("button-release-event", on_select_this)
 
 class Institution(object):
     '''
@@ -373,8 +392,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
     def __init__(self, model, view):
         self.message_box = None
         self.email_regexp = re.compile(r'.+@.+\..+')
-        super().__init__(
-            model, view, refresh_view=True)
+        super().__init__(model, view, refresh_view=True)
         self.view.widget_grab_focus('inst_name')
         self.on_non_empty_text_entry_changed('inst_name')
         self.on_email_text_entry_changed('inst_email')
@@ -389,8 +407,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             self.message_box = None
 
     def on_non_empty_text_entry_changed(self, widget, value=None):
-        value = super(
-                      ).on_non_empty_text_entry_changed(widget, value)
+        value = super().on_non_empty_text_entry_changed(widget, value)
         box = self.message_box
         if value:
             if box:
@@ -405,8 +422,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             self.message_box = box
 
     def on_email_text_entry_changed(self, widget, value=None):
-        value = super(
-                      ).on_text_entry_changed(widget, value)
+        value = super().on_text_entry_changed(widget, value)
         self.view.widget_set_sensitive(
             'inst_register', self.email_regexp.match(value or ''))
 
@@ -428,6 +444,15 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         map = MapViewer(_('Zoom to garden'), self.view.get_window())
         try:
             map.set_centre(float(self.model.geo_latitude), float(self.model.geo_longitude), float(self.model.geo_diameter))
+            from .plant import Plant
+            session = self.session
+            for p in session.query(Plant).all():
+                try:
+                    coords = p.coords
+                    lat, lon = coords['lat'], coords['lon']
+                except Exception as e:
+                    continue
+                map.add_plant(str(p), lat, lon)
         except Exception as e:
             pass
         if map.run() == Gtk.ResponseType.OK:
