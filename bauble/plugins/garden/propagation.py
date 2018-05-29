@@ -47,14 +47,14 @@ import bauble.prefs as prefs
 import bauble.btypes as types
 
 
-prop_type_values = {'Seed': _("Seed"),
-                    'UnrootedCutting': _('Unrooted cutting'),
-                    'Other': _('Other')}
+prop_type_values = {
+    'Seed': _("Seed"),
+    'UnrootedCutting': _('Unrooted cutting'),
+}
 
 prop_type_results = {
     'Seed': 'SEDL',
     'UnrootedCutting': 'RCUT',
-    'Other': 'UNKN',
 }
 
 
@@ -175,7 +175,7 @@ class Propagation(db.Base, db.WithNotes):
             if c.leaves:
                 s = _('Leaves') + ': %s' % leaves_values[c.leaves]
                 if c.leaves == 'Removed' and c.leaves_reduced_pct:
-                    s.append('(%s%%)' % c.leaves_reduced_pct)
+                    s += (' (%s%%)' % c.leaves_reduced_pct)
                 values.append(s)
             if c.flower_buds:
                 values.append(_('Flower buds') + ': %s' %
@@ -230,11 +230,6 @@ class Propagation(db.Base, db.WithNotes):
             date_planted = get_date(seed.date_planted)
             if date_planted:
                 values.append(_('Date planted') + ': %s' % date_planted)
-        elif self.notes:
-            values.append(_('Other'))
-            values.append(utils.utf8(self.notes))
-        else:
-            values.append(str(self))
 
         s = '; '.join(values)
 
@@ -250,11 +245,6 @@ class Propagation(db.Base, db.WithNotes):
                 self._cutting.length_unit = None
         elif self.prop_type == 'Seed':
             utils.delete_or_expunge(self._cutting)
-            self._cutting = None
-        else:
-            utils.delete_or_expunge(self._seed)
-            utils.delete_or_expunge(self._cutting)
-            self._seed = None
             self._cutting = None
 
 
@@ -432,6 +422,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         propagation to self.model.propagations
         """
         propagation = Propagation()
+        propagation.prop_type = 'Seed'  # a reasonable default
         propagation.plant = self.model
         editor = PropagationEditor(propagation, parent=self.view.get_window())
         # open propagation editor with start(commit=False) so that the
@@ -544,10 +535,9 @@ class PropagationEditorView(editor.GenericEditorView):
     def __init__(self, parent=None):
         """
         """
-        super().\
-            __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                  'prop_editor.glade'),
-                     parent=parent)
+        super().__init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                      'prop_editor.glade'),
+                         parent=parent)
         self.init_translatable_combo('prop_type_combo', prop_type_values)
 
     def get_window(self):
@@ -852,7 +842,7 @@ class PropagationPresenter(editor.ChildPresenter):
     """
     widget_to_field_map = {'prop_type_combo': 'prop_type',
                            'prop_date_entry': 'date',
-                           'notes_textview': 'notes'}
+                           }
 
     def __init__(self, model, view):
         '''
@@ -861,6 +851,9 @@ class PropagationPresenter(editor.ChildPresenter):
         '''
         super().__init__(model, view)
         self.session = object_session(model)
+
+        if self.model.prop_type is None:
+            view.widgets.prop_details_box.props.visible = False
 
         # initialize the propagation type combo and set the initial value
         self.view.connect('prop_type_combo', 'changed',
@@ -873,35 +866,18 @@ class PropagationPresenter(editor.ChildPresenter):
         self._seed_presenter = SeedPresenter(self, self.model, self.view,
                                              self.session)
 
-        if not self.model.prop_type:
-            view.widgets.prop_details_box.props.visible = False
-
-        if self.model.date:
-            format = prefs.prefs[prefs.date_format_pref]
-            date = self.model.date.strftime(format)
-            self.view.widget_set_value(self.view.widgets.prop_date_entry, date)
+        self.assign_simple_handler('prop_date_entry', 'date',
+                                   editor.DateValidator())
+        if self.model.date is None:
+            date_str = utils.today_str()
         else:
-            self.view.widget_set_value(self.view.widgets.prop_date_entry,
-                                       utils.today_str())
-
-        self.view.widget_set_value(self.view.widgets.notes_textview,
-                                   self.model.notes)
+            format = prefs.prefs[prefs.date_format_pref]
+            date_str = self.model.date.strftime(format)
+        self.view.widget_set_value(self.view.widgets.prop_date_entry, date_str)
 
         self._dirty = False
         utils.setup_date_button(self.view, 'prop_date_entry',
                                 'prop_date_button')
-        self.assign_simple_handler('prop_date_entry', 'date',
-                                   editor.DateValidator())
-        self.assign_simple_handler('notes_textview', 'notes',
-                                   editor.UnicodeOrNoneValidator())
-
-        def on_expanded(*args):
-            if self.model.prop_type == 'Other':
-                # i don't really understand why setting the expanded
-                # property to false here cause the notes_expander to
-                # always stay expanded but it works
-                self.view.widgets.notes_expander.props.expanded = False
-        self.view.connect('notes_expander', 'activate', on_expanded)
 
     def on_prop_type_changed(self, combo, *args):
         it = combo.get_active_iter()
@@ -915,10 +891,6 @@ class PropagationPresenter(editor.ChildPresenter):
                         }
         for type_, box in prop_box_map.items():
             box.props.visible = (prop_type == type_)
-
-        self.view.widgets.notes_box.props.visible = True
-        if prop_type == 'Other' or self.model.notes:
-            self.view.widgets.notes_expander.props.expanded = True
 
         self.view.widgets.prop_details_box.props.visible = True
 
@@ -1006,8 +978,7 @@ class SourcePropagationPresenter(PropagationPresenter):
             self.set_model_attr('prop_type', None)
             self.view.widgets.prop_details_box.props.visible = False
         else:
-            super().\
-                on_prop_type_changed(combo, *args)
+            super().on_prop_type_changed(combo, *args)
         self._dirty = False
 
     def set_model_attr(self, attr, value, validator=None):
@@ -1033,7 +1004,7 @@ class PropagationEditorPresenter(PropagationPresenter):
         super().__init__(model, view)
         # don't allow changing the propagation type if we are editing
         # an existing propagation
-        if model not in self.session.new or self.model.prop_type:
+        if model not in self.session.new:
             self.view.widgets.prop_type_box.props.visible = False
         elif not self.model.prop_type:
             self.view.widgets.prop_type_box.props.visible = True
@@ -1065,8 +1036,6 @@ class PropagationEditorPresenter(PropagationPresenter):
             # columns that have bad values
             if invalid:
                 sensitive = False
-        elif self.model.notes:
-            sensitive = True
         else:
             sensitive = False
         self.view.widgets.prop_ok_button.props.sensitive = sensitive
