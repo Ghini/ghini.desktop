@@ -490,7 +490,7 @@ def verify_connection(engine, show_error_dialogs=False):
     return True
 
 
-def make_note_class(name, compute_serializable_fields, as_dict=None, retrieve=None):
+def make_note_class(name, compute_serializable_fields=None, as_dict=None, retrieve=None):
     class_name = str(name + 'Note')
     table_name = name.lower() + '_note'
 
@@ -541,23 +541,27 @@ def make_note_class(name, compute_serializable_fields, as_dict=None, retrieve=No
     as_dict = as_dict or as_dict_default
     retrieve = retrieve or retrieve_default
 
-    result = type(class_name, (Base, Serializable),
-                  {'__tablename__': table_name,
-                   '__mapper_args__': {'order_by': table_name + '.date'},
-
-                   'date': sa.Column(types.Date, default=sa.func.now()),
-                   'user': sa.Column(sa.Unicode(64)),
-                   'category': sa.Column(sa.Unicode(32)),
-                   'note': sa.Column(sa.UnicodeText, nullable=False),
-                   name.lower() + '_id': sa.Column(sa.Integer, sa.ForeignKey(name.lower() + '.id'), nullable=False),
-                   name.lower(): sa.orm.relation(name, uselist=False, backref=sa.orm.backref(
-                       'notes', cascade='all, delete-orphan')),
-                   'retrieve': classmethod(retrieve),
-                   'retrieve_or_create': classmethod(retrieve_or_create),
-                   'compute_serializable_fields': classmethod(compute_serializable_fields),
-                   'is_defined': is_defined,
-                   'as_dict': as_dict,
-                  })
+    bases = (Base, )
+    fields = {'__tablename__': table_name,
+              '__mapper_args__': {'order_by': table_name + '.date'},
+              
+              'date': sa.Column(types.Date, default=sa.func.now()),
+              'user': sa.Column(sa.Unicode(64)),
+              'category': sa.Column(sa.Unicode(32)),
+              'note': sa.Column(sa.UnicodeText, nullable=False),
+              name.lower() + '_id': sa.Column(sa.Integer, sa.ForeignKey(name.lower() + '.id'), nullable=False),
+              name.lower(): sa.orm.relation(name, uselist=False, backref=sa.orm.backref(
+                  'notes', cascade='all, delete-orphan')),
+              'retrieve': classmethod(retrieve),
+              'retrieve_or_create': classmethod(retrieve_or_create),
+              'is_defined': is_defined,
+              'as_dict': as_dict,
+    }
+    if compute_serializable_fields is not None:
+        bases = (Base, Serializable)
+        fields['compute_serializable_fields'] = classmethod(compute_serializable_fields)
+        
+    result = type(class_name, bases, fields)
     return result
 
 
