@@ -283,13 +283,13 @@ class GlobalFunctionsTests(unittest.TestCase):
     def test_newer_version_on_github(self):
         import io
         from bauble.connmgr import newer_version_on_github
-        stream = io.StringIO('version = "1.0.0"  # comment')
+        stream = io.BytesIO(b'version = "1.0.0"  # comment')
         self.assertFalse(newer_version_on_github(stream) and True or False)
-        stream = io.StringIO('version = "1.0.99999"  # comment')
+        stream = io.BytesIO(b'version = "1.0.99999"  # comment')
         self.assertTrue(newer_version_on_github(stream) and True or False)
-        stream = io.StringIO('version = "1.0.99999"  # comment')
+        stream = io.BytesIO(b'version = "1.0.99999"  # comment')
         self.assertEqual(newer_version_on_github(stream), '1.0.99999')
-        stream = io.StringIO('version = "1.099999"  # comment')
+        stream = io.BytesIO(b'version = "1.099999"  # comment')
         self.assertFalse(newer_version_on_github(stream) and True or False)
-        stream = io.StringIO('version = "1.0.99999-dev"  # comment')
+        stream = io.BytesIO(b'version = "1.0.99999-dev"  # comment')
         self.assertFalse(newer_version_on_github(stream) and True or False)
