@@ -19,9 +19,7 @@ cp debian/* /tmp/ghini.desktop-${VERSION}/debian
 
 # decide whether we continue
 # in case, we should really dput the following to mentors.debian.org
-echo "do we continue? (Ctrl-C to interrupt)"
-read i
-if [ "$i"!="skip" ]; then echo dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1); fi
+echo dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1)
 
 # LINE is hard-coded and committed
 # PUBLISHING is in the form 3.1.x
