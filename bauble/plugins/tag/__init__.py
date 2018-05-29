@@ -373,7 +373,9 @@ class TagItemGUI(editor.GenericEditorView):
         session.close()
 
 
-class Tag(db.Base):
+TagNote = db.make_note_class('Tag')
+
+class Tag(db.Base, db.WithNotes):
     """
     :Table name: tag
     :Columns:
