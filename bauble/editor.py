@@ -89,7 +89,7 @@ class DateValidator(Validator):
         dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
         yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
         default_year = 1999
-        default = datetime.date(1, 1, default_year)
+        default = datetime.date(default_year, 1, 1)
         try:
             value = parse_date(value, dayfirst=dayfirst,
                               yearfirst=yearfirst, default=default)
