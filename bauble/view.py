@@ -1357,22 +1357,9 @@ class HistoryView(pluginmgr.View):
         self.update()
 
     @staticmethod
-    def cmp_items(a, b):
-        ka, va = a
-        kb, vb = b
-        if ka == 'id':
-            return -1
-        if kb == 'id':
-            return 1
-        if va == 'None' and vb != 'None':
-            return 1
-        if vb == 'None' and va != 'None':
-            return -1
-        if a < b:
-            return -1
-        if b < a:
-            return 1
-        return 0
+    def key_for_item(v):
+        key, value = v
+        return (key!='id', value is None, key)
 
     @staticmethod
     def show_typed_value(v):
@@ -1387,7 +1374,7 @@ class HistoryView(pluginmgr.View):
         del d['_created']
         del d['_last_updated']
         friendly = ', '.join("%s: %s" % (k, self.show_typed_value(v))
-                             for k, v in sorted(list(d.items()), self.cmp_items)
+                             for k, v in sorted(list(d.items()), key=HistoryView.key_for_item)
                              )
         self.liststore.append([
             ("%s" % item.timestamp)[:19], item.operation, item.user,
