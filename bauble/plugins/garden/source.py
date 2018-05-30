@@ -94,7 +94,7 @@ class Source(db.Base):
 
     accession_id = Column(Integer, ForeignKey('accession.id'), unique=True)
 
-    source_detail_id = Column(Integer, ForeignKey('source_detail.id'))
+    source_detail_id = Column(Integer, ForeignKey('contact.id'))
     source_detail = relation('Contact', uselist=False,
                              backref=backref('sources',
                                              cascade='all, delete-orphan'))
@@ -804,7 +804,7 @@ ContactNote = db.make_note_class('Contact', compute_serializable_fields)
 
 
 class Contact(db.Base, db.Serializable, db.WithNotes):
-    __tablename__ = 'source_detail'
+    __tablename__ = 'contact'
     __mapper_args__ = {'order_by': 'name'}
 
     # ITF2 - E6 - Donor
