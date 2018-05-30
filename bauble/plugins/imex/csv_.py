@@ -528,6 +528,13 @@ class CSVImporter(Importer):
                                          traceback.format_exc(),
                                          type=Gtk.MessageType.ERROR)
 
+        # no callback, so we better update the interface here
+        try:
+            from bauble import gui
+            gui.get_view().update()
+        except:
+            pass
+
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
             """
