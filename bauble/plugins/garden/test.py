@@ -548,19 +548,47 @@ class PropagationTests(GardenTestCase):
             prop = plant.propagations[0]
             self.assertEqual(prop.plant, plant)
 
-    def test_get_summary_cutting_complete(self):
+    def test_get_summary_cutting_complete_not_rooted_yet(self):
         self.add_plants(['1'])
         prop = Propagation()
         prop.prop_type = 'UnrootedCutting'
         prop.plant = self.plants[0]
         cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
-        rooted = PropCuttingRooted()
-        rooted.cutting = cutting
         self.session.commit()
         summary = prop.get_summary()
         self.maxDiff = None
         self.assertEqual(summary, 'Cutting; Cutting type: Nodal; Length: 2mm; Tip: Intact; Leaves: Intact; Flower buds: None; Wounded: Singled; Fungal soak: Physan; Hormone treatment: Auxin powder; Bottom heat: 65°F; Container: 4" pot; Media: standard mix; Location: Mist frame; Cover: Poly cover; Rooted: 90%')
+
+    def test_get_summary_cutting_complete_and_rooted_one(self):
+        self.add_plants(['1'])
+        prop = Propagation()
+        prop.prop_type = 'UnrootedCutting'
+        prop.plant = self.plants[0]
+        cutting = PropCutting(**default_cutting_values)
+        cutting.propagation = prop
+        rooted = PropCuttingRooted(quantity=5)
+        rooted.cutting = cutting
+        self.session.commit()
+        summary = prop.get_summary()
+        self.maxDiff = None
+        self.assertEqual(summary, 'Cutting; Cutting type: Nodal; Length: 2mm; Tip: Intact; Leaves: Intact; Flower buds: None; Wounded: Singled; Fungal soak: Physan; Hormone treatment: Auxin powder; Bottom heat: 65°F; Container: 4" pot; Media: standard mix; Location: Mist frame; Cover: Poly cover; Rooted: 90%; Rooted: 5')
+
+    def test_get_summary_cutting_complete_and_rooted_more(self):
+        self.add_plants(['1'])
+        prop = Propagation()
+        prop.prop_type = 'UnrootedCutting'
+        prop.plant = self.plants[0]
+        cutting = PropCutting(**default_cutting_values)
+        cutting.propagation = prop
+        rooted = PropCuttingRooted(quantity=5)
+        rooted.cutting = cutting
+        rooted = PropCuttingRooted(quantity=7)
+        rooted.cutting = cutting
+        self.session.commit()
+        summary = prop.get_summary()
+        self.maxDiff = None
+        self.assertEqual(summary, 'Cutting; Cutting type: Nodal; Length: 2mm; Tip: Intact; Leaves: Intact; Flower buds: None; Wounded: Singled; Fungal soak: Physan; Hormone treatment: Auxin powder; Bottom heat: 65°F; Container: 4" pot; Media: standard mix; Location: Mist frame; Cover: Poly cover; Rooted: 90%; Rooted: 12')
 
     def test_get_summary_seed_complete(self):
         self.add_plants(['1'])
