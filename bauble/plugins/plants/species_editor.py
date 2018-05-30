@@ -756,8 +756,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         '''
         :param parent: the parent SpeciesEditorPresenter
         '''
-        super(
-              ).__init__(parent.model, parent.view)
+        super().__init__(parent.model, parent.view)
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
         self._dirty = False
