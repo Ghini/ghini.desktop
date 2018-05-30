@@ -788,6 +788,21 @@ source_detail_context_menu = [source_detail_edit_action,
                               source_detail_remove_action]
 
 
+#
+# Contact aka Source Detail
+#
+def compute_serializable_fields(cls, session, keys):
+    result = {'contact': None}
+
+    parent_keys = {'name': keys['contact']}
+    result['contact'] = Contact.retrieve_or_create(
+        session, parent_keys, create=False)
+
+    return result
+
+ContactNote = db.make_note_class('Contact', compute_serializable_fields)
+
+
 class Contact(db.Base, db.Serializable, db.WithNotes):
     __tablename__ = 'source_detail'
     __mapper_args__ = {'order_by': 'name'}
