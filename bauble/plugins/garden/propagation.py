@@ -552,11 +552,6 @@ class PropagationEditorView(editor.GenericEditorView):
     def start(self):
         return self.get_window().run()
 
-# TODO: if you edit an existing cutting and the the OK is not set sensitive
-
-# TODO: if you reopen an accession editor the list of propagations
-# doesn't get reset properly
-
 
 class CuttingPresenter(editor.GenericEditorPresenter):
 
@@ -1017,12 +1012,9 @@ class PropagationEditorPresenter(PropagationPresenter):
         super().__init__(model, view)
         # don't allow changing the propagation type if we are editing
         # an existing propagation
-        if model not in self.session.new:
-            self.view.widgets.prop_type_box.props.visible = False
-        elif not self.model.prop_type:
-            self.view.widgets.prop_type_box.props.visible = True
-            self.view.widgets.prop_details_box.props.visible = False
-        self.view.widgets.prop_ok_button.props.sensitive = False
+        self.view.widgets.prop_type_box.set_sensitive(model in self.session.new)
+        self.view.widgets.prop_details_box.set_visible(True)
+        self.view.widgets.prop_ok_button.set_sensitive(False)
 
     def start(self):
         r = self.view.start()
