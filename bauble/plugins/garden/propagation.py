@@ -449,7 +449,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
         from bauble.plugins.garden.plant import label_size_allocate
         label = Gtk.Label(label=propagation.get_summary())
-        label.props.wrap = True
+        label.set_wrap(True)
         label.set_alignment(0, 0)
         label.set_padding(0, 2)
         label.connect("size-allocate", label_size_allocate)
@@ -459,7 +459,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
             editor = PropagationEditor(model=prop,
                                        parent=self.view.get_window())
             if editor.start(commit=False) is not None:
-                label.props.label = prop.get_summary()
+                label.set_label(prop.get_summary())
                 self._dirty = True
             self.parent_ref().refresh_sensitivity()
 
@@ -503,7 +503,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
         remove_button = Gtk.Button()
         img = Gtk.Image.new_from_stock(Gtk.STOCK_REMOVE, Gtk.IconSize.BUTTON)
-        remove_button.props.image = img
+        remove_button.set_image(img)
         self.view.connect(remove_button, 'clicked', on_remove_clicked,
                           propagation, hbox)
         button_box.pack_start(remove_button, False, False, 0)
@@ -661,7 +661,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         for cell, column, attr_name in [
                 (sfw.rooted_date_cell, sfw.rooted_date_column, 'date'),
                 (sfw.rooted_quantity_cell, sfw.rooted_quantity_column, 'quantity')]:
-            cell.props.editable = True
+            cell.set_editable(True)
             self.view.connect(
                 cell, 'edited', partial(on_rooted_cell_edited, attr_name))
             column.set_cell_data_func(
@@ -861,7 +861,7 @@ class PropagationPresenter(editor.ChildPresenter):
         self.session = object_session(model)
 
         if self.model.prop_type is None:
-            view.widgets.prop_details_box.props.visible = False
+            view.widgets.prop_details_box.set_visible(False)
 
         # initialize the propagation type combo and set the initial value
         self.view.connect('prop_type_combo', 'changed',
@@ -898,9 +898,9 @@ class PropagationPresenter(editor.ChildPresenter):
                         'UnrootedCutting': self.view.widgets.cutting_box,
                         }
         for type_, box in prop_box_map.items():
-            box.props.visible = (prop_type == type_)
+            box.set_visible((prop_type == type_))
 
-        self.view.widgets.prop_details_box.props.visible = True
+        self.view.widgets.prop_details_box.set_visible(True)
 
         if not self.model.date:
             self.view.widgets.prop_date_entry.emit('changed')
@@ -984,7 +984,7 @@ class SourcePropagationPresenter(PropagationPresenter):
         prop_type = combo.get_model()[it][0]
         if not prop_type:
             self.set_model_attr('prop_type', None)
-            self.view.widgets.prop_details_box.props.visible = False
+            self.view.widgets.prop_details_box.set_visible(False)
         else:
             super().on_prop_type_changed(combo, *args)
         self._dirty = False
@@ -1043,7 +1043,7 @@ class PropagationEditorPresenter(PropagationPresenter):
                 sensitive = False
         else:
             sensitive = False
-        self.view.widgets.prop_ok_button.props.sensitive = sensitive
+        self.view.widgets.prop_ok_button.set_sensitive(sensitive)
 
 
 class PropagationEditor(editor.GenericModelViewPresenterEditor):
