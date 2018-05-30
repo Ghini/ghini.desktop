@@ -118,7 +118,7 @@ class Propagation(db.Base, db.WithNotes):
         if self.prop_type == 'UnrootedCutting':
             incomplete = self._cutting is None  # cutting without fields
             if not incomplete:
-                quantity = self._cutting.rooted_pct
+                quantity = sum([item.quantity for item in self._cutting.rooted])
         elif self.prop_type == 'Seed':
             incomplete = self._seed is None  # seed without fields
             if not incomplete:
@@ -202,6 +202,9 @@ class Propagation(db.Base, db.WithNotes):
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)
+
+            if c.rooted:
+                values.append(_('Rooted: %s') % sum((i.quantity for i in c.rooted)))
         elif self.prop_type == 'Seed':
             seed = self._seed
             values.append(_('Seed'))
