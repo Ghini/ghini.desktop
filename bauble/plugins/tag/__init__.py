@@ -69,7 +69,6 @@ class TagsMenuManager:
         if self.menu_item is None:
             self.menu_item = bauble.gui.add_menu(_("Tags"), tags_menu)
         else:
-            self.menu_item.remove_submenu()
             self.menu_item.set_submenu(tags_menu)
             self.menu_item.show_all()
         self.show_active_tag()
