@@ -637,15 +637,19 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         from functools import partial
         def rooted_cell_data_func(attr_name, column, cell, rooted_liststore, treeiter, data=None):
             # extract attr from the object and show it in the cell
-            v = rooted_liststore[treeiter][0]
-            cell.set_property('text', getattr(v, attr_name))
+            store_cell = rooted_liststore[treeiter][0]
+            value = getattr(store_cell, attr_name)
+            if isinstance(value, datetime.date):
+                format = prefs.prefs[prefs.date_format_pref]
+                value =  value.strftime(format)
+            cell.set_property('text', "%s" % value)
 
-        def on_rooted_cell_edited(attr_name, cell, path, new_text):
+        def on_rooted_cell_edited(attr_name, cell, treeiter, new_text):
             # update object if field was modified, refresh sensitivity
-            rooted = rooted_liststore[path][0]
-            if getattr(rooted, attr_name) == new_text:
+            v = rooted_liststore[treeiter][0]
+            if getattr(v, attr_name) == new_text:
                 return  # didn't change
-            setattr(rooted, attr_name, utils.utf8(new_text))
+            setattr(v, attr_name, utils.utf8(new_text))
             self._dirty = True
             self.parent_ref().refresh_sensitivity()
 
@@ -699,7 +703,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         return self._dirty
 
     def set_model_attr(self, field, value, validator=None):
-        #debug('%s = %s' % (field, value))
+        logger.debug('%s = %s' % (field, value))
         super().set_model_attr(field, value, validator)
         self._dirty = True
         self.parent_ref().refresh_sensitivity()
@@ -709,8 +713,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         """
         tree = self.view.widgets.rooted_treeview
         rooted = PropCuttingRooted()
-        rooted.cutting = self.model
-        rooted.date = utils.today_str()
+        rooted.cutting = self.model  # this lays the database link
+        rooted.date = datetime.date.today()
         model = tree.get_model()
         treeiter = model.insert(0, [rooted])
         path = model.get_path(treeiter)
@@ -725,7 +729,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         if not treeiter:
             return
         rooted = model[treeiter][0]
-        rooted.cutting = None
+        rooted.cutting = None  # this removes the database link
         model.remove(treeiter)
         self._dirty = True
         self.parent_ref().refresh_sensitivity()
