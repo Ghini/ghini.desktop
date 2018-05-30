@@ -91,9 +91,9 @@ class DateValidator(Validator):
         default_year = 1
         default = datetime.date(1, 1, default_year)
         try:
-            date = parse_date(value, dayfirst=dayfirst,
+            value = parse_date(value, dayfirst=dayfirst,
                               yearfirst=yearfirst, default=default)
-            if date.year == default_year:
+            if value.year == default_year:
                 raise ValueError
         except Exception as e:
             raise ValidatorError(str(e))
@@ -1524,12 +1524,14 @@ class GenericEditorPresenter(object):
         logger.debug('editor.set_model_attr(%s, %s)' % (attr, value))
         if validator:
             try:
+                logger.debug("validating %s(%s) for %s using %s" % (type(value).__name__, value, attr, validator.wrapped))
                 value = validator.to_python(value)
                 self.remove_problem('BAD_VALUE_%s' % attr)
             except ValidatorError as e:
                 logger.debug("GenericEditorPresenter.set_model_attr %s" % e)
                 self.add_problem('BAD_VALUE_%s' % attr)
             else:
+                logger.debug("validated %s(%s) for %s" % (type(value).__name__, value, attr))
                 setattr(self.model, attr, value)
         else:
             setattr(self.model, attr, value)
@@ -1570,7 +1572,7 @@ class GenericEditorPresenter(object):
                 return value
 
         if validator:
-            validator = ProblemValidator(self, validator)
+            validator = ProblemValidator(presenter=self, wrapped=validator)
 
         if isinstance(widget, Gtk.Entry):
             def on_changed(entry):
