@@ -45,6 +45,7 @@ import bauble.paths as paths
 import bauble.editor as editor
 import bauble.prefs as prefs
 import bauble.btypes as types
+from bauble.utils import parse_date
 
 
 prop_type_values = {
@@ -259,7 +260,7 @@ class PropCuttingRooted(db.Base):
     __mapper_args__ = {'order_by': 'date'}
 
     date = Column(types.Date)
-    quantity = Column(Integer, autoincrement=False)
+    quantity = Column(Integer, autoincrement=False, default=0, nullable=False)
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
 
 
@@ -650,9 +651,14 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         def on_rooted_cell_edited(attr_name, cell, treeiter, new_text):
             # update object if field was modified, refresh sensitivity
             v = rooted_liststore[treeiter][0]
-            if getattr(v, attr_name) == new_text:
+            new_value = None
+            if attr_name == 'quantity':
+                new_value = int(utils.utf8(new_text))
+            elif attr_name == 'date':
+                new_value = parse_date(utils.utf8(new_text))
+            if getattr(v, attr_name) == new_value:
                 return  # didn't change
-            setattr(v, attr_name, utils.utf8(new_text))
+            setattr(v, attr_name, new_value)
             self._dirty = True
             self.parent_ref().refresh_sensitivity()
 
