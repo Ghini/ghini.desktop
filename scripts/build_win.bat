@@ -6,9 +6,9 @@ REM only other argument proccessed must be a pathname to a virtualenv)
 :Loop
 IF [%1]==[] GOTO Continue
 IF "%1"=="/e" (
-	set exeonly=y
+  set exeonly=y
 ) ELSE (
-	set venv="%~f1"
+  set venv="%~f1"
 )
 SHIFT
 GOTO Loop
