@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2018 Mario Frasca <mario@anche.no>
 #
 # This file is part of ghini.desktop.
 #
@@ -94,7 +94,7 @@ class TagsMenuManager:
         from bauble.view import SearchView
         view = bauble.gui.get_view()
         if isinstance(view, SearchView):
-            view.results_view.expand_to_path('0')
+            view.results_view.expand_to_path(Gtk.TreePath.new_first())
 
     def build_menu(self):
         """build tags Gtk.Menu based on current data
@@ -217,6 +217,7 @@ def edit_callback(tags):
         presenter.session.rollback()
     else:
         presenter.commit_changes()
+        tags_menu_manager.reset()
     presenter.cleanup()
     return error_state
 
