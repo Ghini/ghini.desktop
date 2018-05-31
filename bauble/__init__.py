@@ -380,9 +380,26 @@ dbengine.html#create-engine-url-arguments>`_
                         'the current connection?\n\n<i>Warning: If there is '
                         'already a database at this connection any existing '
                         'data will be destroyed!</i>')
-                if utils.yes_no_dialog(msg, yes_delay=2):
+                d = utils.create_yes_no_dialog(msg, buttons=Gtk.ButtonsType.NONE)
+                d.add_button(_("Cancel"), Gtk.ResponseType.CANCEL)
+                d.add_button(_("Create"), 24)
+                d.add_button(_("Create and Initialize"), 42)
+                d.set_response_sensitive(24, False)
+                d.set_response_sensitive(42, False)
+
+                def on_timeout():
+                    if d.get_property('visible'):  # conditional avoids GTK+ warning
+                        d.set_response_sensitive(24, True)
+                        d.set_response_sensitive(42, True)
+                        return False
+                from gi.repository import GObject
+                GObject.timeout_add(2*1000, on_timeout)
+                
+                response = d.run()
+                d.destroy()
+                if response in (24, 42):
                     try:
-                        db.create()
+                        db.create(response==42)
                         # db.create() creates all tables registered with
                         # the default metadata so the pluginmgr should be
                         # loaded after the database is created so we don't
