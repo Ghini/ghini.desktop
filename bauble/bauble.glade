@@ -435,7 +435,7 @@
             <property name="can_focus">True</property>
             <property name="shadow_type">in</property>
             <child>
-              <object class="GtkTreeView">
+              <object class="GtkTreeView" id="prefs_prefs_tv">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="model">prefs_prefs_ls</property>
@@ -448,7 +448,7 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn">
-                    <property name="title" translatable="yes">name</property>
+                    <property name="title" translatable="yes">Name</property>
                     <child>
                       <object class="GtkCellRendererText" id="prefs_cellrenderertext1"/>
                       <attributes>
@@ -459,7 +459,7 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn">
-                    <property name="title" translatable="yes">value</property>
+                    <property name="title" translatable="yes">Value</property>
                     <child>
                       <object class="GtkCellRendererText" id="prefs_cellrenderertext2"/>
                       <attributes>
@@ -476,7 +476,10 @@
           <object class="GtkLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">preferences</property>
+            <property name="label" translatable="yes">Preferences</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
           </object>
           <packing>
             <property name="tab_fill">False</property>
@@ -496,8 +499,8 @@
                   <object class="GtkTreeSelection"/>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn">
-                    <property name="title" translatable="yes">name</property>
+                  <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn3">
+                    <property name="title" translatable="yes">Name</property>
                     <child>
                       <object class="GtkCellRendererText" id="prefs_cellrenderertext3"/>
                       <attributes>
@@ -508,7 +511,7 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn">
-                    <property name="title" translatable="yes">version</property>
+                    <property name="title" translatable="yes">Version</property>
                     <child>
                       <object class="GtkCellRendererText" id="prefs_cellrenderertext4"/>
                       <attributes>
@@ -528,7 +531,10 @@
           <object class="GtkLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">plugins</property>
+            <property name="label" translatable="yes">Plugins</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
           </object>
           <packing>
             <property name="position">1</property>
