@@ -576,7 +576,7 @@ def message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
     return r
 
 
-def create_yes_no_dialog(msg, parent=None):
+def create_yes_no_dialog(msg, parent=None, buttons=Gtk.ButtonsType.YES_NO):
     """
     Create a dialog with yes/no buttons.
     """
@@ -588,7 +588,7 @@ def create_yes_no_dialog(msg, parent=None):
     d = Gtk.MessageDialog(flags=Gtk.DialogFlags.MODAL |
                           Gtk.DialogFlags.DESTROY_WITH_PARENT,
                           parent=parent, type=Gtk.MessageType.QUESTION,
-                          buttons=Gtk.ButtonsType.YES_NO)
+                          buttons=buttons)
     d.set_title('Ghini')
     d.set_markup(msg)
     if d.get_icon() is None:
