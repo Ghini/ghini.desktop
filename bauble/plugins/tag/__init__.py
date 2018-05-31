@@ -124,14 +124,38 @@ class TagsMenuManager:
         has_tags = query.first()
         if has_tags:
             tags_menu.append(Gtk.SeparatorMenuItem())
+        submenu = {'': [None, tags_menu]}  # menuitem and submenu
+                                           # corresponding to full item
+                                           # path; it is a list because it
+                                           # needs to be mutable
+        def confirm_attach_path(parts):
+            full_path = ''
+            parent = tags_menu
+            while parts:
+                name = parts.pop()
+                full_path += name
+                if full_path not in submenu:
+                    item = Gtk.ImageMenuItem(name)
+                    parent.append(item)
+                    submenu[full_path] = [item, None]
+                if submenu[full_path][1] is None:
+                    take_this = Gtk.Menu()
+                    submenu[full_path] = [item, take_this]
+                    item.set_submenu(take_this)
+                parent = submenu[full_path]
+                full_path += '/'
         try:
             for tag in query:
-                item = Gtk.ImageMenuItem(tag.tag)
+                *path, tail = tag.tag.split('/')
+                head = '/'.join(path)
+                item = Gtk.ImageMenuItem(tail)
+                submenu[tag.tag] = [item, None]
                 item.set_image(None)
                 item.set_always_show_image(True)
                 self.item_list[tag.tag] = item
                 item.connect("activate", self.item_activated, tag.tag)
-                tags_menu.append(item)
+                confirm_attach_path(path)
+                submenu[head][1].append(item)
         except Exception:
             logger.debug(traceback.format_exc())
             msg = _('Could not create the tags menus')
