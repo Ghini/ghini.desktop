@@ -69,7 +69,7 @@ class PicturesView(Gtk.HBox):
         for k in self.ghini_box.get_children():
             k.destroy()
 
-        for o in selection:
+        for o in selection or []:
             try:
                 pics = o.pictures
             except AttributeError:
