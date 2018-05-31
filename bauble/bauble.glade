@@ -120,22 +120,19 @@
     <property name="startup_id">bauble</property>
     <child>
       <object class="GtkBox" id="top_box">
-        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox" id="main_box">
-            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox" id="menu_box">
-                <property name="orientation">vertical</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <child>
-                  <placeholder/>
-                </child>
+                <property name="orientation">vertical</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -265,16 +262,13 @@
             </child>
             <child>
               <object class="GtkBox" id="vbox1">
-                <property name="orientation">vertical</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkHBox" id="msg_box_parent">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -284,12 +278,9 @@
                 </child>
                 <child>
                   <object class="GtkBox" id="view_box">
-                    <property name="orientation">vertical</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
+                    <property name="orientation">vertical</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -435,51 +426,45 @@
   <object class="GtkWindow" id="prefs_window">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkNotebook" id="prefs_view">
+      <object class="GtkNotebook">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
-          <object class="GtkAlignment" id="alignment1">
+          <object class="GtkScrolledWindow">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="left_padding">12</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
             <child>
-              <object class="GtkScrolledWindow" id="prefs_prefs_sv">
+              <object class="GtkTreeView">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="model">prefs_prefs_ls</property>
+                <property name="headers_clickable">False</property>
+                <property name="enable_search">False</property>
+                <property name="enable_grid_lines">horizontal</property>
+                <signal name="row-activated" handler="on_prefs_prefs_tv_row_activated" swapped="no"/>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection"/>
+                </child>
                 <child>
-                  <object class="GtkTreeView" id="prefs_prefs_tv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="model">prefs_prefs_ls</property>
-                    <property name="headers_clickable">False</property>
-                    <property name="rules_hint">True</property>
-                    <property name="search_column">0</property>
-                    <signal name="row-activated" handler="on_prefs_prefs_tv_row_activated" swapped="no"/>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection"/>
-                    </child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="title" translatable="yes">name</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn1">
-                        <property name="title" translatable="yes">Name</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="prefs_cellrenderertext1"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
+                      <object class="GtkCellRendererText" id="prefs_cellrenderertext1"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
                     </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="title" translatable="yes">value</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn2">
-                        <property name="title" translatable="yes">Value</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="prefs_cellrenderertext2"/>
-                          <attributes>
-                            <attribute name="text">1</attribute>
-                          </attributes>
-                        </child>
-                      </object>
+                      <object class="GtkCellRendererText" id="prefs_cellrenderertext2"/>
+                      <attributes>
+                        <attribute name="text">1</attribute>
+                      </attributes>
                     </child>
                   </object>
                 </child>
@@ -488,59 +473,47 @@
           </object>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label1">
+          <object class="GtkLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Preferences</property>
-            <attributes>
-              <attribute name="weight" value="bold"/>
-            </attributes>
+            <property name="label" translatable="yes">preferences</property>
           </object>
           <packing>
             <property name="tab_fill">False</property>
           </packing>
         </child>
         <child>
-          <object class="GtkAlignment" id="alignment2">
+          <object class="GtkScrolledWindow">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="left_padding">12</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
             <child>
-              <object class="GtkScrolledWindow" id="prefs_plugins_sv">
+              <object class="GtkTreeView">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="model">prefs_plugins_ls</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection"/>
+                </child>
                 <child>
-                  <object class="GtkTreeView" id="prefs_plugins_tv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="model">prefs_plugins_ls</property>
-                    <property name="headers_clickable">False</property>
-                    <property name="rules_hint">True</property>
-                    <property name="search_column">0</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection"/>
-                    </child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="title" translatable="yes">name</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn3">
-                        <property name="title" translatable="yes">Name</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="prefs_cellrenderertext3"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
+                      <object class="GtkCellRendererText" id="prefs_cellrenderertext3"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
                     </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="title" translatable="yes">version</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn4">
-                        <property name="title" translatable="yes">Version</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="prefs_cellrenderertext4"/>
-                          <attributes>
-                            <attribute name="text">1</attribute>
-                          </attributes>
-                        </child>
-                      </object>
+                      <object class="GtkCellRendererText" id="prefs_cellrenderertext4"/>
+                      <attributes>
+                        <attribute name="text">1</attribute>
+                      </attributes>
                     </child>
                   </object>
                 </child>
@@ -552,18 +525,21 @@
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label2">
+          <object class="GtkLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Plugins</property>
-            <attributes>
-              <attribute name="weight" value="bold"/>
-            </attributes>
+            <property name="label" translatable="yes">plugins</property>
           </object>
           <packing>
             <property name="position">1</property>
             <property name="tab_fill">False</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child type="tab">
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -572,9 +548,9 @@
     <property name="can_focus">True</property>
     <child>
       <object class="GtkBox" id="search_vbox">
-        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkPaned" id="search_hpane">
             <property name="visible">True</property>
@@ -585,10 +561,10 @@
                 <property name="can_focus">True</property>
                 <child>
                   <object class="GtkPaned" id="search_vpane">
-                    <property name="orientation">vertical</property>
                     <property name="width_request">400</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="orientation">vertical</property>
                     <property name="position">9999</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
@@ -615,12 +591,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tab_pos">left</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child type="tab">
-                          <placeholder/>
-                        </child>
                       </object>
                       <packing>
                         <property name="resize">False</property>
@@ -633,17 +603,11 @@
                     <property name="shrink">False</property>
                   </packing>
                 </child>
-                <child>
-                  <placeholder/>
-                </child>
               </object>
               <packing>
                 <property name="resize">True</property>
                 <property name="shrink">False</property>
               </packing>
-            </child>
-            <child>
-              <placeholder/>
             </child>
           </object>
           <packing>

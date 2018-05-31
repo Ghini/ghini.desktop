@@ -205,7 +205,7 @@ class _prefs(dict):
                 return eval(i)
             return i
 
-    def iteritems(self):
+    def items(self):
         return [('%s.%s' % (section, name), value)
                 for section in sorted(prefs.config.sections())
                 for name, value in prefs.config.items(section)]
@@ -261,27 +261,25 @@ class PrefsView(pluginmgr.View):
 
     def on_prefs_prefs_tv_row_activated(self, tv, path, column):
         global prefs
-        modified = False
         key, repr_str, type_str = self.prefs_ls[path]
         if type_str == 'bool':
-            self.prefs_ls[path][1] = prefs[key] = not prefs[key]
-            modified = True
-        if modified:
+            prefs[key] = not prefs[key]
+            self.prefs_ls[path][1] = str(prefs[key])
             prefs.save()
 
     def update(self):
-        self.widgets.prefs_prefs_ls.clear()
+        self.prefs_ls.clear()
         global prefs
         for key, value in sorted(prefs.items()):
-            self.widgets.prefs_prefs_ls.append(
+            self.prefs_ls.append(
                 (key, value, prefs[key].__class__.__name__))
 
-        self.widgets.prefs_plugins_ls.clear()
+        self.plugins_ls.clear()
         from bauble.pluginmgr import PluginRegistry
         session = db.Session()
         plugins = session.query(PluginRegistry.name, PluginRegistry.version)
-        for item in plugins:
-            self.widgets.prefs_plugins_ls.append(item)
+        for name, version in plugins:
+            self.plugins_ls.append((name, version))
         session.close()
         pass
 
