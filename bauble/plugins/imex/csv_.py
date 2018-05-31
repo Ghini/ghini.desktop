@@ -617,9 +617,10 @@ class CSVExporter(object):
             f.close()
 
         update_every = 30
-        spinner = '⣀⣄⣆⣃⣉⣘⣰⣠'
-        spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
+        #spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
         spinner = '⡆⠇⠋⠙⠸⢰⣠⣄'
+        #spinner = ('⣀⡀', '⣄ ', '⡆ ', '⠇ ', '⠋ ', '⠉⠁',
+        #           '⠈⠉', ' ⠙', ' ⠸', ' ⢰', ' ⣠', '⢀⣀')
         for table in db.metadata.sorted_tables:
             filename = filename_template % table.name
             steps_so_far += 1
@@ -628,7 +629,7 @@ class CSVExporter(object):
             spinner_index = 0
             msg = _('exporting %(table)s table to %(filename)s')\
                 % {'table': table.name, 'filename': filename}
-            msg = msg + '  ' + spinner[spinner_index]
+            msg = msg + '  ' + spinner[0]
             bauble.task.set_message(msg)
             logger.info("exporting %s" % table.name)
 
@@ -649,7 +650,7 @@ class CSVExporter(object):
                 rows.append(values)
                 if ctr == update_every:
                     spinner_index = (spinner_index + 1) % len(spinner)
-                    msg = msg[:-1] + spinner[spinner_index]
+                    msg = msg[:-len(spinner[0])] + spinner[spinner_index]
                     bauble.task.set_message(msg)
                     yield
                     ctr = 0
