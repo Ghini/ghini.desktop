@@ -262,7 +262,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
             epgn, epsp = unicode(row[binomial_col] + ' sp').split(' ')[:2]
             filename = unicode(row[filename_col])
             complete_plant_code = unicode(row[accno_col])
-            accession_code, plant_code = complete_plant_code.rsplit(Plant.get_delimiter(), 2)
+            accession_code, plant_code = complete_plant_code.rsplit(Plant.get_delimiter(), 1)
 
             # create or retrieve genus and species
             genus = session.query(Genus).filter_by(epithet=epgn).one()

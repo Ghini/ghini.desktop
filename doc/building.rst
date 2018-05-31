@@ -688,6 +688,13 @@ normal development workflow
 publishing to production
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+please use the ``publish.sh`` script, in the ``scritps`` directory.  This
+one takes care of every single step, and produces recognizable commit
+comments, it publishes the release on pypi, and in perspective it will
+contain all steps for producing a ``deb`` file, and a windows executable.
+
+you can also do this by hand:
+
 * open the pull request page using as base a production line ``ghini-x.y``,
   compared to ``ghini-x.y-dev``.
 * make sure a ``bump`` commit is included in the differences.
@@ -695,7 +702,11 @@ publishing to production
 * create the new pull request, call it as “publish to the production line”.
 * you possibly need wait for travis-ci to perform the checks.
 * merge the changes.
-* tell the world about it: on facebook, the google group, linkedin, ...
+
+don't forget to tell the world about the new release: on `facebook
+<https://www.facebook.com/bauble.thesoftware/>`_, the `google group
+<https://groups.google.com/forum/#!forum/bauble>`_, in any relevant linkedin
+group, and on `our web page <http://ghini.github.io/>`_.
 
 your own fork
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

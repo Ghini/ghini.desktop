@@ -117,7 +117,7 @@ directions on how to develop their own database.
       of Gentiana pneumonanthe, 80 of Fritillaria meleagris, and 30 of
       Hypericum pulchrum.
 
-      -------------------------
+      **step 1**
 
       The first step is to check the quantities you have in house, and if
       you do have enough, where you have them.  You do this per requested
@@ -145,7 +145,7 @@ directions on how to develop their own database.
       worry if nothing seems to happen when you hit Ctrl-Y, this is a silent
       operation.
 
-      -------------------------
+      **step 2**
 
       Now we prepare to go to the seeds bank, with the envelopes we want to
       fill.
@@ -162,7 +162,7 @@ directions on how to develop their own database.
 
       And back to the database!
 
-      -------------------------
+      **step 3**
 
       If nobody used your workstation, you still have the Tag in the results
       pane, and it's expanded so you see all the individual plants you
@@ -182,7 +182,7 @@ directions on how to develop their own database.
 
       Don't forget to delete the temporary 'sending' ›Tag‹.
 
-      -------------------------
+      **step 4**
 
       Final step, it represents the physical step of sending the envelope,
       possibly together with several other envelopes, in a single sending,

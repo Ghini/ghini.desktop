@@ -156,6 +156,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
                                    '00268114ed47460b94ce2b1b0b2a4a20@'
                                    'app.getsentry.com/45704')
+            sentry_client.name = hex(hash(sentry_client.name) + 2**64)[2:-1]
             return SentryHandler(sentry_client)
 
     def on_inst_register_clicked(self, *args, **kwargs):

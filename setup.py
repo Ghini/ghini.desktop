@@ -179,8 +179,9 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             file_util.copy_file(gtheme, dest)
 
             # copy LICENSE to dist\share\LICENSE.ghini (for help>about)
-            file_util.copy_file("LICENSE", os.path.join(self.dist_dir, 'share',
-                                                        'LICENSE.ghini'))
+            file_util.copy_file(
+                "LICENSE",
+                os.path.join(self.dist_dir, 'share', 'ghini', 'LICENSE'))
 
     class NsisCmd(Command):
         """Command to create a Windows NSIS installer"""
@@ -263,7 +264,7 @@ class build(_build):
             sys.exit(1)
 
         # create build/share directory
-        dir_util.mkpath(os.path.join(self.build_base, 'share'))
+        dir_util.mkpath(os.path.join(self.build_base, 'share', 'ghini'))
 
         _build.run(self)
 
@@ -331,16 +332,16 @@ class install(_install):
             sys.exit(1)
 
         # create build/share directory
-        dir_util.mkpath(os.path.join(self.build_base, 'share'))
+        dir_util.mkpath(os.path.join(self.build_base, 'share', 'ghini'))
 
         if not self.single_version_externally_managed:
             print 'before installing new egg, remove old ones!'
-            site_packages = os.path.join(self.install_data, 'lib', 'python2.7', 'site-packages')
-            old_egg_dirs = [i for i in os.listdir(site_packages)
-                            if i.endswith('.egg')
-                            and (i.startswith('bauble-') or i.startswith('ghini.desktop-'))]
+            old_egg_dirs = [a for (a, b, c) in os.walk(self.install_data)
+                            if (os.path.basename(a).startswith('bauble')
+                                or os.path.basename(a).startswith('ghini.desktop'))
+                               and os.path.basename(a).endswith('egg')]
             for oed in old_egg_dirs:
-                dir_util.remove_tree(os.path.join(site_packages, oed))
+                dir_util.remove_tree(oed)
             self.do_egg_install()
         else:
             _install.run(self)
@@ -360,7 +361,7 @@ class install(_install):
 
         file_util.copy_file(
             "LICENSE",
-            os.path.join(self.install_data, 'share', 'LICENSE.ghini'))
+            os.path.join(self.install_data, 'share', 'ghini', 'LICENSE'))
 
 
 # docs command
@@ -368,7 +369,7 @@ DOC_BUILD_PATH = 'doc/.build/'
 
 
 class docs(Command):
-    user_options = [('all', None, 'rebuild all the docs')]
+    user_options = [('all', 'a', 'rebuild all the docs')]
 
     def initialize_options(self):
         self.all = False
@@ -395,10 +396,11 @@ class docs(Command):
 
 # clean command
 class clean(Command):
-    user_options = []
+    user_options = [('all', 'a', 'clean everything'),
+    ]
 
     def initialize_options(self):
-        pass
+        self.all = False
 
     def finalize_options(self):
         pass
@@ -460,6 +462,9 @@ if sys.platform == 'win32':
     scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
                "scripts/ghini-update.bat"]
 
+with open("README.rst", "r") as fh:
+    long_description = fh.read()
+    
 setuptools.setup(name="ghini.desktop",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': NsisCmd,
@@ -471,7 +476,7 @@ setuptools.setup(name="ghini.desktop",
                  package_data=package_data,
                  data_files=data_files,
                  install_requires=["SQLAlchemy==1.0.8",
-                                   "raven==6.6.0",
+                                   "raven==6.7.0",
                                    "Pillow==2.3.0",
                                    "lxml",
                                    "pyqrcode==1.2.1",
@@ -484,8 +489,8 @@ setuptools.setup(name="ghini.desktop",
                  test_suite="nose.collector",
                  author="Mario Frasca",
                  author_email="mario@anche.no",
-                 description="Ghini is a biodiversity collection manager "
-                 "software application",
+                 description="Ghini: a biodiversity collection manager",
+                 long_description=long_description,
                  license="GPLv2+",
                  keywords="database biodiversity botanic collection "
                  "botany herbarium arboretum",

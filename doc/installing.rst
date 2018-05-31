@@ -8,7 +8,7 @@ like GNU/Linux and MacOSX, as well as on Windows.
    :class: note
 
            Linux users just download and run `the installation script
-           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
+           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh>`_.
            You may read the documentation later.
 
            Windows users, start downloading all external dependencies (`git
@@ -50,7 +50,7 @@ Open a shell terminal window, and follow the following instructions.
 
 #. Download the `devinstall.sh` script:
 
-     https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh
+   `devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh>`_
 
 #. Invoke the script from a terminal window, starting at the directory where
    you downloaded it, like this::
@@ -338,7 +338,7 @@ The installation steps on Windows:
 
 #. download the batch file, it will help you staying up-to-date:
 
-   `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/ghini-update.bat>`_
+   `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/ghini-update.bat>`_
 
    If you are on a recent Ghini installation, each time you start the
    program, Ghini will check on the development site and alert you of any

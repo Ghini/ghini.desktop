@@ -134,7 +134,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
         super(BatchTaxonomicCheckPresenter, self).__init__(*args, **kwargs)
         self.refresh_visible_frame()
         self.tick_off_list = self.view.widgets.liststore2
-        self.binomials = [item.str(item, remove_zws=True)
+        self.binomials = [item.str(remove_zws=True)
                           for item in self.model.selection
                           if isinstance(item, Species) and item.sp != '']
 

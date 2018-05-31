@@ -514,7 +514,7 @@ class CSVImporter(Importer):
             transaction.rollback()
             raise
         except Exception, e:
-            logger.error(e)
+            logger.error("%s(%s)" % (type(e).__name__, e))
             logger.error(traceback.format_exc())
             transaction.rollback()
             self.__error = True
@@ -591,8 +591,6 @@ class CSVExporter(object):
             raise ValueError(_("CSVExporter: path does not exist.\n%s") % path)
 
         try:
-            # TODO: should we support exporting other metadata
-            # besides db.metadata
             bauble.task.queue(self.__export_task(path))
         except Exception, e:
             logger.debug(e)
@@ -609,7 +607,7 @@ class CSVExporter(object):
                         '<b>%(table)s</b> table already exists.\n\n<i>Would '
                         'you like to continue?</i>')\
                     % {'filename': filename, 'table': table.name}
-                if utils.yes_no_dialog(msg):
+                if not utils.yes_no_dialog(msg):  # if NO: return
                     return
 
         def replace(s):
@@ -625,13 +623,16 @@ class CSVExporter(object):
             f.close()
 
         update_every = 30
+        spinner = u'⣄⡆⠇⠋⠙⠸⢰⣠'
         for table in db.metadata.sorted_tables:
             filename = filename_template % table.name
             steps_so_far += 1
+            spinner_index = 0
             fraction = float(steps_so_far)/float(ntables)
             pb_set_fraction(fraction)
             msg = _('exporting %(table)s table to %(filename)s')\
                 % {'table': table.name, 'filename': filename}
+            msg = msg + '  ' + spinner[spinner_index]
             bauble.task.set_message(msg)
             logger.info("exporting %s" % table.name)
 
@@ -648,9 +649,15 @@ class CSVExporter(object):
             rows.append(table.c.keys())  # append col names
             ctr = 0
             for row in results:
-                values = map(replace, row.values())
-                rows.append(values)
+                try:
+                    rows.append(map(replace, row.values()))
+                except:
+                    import traceback
+                    logger.error(traceback.format_exc())
                 if ctr == update_every:
+                    spinner_index = (spinner_index + 1) % len(spinner)
+                    msg = msg[:-1] + spinner[spinner_index]
+                    bauble.task.set_message(msg)
                     yield
                     ctr = 0
                 ctr += 1
@@ -705,6 +712,3 @@ class CSVExportTool(pluginmgr.Tool):
     def start(cls):
         c = CSVExporter()
         c.start()
-
-
-# TODO: add support to import from the command line
