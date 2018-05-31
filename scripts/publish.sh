@@ -19,9 +19,9 @@ cp debian/* /tmp/ghini.desktop-${VERSION}/debian
 
 # decide whether we continue
 # in case, we should really dput the following to mentors.debian.org
-echo "do we continue? (Ctrl-C to interrupt, 'skip' to skip this single step)"
-read i
-if [ "$i"!="skip" ]; then echo dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1); fi
+echo
+echo dput mentors $(ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1)
+echo
 
 # LINE is hard-coded and committed
 # PUBLISHING is in the form 1.0.x
@@ -41,7 +41,9 @@ git push
 
 # publish on pypi
 #
-python setup.py sdist --formats zip upload -r pypi
+echo
+echo python setup.py sdist --formats zip upload -r pypi
+echo
 
 # some day also produce a debian package
 
