@@ -618,6 +618,8 @@ class CSVExporter(object):
 
         update_every = 30
         spinner = '⣀⣄⣆⣃⣉⣘⣰⣠'
+        spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
+        spinner = '⡆⠇⠋⠙⠸⢰⣠⣄'
         for table in db.metadata.sorted_tables:
             filename = filename_template % table.name
             steps_so_far += 1
