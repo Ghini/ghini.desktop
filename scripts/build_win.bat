@@ -68,6 +68,7 @@ if defined exeonly GOTO SKIP_NSIS
 
 ECHO building NSIS installer
 REM STEP 7 - build the installer
+mkdir dist 2>nul
 python setup.py nsis
 GOTO :END
 
