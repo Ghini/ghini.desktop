@@ -56,7 +56,7 @@ forfiles /P "%VIRTUAL_ENV%"\Lib\site-packages\ /M ghini.desktop-*.egg-info /C^
  "cmd /c if @ISDIR==TRUE rmdir /s /q @PATH && echo removing @PATH" 2>NUL
 
 ECHO installing without eggs
-REM STEP 5 - install ghini.desktop and it's dependencies into the virtual environment
+REM STEP 5 - install ghini.desktop and its dependencies into the virtual environment
 pip install .
 
 ECHO building executable
