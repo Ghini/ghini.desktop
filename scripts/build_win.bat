@@ -6,38 +6,38 @@ REM only other argument proccessed must be a pathname to a virtualenv)
 :Loop
 IF [%1]==[] GOTO Continue
 IF "%1"=="/e" (
-	set exeonly=y
+	set EXEONLY=y
 ) ELSE (
-	set venv="%~f1"
+	set CUSTOMVENV="%~f1"
 )
 SHIFT
 GOTO Loop
 :Continue
 
-if defined exeonly ECHO build exe only
-if defined venv (
-  echo using venv %venv%
+if defined EXEONLY ECHO build exe only
+if defined CUSTOMVENV (
+  echo using custom virtual environment %CUSTOMVENV%
 ) else (
-  set venv="%HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe"
+  set CUSTOMVENV="%HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe"
 )
 
-IF NOT EXIST %venv%\Scripts\activate.bat (
+IF NOT EXIST %CUSTOMVENV%\Scripts\activate.bat (
   ECHO creating build environment
   REM STEP 1 - install virtualenv and create a virtual environment
   C:\Python27\Scripts\pip install virtualenv
-  C:\Python27\Scripts\virtualenv --system-site-packages %venv%
+  C:\Python27\Scripts\virtualenv --system-site-packages %CUSTOMVENV%
 )
 
 IF "%VIRTUAL_ENV%"=="" (
   ECHO Activating build environment
   REM STEP 2 - activate the virtual environment
-  call %venv%\Scripts\activate.bat
+  call %CUSTOMVENV%\Scripts\activate.bat
 ) else (
   ECHO Current virtual environment: "%VIRTUAL_ENV%"
-  IF NOT "%VIRTUAL_ENV%"==%venv% (
+  IF NOT "%VIRTUAL_ENV%"==%CUSTOMVENV% (
     ECHO deactivating current virtual environment and activating build environment
     call deactivate
-    call %venv%\Scripts\activate.bat
+    call %CUSTOMVENV%\Scripts\activate.bat
   )
 )
 
@@ -64,16 +64,14 @@ REM STEP 6 - build the executable
 python setup.py py2exe
 
 REM executable only?
-if defined exeonly GOTO SKIP_NSIS
+if defined EXEONLY GOTO Skip_NSIS
 
 ECHO building NSIS installer
 REM STEP 7 - build the installer
 mkdir dist 2>nul
 python setup.py nsis
-GOTO :END
 
-:SKIP_NSIS
+:Skip_NSIS
 copy scripts\win_gtk.bat ghini-runtime
 
-:END
 ENDLOCAL
