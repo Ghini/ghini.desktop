@@ -142,19 +142,21 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
 
-            # copy GTK to the dist directory, assuming PyGTK
-            # all-in-one installer
+            # copy GTK to the ghini-runtime directory, assuming PyGTK
+            # all-in-one installer.
             gtk_root = 'c:\\python27\\lib\\site-packages\\gtk-2.0\\runtime'
             dist_gtk = os.path.join(self.dist_dir, 'gtk')
             import shutil
-            if not os.path.exists(dist_gtk):
-                ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
-                                                'man', 'demo', 'aclocal',
-                                                'doc', 'include', 'emacs',
-                                                'gettext', 'glade3',
-                                                'gtksourceview-2.0', 'info',
-                                                'intltool')
-                shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
+            shutil.rmtree(dist_gtk)  # overkill cleaning up
+            # ghini-runtime gets reconstructed from scratch each time, so
+            # there's no conditional copying
+            ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
+                                            'man', 'demo', 'aclocal',
+                                            'doc', 'include', 'emacs',
+                                            'gettext', 'glade3',
+                                            'gtksourceview-2.0', 'info',
+                                            'intltool')
+            shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
             # register the pixbuf loaders
             # populate loaders.cache also
@@ -164,8 +166,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             cmd1 = 'call "%s" > "%s"' % (exe, dest1)
             cmd2 = 'call "%s" > "%s"' % (exe, dest2)
             print cmd1
-            print cmd2
             os.system(cmd1)
+            print cmd2
             os.system(cmd2)
 
             # copy the the MS-Windows gtkrc to make it the default theme
