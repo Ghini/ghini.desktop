@@ -89,12 +89,13 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                        'encodings', 'mako', 'mako.cache',
                        'pygments.styles.default', 'pyparsing']
     py2exe_includes += gtk_pkgs + plugins_pkgs + sqlalchemy_includes
-    py2exe_setup_args = {
+    setup_args = {
         'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
-    py2exe_options = {
+    setup_options = {
         "py2exe": {
             #no compression makes for better NSIS compression
+            "dist_dir": "ghini-runtime",
             "compressed": False,
             "optimize": 2,
             "includes": py2exe_includes,
@@ -223,9 +224,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             os.system('"%s" %s' % (self.makensis, self.nsis_script))
 
 else:
-    py2exe_options = {}
-    py2exe_setup_args = {}
-    py2exe_includes = []
+    setup_options = {}
+    setup_args = {}
 
     class _empty_cmd(Command):
         user_options = []
@@ -495,6 +495,6 @@ setuptools.setup(name="ghini.desktop",
                  keywords="database biodiversity botanic collection "
                  "botany herbarium arboretum",
                  url="http://github.com/Ghini/ghini.desktop/",
-                 options=py2exe_options,
-                 **py2exe_setup_args
+                 options=setup_options,
+                 **setup_args
                  )

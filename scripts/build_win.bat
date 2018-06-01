@@ -44,13 +44,14 @@ IF "%VIRTUAL_ENV%"=="" (
 
 ECHO Installing dependencies
 REM STEP 3 - Install dependencies into the virtual environment
+pip install --upgrade pip
 pip install py2exe_py2
 pip install psycopg2
 pip install Pygments
 
 ECHO cleaning up
 REM STEP 4 - clean up any previous builds
-python setup.py clean
+deltree ghini-runtime /y
 forfiles /P "%VIRTUAL_ENV%"\Lib\site-packages\ /M ghini.desktop-*.egg-info /C^
  "cmd /c if @ISDIR==TRUE rmdir /s /q @PATH && echo removing @PATH" 2>NUL
 
@@ -71,7 +72,7 @@ python setup.py nsis
 GOTO :END
 
 :SKIP_NSIS
-copy scripts\win_gtk.bat dist
+copy scripts\win_gtk.bat ghini-runtime
 
 :END
 ENDLOCAL

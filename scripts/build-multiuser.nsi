@@ -59,7 +59,7 @@
 ; Global
 Name "ghini.desktop"
 !define VERSION "1.0.86" ; :bump
-!define SRC_DIR "..\dist"
+!define SRC_DIR "..\ghini-runtime"
 !define PRODUCT_NAME "ghini.desktop"
 Outfile "${PRODUCT_NAME}-${VERSION}-setup.exe"
 !define PROGEXE "ghini.exe"
