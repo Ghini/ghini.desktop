@@ -14,7 +14,7 @@ SHIFT
 GOTO Loop
 :Continue
 
-FOR /F %%i in ('git rev-parse --abbrev-ref HEAD') DO CHECKOUT=%%i
+FOR /F %%i in ('git rev-parse --abbrev-ref HEAD') DO SET CHECKOUT=%%i
 
 IF defined EXEONLY ECHO build exe only
 
