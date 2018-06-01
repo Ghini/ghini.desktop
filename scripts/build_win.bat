@@ -44,7 +44,7 @@ IF "%VIRTUAL_ENV%"=="" (
 
 ECHO Installing dependencies
 REM STEP 3 - Install dependencies into the virtual environment
-pip install --upgrade pip
+"%VIRTUAL_ENV%"\Scripts\Python.exe -m pip install --upgrade pip
 pip install py2exe_py2
 pip install psycopg2
 pip install Pygments
