@@ -51,7 +51,7 @@ pip install Pygments
 
 ECHO cleaning up
 REM STEP 4 - clean up any previous builds
-deltree ghini-runtime /y
+del /f /s /q ghini-runtime 1>nul
 forfiles /P "%VIRTUAL_ENV%"\Lib\site-packages\ /M ghini.desktop-*.egg-info /C^
  "cmd /c if @ISDIR==TRUE rmdir /s /q @PATH && echo removing @PATH" 2>NUL
 
