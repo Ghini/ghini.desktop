@@ -69,7 +69,6 @@ if defined exeonly GOTO SKIP_NSIS
 ECHO building NSIS installer
 REM STEP 7 - build the installer
 python setup.py nsis
-move scripts\ghini.desktop*setup.exe dist\ >nul
 GOTO :END
 
 :SKIP_NSIS
