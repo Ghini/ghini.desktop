@@ -809,8 +809,9 @@ tools needs to be done manually:
       cd ghini.desktop
       git checkout ghini-1.0
 
-The result of the above is a complete development environment.  Use it to follow
-development, or to propose your pull requests, and to build Windows installers.
+The result of the above is a complete development environment, on Windows, with
+NSIS.  Use it to follow development, or to propose your pull requests, and to
+build Windows installers.
 
 All subsequent steps are automated in the ``scripts\build_win.bat`` script.  Run
 it, and after a couple of minutes you should have a new
@@ -829,15 +830,19 @@ Read the rest if you need details about the way the script works.
 
       ``build_win.bat`` accepts 2 arguments:
 
-      #. ``/e`` will produce an executable only, skipping the extra step of 
-         building an installer, and will copy ``win_gtk.bat`` into place.
+      #. ``/e`` — executable only.
 
-      #. A path to the location for the virtual environment to use. (defaults 
-         to ``"%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe``)
+         Produce an executable only, skipping the extra step of building an
+         installer, and will copy ``win_gtk.bat`` into place.
 
-      e.g. to produce an executable only and use a virtual environment in 
-      a folder beside where you have ghini.desktop you could execute 
-      ``scripts\build_win.bat /e ..\ghi2exe``
+      #. ``venv_path`` — A path to the location for the virtual environment to use.
+
+         Defaults to ``"%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe``
+
+      If you want to produce an executable only and use a virtual
+      environment in a folder beside where you have ghini.desktop, you could
+      execute ``scripts\build_win.bat /e ..\ghi2exe``
+         
 
 .. admonition:: py2exe will not work with eggs
    :class: toggle
@@ -863,12 +868,15 @@ Read the rest if you need details about the way the script works.
         <http://aka.ms/vcpython27>`_ to get any of the C extensions and will need 
         a fresh virtual environment with no dependent packages installed as eggs.
 
+      The included ``build-win`` script uses the ``pip`` method.
+
 .. admonition:: installing virtualenv and working with environments
    :class: toggle
 
-      Install virtualenv, create a virtual environment and activate it.  With only 
-      Python 2.7 on your system (where ``<path-to-venv>`` is the path to where you 
-      wish to keep the virtual environment) use::
+      Install virtualenv, create a virtual environment and activate it.
+
+      With only Python 2.7 on your system (where ``<path-to-venv>`` is the
+      path to where you wish to keep the virtual environment) use::
 
          pip install virtualenv
          virtualenv --system-site-packages <path-to-venv>
@@ -895,18 +903,31 @@ Read the rest if you need details about the way the script works.
 
          python setup.py py2exe
 
-      The ``ghini-runtime`` folder will now contain a full working copy of the software in 
-      a frozen, self contained state, that can be transferred however you like and 
-      will work in place.  (e.g. placed on a USB flash drive for demonstration 
-      purposes or copied manually to ``C:\Program Files`` with a shortcut created 
-      on the desktop).  To start ghini.desktop double click ``ghini.exe`` in 
-      explorer (or create a shortcut to it). If you have issues with the UI not 
-      displaying correctly you need to run the script ``win_gtk.bat`` from the 
-      ``ghini-runtime`` folder to set up paths to the GTK components correctly.  (Running 
-      ``build_win /e`` will place this script in the ``ghini-runtime`` folder for you or you 
-      can copy it from the ``scripts`` folder yourself.)  You will only need to 
-      run this once each time the location of the folder changes.  Thereafter 
-      ``ghini.exe`` will run as expected.
+      The ``ghini-runtime`` folder will now contain a full working copy of the
+      software in a frozen, self contained state.
+
+      This folder is what is packaged by NSIS.
+
+      This same folder can also be transferred however you like and will work in
+      place.  (e.g. placed on a USB flash drive for demonstration purposes or
+      copied manually to ``C:\Program Files`` with a shortcut created on the
+      desktop).  To start ghini.desktop double click ``ghini.exe`` in explorer
+      (or create a shortcut to it).
+
+
+.. admonition:: Fixing paths to GTK components.
+   :class: toggle
+
+      If you run the relocatable compiled program, unpackaged, you might
+      occasionally have trouble with the GUI not displaying correctly.
+
+      Should this happen, you need to set up paths to the GTK components
+      correctly.  You can do this by running the ``win_gtk.bat``, from the
+      ``ghini-runtime`` folder.
+
+      You will only need to run this once each time the location of the folder
+      changes.  Thereafter ``ghini.exe`` will run as expected.
+
 
 .. admonition:: Finally, invoke NSIS
    :class: toggle
