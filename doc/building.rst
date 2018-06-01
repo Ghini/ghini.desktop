@@ -788,21 +788,27 @@ The files and directories relevant to this section:
 Most steps are automated in the ``build-win.bat`` script.  Installation of a few
 tools needs to be done manually:
 
-#. Download and install Python 2.7 and PyGTK as outlined in the
-   ``devinstall``-based :ref:`installation` instructions.  Git will not be
-   needed here, having it however will not do any harm.
+#. Download and install Git, Python 2.7 and PyGTK.
+
+   This is outlined in the ``devinstall``-based :ref:`installation`
+   instructions.
 
 #. Download and install `NSIS v3 <http://nsis.sourceforge.net/Download>`_.
 
 #. A **reboot** is recommended.
 
-#. Fork the ghini.desktop project on GitHub, or use the organization's
-   repository ``https://github.com/Ghini/ghini.desktop.git``.  Clone the
-   repository from GitHub to wherever you want to keep it (replace
-   ``<path-to-keep-ghini>`` with the path of your choice,
-   e.g. ``Local\github\Ghini\``) and checkout a production branch (``ghini-1.0``
-   is recommended as used in the example).  To do this, open a command prompt
-   and type these commands::
+#. Clone the ghini.desktop repository.
+
+   Use your own fork if you plan contributing patches, or the organization's
+   repository ``https://github.com/Ghini/ghini.desktop.git`` if you only wish to
+   follow development.
+
+   Clone the repository from GitHub to wherever you want to keep it, and checkout
+   a branch.  Replace ``<path-to-keep-ghini>`` with the path of your choice,
+   e.g. ``Local\github\Ghini\``. Production branch ``ghini-1.0`` is recommended
+   as used in the example.
+
+   To do this, open a command prompt and type these commands::
 
       cd <path-to-keep-ghini>
       git clone <ghini.desktop repository URL>
@@ -837,7 +843,9 @@ Read the rest if you need details about the way the script works.
 
       #. ``venv_path`` — A path to the location for the virtual environment to use.
 
-         Defaults to ``"%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe``
+         Defaults to ``"%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\%CHECKOUT%-exe``,
+         where ``CHECKOUT`` corresponds to the name of the branch you checked
+         out.
 
       If you want to produce an executable only and use a virtual
       environment in a folder beside where you have ghini.desktop, you could

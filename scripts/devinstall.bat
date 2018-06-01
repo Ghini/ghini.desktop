@@ -5,19 +5,19 @@ SET SHOULD_CANCEL=0
 
 python -c "1" 2>NUL
 IF %ERRORLEVEL% NEQ 0 (
- ECHO Python not properly installed
+ ECHO "Python not properly installed"
  SET SHOULD_CANCEL=1
- goto SKIP_GTK_TEST
+ GOTO SKIP_GTK_TEST
 )
 python -c "import gtk" 2>NUL
 IF %ERRORLEVEL% NEQ 0 (
-  ECHO PyGtk not properly installed
+  ECHO "PyGtk not properly installed"
   SET SHOULD_CANCEL=1
 )
 :SKIP_GTK_TEST
 git --version 2>NUL >NUL
 IF %ERRORLEVEL% NEQ 0 (
-  ECHO git not properly installed
+  ECHO "git not properly installed"
   SET SHOULD_CANCEL=1
 )
 
