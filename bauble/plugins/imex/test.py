@@ -1028,8 +1028,10 @@ class JSONImportTests(BaubleTestCase):
 
         self.session.commit()
         synonym = self.session.query(Genus).filter_by(epithet="Zygoglossum").first()
+        self.assertNotEqual(synonym, None)
         self.assertEqual(synonym.accepted.__class__, Genus)
         accepted = self.session.query(Genus).filter_by(epithet="Bulbophyllum").first()
+        self.assertNotEqual(accepted, None)
         self.assertEqual(synonym.accepted, accepted)
 
     def test_use_author_to_break_ties(self):
