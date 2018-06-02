@@ -37,7 +37,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import GdkPixbuf
-import glib
+from gi.repository import GLib
 
 import logging
 logger = logging.getLogger(__name__)
@@ -170,8 +170,8 @@ class ImageLoader(threading.Thread):
                 image = Gtk.Image()
                 self.box.add(image)
             image.set_from_pixbuf(scaled_buf)
-        except glib.GError as e:
-            logger.debug("picture %s caused glib.GError %s" %
+        except GLib.GError as e:
+            logger.debug("picture %s caused GLib.GError %s" %
                          (self.url, e))
             text = _('picture file %s not found.') % self.url
             label = Gtk.Label()
