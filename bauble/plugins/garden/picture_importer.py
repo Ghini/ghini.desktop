@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import GdkPixbuf
+from gi.repository import GLib
 import threading
-import glib
 import re
 import os.path
 from bauble import pluginmgr, db, utils
@@ -198,8 +198,8 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 def set_thumbnail(store, path, col, value):
                     store[path][col] = value
                 GObject.idle_add(set_thumbnail, self.review_liststore, path, thumbnail_col, pixbuf)
-            except glib.GError as e:
-                logger.debug("picture %s caused glib.GError %s" %
+            except GLib.GError as e:
+                logger.debug("picture %s caused GLib.GError %s" %
                              (fname, e))
             except Exception as e:
                 logger.warning("picture %s caused Exception %s:%s" %

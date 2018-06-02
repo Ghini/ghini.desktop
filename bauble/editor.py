@@ -34,7 +34,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-import glib
+from gi.repository import GLib
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
@@ -2085,8 +2085,8 @@ class PictureBox(NoteBox):
                     pixbuf = fullbuf.scale_simple(
                         x, y, GdkPixbuf.InterpType.BILINEAR)
                 im.set_from_pixbuf(pixbuf)
-            except glib.GError as e:
-                logger.debug("picture %s caused glib.GError %s" %
+            except GLib.GError as e:
+                logger.debug("picture %s caused GLib.GError %s" %
                              (basename, e))
                 label = _('picture file %s not found.') % basename
                 im = Gtk.Label()
