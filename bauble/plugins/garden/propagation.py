@@ -661,7 +661,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         for cell, column, attr_name in [
                 (sfw.rooted_date_cell, sfw.rooted_date_column, 'date'),
                 (sfw.rooted_quantity_cell, sfw.rooted_quantity_column, 'quantity')]:
-            cell.set_editable(True)
+            cell.props.editable = True
             self.view.connect(
                 cell, 'edited', partial(on_rooted_cell_edited, attr_name))
             column.set_cell_data_func(
