@@ -29,8 +29,9 @@ logger = logging.getLogger(__name__)
 
 from pyparsing import ParseException
 
-import bauble.db as db
-import bauble.search as search
+from bauble import db
+from bauble import search
+from bauble import querybuilder
 from bauble.editor import MockView, GenericEditorView
 from bauble import prefs
 from bauble import paths
@@ -939,7 +940,7 @@ class QueryBuilderTests(BaubleTestCase):
             gladefilepath,
             parent=None,
             root_widget_name='main_dialog')
-        search.QueryBuilder(view)
+        querybuilder.QueryBuilder(view)
 
     def test_emptyisinvalid(self):
         import os
@@ -948,7 +949,7 @@ class QueryBuilderTests(BaubleTestCase):
             gladefilepath,
             parent=None,
             root_widget_name='main_dialog')
-        qb = search.QueryBuilder(view)
+        qb = querybuilder.QueryBuilder(view)
         self.assertFalse(qb.validate())
 
     def test_cansetquery(self):
@@ -958,7 +959,7 @@ class QueryBuilderTests(BaubleTestCase):
             gladefilepath,
             parent=None,
             root_widget_name='main_dialog')
-        qb = search.QueryBuilder(view)
+        qb = querybuilder.QueryBuilder(view)
         qb.set_query('plant where id=0 or id=1 or id>10')
         self.assertEqual(len(qb.expression_rows), 3)
 
@@ -969,7 +970,7 @@ class QueryBuilderTests(BaubleTestCase):
             gladefilepath,
             parent=None,
             root_widget_name='main_dialog')
-        qb = search.QueryBuilder(view)
+        qb = querybuilder.QueryBuilder(view)
         qb.set_query("accession where recvd_type = 'BBIL'")
         self.assertEqual(len(qb.expression_rows), 1)
 
@@ -1184,27 +1185,27 @@ class FilterThenMatchTests(BaubleTestCase):
 
 class ParseTypedValue(BaubleTestCase):
     def test_parse_typed_value_floats(self):
-        result = search.parse_typed_value('0.0')
+        result = querybuilder.parse_typed_value('0.0')
         self.assertEqual(result, 0.0)
-        result = search.parse_typed_value('-4.0')
+        result = querybuilder.parse_typed_value('-4.0')
         self.assertEqual(result, -4.0)
 
     def test_parse_typed_value_int(self):
-        result = search.parse_typed_value('0')
+        result = querybuilder.parse_typed_value('0')
         self.assertEqual(result, 0)
-        result = search.parse_typed_value('-4')
+        result = querybuilder.parse_typed_value('-4')
         self.assertEqual(result, -4)
 
     def test_parse_typed_value_None(self):
-        result = search.parse_typed_value('None')
+        result = querybuilder.parse_typed_value('None')
         self.assertEqual(result, None)
 
     def test_parse_typed_value_empty_set(self):
-        result = search.parse_typed_value('Empty')
+        result = querybuilder.parse_typed_value('Empty')
         self.assertEqual(type(result), search.EmptyToken)
 
     def test_parse_typed_value_fallback(self):
-        result = search.parse_typed_value('whatever else')
+        result = querybuilder.parse_typed_value('whatever else')
         self.assertEqual(result, 'whatever else')
 
 

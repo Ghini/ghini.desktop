@@ -303,7 +303,7 @@ class GUI(object):
             gladefilepath,
             parent=None,
             root_widget_name='main_dialog')
-        qb = search.QueryBuilder(view)
+        qb = querybuilder.QueryBuilder(view)
         qb.set_query(self.widgets.main_comboentry.get_child().get_text())
         response = qb.start()
         if response == Gtk.ResponseType.OK:
