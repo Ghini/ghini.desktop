@@ -989,13 +989,13 @@ Debian
 
 Some time in the past someone published a version of Bauble for Debian, and
 for Ubuntu.  This was at the time of Bauble 0.9.7, and that version is
-`still being distributed` <https://packages.ubuntu.com/xenial/bauble>`_,
+`still being distributed <https://packages.ubuntu.com/xenial/bauble>`_,
 regardless being it impossible to install.  It's since 2007 that we've made
 the people on Ubuntu and Debian aware of the problem.
 
 Only recently has Mario Frasca produced a new bauble debian package, for the
 latest bauble.classic version 1.0.56, and proposed for inclusion in Debian.
-View it on `mentors` <https://mentors.debian.net/package/bauble>`_.  This
+View it on `mentors <https://mentors.debian.net/package/bauble>`_.  This
 version depends on ``fibra``, a package that was never added to Debian and
 which Mario also has packaged and `proposed for inclusion in
 Debian <https://mentors.debian.net/package/fibra>`_.  Now we're waiting for a
