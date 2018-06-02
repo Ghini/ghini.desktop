@@ -657,7 +657,7 @@ class OnDialogResponseTests(BaubleTestCase):
         # create view and presenter
         # invoke action
         # superfluous action is not performed, view is closed
-        raise SkipTest('related to issue 157')
+        raise SkipTest('related to issue #157')
 
     def test_on_dialog_response_ok_creates_picture_folders_half_exist(self):
         # make sure pictures and thumbs folders respectively do and do not
@@ -720,4 +720,4 @@ class OnDialogResponseTests(BaubleTestCase):
         # create view and presenter
         # invoke action
         # action is not performed, view is not closed
-        raise SkipTest('related to issue 157')
+        raise SkipTest('related to issue #157')
