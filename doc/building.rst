@@ -987,19 +987,21 @@ Read the rest if you need details about the way the script works.
 Debian
 ^^^^^^^^^^^^^^^
 
-Some time in the past someone published a version of Bauble for Debian, and
-for Ubuntu.  This was at the time of Bauble 0.9.7, and that version is
+Between 2009 and 2010 someone packaged the then already obsolete 
+Bauble 0.9.7 for Debian, and the package was included
+in Ubuntu.  That version is
 `still being distributed <https://packages.ubuntu.com/xenial/bauble>`_,
-regardless being it impossible to install.  It's since 2007 that we've made
-the people on Ubuntu and Debian aware of the problem.
+regardless being it impossible to install.  
 
 Only recently has Mario Frasca produced a new bauble debian package, for the
 latest bauble.classic version 1.0.56, and proposed for inclusion in Debian.
 View it on `mentors <https://mentors.debian.net/package/bauble>`_.  This
 version depends on ``fibra``, a package that was never added to Debian and
-which Mario also has packaged and `proposed for inclusion in
-Debian <https://mentors.debian.net/package/fibra>`_.  Now we're waiting for a
-sponsor, and hoping the package will eventually get all the way to Ubuntu.
+which Mario also has packaged and `proposed for inclusion in Debian 
+<https://mentors.debian.net/package/fibra>`_.  Mario has been trying to 
+activate some Debian Developer, to take action.  There's not much more we can 
+do, other than wait for a sponsor, and hoping the package will eventually get 
+all the way to Ubuntu.
 
 Once we get in contact with a `Debian Sponsor <https://mentors.debian.net/sponsors>`_ who will review what we
 publish on `mentors <https://mentors.debian.net/intro-maintainers>`_, then we
