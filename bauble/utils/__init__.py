@@ -647,9 +647,12 @@ def create_message_details_dialog(msg, details, type=Gtk.MessageType.INFO,
 
     # get the width of a character
     context = d.get_pango_context()
-    font_metrics = context.get_metrics(context.get_font_description(),
-                                       context.get_language())
-    width = font_metrics.get_approximate_char_width()
+    if context is None:
+        width = 12
+    else:
+        font_metrics = context.get_metrics(context.get_font_description(),
+                                           context.get_language())
+        width = font_metrics.get_approximate_char_width()
     from gi.repository import Pango
     # if the character width is less than 300 pixels then set the
     # message dialog's label to be 300 to avoid tiny dialogs
