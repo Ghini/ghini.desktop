@@ -547,7 +547,7 @@ def create_message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsTyp
             parent = None
     d = Gtk.MessageDialog(flags=Gtk.DialogFlags.MODAL |
                           Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                          parent=parent, type=type, buttons=buttons)
+                          parent=parent, message_type=type, buttons=buttons)
     d.set_title('Ghini')
     d.set_markup(msg)
 
@@ -587,7 +587,7 @@ def create_yes_no_dialog(msg, parent=None, buttons=Gtk.ButtonsType.YES_NO):
             parent = None
     d = Gtk.MessageDialog(flags=Gtk.DialogFlags.MODAL |
                           Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                          parent=parent, type=Gtk.MessageType.QUESTION,
+                          parent=parent, message_type=Gtk.MessageType.QUESTION,
                           buttons=buttons)
     d.set_title('Ghini')
     d.set_markup(msg)
@@ -641,7 +641,7 @@ def create_message_details_dialog(msg, details, type=Gtk.MessageType.INFO,
 
     d = Gtk.MessageDialog(flags=Gtk.DialogFlags.MODAL |
                           Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                          parent=parent, type=type, buttons=buttons)
+                          parent=parent, message_type=type, buttons=buttons)
     d.set_title('Ghini')
     d.set_markup(msg)
 
