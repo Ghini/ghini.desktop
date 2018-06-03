@@ -696,7 +696,7 @@ class SearchParser(object):
         empty_token |
         string_value
         ).setParseAction(ValueToken)('value')
-    value_list << Group(
+    value_list <<= Group(
         OneOrMore(value) ^ delimitedList(value)
         ).setParseAction(ValueListAction)('value_list')
 
@@ -747,7 +747,7 @@ class SearchParser(object):
     between_expression = Group(
         identifier + BETWEEN_ + value + AND_ + value
         ).setParseAction(BetweenExpressionAction)
-    query_expression << infixNotation(
+    query_expression <<= infixNotation(
         (ident_expression | between_expression),
         [(NOT_, 1, opAssoc.RIGHT, SearchNotAction),
          (AND_, 2, opAssoc.LEFT,  SearchAndAction),
