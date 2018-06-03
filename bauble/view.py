@@ -85,7 +85,7 @@ class Action(Gtk.Action):
         The activate signal is not automatically connected to the
         callback method.
         """
-        super().__init__(name, label, tooltip, stock_id)
+        super().__init__(name=name, label=label, tooltip=tooltip, stock_id=stock_id)
         self.callback = callback
         self.multiselect = multiselect
         self.singleselect = singleselect
