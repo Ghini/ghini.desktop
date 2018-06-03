@@ -7,48 +7,14 @@
       <!-- column-name domain -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">family</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">genus</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">species</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">accession</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">plant</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">location</col>
-      </row>
-    </data>
   </object>
-  <object class="GtkListStore" id="field_ls">
+  <object class="GtkListStore" id="exported_fields_ls">
     <columns>
       <!-- column-name fieldpath -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">code</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">accession.code</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">accession.species.genus.epithet</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">accession.species.epithet</col>
-      </row>
-    </data>
   </object>
-  <object class="GtkDialog" id="window1">
+  <object class="GtkDialog" id="main_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
@@ -112,7 +78,7 @@
                   <object class="GtkTreeView">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">field_ls</property>
+                    <property name="model">exported_fields_ls</property>
                     <property name="headers_visible">False</property>
                     <property name="reorderable">True</property>
                     <property name="enable_tree_lines">True</property>
@@ -166,7 +132,7 @@
                 <property name="can_focus">False</property>
                 <property name="hexpand">True</property>
                 <property name="xpad">5</property>
-                <property name="label" translatable="yes">Fields to export</property>
+                <property name="label" translatable="yes">Properties to export</property>
                 <property name="width_chars">33</property>
                 <property name="xalign">0</property>
                 <attributes>
@@ -200,7 +166,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="chooser_btn">
                 <property name="label" translatable="yes">Choose a property</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -218,7 +184,7 @@
                 <property name="can_focus">False</property>
                 <property name="hexpand">True</property>
                 <property name="xpad">5</property>
-                <property name="label" translatable="yes">Fields chooser</property>
+                <property name="label" translatable="yes">Properties chooser</property>
                 <property name="xalign">0</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
@@ -245,7 +211,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="output_file">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
               </object>
