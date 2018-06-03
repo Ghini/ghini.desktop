@@ -681,8 +681,8 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
 #
 
 class CSVImportTool(pluginmgr.Tool):
-    category = _('Import')
-    label = _('Comma Separated Value')
+    category = _('Backup')
+    label = _('Restore')
 
     @classmethod
     def start(cls):
@@ -699,8 +699,8 @@ class CSVImportTool(pluginmgr.Tool):
 
 
 class CSVExportTool(pluginmgr.Tool):
-    category = _('Export')
-    label = _('Comma Separated Value')
+    category = _('Backup')
+    label = _('Create')
 
     @classmethod
     def start(cls):
