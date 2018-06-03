@@ -287,8 +287,7 @@ class QueryBuilder(GenericEditorPresenter):
     default_size = None
 
     def __init__(self, view=None):
-        GenericEditorPresenter.__init__(
-            self, model=self, view=view, refresh_view=False)
+        super().__init__(model=self, view=view, refresh_view=False)
 
         self.expression_rows = []
         self.mapper = None
