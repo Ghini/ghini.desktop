@@ -314,9 +314,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
         self.replace_leading_appdata('pictureroot2_entry')
 
     def replace_leading_appdata(self, entry):
-        value = self.view.widget_get_value(entry)
-        if value.startswith(paths.appdata_dir()):
+        value = self.view.widget_get_value(entry).replace('\\', '/')
+        if value.startswith(paths.appdata_dir().replace('\\', '/')):
             value = os.path.join('.', value[len(paths.appdata_dir()) + 1:])
+            value = os.path.join(*value.split('/'))
             self.view.widget_set_value(entry, value)
 
     def refresh_view(self):
