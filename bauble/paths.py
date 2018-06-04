@@ -153,6 +153,8 @@ def is_portable_installation():
 
     '''
 
+    if sys.platform != "win32":
+        return False
     if not main_is_frozen():
         return False
     try:

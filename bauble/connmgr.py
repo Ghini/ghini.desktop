@@ -201,6 +201,12 @@ def check_and_notify_new_version(view):
                        % type(e), e)
 
 
+def make_absolute(path):
+    if path.startswith('./') or path.startswith('.\\'):
+        path = os.path.join(paths.appdata_dir(), path[2:])
+    return path
+
+
 class ConnMgrPresenter(GenericEditorPresenter):
     """
     The main class that starts the connection manager GUI.
@@ -283,6 +289,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
             last_folder=last_folder, target='file_entry')
+        self.replace_leading_appdata('file_entry')
 
     def on_pictureroot_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('pictureroot_entry')
@@ -293,6 +300,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
             last_folder=last_folder, target='pictureroot_entry')
+        self.replace_leading_appdata('pictureroot_entry')
 
     def on_pictureroot2_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('pictureroot2_entry')
@@ -303,6 +311,13 @@ class ConnMgrPresenter(GenericEditorPresenter):
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
             last_folder=last_folder, target='pictureroot2_entry')
+        self.replace_leading_appdata('pictureroot2_entry')
+
+    def replace_leading_appdata(self, entry):
+        value = self.view.widget_get_value(entry)
+        if value.startswith(paths.appdata_dir()):
+            value = os.path.join('.', value[len(paths.appdata_dir()) + 1:])
+            self.view.widget_set_value(entry, value)
 
     def refresh_view(self):
         GenericEditorPresenter.refresh_view(self)
@@ -345,8 +360,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if not valid:
                 self.view.run_message_dialog(msg, gtk.MESSAGE_ERROR)
             if valid:
-                ## picture root is also made available in global setting
-                prefs.prefs[prefs.picture_root_pref] = settings['pictures']
+                # ghini grabs pictures location from global setting
+                prefs.prefs[prefs.picture_root_pref] = make_absolute(settings['pictures'])
                 self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
@@ -486,6 +501,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
         self.refresh_view()
         self.prev_connection_name = self.connection_name
 
+        self.replace_leading_appdata('file_entry')
+        self.replace_leading_appdata('pictureroot_entry')
+        self.replace_leading_appdata('pictureroot2_entry')
+
     def get_passwd(self, title=_("Enter your password"), before_main=False):
         """
         Show a dialog with and entry and return the value entered.
@@ -507,7 +526,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         import copy
         subs = copy.copy(params)
         if params['type'].lower() == "sqlite":
-            filename = params['file'].replace('\\', '/')
+            filename = make_absolute(params['file'].replace('\\', '/'))
             uri = "sqlite:///" + filename
             return uri
         subs['type'] = params['type'].lower()
@@ -545,7 +564,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         msg = None
         ## first check connection parameters, then pictures path
         if params['type'] == 'SQLite':
-            filename = params['file']
+            filename = make_absolute(params['file'])
             if not os.path.exists(filename):
                 path, f = os.path.split(filename)
                 if not os.access(path, os.R_OK):
@@ -583,7 +602,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             return valid, msg
         ## now check the params['pictures']
         # if it's a file, things are not OK
-        root = params['pictures']
+        root = make_absolute(params['pictures'])
         thumbs = os.path.join(root, 'thumbs')
         # root should exist as a directory
         if os.path.exists(root):
@@ -608,10 +627,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if self.dbtype == 'SQLite':
             if self.use_defaults is True:
                 name = new or self.connection_name
-                self.filename = os.path.join(
-                    paths.appdata_dir(), name + '.db')
-                self.pictureroot = os.path.join(
-                    paths.appdata_dir(), name)
+                self.filename = os.path.join('.', name + '.db')
+                self.pictureroot = os.path.join('.', name)
             result = {'file': self.filename,
                       'default': self.use_defaults,
                       'pictures': self.pictureroot}
