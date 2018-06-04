@@ -77,5 +77,6 @@ python setup.py nsis
 
 :Skip_NSIS
 copy scripts\win_gtk.bat ghini-runtime
+mkdir ghini-runtime\ghini.dat
 
 ENDLOCAL
