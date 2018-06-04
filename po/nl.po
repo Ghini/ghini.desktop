@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-14 08:29-0500\n"
-"PO-Revision-Date: 2017-11-14 13:26+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2018-06-05 16:36+0000\n"
+"Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
 "Language: nl\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.18-dev\n"
+"X-Generator: Weblate 3.0\n"
 "X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
 
 #: bauble/btypes.py:87
@@ -119,7 +119,7 @@ msgstr ":"
 #: bauble/plugins/plants/infoboxes.glade:334
 #: bauble/plugins/plants/infoboxes.glade:670
 msgid "<b># of Accessions:</b>"
-msgstr "<b># van de Acquisities:</b>"
+msgstr "<b># van de Accessies:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:87
 msgid "<b># of Genera:</b>"
@@ -142,15 +142,15 @@ msgstr "<b># van Taxa:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:147
 msgid "<b>Accession Status:</b>"
-msgstr "<b>Acquisitie Status:</b>"
+msgstr "<b>Accessie Status:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:133
 msgid "<b>Accession Type:</b>"
-msgstr "<b>Acquisitie Type:</b>"
+msgstr "<b>Accessie Type:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:971
 msgid "<b>Accessions:</b>"
-msgstr "<b>Acquisities:</b>"
+msgstr "<b>Accessies:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:698
 msgid "<b>Awards:</b>"
@@ -186,11 +186,11 @@ msgstr "<b>Beschrijving:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:788
 msgid "<b>Distribution for label:</b>"
-msgstr "<b>Distributie voor label:</b>"
+msgstr "<b>Verspreidingsgebied voor label:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:754
 msgid "<b>Distribution:</b>"
-msgstr "<b>Distributie:</b>"
+msgstr "<b>Verspreidingsgebied:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:928
 msgid "<b>Families:</b>"
@@ -464,7 +464,7 @@ msgstr "Accessieeditor"
 
 #: bauble/plugins/garden/acc_editor.glade:522
 msgid "Accession ID"
-msgstr "Acquisitie ID"
+msgstr "Accessie ID"
 
 #: bauble/plugins/garden/accession.py:370
 msgid "Accession not of wild source"
@@ -489,7 +489,7 @@ msgstr "Toevoegen"
 
 #: bauble/plugins/plants/species_editor.glade:53
 msgid "Add Accessions"
-msgstr "Voeg Acquisities toe"
+msgstr "Voeg Accessies toe"
 
 #: bauble/plugins/plants/family_editor.glade:300
 msgid "Add Genera"
@@ -1708,7 +1708,7 @@ msgstr "JSON"
 
 #: bauble/plugins/plants/species_editor.glade:707
 msgid "Label distribution"
-msgstr "Label distributie"
+msgstr "Label verspreidingsgebied"
 
 #: bauble/view.py:185
 msgid "Last updated:"
@@ -3247,7 +3247,7 @@ msgstr ""
 #: bauble/plugins/plants/species.py:185
 #: bauble/plugins/plants/species_editor.py:1089
 msgid "Vernacular names"
-msgstr ""
+msgstr "Volksnamen"
 
 #: bauble/bauble.glade:515
 msgid "Version"
