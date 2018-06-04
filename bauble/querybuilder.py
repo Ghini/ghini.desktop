@@ -62,7 +62,7 @@ class SchemaMenu(Gtk.Menu):
     """
 
     def __init__(self, mapper, activate_cb=None,
-                 relation_filter=lambda p: True):
+                 relation_filter=lambda c, p: True):
         super().__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
@@ -70,8 +70,8 @@ class SchemaMenu(Gtk.Menu):
         self.show_all()
 
     def on_activate(self, menuitem, prop):
-        """
-        Call when menu items that hold column properties are activated.
+        """invoke activate_cb on selected menu item
+
         """
         path = []
         path = [menuitem.get_child().props.label]
@@ -87,16 +87,16 @@ class SchemaMenu(Gtk.Menu):
         self.activate_cb(menuitem, full_path, prop)
 
     def on_select(self, menuitem, prop):
-        """
-        Called when menu items that have submenus are selected
-        """
+        """construct and show submenu corresponding to RelationProperty
 
+        """
+        print(menuitem.get_child().props.label)
         submenu = menuitem.get_submenu()
         if len(submenu.get_children()) == 0:
-            list(map(submenu.append, self._get_prop_menuitems(prop.mapper)))
+            list(map(submenu.append, self._get_prop_menuitems(prop.mapper, prop)))
         submenu.show_all()
 
-    def _get_prop_menuitems(self, mapper):
+    def _get_prop_menuitems(self, mapper, container=None):
         # When looping over iterate_properties leave out properties that
         # start with underscore since they are considered private.  Separate
         # properties in column_properties and relation_properties
@@ -109,11 +109,13 @@ class SchemaMenu(Gtk.Menu):
             [x for x in mapper.iterate_properties if isinstance(x, RelationProperty)
                    and not x.key.startswith('_')],
             key=lambda k: k.key)
+        for i in relation_properties:
+            print(i.target, i.direction, i.uselist)
 
         items = []
 
         for prop in column_properties:
-            if not self.relation_filter(prop):
+            if not self.relation_filter(container, prop):
                 continue
             item = Gtk.MenuItem(prop.key, use_underline=False)
             item.connect('activate', self.on_activate, prop)
@@ -233,7 +235,7 @@ class ExpressionRow(object):
         self.table.show_all()
         self.presenter.validate()
 
-    def relation_filter(self, prop):
+    def relation_filter(self, container, prop):
         if isinstance(prop, ColumnProperty) and \
                 isinstance(prop.columns[0].type, bauble.btypes.Date):
             return False

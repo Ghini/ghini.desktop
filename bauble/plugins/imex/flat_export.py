@@ -87,12 +87,15 @@ class FlatFileExporter(GenericEditorPresenter):
         def on_prop_button_clicked(button, event, menu):
             menu.popup(None, None, None, None, event.button, event.time)
 
-        def relation_filter(prop):
+        def relation_filter(container, prop):
+            if container is not None:
+                print(container.direction)
             if isinstance(prop, ColumnProperty) and \
                     isinstance(prop.columns[0].type, bauble.btypes.Date):
                 return False
             return True
 
+        print('»', self.domain, '«')
         self.schema_menu = SchemaMenu(self.mapper,
                                       self.on_schema_menu_activated,
                                       relation_filter)
