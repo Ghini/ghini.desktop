@@ -147,9 +147,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             gtk_root = 'c:\\python27\\lib\\site-packages\\gtk-2.0\\runtime'
             dist_gtk = os.path.join(self.dist_dir, 'gtk')
             import shutil
-            shutil.rmtree(dist_gtk)  # overkill cleaning up
-            # ghini-runtime gets reconstructed from scratch each time, so
-            # there's no conditional copying
+            try:
+                shutil.rmtree(dist_gtk)  # overkill cleaning up
+            except OSError:
+                pass  # do not complain if it isn't there
+            # we are now totally sure there isn't anything there, so we can 
+            # count on unconditional copying
             ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
                                             'man', 'demo', 'aclocal',
                                             'doc', 'include', 'emacs',
