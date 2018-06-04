@@ -31,10 +31,8 @@ logger = logging.getLogger(__name__)
 
 
 def main_is_frozen():
-    """
-    Returns True/False if Ghini is being run from a py2exe
-    executable.  This method duplicates bauble.main_is_frozen in order
-    to make paths.py not depend on any other Bauble modules.
+    """tell whether Ghini is being run from a py2exe executable.
+
     """
     import imp
     return (hasattr(sys, "frozen") or  # new py2exe
@@ -119,7 +117,7 @@ def appdata_dir():
     """
     if sys.platform == "win32":
         if is_portable_installation():
-            d = os.path.join(installation_dir(), 'Appdata')
+            d = os.path.join(main_dir(), 'Appdata')
         elif 'APPDATA' in os.environ:
             d = os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
@@ -155,8 +153,10 @@ def is_portable_installation():
 
     '''
 
+    if not main_is_frozen():
+        return False
     try:
-        test_file_name = os.path.join(installation_dir(), 'Appdata', 'temp.tmp')
+        test_file_name = os.path.join(main_dir(), 'Appdata', 'temp.tmp')
         with open(test_file_name, "w+") as f:
             f.write("test")
         os.remove(test_file_name)

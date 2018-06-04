@@ -265,7 +265,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         except:
             pass
 
-        from bauble import main_is_frozen
+        from bauble.paths import main_is_frozen
         # Don't check for new versions if we are in a py2exe environment
         if not main_is_frozen():
             from threading import Thread
