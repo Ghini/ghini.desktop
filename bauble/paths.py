@@ -150,7 +150,7 @@ def is_portable_installation(appdata_dir):
     only relevant on Windows
     '''
     
-    print("main_dir: %s; installation_dir %s; appdata_dir: %s; user_dir: %s; locale_dir: %s; lib_dir: %s" % (
-        main_dir(), installation_dir(), appdata_dir, user_dir (), locale_dir(), lib_dir()))
+    print("main_dir: %s; installation_dir %s; appdata_dir: %s; locale_dir: %s; lib_dir: %s" % (
+        main_dir(), installation_dir(), appdata_dir, locale_dir(), lib_dir()))
 
     return False
