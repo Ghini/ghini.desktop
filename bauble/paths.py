@@ -119,7 +119,7 @@ def appdata_dir():
     """
     if sys.platform == "win32":
         if is_portable_installation():
-            d = os.path.join(installation_dir(), 'appdata.dir')
+            d = os.path.join(installation_dir(), 'Appdata')
         elif 'APPDATA' in os.environ:
             d = os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
@@ -156,10 +156,10 @@ def is_portable_installation():
     '''
 
     try:
-        test_file_name = os.path.join(installation_dir(), 'appdata.dir', 'temp.tmp')
-        with open(test_file_name, "w") as f:
+        test_file_name = os.path.join(installation_dir(), 'Appdata', 'temp.tmp')
+        with open(test_file_name, "w+") as f:
             f.write("test")
-        os.unlink(test_file_name)
+        os.remove(test_file_name)
         return True
     except:
         return False
