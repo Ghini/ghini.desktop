@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2016,2018 Mario Frasca <mario@anche.no>
 # Copyright (c) 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
@@ -26,6 +26,8 @@ Access to standard paths used by Ghini.
 """
 import os
 import sys
+import logging
+logger = logging.getLogger(__name__)
 
 
 def main_is_frozen():
@@ -116,8 +118,8 @@ def appdata_dir():
 
     """
     if sys.platform == "win32":
-        if is_portable_installation(None):
-            pass
+        if is_portable_installation():
+            d = os.path.join(installation_dir(), 'appdata.dir')
         elif 'APPDATA' in os.environ:
             d = os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
@@ -140,17 +142,24 @@ def appdata_dir():
     else:
         raise Exception('Could not get path for user settings: '
                         'unsupported platform')
-    is_portable_installation(d)
     return os.path.abspath(d)
 
 
-def is_portable_installation(appdata_dir):
+def is_portable_installation():
     '''tell whether ghini is running on a USB stick
 
     only relevant on Windows
-    '''
-    
-    print("main_dir: %s; installation_dir %s; appdata_dir: %s; locale_dir: %s; lib_dir: %s" % (
-        main_dir(), installation_dir(), appdata_dir, locale_dir(), lib_dir()))
 
-    return False
+    if the installation_dir contains a writable appdata.dir, then we are
+    running on a USB stick, and we are keeping appdata there.
+
+    '''
+
+    try:
+        test_file_name = os.path.join(installation_dir(), 'appdata.dir', 'temp.tmp')
+        with open(test_file_name, "w") as f:
+            f.write("test")
+        os.unlink(test_file_name)
+        return True
+    except:
+        return False
