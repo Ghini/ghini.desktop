@@ -54,8 +54,8 @@ pip install Pygments
 
 ECHO cleaning up
 REM STEP 4 - clean up any previous builds
-rmdir /s /q ghini-runtime 1>nul 2>nul
-mkdir       ghini-runtime 1>nul 2>nul
+rmdir /s /q ghini-runtime
+mkdir       ghini-runtime
 mkdir dist 2>nul
 forfiles /P "%VIRTUAL_ENV%"\Lib\site-packages\ /M ghini.desktop-*.egg-info /C^
     "cmd /c if @ISDIR==TRUE rmdir /s /q @PATH && echo removing @PATH" 2>NUL
@@ -78,6 +78,6 @@ python setup.py nsis
 
 :Skip_NSIS
 copy scripts\win_gtk.bat ghini-runtime
-mkdir ghini-runtime\appdata.dir
+mkdir ghini-runtime\Appdata
 
 ENDLOCAL
