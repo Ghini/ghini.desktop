@@ -116,7 +116,7 @@ def appdata_dir():
 
     """
     if sys.platform == "win32":
-        if is_portable_installation():
+        if is_portable_installation(None):
             pass
         elif 'APPDATA' in os.environ:
             d = os.path.join(os.environ["APPDATA"], "Bauble")
@@ -140,16 +140,17 @@ def appdata_dir():
     else:
         raise Exception('Could not get path for user settings: '
                         'unsupported platform')
+    is_portable_installation(d)
     return os.path.abspath(d)
 
 
-def is_portable_installation():
+def is_portable_installation(appdata_dir):
     '''tell whether ghini is running on a USB stick
 
     only relevant on Windows
     '''
     
     print("main_dir: %s; installation_dir %s; appdata_dir: %s; user_dir: %s; locale_dir: %s; lib_dir: %s" % (
-        main_dir(), installation_dir(), appdata_dir(), user_dir (), locale_dir(), lib_dir()))
+        main_dir(), installation_dir(), appdata_dir, user_dir (), locale_dir(), lib_dir()))
 
     return False
