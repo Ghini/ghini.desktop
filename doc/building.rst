@@ -185,31 +185,35 @@ this require manual steps?
 The aswer is that the whole interaction is quite complex, and it depends on
 the component.
 
-When it comes to ``ghini.desktop``, when you do a global installation, you
-don't know which language your users will set up their environment, and a
-user can change the language configuration any time.  So what we do is to
-install the software in English together with a translation table from
-English to whatever else, in particular Italian or Hungarian. Then the GUI
-libraries (Android or GTK) know where to look for the translation strings.
-These translation tables are generated during the installation or upgrade
-process, based on the strings you see on Weblate.
+When you install ``ghini.desktop`` or one of the Android apps, the
+installation doesn't assume a specific run-time language: a user can change
+their language configuration any time.  So what we do is to install the
+software in English together with a translation table from English to
+whatever else.
 
-Before any of the above gets activated, the path followed by your
-translations is as you describe: Weblate pushes the strings to github,
-directly into the development line `ghini-1.0-dev`; I see them, if I
-understand at least the structure of that language I review them, maybe I
-look them up in wikipedia or get them translated back to Italian, Spanish or
-English by some automatic translation service; sometimes I need to solve
-conflicts arising because of changed context, not too often fortunately;
-from time to time I publish the development line `ghini-1.0-dev` to the
-production line `ghini-1.0`, and this is the moment when the new
+At run-time the GUI libraries (Android or GTK) know where to look for the
+translation strings.  These translation tables are generated during the
+installation or upgrade process, based on the strings you see on Weblate.
+
+The path followed by translations is: You edit strings on Weblate, Weblate
+keeps accumulating them until you are done, or you don't interact with
+Weblate for a longer while; Weblate pushes the strings to github, directly
+into the development line ``ghini-1.0-dev``; I see them and I might blindly
+trust or prefer to review them, maybe I look them up in wikipedia or get
+them translated back to Italian, Spanish or English by some automatic
+translation service; sometimes I need to solve conflicts arising because of
+changed context, not too often fortunately.  As said, this lands in the
+development line ``ghini-1.0-dev``, which I regularly publish to the
+production line ``ghini-1.0``, and this is the moment when the new
 translations finally make it to the distributed software.
 
-users will notice a `new version available` warning and can decide to ignore
+Users will notice a *new version available* warning and can decide to ignore
 it, or to update.
 
-For ``ghini.pocket``, there is no notification to end users, since we're not
-yet using the google app store.
+For ``ghini.pocket``, it is similar, but the notification is handled by the
+Android system.  We publish on the Play Store, and depending on your
+settings, your phone will update the software automatically, or only notify
+you, or do nothing.  It depends on how you configured automatic updates.
 
 For ``ghini.web``, we haven't yet defined how to distribute it.
 
