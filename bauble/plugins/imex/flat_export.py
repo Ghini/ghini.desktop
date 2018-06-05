@@ -23,6 +23,7 @@ from gi.repository import Gtk
 import os.path
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import ColumnProperty
+from sqlalchemy.types import Integer, Boolean, Float
 import bauble
 from bauble.search import MapperSearch
 from bauble.editor import (
@@ -89,10 +90,19 @@ class FlatFileExporter(GenericEditorPresenter):
 
         def relation_filter(container, prop):
             if container is not None:
-                print(container.direction)
-            if isinstance(prop, ColumnProperty) and \
-                    isinstance(prop.columns[0].type, bauble.btypes.Date):
-                return False
+                print(type(container.direction).__name__, container.direction, prop.columns[0], prop.columns[0].name)
+            if isinstance(prop, ColumnProperty):
+                column = prop.columns[0]
+                if isinstance(column.type, bauble.btypes.Date):
+                    return False
+                if column.name.endswith('_id'):
+                    return False
+                if container is None:
+                    return True
+                if not container.uselist:
+                    return True
+                if not isinstance(column.type, (Integer, Float, Boolean)):
+                    return False
             return True
 
         print('»', self.domain, '«')
