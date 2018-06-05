@@ -1012,10 +1012,10 @@ class SchemaMenu(gtk.Menu):
 
         submenu = menuitem.get_submenu()
         if len(submenu.get_children()) == 0:
-            map(submenu.append, self._get_prop_menuitems(prop.mapper))
+            map(submenu.append, self._get_prop_menuitems(prop.mapper, prop))
         submenu.show_all()
 
-    def _get_prop_menuitems(self, mapper):
+    def _get_prop_menuitems(self, mapper, container=None):
         # When looping over iterate_properties leave out properties that
         # start with underscore since they are considered private.  Separate
         # properties in column_properties and relation_properties
@@ -1046,7 +1046,8 @@ class SchemaMenu(gtk.Menu):
             item.set_submenu(submenu)
             item.connect('select', self.on_select, prop)
             items.append(item)
-        return items
+
+        return sorted(items, key=lambda x: (x.name != 'id', x.name))
 
 
 def parse_typed_value(value):
