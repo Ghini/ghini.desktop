@@ -90,7 +90,6 @@ class SchemaMenu(Gtk.Menu):
         """construct and show submenu corresponding to RelationProperty
 
         """
-        print(menuitem.get_child().props.label)
         submenu = menuitem.get_submenu()
         if len(submenu.get_children()) == 0:
             list(map(submenu.append, self._get_prop_menuitems(prop.mapper, prop)))
@@ -109,8 +108,6 @@ class SchemaMenu(Gtk.Menu):
             [x for x in mapper.iterate_properties if isinstance(x, RelationProperty)
                    and not x.key.startswith('_')],
             key=lambda k: k.key)
-        for i in relation_properties:
-            print(i.target, i.direction, i.uselist)
 
         items = []
 
@@ -122,6 +119,8 @@ class SchemaMenu(Gtk.Menu):
             items.append(item)
 
         for prop in relation_properties:
+            if not self.relation_filter(container, prop):
+                continue
             item = Gtk.MenuItem(prop.key, use_underline=False)
             submenu = Gtk.Menu()
             item.set_submenu(submenu)
