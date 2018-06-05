@@ -925,7 +925,7 @@ class SchemaBrowser(Gtk.VBox):
         column_properties = sorted(
             [x for x in mapper.iterate_properties if isinstance(x, ColumnProperty)
                    and not x.key.startswith('_')],
-            key=lambda k: k.key)
+            key=lambda k: (k.key!='id', not k.key.endswith('_id'), k.key))
         for prop in column_properties:
             model.append(treeiter, [prop.key, prop])
 
