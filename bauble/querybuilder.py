@@ -68,7 +68,8 @@ class SchemaMenu(Gtk.Menu):
         super().__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
-        list(map(self.append, self._get_prop_menuitems(mapper)))
+        for i in self._get_prop_menuitems(mapper):
+            self.append(i)
         self.show_all()
 
     def on_activate(self, menuitem, prop):
@@ -93,14 +94,17 @@ class SchemaMenu(Gtk.Menu):
 
         """
         submenu = menuitem.get_submenu()
-        if len(submenu.get_children()) == 0:
-            list(map(submenu.append, self._get_prop_menuitems(prop.mapper, prop)))
+        if len(submenu.get_children()) == 0:  # still empty: construct it
+            for item in self._get_prop_menuitems(prop.mapper, prop):
+                submenu.append(item)
         submenu.show_all()
 
     def _get_prop_menuitems(self, mapper, container=None):
         # When looping over iterate_properties leave out properties that
-        # start with underscore since they are considered private.  Separate
-        # properties in column_properties and relation_properties
+        # start with underscore since they are considered private.
+        # Separate properties in column_properties and relation_properties.
+        # Do not offer any foreign key: can be reached as 'id' of relation.
+        # First in order is own 'id'.
 
         column_properties = sorted(
             [x for x in mapper.iterate_properties
