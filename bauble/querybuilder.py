@@ -103,9 +103,11 @@ class SchemaMenu(Gtk.Menu):
         # properties in column_properties and relation_properties
 
         column_properties = sorted(
-            [x for x in mapper.iterate_properties if isinstance(x, ColumnProperty)
-                   and not x.key.startswith('_')],
-            key=lambda k: k.key)
+            [x for x in mapper.iterate_properties
+             if isinstance(x, ColumnProperty)
+             and not x.key.endswith('_id')
+             and not x.key.startswith('_')],
+            key=lambda k: (k.key!='id', k.key))
         relation_properties = sorted(
             [x for x in mapper.iterate_properties if isinstance(x, RelationProperty)
                    and not x.key.startswith('_')],
