@@ -11,6 +11,7 @@ env/
 build/
 develop-eggs/
 dist/
+ghini-runtime/
 downloads/
 eggs/
 .eggs/
