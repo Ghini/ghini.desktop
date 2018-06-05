@@ -93,8 +93,6 @@ class FlatFileExporter(GenericEditorPresenter):
                 column = prop.columns[0]
                 if isinstance(column.type, bauble.btypes.Date):
                     return False
-                if column.name.endswith('_id'):
-                    return False
                 if container is None:
                     return True
                 if not container.uselist:
