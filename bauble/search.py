@@ -1024,7 +1024,7 @@ class SchemaMenu(gtk.Menu):
             filter(lambda x: isinstance(x, ColumnProperty)
                    and not x.key.startswith('_'),
                    mapper.iterate_properties),
-            key=lambda k: k.key)
+            key=lambda k: (k.key!='id', not k.key.endswith('_id'), k.key))
         relation_properties = sorted(
             filter(lambda x: isinstance(x, RelationProperty)
                    and not x.key.startswith('_'),
@@ -1047,7 +1047,7 @@ class SchemaMenu(gtk.Menu):
             item.connect('select', self.on_select, prop)
             items.append(item)
 
-        return sorted(items, key=lambda x: (x.name != 'id', x.name))
+        return items
 
 
 def parse_typed_value(value):
