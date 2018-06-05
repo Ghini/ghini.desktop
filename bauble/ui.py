@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 import bauble
 import bauble.db as db
+from bauble import querybuilder
 
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr

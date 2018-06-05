@@ -20,6 +20,8 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import Gtk
+import logging
+logger = logging.getLogger(__name__)
 
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import (
