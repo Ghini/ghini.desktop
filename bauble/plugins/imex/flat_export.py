@@ -118,33 +118,38 @@ class FlatFileExporter(GenericEditorPresenter):
     def do_export(self):
         from bauble import db
         from sqlalchemy.orm.collections import InstrumentedList
-        session = db.Session()
-        for obj in session.query(self.mapper).all():
-            row = []
-            for j in self.view.widgets.exported_fields_ls:
-                # values is the list of the objects from which to read fields
-                values = [obj]
-                single_valued = True
-                *steps, field = j[0].split('.')
-                for step in steps:
-                    values = [getattr(value, step) for value in values]
-                    if values and isinstance(values[0], InstrumentedList):
-                        values = [item for sublist in values for item in sublist]
-                        single_valued = False
-                if field == '<str>':
-                    value = str(values[0]).replace('\u200b', '')
-                else:
-                    values = [getattr(value, field) for value in values]
-                    if single_valued:
-                        value = values[0]
+        import csv
+        filename = self.view.widget_get_value('output_file')
+        with open(filename, 'w') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=',',
+                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            session = db.Session()
+            for obj in session.query(self.mapper).all():
+                row = []
+                for j in self.view.widgets.exported_fields_ls:
+                    # values is the list of the objects from which to read fields
+                    values = [obj]
+                    single_valued = True
+                    *steps, field = j[0].split('.')
+                    for step in steps:
+                        values = [getattr(value, step) for value in values]
+                        if values and isinstance(values[0], InstrumentedList):
+                            values = [item for sublist in values for item in sublist]
+                            single_valued = False
+                    if field == '<str>':
+                        value = str(values[0]).replace('\u200b', '')
                     else:
-                        if field == 'id':
-                            value = len(values)
+                        values = [getattr(value, field) for value in values]
+                        if single_valued:
+                            value = values[0]
                         else:
-                            value = sum(x or 0 for x in values)
-                row.append(value)
-            print(row)
-        session.rollback()
+                            if field == 'id':
+                                value = len(values)
+                            else:
+                                value = sum(x or 0 for x in values)
+                    row.append(value)
+                spamwriter.writerow(row)
+            session.rollback()
 
 
 class FlatFileExportTool(pluginmgr.Tool):
