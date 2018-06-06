@@ -71,13 +71,12 @@ class SchemaMenu(Gtk.Menu):
 
     def __init__(self, mapper, activate_cb=None,
                  relation_filter=lambda c, p: True,
-                 prepend_action=lambda prop, target: None):
+                 leading_items=[]):
         super().__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
-        self.prepend_action = prepend_action
+        self.leading_items = leading_items
         self.append_menuitems(mapper, target=self)
-        self.prepend_action(mapper, self)
         self.show_all()
 
     def on_activate(self, menuitem, prop):
@@ -104,7 +103,6 @@ class SchemaMenu(Gtk.Menu):
         submenu = menuitem.get_submenu()
         if len(submenu.get_children()) == 0:  # still empty: construct it
             self.append_menuitems(prop.mapper, prop, target=submenu)
-            self.prepend_action(prop.mapper, submenu)
         submenu.show_all()
 
     def append_menuitems(self, mapper, container=None, target=None):
@@ -143,6 +141,11 @@ class SchemaMenu(Gtk.Menu):
             [x for x in mapper.iterate_properties if isinstance(x, RelationProperty)
                    and not x.key.startswith('_')],
             key=lambda k: k.key)
+
+        for key in self.leading_items:
+            item = Gtk.MenuItem(key, use_underline=False)
+            item.connect('activate', self.on_activate, None)
+            target.append(item)
 
         for prop in column_properties:
             if not self.relation_filter(container, prop):
@@ -431,7 +434,7 @@ class QueryBuilder(GenericEditorPresenter):
         if not parsed.is_valid:
             logger.debug('cannot restore query, invalid')
             return
-        
+
         # locate domain in list of valid domains
         try:
             index = sorted(self.domain_map.keys()).index(parsed.domain)

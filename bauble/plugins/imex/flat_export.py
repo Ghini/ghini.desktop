@@ -55,7 +55,7 @@ class FlatFileExporter(GenericEditorPresenter):
         self.view.widgets.exported_fields_ls.append((clause_field, ))
 
     def set_model_fields(self, output_file=None, domain=None,
-                         exported_fields=None, 
+                         exported_fields=None,
                          **kwargs):
         if kwargs:
             logger.warning('set_model_fields received extra parameters %s' % kwargs)
@@ -108,7 +108,8 @@ class FlatFileExporter(GenericEditorPresenter):
 
         self.schema_menu = SchemaMenu(self.mapper,
                                       self.on_schema_menu_activated,
-                                      relation_filter)
+                                      relation_filter,
+                                      leading_items=['<str>'])
         if self.signal_id is not None:
             self.view.widgets.chooser_btn.disconnect(self.signal_id)
         self.signal_id = self.view.widgets.chooser_btn.connect('button-press-event', on_prop_button_clicked,
@@ -133,4 +134,3 @@ class FlatFileExportTool(pluginmgr.Tool):
         if response == Gtk.ResponseType.OK:
             query = qb.do_export()
         qb.cleanup()
-
