@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2016,2018 Mario Frasca <mario@anche.no>
 # Copyright (c) 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
@@ -26,13 +26,13 @@ Access to standard paths used by Ghini.
 """
 import os
 import sys
+import logging
+logger = logging.getLogger(__name__)
 
 
 def main_is_frozen():
-    """
-    Returns True/False if Ghini is being run from a py2exe
-    executable.  This method duplicates bauble.main_is_frozen in order
-    to make paths.py not depend on any other Bauble modules.
+    """tell whether Ghini is being run from a py2exe executable.
+
     """
     import imp
     return (hasattr(sys, "frozen") or  # new py2exe
@@ -116,7 +116,9 @@ def appdata_dir():
 
     """
     if sys.platform == "win32":
-        if 'APPDATA' in os.environ:
+        if is_portable_installation():
+            d = os.path.join(main_dir(), 'Appdata')
+        elif 'APPDATA' in os.environ:
             d = os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
             d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
@@ -139,3 +141,27 @@ def appdata_dir():
         raise Exception('Could not get path for user settings: '
                         'unsupported platform')
     return os.path.abspath(d)
+
+
+def is_portable_installation():
+    '''tell whether ghini is running on a USB stick
+
+    only relevant on Windows
+
+    if the installation_dir contains a writable appdata.dir, then we are
+    running on a USB stick, and we are keeping appdata there.
+
+    '''
+
+    if sys.platform != "win32":
+        return False
+    if not main_is_frozen():
+        return False
+    try:
+        test_file_name = os.path.join(main_dir(), 'Appdata', 'temp.tmp')
+        with open(test_file_name, "w+") as f:
+            f.write("test")
+        os.remove(test_file_name)
+        return True
+    except:
+        return False

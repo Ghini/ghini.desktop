@@ -216,6 +216,7 @@ def edit_callback(tags):
         presenter.session.rollback()
     else:
         presenter.commit_changes()
+        tags_menu_manager.reset()
     presenter.cleanup()
     return error_state
 

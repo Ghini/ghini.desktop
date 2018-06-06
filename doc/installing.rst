@@ -350,10 +350,13 @@ The installation steps on Windows:
    How to save a batch file, and how to run it: check the the quite detailed
    instructions given for ``devinstall.bat``.
 
-If you would like to generate and print PDF reports using Ghini's default
-report generator then you will need to download and install `Apache FOP
+If you need to generate PDF reports, you can use the XLS based report
+generator and you will need to download and install `Apache FOP
 <http://xmlgraphics.apache.org/fop/>`_.  After extracting the FOP archive
 you will need to include the directory you extracted to in your PATH.
+
+If you choose for PostScript reports, you can use the Mako based report
+generator and there are no further dependencies.
 
 .. rubric:: Next...
 

@@ -22,11 +22,7 @@ cp debian/* /tmp/ghini.desktop-${PUBLISHING}/debian
   find debian -iname "*.ex" -execdir rm {} \; -or -name "*.source" -execdir rm {} \; -or -name "*~" -execdir rm {} \;
   debuild )
 
-# decide whether we continue
-# in case, we should really dput the following to mentors.debian.org
-echo
-echo dput mentors $(ls /tmp/ghini.desktop_${PUBLISHING}-*_*.changes | tail -n 1)
-echo
+# all done for debian, publishing may follow, manually.
 
 # make sure you have locally all remote branches
 #
@@ -38,14 +34,6 @@ git checkout $LINE
 git merge $LINE-dev --no-edit -m "Merge branch 'ghini-1.0-dev' into ghini-1.0, as $PUBLISHING"
 git push
 
-# publish on pypi
-#
-echo
-echo python setup.py sdist --formats zip upload -r pypi
-echo
-
-# some day also produce a debian package
-
 # some day also produce a windows installable
 
 # get back to work, and bump counters
@@ -56,3 +44,9 @@ tmpfile=$(mktemp /tmp/bump-commit.XXXXXX)
 scripts/bump_version.py + | tee $tmpfile
 $(tail -n 1 $tmpfile)
 git push
+
+echo '******************************************************'
+echo 'consider the following debian and pypi publishing steps'
+echo
+echo dput mentors $(ls /tmp/ghini.desktop_${PUBLISHING}-*_*.changes | tail -n 1)
+echo python setup.py sdist --formats zip upload -r pypi

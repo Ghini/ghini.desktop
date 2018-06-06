@@ -89,12 +89,13 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                        'encodings', 'mako', 'mako.cache',
                        'pygments.styles.default', 'pyparsing']
     py2exe_includes += gtk_pkgs + plugins_pkgs + sqlalchemy_includes
-    py2exe_setup_args = {
+    setup_args = {
         'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
-    py2exe_options = {
+    setup_options = {
         "py2exe": {
             #no compression makes for better NSIS compression
+            "dist_dir": "ghini-runtime",
             "compressed": False,
             "optimize": 2,
             "includes": py2exe_includes,
@@ -141,19 +142,21 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
 
-            # copy GTK to the dist directory, assuming PyGTK
-            # all-in-one installer
+            # copy GTK to the ghini-runtime directory, assuming PyGTK
+            # all-in-one installer.
             gtk_root = 'c:\\python27\\lib\\site-packages\\gtk-2.0\\runtime'
             dist_gtk = os.path.join(self.dist_dir, 'gtk')
             import shutil
-            if not os.path.exists(dist_gtk):
-                ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
-                                                'man', 'demo', 'aclocal',
-                                                'doc', 'include', 'emacs',
-                                                'gettext', 'glade3',
-                                                'gtksourceview-2.0', 'info',
-                                                'intltool')
-                shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
+            shutil.rmtree(dist_gtk, ignore_errors=True)  # overkill cleaning up
+            # we are now totally sure there isn't anything there, so we can 
+            # count on unconditional copying
+            ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
+                                            'man', 'demo', 'aclocal',
+                                            'doc', 'include', 'emacs',
+                                            'gettext', 'glade3',
+                                            'gtksourceview-2.0', 'info',
+                                            'intltool')
+            shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
             # register the pixbuf loaders
             # populate loaders.cache also
@@ -163,8 +166,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             cmd1 = 'call "%s" > "%s"' % (exe, dest1)
             cmd2 = 'call "%s" > "%s"' % (exe, dest2)
             print cmd1
-            print cmd2
             os.system(cmd1)
+            print cmd2
             os.system(cmd2)
 
             # copy the the MS-Windows gtkrc to make it the default theme
@@ -223,9 +226,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             os.system('"%s" %s' % (self.makensis, self.nsis_script))
 
 else:
-    py2exe_options = {}
-    py2exe_setup_args = {}
-    py2exe_includes = []
+    setup_options = {}
+    setup_args = {}
 
     class _empty_cmd(Command):
         user_options = []
@@ -495,6 +497,6 @@ setuptools.setup(name="ghini.desktop",
                  keywords="database biodiversity botanic collection "
                  "botany herbarium arboretum",
                  url="http://github.com/Ghini/ghini.desktop/",
-                 options=py2exe_options,
-                 **py2exe_setup_args
+                 options=setup_options,
+                 **setup_args
                  )

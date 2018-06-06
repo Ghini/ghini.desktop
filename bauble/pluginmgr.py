@@ -120,8 +120,7 @@ def load(path=None):
     """
 
     if path is None:
-        if bauble.main_is_frozen():
-            #path = os.path.join(paths.lib_dir(), 'library.zip')
+        if paths.main_is_frozen():
             path = os.path.join(paths.main_dir(), 'library.zip')
         else:
             path = os.path.join(paths.lib_dir(), 'plugins')

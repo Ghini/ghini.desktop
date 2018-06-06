@@ -58,10 +58,10 @@
 
 ; Global
 Name "ghini.desktop"
-!define VERSION "1.0.85" ; :bump
-!define SRC_DIR "..\dist"
+!define VERSION "1.0.86" ; :bump
+!define SRC_DIR "..\ghini-runtime"
 !define PRODUCT_NAME "ghini.desktop"
-Outfile "${PRODUCT_NAME}-${VERSION}-setup.exe"
+Outfile "..\dist\${PRODUCT_NAME}-${VERSION}-setup.exe"
 !define PROGEXE "ghini.exe"
 !define COMPANY_NAME ""
 !define LICENSE_FILE "LICENSE"
@@ -141,8 +141,8 @@ CRCCheck on
 
 ; NsisMultiUser - all settings need to be set before including the NsisMultiUser.nsh header file.
 ; thanks to Richard Drizin https://github.com/Drizin/NsisMultiUser
-!include ..\data\nsis\Include\NsisMultiUser.nsh
-!include ..\data\nsis\Include\UAC.nsh
+!include ..\nsis\Include\NsisMultiUser.nsh
+!include ..\nsis\Include\UAC.nsh
 !include MUI2.nsh
 !include WordFunc.nsh
 !include FileFunc.nsh

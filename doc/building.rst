@@ -1,12 +1,13 @@
 Developer's Manual
 ========================
 
+If you ran the ``devinstall`` installation instructions, you have downloaded
+the sources, connected to the github repository.  You are in the ideal
+situation to start looking into the software, understand how it works,
+contribute to ghini.desktop's development.
+
 Helping Ghini development
 --------------------------
-
-Installing Ghini always includes downloading the sources, connected to the
-github repository. This is so because in our eyes, every user is always
-potentially also a developer.
 
 If you want to contribute to Ghini, you can do so in quite a few different ways:
 
@@ -28,6 +29,9 @@ If you haven't yet installed Ghini, and want to have a look at its code
 history, you can open our `github project page
 <http://github.com/Ghini/ghini.desktop>`_ and see all that has been going on
 around Ghini since its inception as Bauble, back in the year 2004.
+
+If you install the software according to the ``devinstall`` instructions,
+you have the whole history in your local git clone.
 
 Software source, versions, branches
 -------------------------------------------------------------
@@ -181,31 +185,35 @@ this require manual steps?
 The aswer is that the whole interaction is quite complex, and it depends on
 the component.
 
-When it comes to ``ghini.desktop``, when you do a global installation, you
-don't know which language your users will set up their environment, and a
-user can change the language configuration any time.  So what we do is to
-install the software in English together with a translation table from
-English to whatever else, in particular Italian or Hungarian. Then the GUI
-libraries (Android or GTK) know where to look for the translation strings.
-These translation tables are generated during the installation or upgrade
-process, based on the strings you see on Weblate.
+When you install ``ghini.desktop`` or one of the Android apps, the
+installation doesn't assume a specific run-time language: a user can change
+their language configuration any time.  So what we do is to install the
+software in English together with a translation table from English to
+whatever else.
 
-Before any of the above gets activated, the path followed by your
-translations is as you describe: Weblate pushes the strings to github,
-directly into the development line `ghini-1.0-dev`; I see them, if I
-understand at least the structure of that language I review them, maybe I
-look them up in wikipedia or get them translated back to Italian, Spanish or
-English by some automatic translation service; sometimes I need to solve
-conflicts arising because of changed context, not too often fortunately;
-from time to time I publish the development line `ghini-1.0-dev` to the
-production line `ghini-1.0`, and this is the moment when the new
+At run-time the GUI libraries (Android or GTK) know where to look for the
+translation strings.  These translation tables are generated during the
+installation or upgrade process, based on the strings you see on Weblate.
+
+The path followed by translations is: You edit strings on Weblate, Weblate
+keeps accumulating them until you are done, or you don't interact with
+Weblate for a longer while; Weblate pushes the strings to github, directly
+into the development line ``ghini-1.0-dev``; I see them and I might blindly
+trust or prefer to review them, maybe I look them up in wikipedia or get
+them translated back to Italian, Spanish or English by some automatic
+translation service; sometimes I need to solve conflicts arising because of
+changed context, not too often fortunately.  As said, this lands in the
+development line ``ghini-1.0-dev``, which I regularly publish to the
+production line ``ghini-1.0``, and this is the moment when the new
 translations finally make it to the distributed software.
 
-users will notice a `new version available` warning and can decide to ignore
+Users will notice a *new version available* warning and can decide to ignore
 it, or to update.
 
-For ``ghini.pocket``, there is no notification to end users, since we're not
-yet using the google app store.
+For ``ghini.pocket``, it is similar, but the notification is handled by the
+Android system.  We publish on the Play Store, and depending on your
+settings, your phone will update the software automatically, or only notify
+you, or do nothing.  It depends on how you configured automatic updates.
 
 For ``ghini.web``, we haven't yet defined how to distribute it.
 
@@ -732,51 +740,98 @@ closing step
 * review this workflow. consider this as a guideline, to yourself and to
   your colleagues. please help make it better and matching the practice.
 
-distributing for windows
---------------------------
 
-For building a Windows installer or executable you will need an installation of 
-Windows.  The methods described here has been used successfully on Windows 7, 
-8 and 10.  Windows Vista should also work but has not been tested.
+Distributing ghini.desktop
+----------------------------
 
-In the remainder of this section we assume you're using a Windows
-workstation.  We also assume assume you do not use it as your software
-development platform.  All steps described here are very similar to the
-steps for a normal Windows :ref:`installation`.
+Python Package Index - PyPI
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. admonition:: py2exe will not work with eggs
-   :class: toggle
+This is not much mentioned, but we keep ghini.desktop on the Python Package
+Index, so you could install it by no more than::
 
-   Building a Windows executable with py2exe requires packages **not** be 
-   installed as eggs.  There are several methods to accomplish this, including:
+  pip install ghini.desktop
 
-   - Using pip to install.  The easiest method is to install into a virtual 
-     environment that doesn't currently have any modules installed as eggs 
-     using ``pip install .`` as described below.  If you do wish to install over 
-     the top of an install with eggs (e.g. the environment created by 
-     ``devinstall.bat``) you can try ``pip install -I .`` but your mileage 
-     may vary. 
+There are a couple packages that can't be installed with ``pip``, but
+otherwise that's really all you need to type, and it's platform independent.
 
-   - By adding::
+Publishing on PyPI is a standard ``setup`` command::
 
-       [easy_install]
-       zip_ok = False
+  python setup.py sdist --formats zip upload -r pypi
 
-     to setup.cfg (or similarly ``zip_safe = False`` to ``setuptools.setup()`` 
-     in ``setup.py``) you can use ``python setup.py install`` but you will need 
-     to download and install `Microsoft Visual C++ Compiler for Python 2.7 
-     <http://aka.ms/vcpython27>`_ to get any of the C extensions and will need 
-     a fresh virtual environment with no dependent packages installed as eggs.
 
-#. Download and install git, Python 2.7 and PyGTK as outlined in the generic
-   :ref:`installation` instructions.
+Windows
+^^^^^^^^^^^^^^^
 
-#. Additionally, download and install `NSIS v3 <http://nsis.sourceforge.net/Download>`_.
+For building a Windows installer or executable you need a running Windows
+system.  The methods described here has been used successfully on Windows 7, 8
+and 10.  Windows Vista should also work but has not been tested.
+
+If you are on GNU/Linux, or on OSX, you are not interested in the remainder of
+this section.  None of Ghini's contributors knows how to produce a Windows
+installer without having a Windows system.
+
+The goal of the present instructions is to help you produce a Windows installer,
+that is a single executable that you can run on any Windows workstation and that
+will install a specific version of ghini.desktop.  This is achieved with the
+NSIS script-driven installer authoring tool.
+
+As a side product of the installer production, you will have a massive but
+relocatable directory, which you can copy to a USB drive and which will let you
+use the software without needing an installation.
+
+The files and directories relevant to this section:
+
+- ``scripts/build-win.bat`` — the single batch script to run.
+- ``setup.py`` — implements the NSIS and py2exe commands.
+- ``scripts/build-multiuser.nsi`` — the nsis script, used by the above.
+- ``nsis/`` — contains redistributable NSIS files, put here for conveniency.
+- ``ghini-runtime/`` — built by ``py2exe``, used by ``nsis``.
+- ``dist/`` — receives the executable installation file.
+
+Most steps are automated in the ``build-win.bat`` script.  Installation of a few
+tools needs to be done manually:
+
+#. Download and install Git, Python 2.7 and PyGTK.
+
+   This is outlined in the ``devinstall``-based :ref:`installation`
+   instructions.
+
+#. Download and install `NSIS v3 <http://nsis.sourceforge.net/Download>`_.
 
 #. A **reboot** is recommended.
 
-   .. admonition:: we have a script that automates the remaining steps
-      :class: toggle
+#. Clone the ghini.desktop repository.
+
+   Use your own fork if you plan contributing patches, or the organization's
+   repository ``https://github.com/Ghini/ghini.desktop.git`` if you only wish to
+   follow development.
+
+   Clone the repository from GitHub to wherever you want to keep it, and checkout
+   a branch.  Replace ``<path-to-keep-ghini>`` with the path of your choice,
+   e.g. ``Local\github\Ghini\``. Production branch ``ghini-1.0`` is recommended
+   as used in the example.
+
+   To do this, open a command prompt and type these commands::
+
+      cd <path-to-keep-ghini>
+      git clone <ghini.desktop repository URL>
+      cd ghini.desktop
+      git checkout ghini-1.0
+
+The result of the above is a complete development environment, on Windows, with
+NSIS.  Use it to follow development, or to propose your pull requests, and to
+build Windows installers.
+
+All subsequent steps are automated in the ``scripts\build_win.bat`` script.  Run
+it, and after a couple of minutes you should have a new
+``dist\ghini.desktop-<version>-setup.exe`` file, and a working, complete
+relocatable directory named ``ghini-runtime``.
+
+Read the rest if you need details about the way the script works.
+
+.. admonition:: The ``build_win.bat`` script
+   :class: toggle
 
       A batch file is available that can complete the last few steps.  To use 
       it use this command::
@@ -785,102 +840,179 @@ steps for a normal Windows :ref:`installation`.
 
       ``build_win.bat`` accepts 2 arguments:
 
-      #. ``/e`` will produce an executable only, skipping the extra step of 
-         building an installer, and will copy ``win_gtk.bat`` into place.
+      #. ``/e`` — executable only.
 
-      #. A path to the location for the virtual environment to use. (defaults 
-         to ``"%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe``)
+         Produce an executable only, skipping the extra step of building an
+         installer, and will copy ``win_gtk.bat`` into place.
 
-      e.g. to produce an executable only and use a virtual environment in 
-      a folder beside where you have ghini.desktop you could execute 
-      ``scripts\build_win.bat /e ..\ghi2exe``
+      #. ``venv_path`` — A path to the location for the virtual environment to use.
 
-#. Clone ghini.desktop to wherever you want to keep it (replace 
-   ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Local\github\Ghini\``) 
-   and checkout a production branch (``ghini-1.0`` is recommended as 
-   used in the example).  To do this, open a command prompt and type these 
-   commands::
+         Defaults to ``"%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\%CHECKOUT%-exe``,
+         where ``CHECKOUT`` corresponds to the name of the branch you checked
+         out.
 
-      cd <path-to-keep-ghini>
-      git clone https://github.com/Ghini/ghini.desktop.git
-      cd ghini.desktop
-      git checkout ghini-1.0
+      If you want to produce an executable only and use a virtual
+      environment in a folder beside where you have ghini.desktop, you could
+      execute ``scripts\build_win.bat /e ..\ghi2exe``
+         
 
-#. Install virtualenv, create a virtual environment and activate it.  With only 
-   Python 2.7 on your system (where ``<path-to-venv>`` is the path to where you 
-   wish to keep the virtual environment) use::
+.. admonition:: py2exe will not work with eggs
+   :class: toggle
 
-      pip install virtualenv
-      virtualenv --system-site-packages <path-to-venv>
-      call <path-to-venv>\Scripts\activate.bat
+      Building a Windows executable with py2exe requires packages **not** be 
+      installed as eggs.  There are several methods to accomplish this, including:
 
-   On systems where Python 3 is also installed you may need to either call pip 
-   and virtualenv with absolute paths e.g.  ``C:\Python27\Scripts\pip`` or use 
-   the Python launcher e.g. ``py -2.7 -m pip`` (run ``python --version`` first 
-   to check.  If you get anything other than version 2.7 you'll need to use one 
-   of these methods.)
+      - Install using ``pip``.  The easiest method is to install into a virtual 
+        environment that doesn't currently have any modules installed as eggs 
+        using ``pip install .`` as described below.  If you do wish to install over 
+        the top of an install with eggs (e.g. the environment created by 
+        ``devinstall.bat``) you can try ``pip install -I .`` but your mileage 
+        may vary. 
 
-#. Install dependencies and ghini.desktop into the virtual environment::
+      - By adding::
 
-      pip install psycopg2 Pygments py2exe_py2
-      pip install .
+          [easy_install]
+          zip_ok = False
 
-#. Build the executable::
+        to setup.cfg (or similarly ``zip_safe = False`` to ``setuptools.setup()`` 
+        in ``setup.py``) you can use ``python setup.py install`` but you will need 
+        to download and install `Microsoft Visual C++ Compiler for Python 2.7 
+        <http://aka.ms/vcpython27>`_ to get any of the C extensions and will need 
+        a fresh virtual environment with no dependent packages installed as eggs.
 
-      python setup.py py2exe
+      The included ``build-win`` script uses the ``pip`` method.
 
-   The ``dist`` folder will now contain a full working copy of the software in 
-   a frozen, self contained state, that can be transferred however you like and 
-   will work in place.  (e.g. placed on a USB flash drive for demonstration 
-   purposes or copied manually to ``C:\Program Files`` with a shortcut created 
-   on the desktop).  To start ghini.desktop double click ``ghini.exe`` in 
-   explorer (or create a shortcut to it). If you have issues with the UI not 
-   displaying correctly you need to run the script ``win_gtk.bat`` from the 
-   ``dist`` folder to set up paths to the GTK components correctly.  (Running 
-   ``build_win /e`` will place this script in the dist folder for you or you 
-   can copy it from the ``scripts`` folder yourself.)  You will only need to 
-   run this once each time the location of the folder changes.  Thereafter 
-   ``ghini.exe`` will run as expected.
+.. admonition:: installing virtualenv and working with environments
+   :class: toggle
 
-#. Build the installer::
+      Install virtualenv, create a virtual environment and activate it.
 
-      python setup.py nsis
+      With only Python 2.7 on your system (where ``<path-to-venv>`` is the
+      path to where you wish to keep the virtual environment) use::
 
-   This should leave a file named ``ghini.desktop-<version>-setup.exe`` in the 
-   ``scripts`` folder.  This is your Windows installer.
+         pip install virtualenv
+         virtualenv --system-site-packages <path-to-venv>
+         call <path-to-venv>\Scripts\activate.bat
+
+      On systems where Python 3 is also installed you may need to either call pip 
+      and virtualenv with absolute paths, e.g. ``C:\Python27\Scripts\pip`` or use 
+      the Python launcher e.g. ``py -2.7 -m pip`` (run ``python --version`` first 
+      to check.  If you get anything other than version 2.7 you'll need to use one 
+      of these methods.)
+
+.. admonition:: Populate the virtual environment
+   :class: toggle
+
+      Install dependencies and ghini.desktop into the virtual environment::
+
+         pip install psycopg2 Pygments py2exe_py2
+         pip install .
+
+.. admonition:: Compile for Windows
+   :class: toggle
+
+      Build the executable::
+
+         python setup.py py2exe
+
+      The ``ghini-runtime`` folder will now contain a full working copy of the
+      software in a frozen, self contained state.
+
+      This folder is what is packaged by NSIS.
+
+      This same folder can also be transferred however you like and will work in
+      place.  (e.g. placed on a USB flash drive for demonstration purposes or
+      copied manually to ``C:\Program Files`` with a shortcut created on the
+      desktop).  To start ghini.desktop double click ``ghini.exe`` in explorer
+      (or create a shortcut to it).
+
+
+.. admonition:: Fixing paths to GTK components.
+   :class: toggle
+
+      If you run the relocatable compiled program, unpackaged, you might
+      occasionally have trouble with the GUI not displaying correctly.
+
+      Should this happen, you need to set up paths to the GTK components
+      correctly.  You can do this by running the ``win_gtk.bat``, from the
+      ``ghini-runtime`` folder.
+
+      You will only need to run this once each time the location of the folder
+      changes.  Thereafter ``ghini.exe`` will run as expected.
+
+
+.. admonition:: Finally, invoke NSIS
+   :class: toggle
+
+      Build the installer::
+
+         python setup.py nsis
+
+      This should leave a file named ``ghini.desktop-<version>-setup.exe`` in the 
+      ``dist`` folder.  This is your Windows installer.
 
 .. admonition:: about the installer
    :class: toggle
 
-   -  Capable of single user or global installs.
+      - Capable of single user or global installs.
 
-   -  At this point in time ghini.desktop installed this way will not check
-      or or notify you of any updated version.  You will need to check 
-      yourself.
+      - At this point in time ghini.desktop installed this way will not
+        check or or notify you of any updated version.  You will need to
+        check yourself.
 
-   -  Capable of downloading and installing optional extra components:
+      - Capable of downloading and installing optional extra components:
 
-      -  Apache FOP - If you want to use xslt report templates install FOP.  
-         FOP requires Java Runtime. If you do not currently have it installed 
-         the installer will let you know and offer to open the Oracle web site 
-         for you to download and install it from.
+        - Apache FOP - If you want to use xslt report templates install FOP.
+          FOP requires Java Runtime. If you do not currently have it
+          installed the installer will let you know and offer to open the
+          Oracle web site for you to download and install it from.
 
-      -  MS Visual C runtime - You most likely don't need this but if you have 
-         any trouble getting ghini.desktop to run try installing the MS Visual 
-         C runtime (e.g. rerun the installer and select this component only).
+        - MS Visual C runtime - You most likely don't need this but if you
+          have any trouble getting ghini.desktop to run try installing the
+          MS Visual C runtime (e.g. rerun the installer and select this
+          component only).
 
-   -  Can be run silently from the commandline (e.g. for remote deployment) 
-      with the following arguments:
+      - Can be run silently from the commandline (e.g. for remote
+        deployment) with the following arguments:
 
-      - ``/S`` for silent;
+        - ``/S`` for silent;
 
-      - ``/AllUser`` (when run as administrator) or ``/CurrentUser``
+        - ``/AllUser`` (when run as administrator) or ``/CurrentUser``
 
-      - ``/C=[gFC]`` to specify components where:
+        - ``/C=[gFC]`` to specify components where:
 
-            ``g`` = Deselect the main ghini.desktop component (useful for 
-            adding optional component after an initial install)
+          ``g`` = Deselect the main ghini.desktop component (useful for 
+          adding optional component after an initial install)
 
-            ``F`` = select Apache FOP
+          ``F`` = select Apache FOP
 
-            ``C`` = select MS Visual C runtime
+          ``C`` = select MS Visual C runtime
+
+Debian
+^^^^^^^^^^^^^^^
+
+Between 2009 and 2010 someone packaged the then already obsolete 
+Bauble 0.9.7 for Debian, and the package was included
+in Ubuntu.  That version is
+`still being distributed <https://packages.ubuntu.com/xenial/bauble>`_,
+regardless being it impossible to install.  
+
+Only recently has Mario Frasca produced a new bauble debian package, for the
+latest bauble.classic version 1.0.56, and proposed for inclusion in Debian.
+View it on `mentors <https://mentors.debian.net/package/bauble>`_.  This
+version depends on ``fibra``, a package that was never added to Debian and
+which Mario also has packaged and `proposed for inclusion in Debian 
+<https://mentors.debian.net/package/fibra>`_.  Mario has been trying to 
+activate some Debian Developer, to take action.  There's not much more we can 
+do, other than wait for a sponsor, and hoping the package will eventually get 
+all the way to Ubuntu.
+
+Once we get in contact with a `Debian Sponsor <https://mentors.debian.net/sponsors>`_ who will review what we
+publish on `mentors <https://mentors.debian.net/intro-maintainers>`_, then we
+will be definitely expected to keep updating the debian package for
+``ghini.desktop`` and ``fibra``.
+
+I am not going to explain in a few words the content of several books on
+Debian packaging.  Please choose your sources.  For a very compact idea of
+what you're expected to do, have a look at ``scripts/pubish.sh``.
+            
