@@ -142,10 +142,11 @@ class SchemaMenu(Gtk.Menu):
                    and not x.key.startswith('_')],
             key=lambda k: k.key)
 
-        for key in self.leading_items:
-            item = Gtk.MenuItem(key, use_underline=False)
-            item.connect('activate', self.on_activate, None)
-            target.append(item)
+        if container is None or not container.uselist:
+            for key in self.leading_items:
+                item = Gtk.MenuItem(key, use_underline=False)
+                item.connect('activate', self.on_activate, None)
+                target.append(item)
 
         for prop in column_properties:
             if not self.relation_filter(container, prop):
