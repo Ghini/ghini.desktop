@@ -54,8 +54,13 @@ class FlatFileExporter(GenericEditorPresenter):
         """
         self.view.widgets.exported_fields_ls.append((clause_field, ))
 
+    def get_model_fields(self):
+        return {'output_file': self.view.widget_get_value('output_file'),
+                'domain': self.view.widget_get_value('domain_combo'),
+                'exported_fields': [r[0] for r in self.view.widgets.exported_fields_ls]}
+
     def set_model_fields(self, output_file=None, domain=None,
-                         exported_fields=None,
+                         exported_fields=[],
                          **kwargs):
         if kwargs:
             logger.warning('set_model_fields received extra parameters %s' % kwargs)
@@ -155,6 +160,7 @@ class FlatFileExporter(GenericEditorPresenter):
 class FlatFileExportTool(pluginmgr.Tool):
     category = _('Export')
     label = _('Flat file (csv)')
+    last_model = {}
 
     @classmethod
     def start(cls):
@@ -164,9 +170,9 @@ class FlatFileExportTool(pluginmgr.Tool):
             parent=None,
             root_widget_name='main_dialog')
         qb = FlatFileExporter(view)
-        qb.set_model_fields(output_file='/tmp/test.csv', domain='plant',
-                            exported_fields=['accession.code', 'code', 'accession.species.genus.epithet', 'accession.species.epithet'])
+        qb.set_model_fields(**cls.last_model)
         response = qb.start()
         if response == Gtk.ResponseType.OK:
+            cls.last_model = qb.get_model_fields()
             query = qb.do_export()
         qb.cleanup()
