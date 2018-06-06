@@ -55,15 +55,24 @@ class FlatFileExporter(GenericEditorPresenter):
         self.view.widgets.exported_fields_ls.append((clause_field, ))
 
     def on_list_keypress(self, widget, event, *args, **kwargs):
-        """add the selected item to the exported fields
+        """handle delete and shift-cursor
 
         """
+        if len(self.view.widgets.exported_fields_ls) == 0:
+            return
+        path, column = widget.get_cursor()
+        store = self.view.widgets.exported_fields_ls
+        this = store.get_iter(path)
+        other = None
         if event.keyval in (Gdk.KEY_Delete, Gdk.KEY_KP_Delete):
-            if len(self.view.widgets.exported_fields_ls) == 0:
-                return
-            path, column = widget.get_cursor()
-            iter = self.view.widgets.exported_fields_ls.get_iter(path)
-            self.view.widgets.exported_fields_ls.remove(iter)
+            store.remove(this)
+        elif event.keyval in (Gdk.KEY_Down, Gdk.KEY_J) and event.state==Gdk.ModifierType.SHIFT_MASK:
+            other = store.iter_next(this)
+        elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_K) and event.state==Gdk.ModifierType.SHIFT_MASK:
+            other = store.iter_previous(this)
+        if other is not None:
+            store.swap(this, other)
+            return True
 
     def get_model_fields(self):
         return {'output_file': self.view.widget_get_value('output_file'),
