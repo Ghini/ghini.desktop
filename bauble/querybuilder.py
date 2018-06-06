@@ -55,21 +55,29 @@ def parse_typed_value(value):
 
 
 class SchemaMenu(Gtk.Menu):
-    """
-    SchemaMenu
+    """SchemaMenu
+
+    TODO: Mario has the idea that this class is quite a mess: a smart GUI
+    object, implementing non GUI logic.  then itself containing a menu,
+    behaving as the top object, but not of its own class, so the logic is
+    implemented in the top object alone, and needing to pass information
+    around between smart and dumb objects.  some day someone can put order.
 
     :param mapper:
     :param activate cb:
     :param relation_filter:
+
     """
 
     def __init__(self, mapper, activate_cb=None,
-                 relation_filter=lambda c, p: True):
+                 relation_filter=lambda c, p: True,
+                 prepend_action=lambda prop, target: None):
         super().__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
-        for i in self._get_prop_menuitems(mapper):
-            self.append(i)
+        self.prepend_action = prepend_action
+        self.append_menuitems(mapper, target=self)
+        self.prepend_action(mapper, self)
         self.show_all()
 
     def on_activate(self, menuitem, prop):
@@ -95,11 +103,30 @@ class SchemaMenu(Gtk.Menu):
         """
         submenu = menuitem.get_submenu()
         if len(submenu.get_children()) == 0:  # still empty: construct it
-            for item in self._get_prop_menuitems(prop.mapper, prop):
-                submenu.append(item)
+            self.append_menuitems(prop.mapper, prop, target=submenu)
+            self.prepend_action(prop.mapper, submenu)
         submenu.show_all()
 
-    def _get_prop_menuitems(self, mapper, container=None):
+    def append_menuitems(self, mapper, container=None, target=None):
+        '''Populate target menu
+
+        Construct as manu Gtk.MenuItem as the properties of `mapper` and
+        append each new item to the target menu.
+
+        ColumnProperties correspond to end-point MenuItems.  When
+        activated, the interaction with the SchemaMenu is completed, and
+        the top `activate_cb` is invoked.
+
+        RelationProperties correspond to MenuItems with a cascade menu.
+        When selected, the `on_select` callback checks whether the
+        corresponding submenu is already in place, possibly constructs it
+        (by invoking this same `append_menuitems`) and shows it.
+
+        When the `target` menu is a submenu associated to some MenuItem,
+        `container` is the property from which that MenuItem was created,
+        in a previous invocation of append_menuitems.
+
+        '''
         # When looping over iterate_properties leave out properties that
         # start with underscore since they are considered private.
         # Separate properties in column_properties and relation_properties.
@@ -117,14 +144,12 @@ class SchemaMenu(Gtk.Menu):
                    and not x.key.startswith('_')],
             key=lambda k: k.key)
 
-        items = []
-
         for prop in column_properties:
             if not self.relation_filter(container, prop):
                 continue
             item = Gtk.MenuItem(prop.key, use_underline=False)
             item.connect('activate', self.on_activate, prop)
-            items.append(item)
+            target.append(item)
 
         for prop in relation_properties:
             if not self.relation_filter(container, prop):
@@ -133,8 +158,7 @@ class SchemaMenu(Gtk.Menu):
             submenu = Gtk.Menu()
             item.set_submenu(submenu)
             item.connect('select', self.on_select, prop)
-            items.append(item)
-        return items
+            target.append(item)
 
 
 class ExpressionRow(object):
