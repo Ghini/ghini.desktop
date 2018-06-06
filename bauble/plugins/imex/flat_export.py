@@ -19,7 +19,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 import os.path
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import ColumnProperty
@@ -53,6 +53,17 @@ class FlatFileExporter(GenericEditorPresenter):
 
         """
         self.view.widgets.exported_fields_ls.append((clause_field, ))
+
+    def on_list_keypress(self, widget, event, *args, **kwargs):
+        """add the selected item to the exported fields
+
+        """
+        if event.keyval in (Gdk.KEY_Delete, Gdk.KEY_KP_Delete):
+            if len(self.view.widgets.exported_fields_ls) == 0:
+                return
+            path, column = widget.get_cursor()
+            iter = self.view.widgets.exported_fields_ls.get_iter(path)
+            self.view.widgets.exported_fields_ls.remove(iter)
 
     def get_model_fields(self):
         return {'output_file': self.view.widget_get_value('output_file'),

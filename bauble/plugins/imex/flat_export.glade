@@ -75,13 +75,14 @@
                 <property name="can_focus">True</property>
                 <property name="shadow_type">in</property>
                 <child>
-                  <object class="GtkTreeView">
+                  <object class="GtkTreeView" id="treeview">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="model">exported_fields_ls</property>
                     <property name="headers_visible">False</property>
                     <property name="reorderable">True</property>
                     <property name="enable_tree_lines">True</property>
+                    <signal name="key-press-event" handler="on_list_keypress" swapped="no"/>
                     <signal name="move-cursor" handler="on_cursor_moved" swapped="yes"/>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection"/>
