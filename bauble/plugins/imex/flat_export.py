@@ -48,6 +48,39 @@ class FlatFileExporter(GenericEditorPresenter):
             self.view.widgets.domain_ls.append([key])
         self.signal_id = None
 
+    def get_model_fields(self):
+        return {'output_file': self.view.widget_get_value('output_file'),
+                'domain': self.view.widget_get_value('domain_combo'),
+                'exported_fields': [r[0] for r in self.view.widgets.exported_fields_ls]}
+
+    def set_model_fields(self, output_file=None, domain=None,
+                         exported_fields=[],
+                         **kwargs):
+        if kwargs:
+            logger.warning('set_model_fields received extra parameters %s' % kwargs)
+
+        self.view.widget_set_value('output_file', output_file)
+
+        self.view.widget_set_value('domain_combo', domain)
+        self.domain = domain
+
+        self.view.widgets.exported_fields_ls.clear()
+        for i in exported_fields:
+            self.view.widgets.exported_fields_ls.append((i, ))
+
+    def on_open_btn_clicked(self, *args):
+        """browse for output file
+
+        """
+        previously = self.view.widget_get_value('output_file')
+        last_folder, bn = os.path.split(previously)
+        self.view.run_file_chooser_dialog(
+            _("Choose a file…"), None,
+            action=Gtk.FileChooserAction.SAVE,
+            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
+            last_folder=last_folder, target='output_file')
+
     def on_schema_menu_activated(self, menuitem, clause_field, prop):
         """add the selected item to the exported fields
 
@@ -73,26 +106,6 @@ class FlatFileExporter(GenericEditorPresenter):
         if other is not None:
             store.swap(this, other)
             return True
-
-    def get_model_fields(self):
-        return {'output_file': self.view.widget_get_value('output_file'),
-                'domain': self.view.widget_get_value('domain_combo'),
-                'exported_fields': [r[0] for r in self.view.widgets.exported_fields_ls]}
-
-    def set_model_fields(self, output_file=None, domain=None,
-                         exported_fields=[],
-                         **kwargs):
-        if kwargs:
-            logger.warning('set_model_fields received extra parameters %s' % kwargs)
-
-        self.view.widget_set_value('output_file', output_file)
-
-        self.view.widget_set_value('domain_combo', domain)
-        self.domain = domain
-
-        self.view.widgets.exported_fields_ls.clear()
-        for i in exported_fields:
-            self.view.widgets.exported_fields_ls.append((i, ))
 
     def on_domain_combo_changed(self, *args):
         """
