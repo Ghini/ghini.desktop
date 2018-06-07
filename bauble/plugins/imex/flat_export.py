@@ -21,10 +21,13 @@
 
 from gi.repository import Gtk, Gdk
 import os.path
+from os.path import isdir, dirname
+import os
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.types import Integer, Boolean, Float
 import bauble
+from bauble import utils
 from bauble.search import MapperSearch
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
@@ -47,6 +50,7 @@ class FlatFileExporter(GenericEditorPresenter):
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_ls.append([key])
         self.signal_id = None
+        self.on_output_file_changed()
 
     def get_model_fields(self):
         return {'output_file': self.view.widget_get_value('output_file'),
@@ -80,6 +84,15 @@ class FlatFileExporter(GenericEditorPresenter):
             buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
                      Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
             last_folder=last_folder, target='output_file')
+
+    def on_output_file_changed(self, *args):
+        """set sensitivity of button, based on validity of path
+
+        """
+        current_path = self.view.widget_get_value('output_file')
+        def iswritable(p):
+            pass
+        self.view.widget_set_sensitive('confirm_button', not isdir(current_path) and isdir(dirname(current_path)) and os.access(dirname(current_path), os.W_OK))
 
     def on_schema_menu_activated(self, menuitem, clause_field, prop):
         """add the selected item to the exported fields
@@ -158,6 +171,7 @@ class FlatFileExporter(GenericEditorPresenter):
         from sqlalchemy.orm.collections import InstrumentedList
         import csv
         filename = self.view.widget_get_value('output_file')
+        rows_count = 0
         with open(filename, 'w') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -187,8 +201,10 @@ class FlatFileExporter(GenericEditorPresenter):
                                 value = sum(x or 0 for x in values)
                     row.append(value)
                 spamwriter.writerow(row)
+                rows_count += 1
             session.rollback()
-
+        return {'count': rows_count,
+                'filename': filename}
 
 class FlatFileExportTool(pluginmgr.Tool):
     category = _('Export')
@@ -207,5 +223,23 @@ class FlatFileExportTool(pluginmgr.Tool):
         response = qb.start()
         if response == Gtk.ResponseType.OK:
             cls.last_model = qb.get_model_fields()
-            query = qb.do_export()
+            report = qb.do_export()
+            msg = _("Exported file %(filename)s contains %(count)s rows.\n"
+                    "\n"
+                    "Do you want to open it, or can we stop?") % report
+            msg_dialog = utils.create_message_dialog(msg, buttons=Gtk.ButtonsType.NONE)
+            msg_dialog.add_buttons(Gtk.STOCK_OPEN, 42,
+                                   Gtk.STOCK_STOP, 40)
+            msg_dialog.set_default_response(40)
+            should_we_open = msg_dialog.run()
+            msg_dialog.destroy()
+            if should_we_open == 42:
+                filename = report['filename']
+                try:
+                    utils.desktop.open('file://' + filename)
+                except OSError:
+                    utils.message_dialog(_('Could not open the report with the '
+                                           'default program. You can open the '
+                                           'file manually at %s') % filename)
+
         qb.cleanup()

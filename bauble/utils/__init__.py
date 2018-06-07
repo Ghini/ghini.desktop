@@ -528,8 +528,7 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
 
 def create_message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                           parent=None):
-    '''
-    Create a message dialog.
+    ''' Create a message dialog, display and return it ready to be run.
 
     :param msg: The markup to use for the message. The value should be
       escaped in case it contains any HTML entities.
@@ -564,7 +563,8 @@ def create_message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsTyp
 
 def message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                    parent=None):
-    '''
+    '''Create and run a temporary MessageDialog.
+ 
     Create a message dialog with :func:`bauble.utils.create_message_dialog`
     and run and destroy it.
 

@@ -215,6 +215,7 @@
               <object class="GtkEntry" id="output_file">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <signal name="changed" handler="on_output_file_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">0</property>
