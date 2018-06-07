@@ -55,8 +55,9 @@ import bauble.prefs as prefs
 from bauble.search import SearchStrategy
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-    select_in_search_results, Action
+from bauble.view import (InfoBox, InfoExpander, PropertiesExpander, 
+                         MapInfoExpander,
+                         select_in_search_results, Action)
 import bauble.view as view
 
 # TODO: might be worthwhile to have a label or textview next to the
@@ -1434,8 +1435,19 @@ class PlantInfoBox(InfoBox):
         self.links = view.LinksExpander('notes')
         self.add_expander(self.links)
 
+        self.mapinfo = MapInfoExpander(self.get_map_extents)
+        self.add_expander(self.mapinfo)
+
         self.props = PropertiesExpander()
         self.add_expander(self.props)
+
+    def get_map_extents(self, plant):
+        result = []
+        try:
+            result.append(plant.coords)
+        except:
+            pass
+        return result
 
     def update(self, row):
         '''
@@ -1457,4 +1469,5 @@ class PlantInfoBox(InfoBox):
             self.links._sep.props.visible = True
             self.links.update(row)
 
+        self.mapinfo.update(row)
         self.props.update(row)

@@ -62,8 +62,9 @@ from bauble.plugins.garden.source import Contact, create_contact, \
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-    select_in_search_results, Action
+from bauble.view import (InfoBox, InfoExpander, PropertiesExpander,
+                         MapInfoExpander,
+                         select_in_search_results, Action)
 import bauble.view as view
 from bauble.search import SearchStrategy
 from bauble.utils import safe_int
@@ -909,10 +910,9 @@ class AccessionEditorView(editor.GenericEditorView):
         """
 
         """
-        super().\
-            __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                  'acc_editor.glade'),
-                     parent=parent)
+        super().__init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                      'acc_editor.glade'),
+                         parent=parent)
         self.attach_completion('acc_species_entry',
                                cell_data_func=self.species_cell_data_func,
                                match_func=self.species_match_func)
@@ -2186,8 +2186,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         Set attributes on the model and update the GUI as expected.
         """
         #debug('set_model_attr(%s, %s)' % (field, value))
-        super().set_model_attr(field, value,
-                                                             validator)
+        super().set_model_attr(field, value, validator)
         self._dirty = True
         # TODO: add a test to make sure that the change notifiers are
         # called in the expected order
@@ -2705,8 +2704,7 @@ class VerificationsExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        super().__init__(
-            _("Verifications"), widgets)
+        super().__init__(_("Verifications"), widgets)
         # notes_box = self.widgets.notes_box
         # self.widgets.notes_window.remove(notes_box)
         # self.vbox.pack_start(notes_box, True, True, 0)
@@ -2777,16 +2775,27 @@ class AccessionInfoBox(InfoBox):
         self.links = view.LinksExpander('notes')
         self.add_expander(self.links)
 
+        self.mapinfo = MapInfoExpander(self.get_map_extents)
+        self.add_expander(self.mapinfo)
+
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
-        #self.show_all()
+    def get_map_extents(self, accession):
+        result = []
+        for plant in accession.plants:
+            try:
+                result.append(plant.coords)
+            except:
+                pass
+        return result
 
     def update(self, row):
         if isinstance(row, Collection):
             row = row.source.accession
 
         self.general.update(row)
+        self.mapinfo.update(row)
         self.props.update(row)
 
         # if row.verifications:

@@ -209,10 +209,10 @@ class LocationEditorView(GenericEditorView):
         }
 
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
-                                                      'plugins', 'garden',
-                                                      'loc_editor.glade'),
-                                   parent=parent)
+        super().__init__(os.path.join(paths.lib_dir(),
+                                      'plugins', 'garden',
+                                      'loc_editor.glade'),
+                         parent=parent)
         self.use_ok_and_add = True
         self.set_accept_buttons_sensitive(False)
         # if the parent isn't the main bauble window then we assume
@@ -246,7 +246,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         model: should be an instance of class Accession
         view: should be an instance of AccessionEditorView
         '''
-        GenericEditorPresenter.__init__(self, model, view)
+        super().__init__(model, view)
         self.create_toolbar()
         self.session = object_session(model)
         self._dirty = False
@@ -457,18 +457,15 @@ class LocationEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, MapInfoExpander
 
 
 class GeneralLocationExpander(InfoExpander):
-    """
-    general expander for the PlantInfoBox
-    """
 
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, _("General"), widgets)
+        super().__init__(_("General"), widgets)
         general_box = self.widgets.loc_gen_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box, True, True, 0)
@@ -499,7 +496,7 @@ class DescriptionExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Description"), widgets)
+        super().__init__(_("Description"), widgets)
         descr_box = self.widgets.loc_descr_box
         self.widgets.remove_parent(descr_box)
         self.vbox.pack_start(descr_box, True, True, 0)
@@ -524,7 +521,7 @@ class LocationInfoBox(InfoBox):
     def __init__(self):
         '''
         '''
-        InfoBox.__init__(self)
+        super().__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "loc_infobox.glade")
         self.widgets = utils.BuilderWidgets(filename)
@@ -532,12 +529,24 @@ class LocationInfoBox(InfoBox):
         self.add_expander(self.general)
         self.description = DescriptionExpander(self.widgets)
         self.add_expander(self.description)
+        self.mapinfo = MapInfoExpander(self.get_map_extents)
+        self.add_expander(self.mapinfo)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
+
+    def get_map_extents(self, location):
+        result = []
+        for plant in location.plants:
+            try:
+                result.append(plant.coords)
+            except:
+                pass
+        return result
 
     def update(self, row):
         '''
         '''
         self.general.update(row)
         self.description.update(row)
+        self.mapinfo.update(row)
         self.props.update(row)

@@ -37,6 +37,13 @@ from gi.repository import GObject
 from gi.repository import Pango
 import threading
 
+import gi
+gi.require_version('Champlain', '0.12')
+gi.require_version('GtkChamplain', '0.12')
+gi.require_version('GtkClutter', '1.0')
+from gi.repository import GtkClutter, Clutter, GtkChamplain
+GtkClutter.init([])
+from gi.repository import Champlain
 
 from pyparsing import ParseException
 from sqlalchemy.orm import object_session
@@ -213,6 +220,45 @@ class PropertiesExpander(InfoExpander):
             or '')
 
 
+class MapInfoExpander(InfoExpander):
+
+    def __init__(self, get_points=None):
+        super().__init__(_('Location on map'))
+
+        self.map_widget = GtkChamplain.Embed()
+        self.map_widget.set_size_request(230, 230)
+        self.vbox.pack_start(self.map_widget, False, False, 0)
+        self.clutter_view = self.map_widget.get_view()
+        self.clutter_view.set_horizontal_wrap(True)
+        self.map_widget.set_sensitive(False)
+        self.get_points = get_points
+        self.layer = Champlain.MarkerLayer()
+        self.clutter_view.add_layer(self.layer)
+        self.layer.show()
+
+    def on_expanded(self, *args):
+        super().on_expanded(*args)
+        self.map_widget.set_visible(self.get_expanded())
+
+    def update(self, row):
+        self.map_widget.set_visible(self.get_expanded())
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7f)
+        self.layer.remove_all()
+        if self.get_points is None:
+            return
+        i = None
+        points = self.get_points(row)
+        for i in points:
+            marker = Champlain.Point()
+            marker.set_color(black)
+            marker.set_size(5)
+            marker.set_location(i['lat'], i['lon'])
+            self.layer.add_marker(marker)
+        if i is not None:
+            self.clutter_view.center_on(i['lat'], i['lon'])
+            self.clutter_view.set_zoom_level(18)
+            
+
 class InfoBoxPage(Gtk.ScrolledWindow):
     """
     A :class:`Gtk.ScrolledWindow` that contains
@@ -386,8 +432,7 @@ class AddOneDot(threading.Thread):
         statusbar.push(sbcontext_id, _('counting results') + '.' * dotno)
 
     def __init__(self, group=None, verbose=None, **kwargs):
-        super().__init__(
-            group=group, target=None, name=None)
+        super().__init__(group=group, target=None, name=None)
         self.__stopped = threading.Event()
         self.dotno = 0
 
@@ -403,8 +448,7 @@ class AddOneDot(threading.Thread):
 class CountResultsTask(threading.Thread):
     def __init__(self, klass, ids, dots_thread,
                  group=None, verbose=None, **kwargs):
-        super().__init__(
-            group=group, target=None, name=None)
+        super().__init__(group=group, target=None, name=None)
         self.klass = klass
         self.ids = ids
         self.dots_thread = dots_thread
@@ -1312,8 +1356,7 @@ class AppendThousandRows(threading.Thread):
         self.view.liststore.append(row)
 
     def __init__(self, view, group=None, verbose=None, **kwargs):
-        super().__init__(
-            group=group, target=None, name=None)
+        super().__init__(group=group, target=None, name=None)
         self.__stopped = threading.Event()
         self.view = view
 
