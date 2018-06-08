@@ -112,7 +112,7 @@ def export_to_pocket(filename, include_private=True):
                    'VALUES (?, ?, ?, ?, ?, ?, ?);',
                    (i.id, i.genus.family.epithet, i.genus.epithet, i.epithet,
                     i.infraspecific_rank, i.infraspecific_epithet,
-                    i.infraspecific_author or i.sp_author or ''))
+                    i.infraspecific_author or i.author or ''))
         except Exception as e:
             logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
         GObject.idle_add(pb_set_fraction, 0.05 * count / len(species))

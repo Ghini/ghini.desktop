@@ -71,10 +71,10 @@ from bauble.plugins.plants.species_model import _remove_zws as remove_zws
 
 
 family_test_data = (
-    {'id': 1, 'family': 'Orchidaceae'},
-    {'id': 2, 'family': 'Leguminosae', 'qualifier': 's. str.'},
-    {'id': 3, 'family': 'Polypodiaceae'},
-    {'id': 4, 'family': 'Solanaceae'},
+    {'id': 1, 'epithet': 'Orchidaceae'},
+    {'id': 2, 'epithet': 'Leguminosae', 'qualifier': 's. str.'},
+    {'id': 3, 'epithet': 'Polypodiaceae'},
+    {'id': 4, 'epithet': 'Solanaceae'},
     )
 
 family_note_test_data = (
@@ -82,13 +82,13 @@ family_note_test_data = (
     )
 
 genus_test_data = (
-    {'id': 1, 'genus': 'Maxillaria', 'family_id': 1},
-    {'id': 2, 'genus': 'Encyclia', 'family_id': 1},
-    {'id': 3, 'genus': 'Abrus', 'family_id': 2},
-    {'id': 4, 'genus': 'Campyloneurum', 'family_id': 3},
-    {'id': 5, 'genus': 'Paphiopedilum', 'family_id': 1},
-    {'id': 6, 'genus': 'Laelia', 'family_id': 1},
-    {'id': 7, 'genus': 'Brugmansia', 'family_id': 4},
+    {'id': 1, 'epithet': 'Maxillaria', 'family_id': 1},
+    {'id': 2, 'epithet': 'Encyclia', 'family_id': 1},
+    {'id': 3, 'epithet': 'Abrus', 'family_id': 2},
+    {'id': 4, 'epithet': 'Campyloneurum', 'family_id': 3},
+    {'id': 5, 'epithet': 'Paphiopedilum', 'family_id': 1},
+    {'id': 6, 'epithet': 'Laelia', 'family_id': 1},
+    {'id': 7, 'epithet': 'Brugmansia', 'family_id': 4},
     )
 
 genus_note_test_data = (
@@ -96,62 +96,62 @@ genus_note_test_data = (
     )
 
 species_test_data = (
-    {'id': 1, 'sp': 'variabilis', 'genus_id': 1,
-     'sp_author': 'Bateman ex Lindl.'},
-    {'id': 2, 'sp': 'cochleata', 'genus_id': 2,
-     'sp_author': '(L.) Lem\xe9e'},
-    {'id': 3, 'sp': 'precatorius', 'genus_id': 3,
-     'sp_author': 'L.'},
-    {'id': 4, 'sp': 'alapense', 'genus_id': 4,
-     'hybrid': True, 'sp_author': 'F\xe9e'},
-    {'id': 5, 'sp': 'cochleata', 'genus_id': 2,
-     'sp_author': '(L.) Lem\xe9e',
+    {'id': 1, 'epithet': 'variabilis', 'genus_id': 1,
+     'author': 'Bateman ex Lindl.'},
+    {'id': 2, 'epithet': 'cochleata', 'genus_id': 2,
+     'author': '(L.) Lem\xe9e'},
+    {'id': 3, 'epithet': 'precatorius', 'genus_id': 3,
+     'author': 'L.'},
+    {'id': 4, 'epithet': 'alapense', 'genus_id': 4,
+     'hybrid': True, 'author': 'F\xe9e'},
+    {'id': 5, 'epithet': 'cochleata', 'genus_id': 2,
+     'author': '(L.) Lem\xe9e',
      'infrasp1_rank': 'var.', 'infrasp1': 'cochleata'},
-    {'id': 6, 'sp': 'cochleata', 'genus_id': 2,
-     'sp_author': '(L.) Lem\xe9e',
+    {'id': 6, 'epithet': 'cochleata', 'genus_id': 2,
+     'author': '(L.) Lem\xe9e',
      'infrasp1_rank': 'cv.', 'infrasp1': 'Black Night'},
-    {'id': 7, 'sp': 'precatorius', 'genus_id': 3,
-     'sp_author': 'L.', 'cv_group': 'SomethingRidiculous'},
-    {'id': 8, 'sp': 'precatorius', 'genus_id': 3,
-     'sp_author': 'L.',
+    {'id': 7, 'epithet': 'precatorius', 'genus_id': 3,
+     'author': 'L.', 'cv_group': 'SomethingRidiculous'},
+    {'id': 8, 'epithet': 'precatorius', 'genus_id': 3,
+     'author': 'L.',
      'infrasp1_rank': 'cv.', 'infrasp1': 'Hot Rio Nights',
      'cv_group': 'SomethingRidiculous'},
-    {'id': 9, 'sp': 'generalis', 'genus_id': 1,
+    {'id': 9, 'epithet': 'generalis', 'genus_id': 1,
      'hybrid': True,
      'infrasp1_rank': 'cv.', 'infrasp1': 'Red'},
-    {'id': 10, 'sp': 'generalis', 'genus_id': 1,
-     'hybrid': True, 'sp_author': 'L.',
+    {'id': 10, 'epithet': 'generalis', 'genus_id': 1,
+     'hybrid': True, 'author': 'L.',
      'infrasp1_rank': 'cv.', 'infrasp1': 'Red',
      'cv_group': 'SomeGroup'},
-    {'id': 11, 'sp': 'generalis', 'genus_id': 1,
+    {'id': 11, 'epithet': 'generalis', 'genus_id': 1,
      'sp_qual': 'agg.'},
     {'id': 12, 'genus_id': 1, 'cv_group': 'SomeGroup'},
     {'id': 13, 'genus_id': 1,
      'infrasp1_rank': 'cv.', 'infrasp1': 'Red'},
     {'id': 14, 'genus_id': 1,
      'infrasp1_rank': 'cv.', 'infrasp1': 'Red & Blue'},
-    {'id': 15, 'sp': 'cochleata', 'genus_id': 2,
-     'sp_author': 'L.',
+    {'id': 15, 'epithet': 'cochleata', 'genus_id': 2,
+     'author': 'L.',
      'infrasp1_rank': 'subsp.', 'infrasp1': 'cochleata',
      'infrasp1_author': 'L.',
      'infrasp2_rank': 'var.', 'infrasp2': 'cochleata',
      'infrasp2_author': 'L.',
      'infrasp3_rank': 'cv.', 'infrasp3': 'Black',
      'infrasp3_author': 'L.'},
-    {'id': 16, 'genus_id': 1, 'sp': 'test',
+    {'id': 16, 'genus_id': 1, 'epithet': 'test',
      'infrasp1_rank': 'subsp.', 'infrasp1': 'test',
      'cv_group': 'SomeGroup'},
-    {'id': 17, 'genus_id': 5, 'sp': 'adductum', 'author': 'Asher'},
-    {'id': 18, 'genus_id': 6, 'sp': 'lobata', 'author': 'H.J. Veitch'},
-    {'id': 19, 'genus_id': 6, 'sp': 'grandiflora', 'author': 'Lindl.'},
-    {'id': 20, 'genus_id': 2, 'sp': 'fragrans', 'author': 'Dressler'},
-    {'id': 21, 'genus_id': 7, 'sp': 'arborea', 'author': 'Lagerh.'},
-    {'id': 22, 'sp': '', 'genus_id': 1, 'sp_author': '',
+    {'id': 17, 'genus_id': 5, 'epithet': 'adductum', 'author': 'Asher'},
+    {'id': 18, 'genus_id': 6, 'epithet': 'lobata', 'author': 'H.J. Veitch'},
+    {'id': 19, 'genus_id': 6, 'epithet': 'grandiflora', 'author': 'Lindl.'},
+    {'id': 20, 'genus_id': 2, 'epithet': 'fragrans', 'author': 'Dressler'},
+    {'id': 21, 'genus_id': 7, 'epithet': 'arborea', 'author': 'Lagerh.'},
+    {'id': 22, 'epithet': '', 'genus_id': 1, 'author': '',
      'infrasp1_rank': 'cv.', 'infrasp1': 'Layla Saida'},
-    {'id': 23, 'sp': '', 'genus_id': 1, 'sp_author': '',
+    {'id': 23, 'epithet': '', 'genus_id': 1, 'author': '',
      'infrasp1_rank': 'cv.', 'infrasp1': 'Buonanotte'},
-    {'id': 24, 'sp': '', 'genus_id': 1, 'sp_author': '',
-     'infrasp1_rank': None, 'infrasp1': 'sp'},
+    {'id': 24, 'epithet': '', 'genus_id': 1, 'author': '',
+     'infrasp1_rank': None, 'infrasp1': 'epithet'},
     )
 
 species_note_test_data = (
@@ -290,8 +290,8 @@ class PlantTestCase(BaubleTestCase):
 
 class FamilyTests(PlantTestCase):
     def test_cascades(self):
-        family = Family(family='family')
-        genus = Genus(family=family, genus='genus')
+        family = Family(epithet='family')
+        genus = Genus(family=family, epithet='genus')
         self.session.add_all([family, genus])
         self.session.commit()
 
@@ -302,8 +302,8 @@ class FamilyTests(PlantTestCase):
         self.assertRaises(NoResultFound, query.one)
 
     def test_synonyms(self):
-        family = Family(family='family')
-        family2 = Family(family='family2')
+        family = Family(epithet='family')
+        family2 = Family(epithet='family2')
         family.synonyms.append(family2)
         self.session.add_all([family, family2])
         self.session.commit()
@@ -349,7 +349,7 @@ class FamilyTests(PlantTestCase):
 
         # test that deleting a family that has synonyms deletes all
         # the synonyms that refer to that family deletes all the
-        family2 = Family(family='family2')
+        family2 = Family(epithet='family2')
         self.session.add(family2)
         family.synonyms.append(family2)
         self.session.commit()
@@ -358,8 +358,8 @@ class FamilyTests(PlantTestCase):
         self.assertTrue(self.session.query(FamilySynonym).count() == 0)
 
     def test_constraints(self):
-        values = [dict(family='family'),
-                  dict(family='family', qualifier='s. lat.')]
+        values = [dict(epithet='family'),
+                  dict(epithet='family', qualifier='s. lat.')]
         for v in values:
             self.session.add(Family(**v))
             self.session.add(Family(**v))
@@ -367,14 +367,14 @@ class FamilyTests(PlantTestCase):
             self.session.rollback()
 
         # test that family cannot be null
-        self.session.add(Family(family=None))
+        self.session.add(Family(epithet=None))
         self.assertRaises(IntegrityError, self.session.commit)
         self.session.rollback()
 
     def test_str(self):
         f = Family()
         self.assertTrue(str(f) == repr(f))
-        f = Family(family='fam')
+        f = Family(epithet='fam')
         self.assertTrue(str(f) == 'fam')
         f.qualifier = 's. lat.'
         self.assertTrue(str(f) == 'fam s. lat.')
@@ -382,7 +382,7 @@ class FamilyTests(PlantTestCase):
     def test_editor(self):
         raise SkipTest('Not Implemented')
         #loc = self.create(Family, name=u'some site')
-        fam = Family(family='some family')
+        fam = Family(epithet='some family')
         editor = FamilyEditor(model=fam)
         editor.start()
         del editor
@@ -395,7 +395,7 @@ class FamilyTests(PlantTestCase):
 
     def test_remove_callback_no_genera_no_confirm(self):
         # T_0
-        f5 = Family(family='Arecaceae')
+        f5 = Family(epithet='Arecaceae')
         self.session.add(f5)
         self.session.flush()
         self.invoked = []
@@ -423,7 +423,7 @@ class FamilyTests(PlantTestCase):
 
     def test_remove_callback_no_genera_confirm(self):
         # T_0
-        f5 = Family(family='Arecaceae')
+        f5 = Family(epithet='Arecaceae')
         self.session.add(f5)
         self.session.flush()
         self.invoked = []
@@ -452,8 +452,8 @@ class FamilyTests(PlantTestCase):
 
     def test_remove_callback_with_genera_cant_cascade(self):
         # T_0
-        f5 = Family(family='Arecaceae')
-        gf5 = Genus(family=f5, genus='Areca')
+        f5 = Family(epithet='Arecaceae')
+        gf5 = Genus(family=f5, epithet='Areca')
         self.session.add_all([f5, gf5])
         self.session.flush()
         self.invoked = []
@@ -486,9 +486,9 @@ class FamilyTests(PlantTestCase):
 class GenusTests(PlantTestCase):
 
     def test_synonyms(self):
-        family = Family(family='family')
-        genus = Genus(family=family, genus='genus')
-        genus2 = Genus(family=family, genus='genus2')
+        family = Family(epithet='family')
+        genus = Genus(family=family, epithet='genus')
+        genus2 = Genus(family=family, epithet='genus2')
         genus.synonyms.append(genus2)
         self.session.add_all([genus, genus2])
         self.session.commit()
@@ -546,15 +546,15 @@ class GenusTests(PlantTestCase):
         """
         Test that the genus constraints were created correctly
         """
-        family = Family(family='family')
+        family = Family(epithet='family')
         self.session.add(family)
 
         # if any of these values are inserted twice they should raise
         # an IntegrityError because the UniqueConstraint on Genus
-        values = [dict(family=family, genus='genus'),
-                  dict(family=family, genus='genus', author='author'),
-                  dict(family=family, genus='genus', qualifier='s. lat.'),
-                  dict(family=family, genus='genus', qualifier='s. lat.',
+        values = [dict(family=family, epithet='genus'),
+                  dict(family=family, epithet='genus', author='author'),
+                  dict(family=family, epithet='genus', qualifier='s. lat.'),
+                  dict(family=family, epithet='genus', qualifier='s. lat.',
                        author='author')
                   ]
         for v in values:
@@ -575,8 +575,8 @@ class GenusTests(PlantTestCase):
         """
         raise SkipTest('Not Implemented')
         #loc = self.create(Genus, name=u'some site')
-        fam = Family(family='family')
-        fam2 = Family(family='family2')
+        fam = Family(epithet='family')
+        fam2 = Family(epithet='family2')
         fam2.synonyms.append(fam)
         self.session.add_all([fam, fam2])
         self.session.commit()
@@ -593,7 +593,7 @@ class GenusTests(PlantTestCase):
 
     def test_can_use_epithet_field(self):
         family = Family(epithet='family')
-        genus = Genus(family=family, genus='genus')
+        genus = Genus(family=family, epithet='genus')
         self.session.add_all([family, genus])
         self.session.commit()
         g1 = self.session.query(Genus).filter(Genus.epithet=='genus').one()
@@ -604,7 +604,7 @@ class GenusTests(PlantTestCase):
 
     def test_remove_callback_no_species_no_confirm(self):
         # T_0
-        caricaceae = Family(family='Caricaceae')
+        caricaceae = Family(epithet='Caricaceae')
         f5 = Genus(epithet='Carica', family=caricaceae)
         self.session.add(caricaceae)
         self.session.add(f5)
@@ -633,7 +633,7 @@ class GenusTests(PlantTestCase):
 
     def test_remove_callback_no_species_confirm(self):
         # T_0
-        caricaceae = Family(family='Caricaceae')
+        caricaceae = Family(epithet='Caricaceae')
         f5 = Genus(epithet='Carica', family=caricaceae)
         self.session.add_all([caricaceae, f5])
         self.session.flush()
@@ -663,7 +663,7 @@ class GenusTests(PlantTestCase):
 
     def test_remove_callback_with_species_cant_cascade(self):
         # T_0
-        caricaceae = Family(family='Caricaceae')
+        caricaceae = Family(epithet='Caricaceae')
         f5 = Genus(epithet='Carica', family=caricaceae)
         gf5 = Species(genus=f5, sp='papaya')
         self.session.add_all([caricaceae, f5, gf5])
@@ -745,11 +745,11 @@ class GenusSynonymyTests(PlantTestCase):
         # notice that same test should be also in Species and Family
         bu = self.session.query(
             Genus).filter(
-            Genus.genus == 'Bulbophyllum').one()
+            Genus.epithet == 'Bulbophyllum').one()
         f = self.session.query(
             Family).filter(
-            Family.family == 'Orchidaceae').one()
-        he = Genus(family=f, genus='Henosis')  # one more synonym
+            Family.epithet == 'Orchidaceae').one()
+        he = Genus(family=f, epithet='Henosis')  # one more synonym
         self.session.add(he)
         self.session.commit()
         self.assertEqual(len(bu.synonyms), 1)
@@ -763,14 +763,14 @@ class GenusSynonymyTests(PlantTestCase):
         # name, it is now updated to Sedum L.
 
         ## T_0
-        claceae = Family(family='Crassulaceae')  # J. St.-Hil.
-        villa = Genus(family=claceae, genus='Villadia', author='Rose')
-        alta = Genus(family=claceae, genus='Altamiranoa', author='Rose')
+        claceae = Family(epithet='Crassulaceae')  # J. St.-Hil.
+        villa = Genus(family=claceae, epithet='Villadia', author='Rose')
+        alta = Genus(family=claceae, epithet='Altamiranoa', author='Rose')
         alta.accepted = villa
         self.session.add_all([claceae, alta, villa])
         self.session.commit()
 
-        sedum = Genus(family=claceae, genus='Sedum', author='L.')
+        sedum = Genus(family=claceae, epithet='Sedum', author='L.')
         alta.accepted = sedum
         self.session.commit()
 
@@ -795,13 +795,13 @@ class SpeciesTests(PlantTestCase):
         importer = CSVImporter()
         importer.start(filenames, force=True)
 
-        f = Family(family='family')
-        g2 = Genus(genus='genus2', family=f)
-        g = Genus(genus='genus', family=f)
+        f = Family(epithet='family')
+        g2 = Genus(epithet='genus2', family=f)
+        g = Genus(epithet='genus', family=f)
         g2.synonyms.append(g)
         self.session.add(f)
         self.session.commit()
-        sp = Species(genus=g, sp='sp')
+        sp = Species(genus=g, epithet='sp')
         edit_species(model=sp)
         assert utils.gc_objects_by_type('SpeciesEditorMenuItem') == [], \
             'SpeciesEditor not deleted'
@@ -818,11 +818,12 @@ class SpeciesTests(PlantTestCase):
             return self.session.query(Species).get(id).str(**kwargs)
 
         for sid, expect in species_str_map.items():
-                sp = self.session.query(Species).get(sid)
-                printable_name = remove_zws("%s" % sp)
-                self.assertEqual(species_str_map[sid], printable_name)
-                spstr = get_sp_str(sid)
-                self.assertEqual(remove_zws(spstr), expect)
+            sp = self.session.query(Species).get(sid)
+            print("»%s« »%s« »%s« »%s« " % (sp.genus.epithet, sp.epithet, sp.genus, sp))
+            printable_name = remove_zws("%s" % sp)
+            self.assertEqual(expect, printable_name)
+            spstr = get_sp_str(sid)
+            self.assertEqual(remove_zws(spstr), expect)
 
         for sid, expect in species_str_authors_map.items():
             spstr = get_sp_str(sid, authors=True)
@@ -852,9 +853,9 @@ class SpeciesTests(PlantTestCase):
     #     That that the cache on a string is invalidated if the species
     #     is changed or expired.
     #     """
-    #     family = Family(family=u'family')
-    #     genus = Genus(family=family, genus=u'genus')
-    #     sp = Species(genus=genus, sp=u'sp')
+    #     family = Family(epithet=u'family')
+    #     genus = Genus(family=family, epithet=u'genus')
+    #     sp = Species(genus=genus, epithet=u'sp')
     #     self.session.add_all([family, genus, sp])
     #     self.session.commit()
 
@@ -869,9 +870,9 @@ class SpeciesTests(PlantTestCase):
         """
         Test the Species.vernacular_name property
         """
-        family = Family(family='family')
-        genus = Genus(family=family, genus='genus')
-        sp = Species(genus=genus, sp='sp')
+        family = Family(epithet='family')
+        genus = Genus(family=family, epithet='genus')
+        sp = Species(genus=genus, epithet='sp')
         self.session.add_all([family, genus, sp])
         self.session.commit()
 
@@ -891,9 +892,9 @@ class SpeciesTests(PlantTestCase):
         """
         Test the Species.default_vernacular_name property
         """
-        family = Family(family='family')
-        genus = Genus(family=family, genus='genus')
-        sp = Species(genus=genus, sp='sp')
+        family = Family(epithet='family')
+        genus = Genus(family=family, epithet='genus')
+        sp = Species(genus=genus, epithet='sp')
         vn = VernacularName(name='name')
         sp.vernacular_names.append(vn)
         self.session.add_all([family, genus, sp, vn])
@@ -1087,7 +1088,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_remove_callback_no_accessions_no_confirm(self):
         # T_0
-        caricaceae = Family(family='Caricaceae')
+        caricaceae = Family(epithet='Caricaceae')
         f5 = Genus(epithet='Carica', family=caricaceae)
         sp = Species(epithet='papaya', genus=f5)
         self.session.add_all([caricaceae, f5, sp])
@@ -1116,7 +1117,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_remove_callback_no_accessions_confirm(self):
         # T_0
-        caricaceae = Family(family='Caricaceae')
+        caricaceae = Family(epithet='Caricaceae')
         f5 = Genus(epithet='Carica', family=caricaceae)
         sp = Species(epithet='papaya', genus=f5)
         self.session.add_all([caricaceae, f5, sp])
@@ -1146,7 +1147,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_remove_callback_with_accessions_cant_cascade(self):
         # T_0
-        caricaceae = Family(family='Caricaceae')
+        caricaceae = Family(epithet='Caricaceae')
         f5 = Genus(epithet='Carica', family=caricaceae)
         sp = Species(epithet='papaya', genus=f5)
         from bauble.plugins.garden import (Accession)
@@ -1187,8 +1188,8 @@ class GeographicAreaTests(PlantTestCase):
 
     def setUp(self):
         super().setUp()
-        self.family = Family(family='family')
-        self.genus = Genus(genus='genus', family=self.family)
+        self.family = Family(epithet='family')
+        self.genus = Genus(epithet='genus', family=self.family)
         self.session.add_all([self.family, self.genus])
         self.session.flush()
         # import default geographic_area data
@@ -1979,7 +1980,7 @@ class GlobalFunctionsTest(PlantTestCase):
         self.assertEqual(remove_zws(first), expect)
         self.assertEqual(second, 'Orchidaceae -- SomeName, SomeName 2')
         first, second = model.search_view_markup_pair()
-        self.assertEqual(remove_zws(first), '<i>Laelia</i> <i>lobata</i>')
+        self.assertEqual(remove_zws(first), '<i>Laelia</i> <i>lobata</i> <span weight="light">H.J. Veitch</span>')
         self.assertEqual(second, 'Orchidaceae')
 
     def test_vername_markup_func(self):

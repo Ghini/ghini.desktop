@@ -55,8 +55,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     PROBLEM_INVALID_GENUS = 1
 
     widget_to_field_map = {'sp_genus_entry': 'genus',
-                           'sp_species_entry': 'sp',
-                           'sp_author_entry': 'sp_author',
+                           'sp_species_entry': 'epithet',
+                           'sp_author_entry': 'author',
                            'sp_hybrid_check': 'hybrid',
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_spqual_combo': 'sp_qual',
@@ -154,8 +154,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             if not (found is None and accepted is None):
 
                 # if inserted data matches found, just say so.
-                if (self.model.sp == found['Species'] and
-                        self.model.sp_author == found['Authorship'] and
+                if (self.model.epithet == found['Species'] and
+                        self.model.author == found['Authorship'] and
                         self.model.hybrid == (
                             found['Species hybrid marker'] == '×')):
                     msg_box_msg = _(
@@ -173,8 +173,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     def on_response_found(button, response):
                         self.view.remove_box(b1)
                         if response:
-                            self.set_model_attr('sp', found['Species'])
-                            self.set_model_attr('sp_author', found['Authorship'])
+                            self.set_model_attr('epithet', found['Species'])
+                            self.set_model_attr('author', found['Authorship'])
                             self.set_model_attr(
                                 'hybrid',
                                 found['Species hybrid marker'] == '×')
@@ -247,7 +247,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 kid = self.species_check_messages.pop()
                 self.view.widgets.remove_parent(kid)
 
-            binomial = '%s %s' % (self.model.genus, self.model.sp)
+            binomial = '%s %s' % (self.model.genus, self.model.epithet)
             AskTPL(binomial, sp_species_TPL_callback, timeout=2, gui=True
                    ).start()
             b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
@@ -459,7 +459,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             omonym = self.session.query(
                 Species).filter(
                 Species.genus == genus,
-                Species.sp == epithet
+                Species.epithet == epithet
                 ).first()
             logger.debug("looking for %s %s, found %s"
                          % (genus, epithet, omonym))
@@ -946,7 +946,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             query = self.session.query(Species).join('genus').\
                 filter(utils.ilike(Genus.genus, '%s%%' % text)).\
                 filter(Species.id != self.model.id).\
-                order_by(Genus.genus, Species.sp)
+                order_by(Genus.genus, Species.epithet)
             return query
 
         def on_select(value):
@@ -1282,7 +1282,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         return True
 
     def commit_changes(self):
-        # if self.model.sp or cv_group is empty and
+        # if self.model.epithet or cv_group is empty and
         # self.model.infrasp_rank=='cv.' and self.model.infrasp
         # then show a dialog saying we can't commit and return
 

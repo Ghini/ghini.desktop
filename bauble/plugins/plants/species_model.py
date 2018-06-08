@@ -101,9 +101,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     :Table name: species
 
     :Columns:
-        *sp*:
+        *epithet*:
         *sp2*:
-        *sp_author*:
+        *author*:
 
         *hybrid*:
             Hybrid flag
@@ -154,11 +154,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         *distribution*:
 
     :Constraints:
-        The combination of sp, sp_author, hybrid, sp_qual,
+        The combination of epithet, author, hybrid, sp_qual,
         cv_group, trade_name, genus_id
     """
     __tablename__ = 'species'
-    __mapper_args__ = {'order_by': ['sp', 'sp_author']}
+    __mapper_args__ = {'order_by': ['epithet', 'author']}
 
     rank = 'species'
     link_keys = ['accepted']
@@ -180,7 +180,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                           'weight="light"> - ' + _("synonym of %s") + "</span>"
                           ) % self.accepted.markup(authors=True)
             citation = self.markup(authors=True)
-            authorship_text = utils.xml_safe(self.sp_author)
+            authorship_text = utils.xml_safe(self.author)
             if authorship_text:
                 citation = citation.replace(authorship_text, '<span weight="light">' + authorship_text + '</span>')
             return citation + trail, substring
@@ -282,10 +282,10 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         return ''
 
     # columns
-    sp = Column(Unicode(64), index=True)
-    epithet = synonym('sp')
+    epithet = Column(Unicode(64), index=True)
+    sp = synonym('epithet')
     sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
-    sp_author = Column(Unicode(128))
+    author = Column(Unicode(128))
     hybrid = Column(Boolean, default=False)
     sp_qual = Column(types.Enum(values=['agg.', 's. lat.', 's. str.', None]),
                      default=None)
@@ -423,26 +423,26 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             genus = str(self.genus)
         else:
             genus = ''
-        if self.sp and not remove_zws:
-            sp = '\u200b' + self.sp  # prepend with zero_width_space
+        if self.epithet and not remove_zws:
+            epithet = '\u200b' + self.epithet  # prepend with zero_width_space
         else:
-            sp = self.sp
+            epithet = self.epithet
         sp2 = self.sp2
         if markup:
             escape = utils.xml_safe
             italicize = lambda s: (  # all but the multiplication signs
                 '<i>%s</i>' % escape(s).replace('×', '</i>×<i>'))
             genus = italicize(genus)
-            if sp is not None:
-                sp = italicize(sp)
+            if epithet is not None:
+                epithet = italicize(epithet)
             if sp2 is not None:
                 sp2 = italicize(sp2)
         else:
             italicize = escape = lambda x: x
 
         author = None
-        if authors and self.sp_author:
-            author = escape(self.sp_author)
+        if authors and self.author:
+            author = escape(self.author)
 
         infrasp = ((self.infrasp1_rank, self.infrasp1,
                     self.infrasp1_author),
@@ -455,20 +455,20 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         infrasp_parts = []
         group_added = False
-        for rank, epithet, iauthor in infrasp:
-            if rank == 'cv.' and epithet:
+        for irank, iepithet, iauthor in infrasp:
+            if irank == 'cv.' and iepithet:
                 if self.cv_group and not group_added:
                     group_added = True
                     infrasp_parts.append(_("(%(group)s Group)") %
                                          dict(group=self.cv_group))
-                infrasp_parts.append("'%s'" % escape(epithet))
+                infrasp_parts.append("'%s'" % escape(iepithet))
             else:
-                if rank:
-                    infrasp_parts.append(rank)
-                if epithet and rank:
-                    infrasp_parts.append(italicize(epithet))
-                elif epithet:
-                    infrasp_parts.append(escape(epithet))
+                if irank:
+                    infrasp_parts.append(irank)
+                if iepithet and irank:
+                    infrasp_parts.append(italicize(iepithet))
+                elif iepithet:
+                    infrasp_parts.append(escape(iepithet))
 
             if authors and iauthor:
                 infrasp_parts.append(escape(iauthor))
@@ -477,7 +477,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                                  dict(group=self.cv_group))
 
         # create the binomial part
-        binomial = [genus, self.hybrid and self.hybrid_char, sp, author]
+        binomial = [genus, self.hybrid and self.hybrid_char, epithet, author]
+        logger.debug("binomial parts: »%s« »%s« »%s« »%s«" % tuple(binomial))
 
         # create the tail, ie: anything to add on to the end
         tail = []
@@ -587,34 +588,29 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     def as_dict(self, recurse=True):
         result = dict((col, getattr(self, col))
                       for col in list(self.__table__.columns.keys())
-                      if col not in ['id', 'sp']
+                      if col not in ['id']
                       and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
         result['object'] = 'taxon'
         result['rank'] = 'species'
-        result['epithet'] = self.sp
         result['ht-rank'] = 'genus'
-        result['ht-epithet'] = self.genus.genus
+        result['ht-epithet'] = self.genus.epithet
         if recurse and self.accepted is not None:
             result['accepted'] = self.accepted.as_dict(recurse=False)
         return result
 
     @classmethod
     def correct_field_names(cls, keys):
-        for internal, exchange in [('sp_author', 'author'),
-                                   ('sp', 'epithet')]:
-            if exchange in keys:
-                keys[internal] = keys[exchange]
-                del keys[exchange]
+        pass
 
     @classmethod
     def retrieve(cls, session, keys):
         from .genus import Genus
         try:
             return session.query(cls).filter(
-                cls.sp == keys['epithet']).join(Genus).filter(
-                Genus.genus == keys['ht-epithet']).one()
+                cls.epithet == keys['epithet']).join(Genus).filter(
+                Genus.epithet == keys['ht-epithet']).one()
         except:
             return None
 
@@ -667,8 +663,8 @@ def retrieve(cls, session, keys):
     try:
         return session.query(cls).filter(
             cls.category == keys['category']).join(Species).filter(
-            Species.sp == epithet).join(Genus).filter(
-            Genus.genus == genus).one()
+            Species.epithet == epithet).join(Genus).filter(
+            Genus.epithet == genus).one()
     except:
         return None
 
@@ -744,7 +740,7 @@ class VernacularName(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(self.species, remove_zws=True)
+        result['species'] = self.species.str(remove_zws=True)
         return result
 
     @classmethod
@@ -765,8 +761,8 @@ class VernacularName(db.Base, db.Serializable):
         from .genus import Genus
         g_epithet, s_epithet = keys['species'].split(' ', 1)
         sp = session.query(Species).filter(
-            Species.sp == s_epithet).join(Genus).filter(
-            Genus.genus == g_epithet).first()
+            Species.epithet == s_epithet).join(Genus).filter(
+            Genus.epithet == g_epithet).first()
         try:
             return session.query(cls).filter(
                 cls.species == sp,

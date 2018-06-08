@@ -88,7 +88,7 @@ def species_to_fix(ssn, binomial, author, create=False):
     if rank is not None:
         result.infrasp1 = epithet
         result.infrasp1_rank = rank
-        result.sp_author = None
+        result.author = None
         result.infrasp1_author = author
     return result
 

@@ -891,7 +891,6 @@ class SchemaBrowser(Gtk.VBox):
         super().__init__(*args, **kwargs)
         self.props.spacing = 10
         # WARNING: this is a hack from MapperSearch
-        self.domain_map = {}
         self.domain_map = MapperSearch.get_domain_classes().copy()
 
         frame = Gtk.Frame(_("Search Domain"))

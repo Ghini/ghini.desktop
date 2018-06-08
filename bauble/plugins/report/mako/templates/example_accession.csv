@@ -29,5 +29,5 @@ from bauble.plugins.report import get_accessions_pertinent_to
         doc_type = 'invoice'
     else:
         doc_type = ''
-%>${v}	${v.species.genus.family}	${genus}	${species_epithet}	${v.species.sp_author or ''}	${v._created.isoformat()[:10]}	${v.species.cites or ''}	${v.species.condition or ''}	${v.species.conservation or ''}	${doc_type}	${doc_number}	${len(v.plants)}	${v.species.habit or ''}
+%>${v}	${v.species.genus.family}	${genus}	${species_epithet}	${v.species.author or ''}	${v._created.isoformat()[:10]}	${v.species.cites or ''}	${v.species.condition or ''}	${v.species.conservation or ''}	${doc_type}	${doc_number}	${len(v.plants)}	${v.species.habit or ''}
 % endfor

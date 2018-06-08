@@ -156,8 +156,8 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         The family table has a unique constraint on family/qualifier.
     """
     __tablename__ = 'family'
-    __table_args__ = (UniqueConstraint('family'), {})
-    __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
+    __table_args__ = (UniqueConstraint('epithet'), {})
+    __mapper_args__ = {'order_by': ['Family.epithet', 'Family.qualifier']}
 
     rank = 'familia'
     link_keys = ['accepted']
@@ -180,8 +180,8 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         return cites_notes[0]
 
     # columns
-    family = Column(String(45), nullable=False, index=True)
-    epithet = synonym('family')
+    epithet = Column(String(45), nullable=False, index=True)
+    family = synonym('epithet')
 
     # use '' instead of None so that the constraints will work propertly
     author = Column(Unicode(255), default='')
@@ -212,11 +212,11 @@ class Family(db.Base, db.Serializable, db.WithNotes):
     @staticmethod
     def str(family, qualifier=False, author=False):
         # author is not in the model but it really should
-        if family.family is None:
+        if family.epithet is None:
             return db.Base.__repr__(family)
         else:
             return ' '.join([s for s in [
-                family.family, family.qualifier] if s not in (None, '')])
+                family.epithet, family.qualifier] if s not in (None, '')])
 
     @property
     def accepted(self):
@@ -254,12 +254,11 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
-        del result['family']
         if 'qualifier' in result:
             del result['qualifier']
         result['object'] = 'taxon'
         result['rank'] = self.rank
-        result['epithet'] = self.family
+        result['epithet'] = self.epithet
         if recurse and self.accepted is not None:
             result['accepted'] = self.accepted.as_dict(recurse=False)
         return result
@@ -268,16 +267,13 @@ class Family(db.Base, db.Serializable, db.WithNotes):
     def retrieve(cls, session, keys):
         try:
             return session.query(cls).filter(
-                cls.family == keys['epithet']).one()
+                cls.epithet == keys['epithet']).one()
         except:
             return None
 
     @classmethod
     def correct_field_names(cls, keys):
-        for internal, exchange in [('family', 'epithet')]:
-            if exchange in keys:
-                keys[internal] = keys[exchange]
-                del keys[exchange]
+        pass
 
     def top_level_count(self):
         genera = set(g for g in self.genera if g.species)
@@ -419,7 +415,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_view()  # put model values in view
 
         # connect signals
-        self.assign_simple_handler('fam_family_entry', 'family',
+        self.assign_simple_handler('fam_family_entry', 'epithet',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('fam_qualifier_combo', 'qualifier',
                                    editor.UnicodeOrEmptyValidator())
@@ -440,7 +436,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
     def refresh_sensitivity(self):
         # TODO: check widgets for problems
         sensitive = False
-        if self.dirty() and self.model.family:
+        if self.dirty() and self.model.epithet:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
@@ -487,9 +483,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
         def fam_get_completions(text):
             query = self.session.query(Family)
-            return query.filter(and_(Family.family.like('%s%%' % text),
+            return query.filter(and_(Family.epithet.like('%s%%' % text),
                                      Family.id != self.model.id)).\
-                order_by(Family.family)
+                order_by(Family.epithet)
 
         self._selected = None
 
@@ -709,34 +705,34 @@ class GeneralFamilyExpander(InfoExpander):
 
         def on_ngen_clicked(*args):
             f = self.current_obj
-            cmd = 'genus where family.family="%s" and family.qualifier="%s"'\
-                % (f.family, f.qualifier)
+            cmd = 'genus where family.epithet="%s" and family.qualifier="%s"'\
+                % (f.epithet, f.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_ngen_data,
                                    on_ngen_clicked)
 
         def on_nsp_clicked(*args):
             f = self.current_obj
-            cmd = 'species where genus.family.family="%s" '\
-                'and genus.family.qualifier="%s"' % (f.family, f.qualifier)
+            cmd = 'species where genus.family.epithet="%s" '\
+                'and genus.family.qualifier="%s"' % (f.epithet, f.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nsp_data,
                                    on_nsp_clicked)
 
         def on_nacc_clicked(*args):
             f = self.current_obj
-            cmd = 'accession where species.genus.family.family="%s" ' \
+            cmd = 'accession where species.genus.family.epithet="%s" ' \
                 'and species.genus.family.qualifier="%s"' \
-                % (f.family, f.qualifier)
+                % (f.epithet, f.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nacc_data,
                                    on_nacc_clicked)
 
         def on_nplants_clicked(*args):
             f = self.current_obj
-            cmd = 'plant where accession.species.genus.family.family="%s" ' \
+            cmd = 'plant where accession.species.genus.family.epithet="%s" ' \
                 'and accession.species.genus.family.qualifier="%s"' \
-                % (f.family, f.qualifier)
+                % (f.epithet, f.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nplants_data,
                                    on_nplants_clicked)

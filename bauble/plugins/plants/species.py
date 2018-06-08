@@ -322,7 +322,7 @@ class GeneralSpeciesExpander(InfoExpander):
         on_label_clicked = lambda l, e, x: select_in_search_results(x)
         # Link to family
         self.widget_set_value('sp_fam_data', '<small>(%s)</small>' %
-                              row.genus.family.family, markup=True)
+                              row.genus.family.epithet, markup=True)
         utils.make_label_clickable(
             self.widgets.sp_fam_data, on_label_clicked, row.genus.family)
         # link to genus

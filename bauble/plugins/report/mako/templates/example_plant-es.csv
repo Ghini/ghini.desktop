@@ -246,7 +246,7 @@ ${tribusd[subtribus]}	\
 ${subtribus}	\
 ${genus}	\
 ${species_epithet}	\
-${v.accession.species.sp_author or ''}	\
+${v.accession.species.author or ''}	\
 ${v.accession._created.isoformat()[:10]}	\
 ${cites}	\
 	\

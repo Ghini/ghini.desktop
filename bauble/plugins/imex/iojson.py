@@ -297,6 +297,7 @@ class JSONImporter(editor.GenericEditorPresenter):
         n = len(objects)
         for i, obj in enumerate(objects):
             try:
+                print(obj)
                 db.construct_from_dict(session, obj, self.create, self.update)
                 session.commit()
             except Exception as e:

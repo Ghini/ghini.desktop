@@ -30,5 +30,5 @@ from bauble.plugins.report import get_plants_pertinent_to
         doc_type = 'invoice'
     else:
         doc_type = ''
-%>${v}	${v.accession.species.genus.family}	${genus}	${species_epithet}	${v.accession.species.sp_author or ''}	${v.accession._created.isoformat()[:10]}	${cites}	${doc_type}	${doc_number}	${v.location.code}	${v.accession.species.habit or ''}
+%>${v}	${v.accession.species.genus.family}	${genus}	${species_epithet}	${v.accession.species.author or ''}	${v.accession._created.isoformat()[:10]}	${cites}	${doc_type}	${doc_number}	${v.location.code}	${v.accession.species.habit or ''}
 % endfor

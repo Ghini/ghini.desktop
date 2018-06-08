@@ -31,5 +31,5 @@ from bauble.plugins.report import get_species_pertinent_to
         group_count += len(a.plants)
         for p in a.plants:
             plant_count += p.quantity
-%>${v.genus.family}	${genus}	${species_epithet}	${v.sp_author or ''}	${v.cites or ''}	${v.condition or ''}	${v.conservation or ''}	${group_count}	${plant_count}	${v.habit or ''}
+%>${v.genus.family}	${genus}	${species_epithet}	${v.author or ''}	${v.cites or ''}	${v.condition or ''}	${v.conservation or ''}	${group_count}	${plant_count}	${v.habit or ''}
 % endfor

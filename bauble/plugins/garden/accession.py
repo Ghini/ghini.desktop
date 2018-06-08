@@ -771,6 +771,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             self.__warned_about_id_qual = True
 
         if self.id_qual:
+            logger.debug('id_qual is %s' % self.id_qual)
             sp_str = self.species.str(
                 authors, markup, remove_zws=True,
                 qualification=(self.id_qual_rank, self.id_qual))

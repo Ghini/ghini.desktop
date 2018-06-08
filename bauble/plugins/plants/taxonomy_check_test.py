@@ -29,23 +29,23 @@ class TestOne(BaubleTestCase):
 
     def setUp(self):
         super().setUp()
-        family = Family(family='Amaranthaceae')
-        genus = Genus(family=family, genus='Salsola')
+        family = Family(epithet='Amaranthaceae')
+        genus = Genus(family=family, epithet='Salsola')
         self.session.add_all([family, genus])
         self.session.commit()
 
     def test_species_author(self):
         s = species_to_fix(self.session, 'Salsola kali', 'L.', True)
-        self.assertEqual(s.sp, 'kali')
-        self.assertEqual(s.sp_author, 'L.')
+        self.assertEqual(s.epithet, 'kali')
+        self.assertEqual(s.author, 'L.')
         self.assertEqual(s.infraspecific_rank, '')
         self.assertEqual(s.infraspecific_epithet, '')
         self.assertEqual(s.infraspecific_author, '')
 
     def test_subspecies_author(self):
         s = species_to_fix(self.session, 'Salsola kali subsp. tragus', '(L.) Čelak.', True)
-        self.assertEqual(s.sp, 'kali')
-        self.assertEqual(s.sp_author, None)
+        self.assertEqual(s.epithet, 'kali')
+        self.assertEqual(s.author, None)
         self.assertEqual(s.infraspecific_rank, 'subsp.')
         self.assertEqual(s.infraspecific_epithet, 'tragus')
         self.assertEqual(s.infraspecific_author, '(L.) Čelak.')

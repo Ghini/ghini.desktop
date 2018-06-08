@@ -176,8 +176,8 @@ class GardenTestCase(BaubleTestCase):
     def setUp(self):
         super().setUp()
         plants_test.setUp_data()
-        self.family = Family(family='Cactaceae')
-        self.genus = Genus(family=self.family, genus='Echinocactus')
+        self.family = Family(epithet='Cactaceae')
+        self.genus = Genus(family=self.family, epithet='Echinocactus')
         self.species = Species(genus=self.genus, sp='grusonii')
         self.sp2 = Species(genus=self.genus, sp='texelensis')
         self.session.add_all([self.family, self.genus, self.species, self.sp2])
@@ -1220,7 +1220,6 @@ class AccessionQualifiedTaxon(GardenTestCase):
         self.assertEqual(id(sp_str), id(s2))
 
     def test_species_str_be_specific_in_infraspecific(self):
-        'be specific qualifying infraspecific identification - still unused'
         ## add  to species with variety and refer to it as cf.
         self.sp3.set_infrasp(2, 'cv.', 'Cultivar')
         self.ac2.id_qual = 'cf.'
@@ -1443,7 +1442,7 @@ class AccessionTests(GardenTestCase):
     def test_remove_callback_no_plants_no_confirm(self):
         # T_0
         added = []
-        added.append(Family(family='Caricaceae'))
+        added.append(Family(epithet='Caricaceae'))
         added.append(Genus(epithet='Carica', family=added[-1]))
         added.append(Species(epithet='papaya', genus=added[-1]))
         added.append(Accession(code='010101', species=added[-1]))
@@ -1472,7 +1471,7 @@ class AccessionTests(GardenTestCase):
     def test_remove_callback_no_accessions_confirm(self):
         # T_0
         added = []
-        added.append(Family(family='Caricaceae'))
+        added.append(Family(epithet='Caricaceae'))
         added.append(Genus(epithet='Carica', family=added[-1]))
         added.append(Species(epithet='papaya', genus=added[-1]))
         added.append(Accession(code='010101', species=added[-1]))
@@ -1506,7 +1505,7 @@ class AccessionTests(GardenTestCase):
         # T_0
         added = []
         added.append(Location(code='INV99'))
-        added.append(Family(family='Caricaceae'))
+        added.append(Family(epithet='Caricaceae'))
         added.append(Genus(epithet='Carica', family=added[-1]))
         added.append(Species(epithet='papaya', genus=added[-1]))
         added.append(Accession(code='010101', species=added[-1]))
