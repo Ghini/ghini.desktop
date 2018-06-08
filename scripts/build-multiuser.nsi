@@ -49,9 +49,9 @@
 ; Inetc (http://nsis.sourceforge.net/Inetc_plug-in)
 ; MD5 (http://nsis.sourceforge.net/MD5_plugin)
 ;---
-!addplugindir /x86-ansi "..\data\nsis\Plugins\x86-ansi\"
-!addplugindir /x86-unicode "..\data\nsis\Plugins\x86-unicode\"
-!addincludedir "..\data\nsis\Include\"
+!addplugindir /x86-ansi "..\nsis\Plugins\x86-ansi\"
+!addplugindir /x86-unicode "..\nsis\Plugins\x86-unicode\"
+!addincludedir "..\nsis\Include\"
 
 ;------------------------------
 ;  GENERAL
