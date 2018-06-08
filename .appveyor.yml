@@ -28,7 +28,8 @@ cache:
 artifacts:
   - path: dist/ghini.desktop-*-setup.exe
 
-test: off
+test:
+  - 'python setup.py test'
 
 deploy:
   release: 'v1.0.87' # :bump
