@@ -28,9 +28,6 @@ cache:
 artifacts:
   - path: dist/ghini.desktop-*-setup.exe
 
-test:
-  - 'python setup.py test'
-
 deploy:
   release: 'v1.0.87' # :bump
   description: ''
@@ -41,3 +38,8 @@ deploy:
   prerelease: false
   # on:
   #   appveyor_repo_tag: true        # deploy on tag push only
+
+test_script:
+  - "pip install nose"
+  - "pip install coverage"
+  - "nosetests"
