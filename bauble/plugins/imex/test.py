@@ -424,7 +424,8 @@ class JSONExportTests(BaubleTestCase):
     def setUp(self):
         super(JSONExportTests, self).setUp()
         from tempfile import NamedTemporaryFile
-        self.temp_path = NamedTemporaryFile()
+        with NamedTemporaryFile() as f:
+            self.temp_path = f.name
 
         data = ((Family, family_data),
                 (Genus, genus_data),
@@ -769,8 +770,9 @@ class JSONImportTests(BaubleTestCase):
 
     def setUp(self):
         super(JSONImportTests, self).setUp()
-        from tempfile import mkstemp
-        handle, self.temp_path = mkstemp()
+        from tempfile import NamedTemporaryFile
+        with NamedTemporaryFile() as f:
+            self.temp_path = f.name
 
         data = ((Familia, family_data),
                 (Genus, genus_data),
