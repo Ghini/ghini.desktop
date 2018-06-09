@@ -112,6 +112,8 @@
       <column type="gchararray"/>
       <!-- column-name icon-name -->
       <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gint"/>
     </columns>
   </object>
   <object class="GtkTextBuffer" id="tag_desc_textbuffer">
@@ -334,7 +336,11 @@
                             <property name="sizing">fixed</property>
                             <property name="title" translatable="yes">name</property>
                             <child>
-                              <object class="GtkCellRendererText" id="prefs_cellrenderertext0"/>
+                              <object class="GtkCellRendererText" id="prefs_cellrenderertext0">
+                                <property name="editable">True</property>
+                                <signal name="edited" handler="on_cell_edited" swapped="no"/>
+                                <signal name="editing-started" handler="on_cell_editing_started_col1" swapped="no"/>
+                              </object>
                               <attributes>
                                 <attribute name="text">0</attribute>
                               </attributes>
@@ -347,8 +353,9 @@
                             <property name="title" translatable="yes">value</property>
                             <child>
                               <object class="GtkCellRendererText" id="prefs_cellrenderertext1">
-                                <signal name="edited" handler="on_cell_edited" swapped="no"/>
                                 <property name="editable">True</property>
+                                <signal name="edited" handler="on_cell_edited" swapped="no"/>
+                                <signal name="editing-started" handler="on_cell_editing_started_col0" swapped="no"/>
                               </object>
                               <attributes>
                                 <attribute name="text">2</attribute>
