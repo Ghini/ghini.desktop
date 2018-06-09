@@ -211,6 +211,8 @@ def edit_callback(tags):
         os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade'),
         parent=None,
         root_widget_name='tag_dialog')
+    for note in tag.notes:
+        view.widgets.notes_list.append((note.category, "str", note.note, "gtk-remove"))
     presenter = TagEditorPresenter(tag, view, refresh_view=True)
     error_state = presenter.start()
     if error_state:
@@ -264,8 +266,18 @@ class TagEditorPresenter(GenericEditorPresenter):
 
     view_accept_buttons = ['tag_ok_button', 'tag_cancel_button', ]
 
+    def on_cell_edited(self, widget, path, text):
+        self.view.widgets.notes_list[path][2] = text
+
+    def on_focus_child(self, tree, entry):
+        if entry is not None:
+            self.last_entry = entry
+        else:
+            tv, path = tree.get_selection().get_selected()
+            self.view.widgets.notes_list[path][2] = self.last_entry.get_text()
+
     def on_add_a_note_clicked(self, *args):
-        self.view.widgets.notes_list.append(("str","","","gtk-remove"))
+        self.view.widgets.notes_list.append(("","str","","gtk-remove"))
     
     def on_tag_desc_textbuffer_changed(self, widget, value=None):
         return GenericEditorPresenter.on_textbuffer_changed(
