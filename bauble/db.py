@@ -120,17 +120,7 @@ class HistoryExtension(orm.MapperExtension):
         """
         Add a new entry to the history table.
         """
-        user = None
-        try:
-            if engine.name.startswith('sqlite'):
-                raise TypeError("this engine know nothing of users")
-            import bauble.plugins.users as users
-            user = users.current_user()
-        except:
-            if 'USER' in os.environ and os.environ['USER']:
-                user = os.environ['USER']
-            elif 'USERNAME' in os.environ and os.environ['USERNAME']:
-                user = os.environ['USERNAME']
+        user = current_user()
 
         row = {}
         for c in mapper.local_table.c:
@@ -796,3 +786,26 @@ def class_of_object(o):
         from bauble import pluginmgr
         cls = pluginmgr.provided.get(name)
     return cls
+
+
+def current_user():
+    '''return current user name: from database, or system
+    '''
+    try:
+        if engine.name.startswith('postgresql'):
+            r = engine.execute('select current_user;')
+            user = r.fetchone()[0]
+            r.close()
+        elif engine.name.startswith('mysql'):
+            r = engine.execute('select current_user();')
+            user = r.fetchone()[0]
+            r.close()
+        else:
+            raise TypeError()
+    except:
+        logger.debug("retrieving user name from system")
+        user = (os.getenv('USER') or os.getenv('USERNAME') or
+                os.getenv('LOGNAME') or os.getenv('LNAME'))
+
+    return user
+    
