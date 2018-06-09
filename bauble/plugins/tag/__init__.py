@@ -303,7 +303,7 @@ class TagEditorPresenter(GenericEditorPresenter):
                 if keep is True:
                     # create a new note and add it to the session
                     note = TagNote(tag=self.model, category=category,
-                                   note=value, type=value_type)
+                                   note=value, type=value_type, user=db.current_user())
                     self.session.add(note)
             else:
                 # retrieve and update existing note
