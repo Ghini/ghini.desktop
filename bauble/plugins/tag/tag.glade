@@ -249,6 +249,26 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="top_attach">1</property>
+                            <property name="height">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="add_a_note">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="focus_on_click">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="halign">start</property>
+                            <property name="valign">end</property>
+                            <property name="hexpand">False</property>
+                            <property name="vexpand">False</property>
+                            <property name="image">image2</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="on_add_a_note_clicked" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">2</property>
                           </packing>
                         </child>
                       </object>
@@ -292,6 +312,7 @@
                           <object class="GtkTreeView" id="notes_tree">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="hexpand">True</property>
                             <property name="vexpand">True</property>
                             <property name="model">notes_list</property>
                             <property name="headers_clickable">False</property>
@@ -356,23 +377,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="focus_on_click">False</property>
-                            <property name="receives_default">True</property>
-                            <property name="halign">end</property>
-                            <property name="valign">start</property>
-                            <property name="hexpand">False</property>
-                            <property name="vexpand">False</property>
-                            <property name="image">image2</property>
-                            <property name="always_show_image">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                       </object>
                     </child>

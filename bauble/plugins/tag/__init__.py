@@ -264,6 +264,9 @@ class TagEditorPresenter(GenericEditorPresenter):
 
     view_accept_buttons = ['tag_ok_button', 'tag_cancel_button', ]
 
+    def on_add_a_note_clicked(self, *args):
+        self.view.widgets.notes_list.append(("str","","","gtk-remove"))
+    
     def on_tag_desc_textbuffer_changed(self, widget, value=None):
         return GenericEditorPresenter.on_textbuffer_changed(
             self, widget, value, attr='description')
