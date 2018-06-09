@@ -281,8 +281,8 @@ class MVPTests(BaubleTestCase):
   <object class="GtkDialog" id="handler-defining-view"/>
 </interface>
 ''')
-        ntf.flush()
         fn = ntf.name
+        ntf.close()
         view = GenericEditorView(fn, None, 'handler-defining-view')
         presenter = HandlerDefiningPresenter(model, view)
         natural_number_for_dialog_box = len(presenter.view._GenericEditorView__attached_signals)
@@ -297,8 +297,8 @@ class MVPTests(BaubleTestCase):
   <object class="GtkDialog" id="handler-defining-view"/>
 </interface>
 ''')
-        ntf.flush()
         fn = ntf.name
+        ntf.close()
         view = GenericEditorView(fn, None, 'handler-defining-view')
         presenter = HandlerDefiningPresenter(model, view)
         self.assertEquals(

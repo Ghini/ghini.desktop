@@ -1,7 +1,7 @@
 image: Visual Studio 2017
 
 environment:
-    PYTHON_HOME: 'C:/Python27'
+    PYTHON_HOME: 'C:\Python27'
 
 branches:
   only:
@@ -26,7 +26,7 @@ cache:
   - pygtk-all-in-one-2.24.2.win32-py2.7.msi
 
 artifacts:
-  - path: dist/ghini.desktop-*-setup.exe
+  - path: dist\ghini.desktop-*-setup.exe
 
 deploy:
   release: 'v1.0.87' # :bump
