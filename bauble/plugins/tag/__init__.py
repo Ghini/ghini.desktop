@@ -212,7 +212,7 @@ def edit_callback(tags):
         parent=None,
         root_widget_name='tag_dialog')
     for note in tag.notes:
-        view.widgets.notes_list.append((note.category, "str", note.note, "gtk-remove", note.id))
+        view.widgets.notes_list.append((note.category, "str", note.note, "gtk-apply", note.id, True))
     presenter = TagEditorPresenter(tag, view, refresh_view=True)
     error_state = presenter.start()
     if error_state:
@@ -282,8 +282,15 @@ class TagEditorPresenter(GenericEditorPresenter):
     def on_cell_editing_started_col1(self, *args):
         self.column = 0
 
+    def on_toggle_row(self, tree, path, column):
+        store = self.view.widgets.notes_list
+        store[path][5] = not store[path][5]
+        store[path][3] = {True: 'gtk-apply', False: 'gtk-cancel'}[store[path][5]]
+
     def on_add_a_note_clicked(self, *args):
-        self.view.widgets.notes_list.append(("","str","","gtk-remove", -1))
+        #            name --> type --> content --> icon-name --> id --> keep
+        #               0        1           2             3      4        5
+        self.view.widgets.notes_list.append(("","str","","gtk-apply", -1, True))
     
     def on_tag_desc_textbuffer_changed(self, widget, value=None):
         return GenericEditorPresenter.on_textbuffer_changed(
@@ -291,18 +298,22 @@ class TagEditorPresenter(GenericEditorPresenter):
 
     def commit_changes(self):
         for row in self.view.widgets.notes_list:
-            category, value_type, value, icon, note_id = row
+            category, value_type, value, icon, note_id, keep = row
             if note_id == -1:
-                # create a new note and add it to the session
-                note = TagNote(tag=self.model, category=category,
-                               note=value, type=value_type)
-                self.session.add(note)
+                if keep is True:
+                    # create a new note and add it to the session
+                    note = TagNote(tag=self.model, category=category,
+                                   note=value, type=value_type)
+                    self.session.add(note)
             else:
                 # retrieve and update existing note
                 note = self.session.query(TagNote).filter_by(id=note_id).one()
-                note.category = category
-                note.note = value
-                note.type = value_type
+                if keep is False:
+                    self.session.delete(note)
+                else:
+                    note.category = category
+                    note.note = value
+                    note.type = value_type
         super().commit_changes()
 
 
