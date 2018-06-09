@@ -658,10 +658,10 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             code_format = cls.code_format
         format = code_format.replace('%PD', Plant.get_delimiter())
         today = datetime.date.today()
-        format = today.strftime(format)
         if format.find('%{Y-1}') >= 0:
             format = format.replace('%{Y-1}', str(today.year - 1))
-        start = str(format.rstrip('#'))
+        format = today.strftime(format)
+        start = format.rstrip('#')
         if start == format:
             # fixed value
             return start
