@@ -2426,7 +2426,9 @@ class TestExportToPocket(GardenTestCase):
     def test_export_empty_database(self):
         GardenTestCase.setUp(self)
         import tempfile
-        filename = tempfile.mktemp()
+        fd, filename = tempfile.mkstemp()
+        os.close(fd)
+        os.unlink(filename)
         create_pocket(filename)
         export_to_pocket(filename)
 
@@ -2453,7 +2455,9 @@ class TestExportToPocket(GardenTestCase):
         self.session.add_all([acc, loc, loc2, plt1, plt2])
         self.session.commit()
         import tempfile
-        filename = tempfile.mktemp()
+        fd, filename = tempfile.mkstemp()
+        os.close(fd)
+        os.unlink(filename)
         create_pocket(filename)
         export_to_pocket(filename)
 

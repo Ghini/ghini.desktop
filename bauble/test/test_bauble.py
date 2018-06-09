@@ -246,21 +246,23 @@ class MVPTests(BaubleTestCase):
 
         model = db.History()
         import tempfile
-        ntf = tempfile.NamedTemporaryFile(mode='w+')
-        ntf.write('''\
+        handle, fn = tempfile.mkstemp()
+        os.close(handle)
+        with open(fn, 'w') as ntf:
+            ntf.write('''\
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkDialog" id="handler-defining-view"/>
 </interface>
 ''')
-        ntf.flush()
-        fn = ntf.name
         view = GenericEditorView(fn, None, 'handler-defining-view')
         presenter = HandlerDefiningPresenter(model, view)
         natural_number_for_dialog_box = len(presenter.view._GenericEditorView__attached_signals)
-        ntf = tempfile.NamedTemporaryFile(mode='w+')
-        ntf.write('''\
+        handle, fn = tempfile.mkstemp()
+        os.close(handle)
+        with open(fn, 'w') as ntf:
+            ntf.write('''\
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
@@ -270,8 +272,6 @@ class MVPTests(BaubleTestCase):
   <object class="GtkDialog" id="handler-defining-view"/>
 </interface>
 ''')
-        ntf.flush()
-        fn = ntf.name
         view = GenericEditorView(fn, None, 'handler-defining-view')
         presenter = HandlerDefiningPresenter(model, view)
         self.assertEqual(
