@@ -26,7 +26,8 @@ family = dict([(eval(i.split(',')[0]), eval(i.split(',')[1]))
 family_no = dict([(eval(i.split(',')[1]), eval(i.split(',')[0]))
                   for i in lines[1:]])
 
-genera = json.load(open('genera-conservanda.json'))
+with open('genera-conservanda.json') as f:
+    genera = json.load(f)
 
 enumerated_genera = [
     (n + 1, g) for n, g in enumerate(
