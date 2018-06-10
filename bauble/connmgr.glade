@@ -30,6 +30,7 @@
       <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="hbuttonbox2">
             <property name="visible">True</property>
@@ -186,9 +187,9 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                     <property name="can_focus">True</property>
                     <child>
                       <object class="GtkBox" id="expander_box">
-                        <property name="orientation">vertical</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
                         <property name="spacing">10</property>
                         <child>
                           <object class="GtkBox" id="hbox4">
@@ -231,47 +232,48 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkTable" id="sqlite_parambox">
+                              <object class="GtkGrid" id="sqlite_parambox">
                                 <property name="can_focus">False</property>
-                                <property name="n_rows">3</property>
-                                <property name="n_columns">2</property>
                                 <child>
                                   <object class="GtkCheckButton" id="usedefaults_chkbx">
                                     <property name="label" translatable="yes">Use default locations</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="halign">start</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_usedefaults_chkbx_toggled" swapped="no"/>
                                   </object>
                                   <packing>
-                                    <property name="right_attach">2</property>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">0</property>
+                                    <property name="width">2</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label2">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xpad">5</property>
+                                    <property name="halign">start</property>
+                                    <property name="margin_left">3</property>
                                     <property name="label" translatable="yes">Filename:</property>
-                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
+                                    <property name="left_attach">0</property>
                                     <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label3">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xpad">5</property>
+                                    <property name="halign">start</property>
+                                    <property name="margin_left">3</property>
                                     <property name="label" translatable="yes">Pictures root:</property>
-                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
+                                    <property name="left_attach">0</property>
                                     <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -311,9 +313,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -353,9 +353,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
                                   </packing>
                                 </child>
                               </object>
@@ -366,10 +364,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkTable" id="dbms_parambox">
+                              <object class="GtkGrid" id="dbms_parambox">
                                 <property name="can_focus">False</property>
-                                <property name="n_rows">6</property>
-                                <property name="n_columns">2</property>
                                 <child>
                                   <object class="GtkLabel" id="label6">
                                     <property name="visible">True</property>
@@ -377,6 +373,10 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     <property name="label" translatable="yes">Database:</property>
                                     <property name="xalign">0</property>
                                   </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label7">
@@ -386,8 +386,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     <property name="xalign">0</property>
                                   </object>
                                   <packing>
+                                    <property name="left_attach">0</property>
                                     <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -398,8 +398,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     <property name="xalign">0</property>
                                   </object>
                                   <packing>
+                                    <property name="left_attach">0</property>
                                     <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -410,8 +410,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     <property name="xalign">0</property>
                                   </object>
                                   <packing>
+                                    <property name="left_attach">0</property>
                                     <property name="top_attach">4</property>
-                                    <property name="bottom_attach">5</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -422,8 +422,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     <property name="xalign">0</property>
                                   </object>
                                   <packing>
+                                    <property name="left_attach">0</property>
                                     <property name="top_attach">5</property>
-                                    <property name="bottom_attach">6</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -437,7 +437,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">0</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -451,9 +451,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -467,9 +465,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -482,9 +478,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="top_attach">4</property>
-                                    <property name="bottom_attach">5</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -524,9 +518,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="top_attach">5</property>
-                                    <property name="bottom_attach">6</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -537,8 +529,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     <property name="xalign">0</property>
                                   </object>
                                   <packing>
+                                    <property name="left_attach">0</property>
                                     <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -551,9 +543,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
                                   </packing>
                                 </child>
                               </object>
