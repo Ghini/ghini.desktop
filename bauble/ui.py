@@ -65,7 +65,8 @@ class DefaultView(pluginmgr.View):
         # splash window contains a hbox: left half is for the proper splash,
         # right half for infobox, only one infobox is allowed.
 
-        self.hbox = Gtk.HBox(False, 0)
+        self.hbox = Gtk.Box(Gtk.Orientation.HORIZONTAL, 2)
+        self.hbox.set_margin_start(5)
         self.add(self.hbox)
 
         image = Gtk.Image()
