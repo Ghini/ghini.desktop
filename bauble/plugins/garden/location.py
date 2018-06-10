@@ -349,8 +349,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.view.set_accept_buttons_sensitive(sensitive)
 
     def set_model_attr(self, attr, value, validator=None):
-        super().\
-            set_model_attr(attr, value, validator)
+        super().set_model_attr(attr, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
 
