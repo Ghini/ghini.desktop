@@ -416,7 +416,7 @@ class LinksExpander(InfoExpander):
                     label.set_ellipsize(Pango.EllipsizeMode.END)
                     button = Gtk.LinkButton(uri=url)
                     button.add(label)
-                    button.set_alignment(0, -1)
+                    button.set_alignment(0, 0.0)
                     self.dynamic_box.pack_start(
                         button, False, False, 0)
             self.dynamic_box.show_all()
