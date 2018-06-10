@@ -15,7 +15,7 @@
             <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkHBox" id="message_box_parent">
+              <object class="GtkBox" id="message_box_parent">
                 <property name="visible">True</property>
                 <child>
                   <placeholder/>
@@ -102,7 +102,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox2">
+                          <object class="GtkBox" id="hbox2">
                             <property name="visible">True</property>
                             <property name="spacing">2</property>
                             <child>
@@ -135,7 +135,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox3">
+                          <object class="GtkBox" id="hbox3">
                             <property name="visible">True</property>
                             <property name="spacing">2</property>
                             <child>
@@ -191,7 +191,7 @@
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">2</property>
                                 <child>
-                                  <object class="GtkHBox" id="hbox1">
+                                  <object class="GtkBox" id="hbox1">
                                     <property name="visible">True</property>
                                     <child>
                                       <object class="GtkEntry" id="gen_syn_entry">
@@ -386,7 +386,7 @@
                     <property name="xscale">0</property>
                     <property name="yscale">0</property>
                     <child>
-                      <object class="GtkHBox" id="hbox14">
+                      <object class="GtkBox" id="hbox14">
                         <property name="visible">True</property>
                         <property name="spacing">2</property>
                         <child>
