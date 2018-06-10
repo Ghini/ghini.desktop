@@ -14,7 +14,7 @@
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child>
-          <object class="GtkHBox" id="hbox1">
+          <object class="GtkBox" id="hbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="homogeneous">True</property>
@@ -51,7 +51,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox2">
+                          <object class="GtkBox" id="hbox2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -118,7 +118,7 @@
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_copy_to_clipboard_button_clicked" swapped="no"/>
                                 <child>
-                                  <object class="GtkHBox" id="hbox6">
+                                  <object class="GtkBox" id="hbox6">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -164,7 +164,7 @@
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_tnrs_browse_button_clicked" swapped="no"/>
                                 <child>
-                                  <object class="GtkHBox" id="hbox7">
+                                  <object class="GtkBox" id="hbox7">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -210,7 +210,7 @@ continue to next screen</property>
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_frame1_next" swapped="no"/>
                                 <child>
-                                  <object class="GtkHBox" id="hbox8">
+                                  <object class="GtkBox" id="hbox8">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -370,7 +370,7 @@ continue to next screen</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox3">
+                          <object class="GtkBox" id="hbox3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -423,7 +423,7 @@ continue to next screen</property>
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_frame_previous" swapped="no"/>
                                 <child>
-                                  <object class="GtkHBox" id="hbox9">
+                                  <object class="GtkBox" id="hbox9">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -472,7 +472,7 @@ continue to next screen</property>
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_frame2_next" swapped="no"/>
                                 <child>
-                                  <object class="GtkHBox" id="hbox10">
+                                  <object class="GtkBox" id="hbox10">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -588,7 +588,7 @@ continue to next screen</property>
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_frame_previous" swapped="no"/>
                                 <child>
-                                  <object class="GtkHBox" id="hbox11">
+                                  <object class="GtkBox" id="hbox11">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -675,7 +675,7 @@ continue to next screen</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <child>
-                  <object class="GtkHBox" id="hbox4">
+                  <object class="GtkBox" id="hbox4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -718,7 +718,7 @@ continue to next screen</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <child>
-                  <object class="GtkHBox" id="hbox5">
+                  <object class="GtkBox" id="hbox5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
