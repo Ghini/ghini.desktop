@@ -147,6 +147,7 @@ class GUI(object):
         model = Gtk.ListStore(str)
         combo.set_model(model)
         self.populate_main_entry()
+        combo.connect('changed', self.on_main_combo_changed)
 
         main_entry = combo.get_child()
         main_entry.connect('activate', self.on_main_entry_activate)
@@ -208,6 +209,7 @@ class GUI(object):
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
 
         combo.grab_focus()
+        self.in_main_combo_changed = False
 
     def close_message_box(self, *args):
         parent = self.widgets.msg_box_parent
@@ -223,6 +225,9 @@ class GUI(object):
         box.show()
 
     def show_error_box(self, msg, details=None):
+        """Show a message in the message drop down box
+
+        """
         self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_INFO)
@@ -235,17 +240,14 @@ class GUI(object):
         box.show()
 
     def show_message_box(self, msg):
-        """
-        Show an info message in the message drop down box
+        """Show a message in the message drop down box
+
         """
         self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_INFO)
         box.message = msg
         box.show()
-        # colors = [('bg', Gtk.StateType.NORMAL, '#b6daf2')]
-        # self._msg_common(msg, colors)
-        # self.widgets.msg_eventbox.show()
 
     def show(self):
         self.window.show()
@@ -262,22 +264,27 @@ class GUI(object):
         self.widgets.go_button.emit("clicked")
 
     def on_main_entry_activate(self, widget, data=None):
+        # react when user hits <enter> in main entry
         self.widgets.go_button.emit("clicked")
 
+    def on_main_combo_changed(self, widget, *args):
+        # react when user chooses new value from pull down
+        if self.in_main_combo_changed:
+            return  # avoid recursion (TODO better)
+        self.in_main_combo_changed = True
+        # do not react while main entry is still being typed
+        if not self.widgets.main_comboentry.get_child().has_focus():
+            self.widgets.go_button.emit("clicked")
+        self.in_main_combo_changed = False
+
     def on_home_button_clicked(self, widget):
-        '''
-        '''
         bauble.command_handler('home', None)
 
     def on_prev_view_button_clicked(self, widget):
-        '''
-        '''
         self.widgets.main_comboentry.get_child().set_text('')
         bauble.gui.set_view('previous')
 
     def on_go_button_clicked(self, widget):
-        '''
-        '''
         self.close_message_box()
         text = self.widgets.main_comboentry.get_child().get_text()
         if text == '':
