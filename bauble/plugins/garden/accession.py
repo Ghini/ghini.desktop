@@ -2534,7 +2534,7 @@ class GeneralAccessionExpander(InfoExpander):
         # property to False here
         acc_private = self.widgets.acc_private_data
         if row.private:
-            if acc_private.parent != self.widgets.acc_code_box:
+            if acc_private.get_parent() != self.widgets.acc_code_box:
                 self.widgets.acc_code_box.pack_start(acc_private, True, True, 0)
         else:
             self.widgets.remove_parent(acc_private)

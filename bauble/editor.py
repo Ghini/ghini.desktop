@@ -1142,10 +1142,10 @@ class GenericEditorPresenter(object):
         for presenter in self.clipboard_presenters:
             for name in presenter.widget_to_field_map:
                 container = presenter.view.widgets[name]
-                while container.parent != notebook:
+                while container.get_parent() != notebook:
                     if current_page_widget == container:
                         break
-                    container = container.parent
+                    container = container.get_parent()
                 if current_page_widget == container:
                     value = presenter.view.widget_get_value(name)
                     logger.debug('writing »%s« in clipboard %s for %s' % (value, presenter.__class__.__name__, name))
@@ -1162,10 +1162,10 @@ class GenericEditorPresenter(object):
         for presenter in self.clipboard_presenters:
             for name in presenter.widget_to_field_map:
                 container = presenter.view.widgets[name]
-                while container.parent != notebook:
+                while container.get_parent() != notebook:
                     if current_page_widget == container:
                         break
-                    container = container.parent
+                    container = container.get_parent()
                 if current_page_widget == container:
                     if presenter.view.widget_get_value(name):
                         logger.debug('skipping %s in clipboard %s because widget has value' % (name, presenter.__class__.__name__))
