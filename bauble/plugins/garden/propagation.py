@@ -918,8 +918,7 @@ class PropagationPresenter(editor.ChildPresenter):
         Set attributes on the model and update the GUI as expected.
         """
         logging.debug('%s = %s' % (field, value))
-        super().\
-            set_model_attr(field, value, validator)
+        super().set_model_attr(field, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
 
