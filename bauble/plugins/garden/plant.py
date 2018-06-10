@@ -704,7 +704,21 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 # if get_next_code() returns None then there was an error
                 self.set_model_attr('code', code)
 
+        # need to build the ComboBox logic before refreshing the view AND
+        # make sure that refreshing the view will not be seen as a change.
+        self.initializing = True
+        def on_location_select(location):
+            if self.initializing:
+                return
+            self.set_model_attr('location', location)
+            if self.change.quantity is None:
+                self.change.quantity = self.model.quantity
+        from bauble.plugins.garden import init_location_comboentry
+        init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
+                                 on_location_select)
+
         self.refresh_view()  # put model values in view
+        self.initializing = False
 
         self.change = PlantChange()
         self.session.add(self.change)
@@ -726,14 +740,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         self.view.connect('plant_date_entry', 'changed',
                           self.on_date_entry_changed)
-
-        def on_location_select(location):
-            self.set_model_attr('location', location)
-            if self.change.quantity is None:
-                self.change.quantity = self.model.quantity
-        from bauble.plugins.garden import init_location_comboentry
-        init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
-                                 on_location_select)
 
         # assign signal handlers to monitor changes now that the view has
         # been filled in
@@ -883,8 +889,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def set_model_attr(self, field, value, validator=None):
         logger.debug('set_model_attr(%s, %s)' % (field, value))
-        super()\
-            .set_model_attr(field, value, validator)
+        super().set_model_attr(field, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
 
