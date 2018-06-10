@@ -580,7 +580,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             presenter.view.connect(self.rank_combo,
                                    'changed', self.on_rank_combo_changed)
             table.attach(self.rank_combo, 0, 1, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL,
+                         yoptions=Gtk.AttachOptions.FILL)
 
             # epithet entry
             self.epithet_entry = Gtk.Entry()
@@ -588,7 +589,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             presenter.view.connect(self.epithet_entry, 'changed',
                                    self.on_epithet_entry_changed)
             table.attach(self.epithet_entry, 1, 2, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,
+                         yoptions=Gtk.AttachOptions.FILL)
 
             # author entry
             self.author_entry = Gtk.Entry()
@@ -596,7 +598,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             presenter.view.connect(self.author_entry, 'changed',
                                    self.on_author_entry_changed)
             table.attach(self.author_entry, 2, 3, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,
+                         yoptions=Gtk.AttachOptions.FILL)
 
             self.remove_button = Gtk.Button()
             img = Gtk.Image.new_from_stock(Gtk.STOCK_REMOVE,
@@ -605,7 +608,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             presenter.view.connect(self.remove_button, 'clicked',
                                    self.on_remove_button_clicked)
             table.attach(self.remove_button, 3, 4, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL,
+                         yoptions=Gtk.AttachOptions.FILL)
             table.show_all()
 
         def on_remove_button_clicked(self, *args):

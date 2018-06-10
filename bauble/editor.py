@@ -728,10 +728,11 @@ class GenericEditorView(object):
         # using 'object' avoids SA unicode warning
         model = Gtk.ListStore(object, str)
         if isinstance(translations, dict):
-            translations = sorted(iter(translations.items()), key=lambda x: x[1])
+            translations = sorted(translations.items(),
+                                  key=lambda x: (x[1] != None, x[1]))
         if cmp is not None:
             translations = sorted(translations,
-                                  key=lambda a: a[0])
+                                  key=lambda a: (a[0] != None, a[0]))
         for key, value in translations:
             model.append([key, value])
         combo.set_model(model)
