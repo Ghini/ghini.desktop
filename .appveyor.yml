@@ -1,0 +1,67 @@
+environment:
+
+  matrix:
+
+    - PYTHON: "C:\Python33"
+    - PYTHON: "C:\Python34"
+    - PYTHON: "C:\Python35"
+    - PYTHON: "C:\Python33-x64"
+      DISTUTILS_USE_SDK: "1"
+    - PYTHON: "C:\Python34-x64"
+      DISTUTILS_USE_SDK: "1"
+    - PYTHON: "C:\Python35-x64"
+    - PYTHON: "C:\Python36-x64"
+
+branches:
+  only:
+    - ghini-3.1
+
+install:
+  - ps: if (-not (Test-Path msys2-i686-20180531.exe)) { Start-FileDownload "http://repo.msys2.org/distrib/i686/msys2-i686-20180531.exe" }
+  - ps: Get-FileHash msys2-i686-20180531.exe -Algorithm SHA256 # 27da9bf74614f3a07be6151e4d7d702e54bd6443649d387912676ab150d859a1
+  - '%PYTHON%\python -m pip install py2exe_py2'
+  - '%PYTHON%\python -m pip install pygments'
+
+build_script:
+  - 'mkdir dist'
+  - '%PYTHON%\python -m pip install .'
+  - '%PYTHON%\python setup.py py2exe'
+  - '%PYTHON%\python setup.py nsis'
+
+test_script:
+  # Put your test command here.
+  # Note that you must use the environment variable %PYTHON% to refer to
+  # the interpreter you're using - Appveyor does not do anything special
+  # to put the Python version you want to use on PATH.
+  - "%PYTHON%\python -m pip install nose"
+  - "%PYTHON%\python -m pip install coverage"
+  - "nosetests"
+
+after_test:
+  - 'mkdir dist'
+  - '%PYTHON%\python -m pip install .'
+  - '%PYTHON%\python setup.py py2exe'
+  - '%PYTHON%\python setup.py nsis'
+
+artifacts:
+  # bdist_wheel puts your built wheel in the dist directory
+  - path: dist\*
+
+cache:
+  - msys2-i686-20180531.exe
+
+deploy:
+  release: 'v3.1.4' # :bump
+  description: ''
+  provider: GitHub
+  auth_token:
+    secure: # see: https://www.appveyor.com/docs/how-to/git-push/#creating-github-personal-access-token
+  draft: false
+  prerelease: false
+  # on:
+  #   appveyor_repo_tag: true        # deploy on tag push only
+
+#on_success:
+#  You can use this step to upload your artifacts to a public website.
+#  See Appveyor's documentation for more details. Or you can simply
+#  access your wheels from the Appveyor "artifacts" tab for your build.
