@@ -143,17 +143,16 @@ class GardenPlugin(pluginmgr.Plugin):
 
 
 def init_location_comboentry(presenter, combo, on_select, required=True):
-    """
-    A comboentry that allows the location to be entered requires
-    more custom setup than view.attach_completion and
-    self.assign_simple_handler can provides.  This method allows us to
-    have completions on the location entry based on the location code,
-    location name and location string as well as selecting a location
-    from a combo drop down.
+    """associate custom completion to combobox internal entry
+
+    This method allows us to have completions on the location entry based on
+    the location code, location name and location string as well as
+    selecting a location from a combo drop down.
 
     :param presenter:
     :param combo:
     :param on_select: a one-parameter function
+
     """
     PROBLEM = 'UNKNOWN_LOCATION'
     re_code_name_splitter = re.compile('\(([^)]+)\) ?(.*)')
@@ -177,9 +176,10 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     combo.set_cell_data_func(cell, cell_data_func)
 
     model = Gtk.ListStore(object)
-    locations = [''] + sorted(presenter.session.query(Location).all(),
-                       key=lambda loc: utils.natsort_key(loc.code))
-    list(map(lambda loc: model.append([loc]), locations))
+    model.append(('',))
+    for loc in sorted(presenter.session.query(Location).all(),
+                      key=lambda loc: utils.natsort_key(loc.code)):
+        model.append((loc, ))
     combo.set_model(model)
     completion.set_model(model)
 
@@ -211,15 +211,15 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
             on_select(None)
             return
         # see if the text matches a completion string
-        comp = entry.get_completion()
-        compl_model = comp.get_model()
+        completion = entry.get_completion()
+        compl_model = completion.get_model()
 
         def _cmp(row, data):
             return utils.utf8(row[0]) == data
 
         found = utils.search_tree_model(compl_model, text, _cmp)
         if len(found) == 1:
-            comp.emit('match-selected', compl_model, found[0])
+            completion.emit('match-selected', compl_model, found[0])
             return True
         # if text looks like '(code) name', then split it into the two
         # parts, then see if the text matches exactly a code or name
