@@ -144,6 +144,9 @@ bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
 rx = "(^version=)[0-9]*\.[0-9]*\.[0-9]*(.*?%s.*$)" % bump_tag
 bump_file(os.path.join(root_of_clone(), 'scripts/installer.cfg'), rx)
 
+rx = "(^  release: \'v).*?\..*?\..*?(\'.*?%s.*?$)" % (bump_tag)
+bump_file(os.path.join(root_of_clone(), '.appveyor.yml'), rx)
+
 # TODO: commit the changes
 print()
 print('git commit -m "bumping_to_%s" bauble/version.py doc/conf.py'
