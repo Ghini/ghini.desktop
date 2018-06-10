@@ -451,6 +451,9 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
       the values __str__ method
     '''
 
+    logger.debug("(widget ›%s‹, value ›%s‹, markup ›%s‹, default ›%s‹, index ›%s‹)"
+                 % (widget, value, markup, default, index))
+
     if value is None:  # set the value from the default
         if isinstance(widget, (Gtk.Label, Gtk.TextView, Gtk.Entry)) \
                 and default is None:
@@ -485,18 +488,19 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
     elif isinstance(widget, Gtk.Entry):
         widget.set_text(utf8(value) or "")
     elif isinstance(widget, Gtk.ComboBox):
-        # handles Gtk.ComboBox and Gtk.ComboBoxEntry
         treeiter = None
         if not widget.get_model():
             logger.warning(
-                "utils.set_widget_value(): combo doesn't have a model: %s" %
+                "utils.set_widget_value: impossible on ComboBox without a model: %s" %
                 Gtk.Buildable.get_name(widget))
         else:
             treeiter = combo_get_value_iter(
                 widget, value, cmp=lambda row, value: row[index] == value)
             if treeiter:
+                logger.debug("value found in model at %s" % treeiter)
                 widget.set_active_iter(treeiter)
             else:
+                logger.debug("value not found in model")
                 widget.set_active(-1)
         if widget.get_child():
             widget.get_child().text = value or ''
@@ -951,14 +955,13 @@ def reset_sequence(column):
         return
 
     sequence_name = None
-    if hasattr(column, 'default') and \
-            isinstance(column.default, schema.Sequence):
+    if (hasattr(column, 'default')
+        and isinstance(column.default, schema.Sequence)):
         sequence_name = column.default.name
-    elif (isinstance(column.type, Integer) and column.autoincrement) and \
-            (column.default is None or
-             (isinstance(column.default, schema.Sequence) and
-              column.default.optional)) and \
-            len(column.foreign_keys) == 0:
+    elif ((isinstance(column.type, Integer) and column.autoincrement)
+          and (column.default is None or
+               (isinstance(column.default, schema.Sequence) and column.default.optional))
+          and len(column.foreign_keys) == 0):
         sequence_name = '%s_%s_seq' % (column.table.name, column.name)
     else:
         return
