@@ -51,7 +51,7 @@ cache:
   - msys2-i686-20180531.exe
 
 deploy:
-  release: 'v3.1.5' # :bump
+  release: 'v3.1.6' # :bump
   description: ''
   provider: GitHub
   auth_token:
