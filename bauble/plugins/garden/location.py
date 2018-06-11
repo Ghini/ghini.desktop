@@ -36,8 +36,9 @@ from sqlalchemy.exc import DBAPIError
 
 import bauble
 import bauble.db as db
-from bauble.editor import GenericModelViewPresenterEditor, GenericEditorView, \
-    GenericEditorPresenter, UnicodeOrNoneValidator
+from bauble.editor import (GenericModelViewPresenterEditor, GenericEditorView,
+                           GenericEditorPresenter, UnicodeOrNoneValidator,
+                           NotesPresenter)
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.view import Action
@@ -251,6 +252,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.session = object_session(model)
         self._dirty = False
 
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
+
         # initialize widgets
         self.refresh_view()  # put model values in view
 
@@ -354,7 +359,8 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
 
     def is_dirty(self):
-        return self._dirty
+        return (self.notes_presenter.is_dirty() or
+                self._dirty)
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.items():
