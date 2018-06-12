@@ -1780,6 +1780,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         ;param view: an instance of AccessionEditorView
         '''
         super().__init__(model, view)
+        self.initializing = True
         self.create_toolbar()
         self._dirty = False
         self.session = object_session(model)
@@ -1973,6 +1974,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         if self.model not in self.session.new:
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
+        self.initializing = False
 
     def populate_code_formats(self, entry_one=None, values=None):
         logger.debug('populate_code_formats %s %s' % (entry_one, values))
@@ -2103,6 +2105,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr(target_field, location)
 
     def is_dirty(self):
+        if self.initializing:
+            return False
         presenters = [self.ver_presenter, self.voucher_presenter,
                       self.notes_presenter, self.source_presenter]
         dirty_kids = [p.is_dirty() for p in presenters]
