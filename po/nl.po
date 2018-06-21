@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-06-10 10:37+0000\n"
+"PO-Revision-Date: 2018-06-22 09:36+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.0.1-dev\n"
+"X-Generator: Weblate 3.1-dev\n"
 "X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
 
 #: bauble/btypes.py:87
@@ -804,15 +804,15 @@ msgstr ""
 #: bauble/plugins/imex/iojson.py:172 bauble/plugins/imex/iojson.py:255
 #: bauble/plugins/plants/taxonomy_check.py:268
 msgid "Choose a file…"
-msgstr ""
+msgstr "Kies een bestand…"
 
 #: bauble/search.py:1006
 msgid "Choose a property…"
-msgstr ""
+msgstr "Kies een eigenschap…"
 
 #: bauble/plugins/imex/csv_.py:560
 msgid "Choose file(s) to import…"
-msgstr ""
+msgstr "Selecteer bestand(en) om te importeren…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -842,7 +842,7 @@ msgstr "Collectie ID"
 
 #: bauble/plugins/garden/acc_infobox.glade:798
 msgid "Collection ID:"
-msgstr ""
+msgstr "Collectie ID:"
 
 #: bauble/plugins/garden/acc_editor.glade:1808
 msgid "Collection Notes"
@@ -1071,7 +1071,7 @@ msgstr "Stek"
 
 #: bauble/plugins/garden/prop_editor.glade:206
 msgid "Cutting length"
-msgstr "Steklengte"
+msgstr "Lengte stek"
 
 #: bauble/plugins/garden/prop_editor.glade:335
 #: bauble/plugins/garden/propagation.py:165
@@ -1239,7 +1239,7 @@ msgstr "Bewerk de geselecteerde locatie."
 
 #: bauble/plugins/garden/acc_infobox.glade:706
 msgid "Elevation:"
-msgstr ""
+msgstr "Hoogte:"
 
 #: bauble/plugins/garden/institution.glade:230
 msgid "Email"
@@ -2012,6 +2012,8 @@ msgid ""
 "Moving a quantity of plantings to a different location creates a new "
 "planting within the same accession."
 msgstr ""
+"Het verplaatsen van een aantal planten naar een andere locatie creëert een "
+"nieuwe aanplant binnen dezelfde accessie."
 
 #: bauble/plugins/garden/source.py:133 bauble/plugins/plants/itf2.py:142
 msgid "Municipal department"
@@ -2212,7 +2214,7 @@ msgstr ""
 
 #: bauble/plugins/garden/picture_importer.py:391
 msgid "Picture Collection"
-msgstr ""
+msgstr "Afbeeldingen Collectie"
 
 #: bauble/pictures_view.glade:10
 msgid "Picture Viewer"
@@ -2377,7 +2379,7 @@ msgstr "Privé"
 
 #: bauble/plugins/garden/acc_editor.glade:2577
 msgid "Propagation"
-msgstr ""
+msgstr "Voortkweking"
 
 #: bauble/plugins/garden/prop_editor.glade:8
 #, fuzzy
@@ -2386,7 +2388,7 @@ msgstr "Propagatie Editor"
 
 #: bauble/plugins/garden/prop_editor.glade:38
 msgid "Propagation Type"
-msgstr ""
+msgstr "Type Voortkweking"
 
 #: bauble/plugins/plants/itf2.py:117
 msgid "Propagation history uncertain, or no information"
@@ -2394,7 +2396,7 @@ msgstr "Propagatiegeschiedenis onzeker, of geen informatie"
 
 #: bauble/plugins/garden/acc_editor.glade:2471
 msgid "Propagation of Source Material"
-msgstr ""
+msgstr "Herkomst Voortkwekingsmateriaal"
 
 #: bauble/plugins/garden/plant_editor.glade:998
 #: bauble/plugins/garden/plant.py:1392
@@ -2478,7 +2480,7 @@ msgstr "Registreren"
 
 #: bauble/plugins/tag/__init__.py:106
 msgid "Remove active tag"
-msgstr ""
+msgstr "Verwijder actieve tag"
 
 #: bauble/plugins/garden/propagation.py:276
 #: bauble/plugins/garden/propagation.py:281
@@ -2557,39 +2559,39 @@ msgstr "Uw wijzigingen opslaan"
 
 #: bauble/plugins/plants/family.py:340
 msgid "Save your changes and add a genus to this family."
-msgstr ""
+msgstr "Wijzigingen opslaan en voeg geslacht toe aan deze familie."
 
 #: bauble/plugins/garden/accession.py:881
 msgid "Save your changes and add a plant to this accession."
-msgstr ""
+msgstr "Wijzigingen opslaan en voeg een plant toe aan deze accessie."
 
 #: bauble/plugins/plants/genus.py:379
 msgid "Save your changes and add a species to this genus."
-msgstr ""
+msgstr "Wijzigingen opslaan en voeg een soort toe aan dit geslacht."
 
 #: bauble/plugins/plants/species_editor.py:1174
 msgid "Save your changes and add an accession to this species"
-msgstr ""
+msgstr "Wijzigingen opslaan en voeg een accessie toe aan deze soort"
 
 #: bauble/plugins/garden/accession.py:883 bauble/plugins/garden/plant.py:618
 msgid "Save your changes and add another accession."
-msgstr ""
+msgstr "Wijzigingen opslaan en andere accessie toevoegen."
 
 #: bauble/plugins/plants/family.py:342
 msgid "Save your changes and add another family."
-msgstr ""
+msgstr "Wijzigingen opslaan en andere familie toevoegen."
 
 #: bauble/plugins/plants/genus.py:381
 msgid "Save your changes and add another genus."
-msgstr ""
+msgstr "Wijzigingen opslaan en ander geslacht toevoegen."
 
 #: bauble/plugins/garden/plant.py:616
 msgid "Save your changes and add another plant."
-msgstr ""
+msgstr "Wijzigingen opslaan en andere plant toevoegen."
 
 #: bauble/plugins/plants/species_editor.py:1176
 msgid "Save your changes and add another species "
-msgstr ""
+msgstr "Wijzigingen opslaan en andere soort toevoegen "
 
 #: bauble/plugins/garden/accession.py:880 bauble/plugins/garden/plant.py:615
 #: bauble/plugins/plants/family.py:339 bauble/plugins/plants/genus.py:378
@@ -2861,7 +2863,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:256
 msgid "Stolen"
-msgstr ""
+msgstr "Gestolen"
 
 #: bauble/plugins/plants/itf2.py:37
 msgid "Stored in a dormant state"
@@ -2869,7 +2871,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:266
 msgid "Summer Kill"
-msgstr ""
+msgstr "Zomer niet overleefd"
 
 #: bauble/plugins/plants/genus_editor.glade:543
 #: bauble/plugins/plants/family_editor.glade:481
@@ -2886,11 +2888,11 @@ msgstr ""
 
 #: bauble/bauble.glade:72
 msgid "Table"
-msgstr ""
+msgstr "Tabel"
 
 #: bauble/plugins/tag/__init__.py:102 bauble/plugins/tag/test.py:55
 msgid "Tag Selection"
-msgstr ""
+msgstr "Tag Selectie"
 
 #: bauble/plugins/tag/tag.glade:82
 msgid "Tagged type"
@@ -3024,7 +3026,7 @@ msgstr "Datum deze soort werd opgenomen"
 
 #: bauble/plugins/garden/accession.py:863
 msgid "The date this species was received."
-msgstr ""
+msgstr "Datum waarop deze soort is ontvangen."
 
 #: bauble/plugins/plants/species_editor.py:1167
 msgid ""
@@ -3057,11 +3059,11 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:369
 msgid "The family name"
-msgstr ""
+msgstr "De familienaam"
 
 #: bauble/plugins/plants/family.py:331
 msgid "The family name."
-msgstr ""
+msgstr "De familienaam."
 
 #: bauble/plugins/garden/institution.py:206
 msgid "The fax number of the institution."
