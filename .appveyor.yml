@@ -22,7 +22,7 @@ build_script:
   - 'python setup.py py2exe'
   - 'python setup.py nsis'
   - 'mkdir ghini-runtime\Appdata'
-  - 'compress -z ghini-runtime dist\ghini.desktop-runtime.zip'
+  - ps: Add-Type -Assembly "System.IO.Compression.FileSystem" ; [System.IO.Compression.ZipFile]::CreateFromDirectory("ghini-runtime", "dist\ghini.desktop-runtime.zip")
 
 cache:
   - pygtk-all-in-one-2.24.2.win32-py2.7.msi
