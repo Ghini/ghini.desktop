@@ -6,9 +6,6 @@ environment:
 branches:
   only:
     - ghini-1.0
-
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   
 install:
   - set PATH=%PYTHON_HOME%;%PYTHON_HOME%\Scripts;%PATH%;C:\Program Files (x86)\NSIS\Bin
@@ -24,12 +21,15 @@ build_script:
   - 'pip install .'
   - 'python setup.py py2exe'
   - 'python setup.py nsis'
+  - 'mkdir ghini-runtime\Appdata'
+  - 'compress -z ghini-runtime dist\ghini.desktop-runtime.zip'
 
 cache:
   - pygtk-all-in-one-2.24.2.win32-py2.7.msi
 
 artifacts:
   - path: dist\ghini.desktop-*-setup.exe
+  - path: dist\ghini.desktop-runtime.zip
 
 deploy:
   release: 'v1.0.87' # :bump
