@@ -22,7 +22,7 @@ build_script:
   - 'python setup.py py2exe'
   - 'python setup.py nsis'
   - 'mkdir ghini-runtime\Appdata'
-  - ps: $RuntimeName = GetChildItem C:\projects\ghini-desktop\dist -name | Select-String -pattern ".*-setup\.exe" | %{$_ -replace "setup.exe","runtime.zip"}
+  - ps: $RuntimeName = Get-ChildItem C:\projects\ghini-desktop\dist -Name | Select-String -Pattern ".*-setup\.exe" | %{$_ -Replace "setup.exe","runtime.zip"}
   - ps: Add-Type -Assembly "System.IO.Compression.FileSystem" ; [System.IO.Compression.ZipFile]::CreateFromDirectory("C:\projects\ghini-desktop\ghini-runtime", "C:\projects\ghini-desktop\dist\"$RuntimeName)
 
 cache:
