@@ -30,7 +30,7 @@ cache:
 
 artifacts:
   - path: dist\ghini.desktop-*-setup.exe
-  - path: dist\ghini.desktop-runtime.zip
+  - path: dist\ghini.desktop-*-runtime.zip
 
 deploy:
   release: 'v1.0.87' # :bump
