@@ -37,7 +37,7 @@ deploy:
   description: ''
   provider: GitHub
   auth_token:
-    secure: # see: https://www.appveyor.com/docs/how-to/git-push/#creating-github-personal-access-token
+    secure: dSfgWRecEMom75nyACuQwayrmTXoWXmD5IofktTtEAfXqUp1Mm3RsDVTDKsNilDB
   draft: false
   prerelease: false
   # on:
