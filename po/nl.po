@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-14 08:29-0500\n"
-"PO-Revision-Date: 2018-07-11 22:36+0000\n"
+"PO-Revision-Date: 2018-07-13 13:36+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
@@ -2618,9 +2618,8 @@ msgid "Spore"
 msgstr "Sporen"
 
 #: bauble/plugins/garden/accession.py:450
-#, fuzzy
 msgid "Sporeling"
-msgstr "Sporeling"
+msgstr "Voorkiem"
 
 #: bauble/plugins/garden/source.py:130
 msgid "Staff member"
