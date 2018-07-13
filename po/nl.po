@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-07-13 13:36+0000\n"
+"PO-Revision-Date: 2018-07-13 21:57+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -44,7 +44,7 @@ msgstr "% ontkiemd"
 
 #: bauble/plugins/garden/accession.py:663
 msgid "%(1)s plant groups in %(2)s location(s)"
-msgstr "%(1)s plantgroepen in %(2)s locatie(s)"
+msgstr "%(1)s plantgroepen op %(2)s locatie(s)"
 
 #: bauble/plugins/plants/species_model.py:456
 msgid "%(group)s Group"
@@ -4012,15 +4012,15 @@ msgstr "Query uitvoeren"
 
 #: bauble/plugins/imex/select_export.glade:169
 msgid "export based on:"
-msgstr ""
+msgstr "export gebaseerd op:"
 
 #: bauble/plugins/imex/select_export.glade:268
 msgid "export includes:"
-msgstr ""
+msgstr "export omvat:"
 
 #: bauble/plugins/imex/csv_.py:635
 msgid "exporting %(table)s table to %(filename)s"
-msgstr ""
+msgstr "exporteren %(tabel)s tabel naar %(bestandsnaam)s"
 
 #: bauble/plugins/plants/species_model.py:69
 msgid "f."
@@ -4035,8 +4035,9 @@ msgid "general"
 msgstr ""
 
 #: bauble/plugins/garden/plant_infobox.glade:6
+#, fuzzy
 msgid "general_window"
-msgstr ""
+msgstr "general_window"
 
 #: bauble/plugins/plants/__init__.py:385
 msgid "history"
@@ -4047,8 +4048,9 @@ msgid "history size must be greater than zero and less than the history size"
 msgstr ""
 
 #: bauble/plugins/garden/picture_importer.glade:509
+#, fuzzy
 msgid "hit"
-msgstr ""
+msgstr "hit"
 
 #: bauble/ui.py:767
 msgid "http://ghini.github.io"
@@ -4056,7 +4058,7 @@ msgstr "http://ghini.github.io"
 
 #: bauble/plugins/imex/csv_.py:360
 msgid "importing %(table)s table from %(filename)s"
-msgstr ""
+msgstr "importeren %(tabel)s tabel van %(bestandsnaam)s"
 
 #: bauble/plugins/garden/propagation.py:305
 msgid "in"
@@ -4108,6 +4110,8 @@ msgid ""
 "new remote version %s available.\n"
 "continue, or exit to upgrade."
 msgstr ""
+"nieuwe remote version %s beschikbaar.\n"
+"doorgaan, of afsluiten om te upgraden."
 
 #: bauble/plugins/plants/stored_queries.glade:491
 #: bauble/plugins/plants/taxonomy_check.glade:218
@@ -4133,11 +4137,11 @@ msgstr ""
 
 #: bauble/connmgr.py:128
 msgid "not available when offline"
-msgstr "wanneer offline niet beschikbaar"
+msgstr "niet beschikbaar wanneer offline"
 
 #: bauble/plugins/plants/species.py:424
 msgid "open the wikipedia page about this species"
-msgstr "ga naar de wikipedia pagina over deze soort"
+msgstr "open de wikipedia pagina over deze soort"
 
 #: bauble/plugins/imex/select_export.glade:338
 msgid "output:"
@@ -4167,11 +4171,11 @@ msgstr "voorkeuren"
 #: bauble/plugins/plants/taxonomy_check.glade:442
 #: bauble/plugins/plants/taxonomy_check.glade:606
 msgid "prev"
-msgstr ""
+msgstr "vorige"
 
 #: bauble/bauble.glade:156
 msgid "previous view"
-msgstr ""
+msgstr "vorige weergave"
 
 #: bauble/plugins/imex/select_export.glade:246
 msgid "private objects"
@@ -4204,7 +4208,7 @@ msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:78
 msgid "select TNRS results"
-msgstr ""
+msgstr "selecteer TNRS-resultaten."
 
 #: bauble/plugins/imex/select_export.glade:84
 msgid "selection"
@@ -4212,7 +4216,7 @@ msgstr "selectie"
 
 #: bauble/view.py:852
 msgid "size of non homogeneous result: %s"
-msgstr "grootte niet homogeen resultaat: %s"
+msgstr "grootte van het niet-homogene resultaat: %s"
 
 #: bauble/plugins/plants/taxonomy_check.glade:161
 msgid "start TNRS lookup"
@@ -4256,7 +4260,7 @@ msgstr "taxa"
 
 #: bauble/plugins/plants/__init__.py:385
 msgid "the history in this database"
-msgstr ""
+msgstr "De historie in deze database"
 
 #: bauble/plugins/garden/picture_importer.glade:453
 #, fuzzy
@@ -4299,6 +4303,8 @@ msgid ""
 "use this data and\n"
 "continue to next screen"
 msgstr ""
+"gebruik deze gegevens en\n"
+"ga door naar het volgende scherm"
 
 #: bauble/plugins/garden/propagation.py:155
 msgid "used in"
