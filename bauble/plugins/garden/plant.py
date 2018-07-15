@@ -316,72 +316,12 @@ class PlantChange(db.Base):
         'Location', primaryjoin='PlantChange.to_location_id == Location.id')
 
 
-condition_values = {
-    'Excellent': _('Excellent'),
-    'Good': _('Good'),
-    'Fair': _('Fair'),
-    'Poor': _('Poor'),
-    'Questionable': _('Questionable'),
-    'Indistinguishable': _('Indistinguishable Mass'),
-    'UnableToLocate': _('Unable to Locate'),
-    'Dead': _('Dead'),
-    None: ''}
-
-flowering_values = {
-    'Immature': _('Immature'),
-    'Flowering': _('Flowering'),
-    'Old': _('Old Flowers'),
-    None: ''}
-
-fruiting_values = {
-    'Unripe': _('Unripe'),
-    'Ripe': _('Ripe'),
-    None: '',
-}
-
 # TODO: should sex be recorded at the species, accession or plant
 # level or just as part of a check since sex can change in some species
 sex_values = {
     'Female': _('Female'),
     'Male': _('Male'),
     'Both': ''}
-
-# class Container(db.Base):
-#     __tablename__ = 'container'
-#     __mapper_args__ = {'order_by': 'name'}
-#     code = Column(Unicode)
-#     name = Column(Unicode)
-
-
-class PlantStatus(db.Base):
-    """
-    date: date checked
-    status: status of plant
-    comment: comments on check up
-    checked_by: person who did the check
-    """
-    __tablename__ = 'plant_status'
-    date = Column(types.Date, default=func.now())
-    condition = Column(types.Enum(values=list(condition_values.keys()),
-                                  translations=condition_values))
-    comment = Column(UnicodeText)
-    checked_by = Column(Unicode(64))
-
-    flowering_status = Column(types.Enum(values=list(flowering_values.keys()),
-                                         translations=flowering_values))
-    fruiting_status = Column(types.Enum(values=list(fruiting_values.keys()),
-                                        translations=fruiting_values))
-
-    autumn_color_pct = Column(Integer, autoincrement=False)
-    leaf_drop_pct = Column(Integer, autoincrement=False)
-    leaf_emergence_pct = Column(Integer, autoincrement=False)
-
-    sex = Column(types.Enum(values=list(sex_values.keys()),
-                            translations=sex_values))
-
-    # TODO: needs container table
-    #container_id = Column(Integer)
-
 
 acc_type_values = {'Plant': _('Planting'),
                    'Seed': _('Seed/Spore'),
