@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-07-13 21:57+0000\n"
+"PO-Revision-Date: 2018-07-20 09:36+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -236,7 +236,7 @@ msgstr "<b> Kiemgegevens </b>"
 
 #: bauble/plugins/plants/infoboxes.glade:713
 msgid "<b>Habit:</b>"
-msgstr "<b>Planteigenschappen:</b>"
+msgstr "<b>Habitus:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:149
 #: bauble/plugins/report/mako/gui.glade:67
@@ -4318,7 +4318,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:67
 msgid "var."
-msgstr "variëteit"
+msgstr "var."
 
 #: bauble/plugins/herbarium/accession.glade:522
 msgid "verifications"
