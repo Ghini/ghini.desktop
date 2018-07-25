@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-14 08:29-0500\n"
-"PO-Revision-Date: 2018-07-20 09:36+0000\n"
+"PO-Revision-Date: 2018-07-26 17:36+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
@@ -980,7 +980,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:619
 #: bauble/plugins/garden/propagation.py:199
 msgid "Cover"
-msgstr "Cover"
+msgstr "Afdekking"
 
 #: bauble/plugins/garden/propagation.py:218
 msgid "Covered"
@@ -1715,7 +1715,7 @@ msgstr "Label verspreidingsgebied"
 
 #: bauble/view.py:185
 msgid "Last updated:"
-msgstr "<b>Laatst gewijzigd:</b>"
+msgstr "Laatst bijgewerkt:"
 
 #: bauble/plugins/garden/institution.glade:476
 #: bauble/plugins/garden/acc_editor.glade:2029
