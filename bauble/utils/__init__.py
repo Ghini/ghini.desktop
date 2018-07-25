@@ -919,6 +919,7 @@ def xml_safe_utf8(obj):
 
     return xml_safe(obj)
 
+
 def xml_safe_name(obj):
     """
     Return a string that conforms to W3C XML 1.0 (fifth edition) recommendation
@@ -931,13 +932,23 @@ def xml_safe_name(obj):
     start_char = (ur'[A-Z]|[:_]|[a-z]|\xc0-\xd6]|[\xd8-\xf6]|[\xf8-\xff]|'
                   ur'[\u0100-\u02ff]|[\u0370-\u037d]|[\u037f-\u1fff]|'
                   ur'[\u200c-\u200d]|[\u2070-\u218f]|[\u2c00-\u2fef]|'
-                  ur'[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD]|'
-                  ur'[\U00010000-\U000EFFFF]')
-    name_start_char = r'(' + start_char + r')'
-    name_char = (ur'(' + start_char +
+                  ur'[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD]|')
+    # depending on a ucs-2 or ucs-4 build python
+    start_char_ucs4 = start_char + ur'[\U00010000-\U000EFFFF]'
+    name_start_char_ucs4 = ur'(' + start_char_ucs4 + ur')'
+    name_char = (ur'(' + start_char_ucs4 +
                  ur'|[-.0-9\xb7\u0337-\u036f\u203f-\u2040])')
-    # if the first char is not a name start char insert a '_'
-    first_char = re.match(name_start_char, uni[0])
+
+    start_char_ucs2 = start_char + ur'[\uD800-\uDBFF][\uDC00-\uDFFF]'
+    name_start_char_ucs2 = ur'(' + start_char_ucs2 + ur')'
+    name_char_ucs2 = (ur'(' + start_char_ucs2 +
+                      ur'|[-.0-9\xb7\u0337-\u036f\u203f-\u2040])')
+    try:
+        first_char = re.match(name_start_char_ucs4, uni[0])
+    except re.error:
+        first_char = re.match(name_start_char_ucs2, uni[0])
+        name_char = name_char_ucs2
+
     if first_char:
         start_char = first_char.group()
         uni = uni[1:]
