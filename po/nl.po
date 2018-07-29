@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
 "PO-Revision-Date: 2018-07-30 16:36+0000\n"
-"Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
 "Language: nl\n"
@@ -1605,7 +1605,6 @@ msgid "Given to Back 40 (FOGs)"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:262
-#, fuzzy
 msgid "Given to FOGs to sell"
 msgstr "Aan FOG's gegeven voor verkoop"
 
@@ -1696,7 +1695,6 @@ msgid "Identification Qualifier"
 msgstr "Identificatiekenmerk"
 
 #: bauble/plugins/garden/accession.py:739
-#, fuzzy
 msgid "If the id_qual is aff. or cf. then id_qual_rank is required. %s "
 msgstr "Als de id_qual gelijk is aan aff. of cf., is id_qual_rank vereist. %s "
 
@@ -1720,7 +1718,6 @@ msgid "Imported"
 msgstr "Geïmporteerd"
 
 #: bauble/plugins/garden/accession.py:404
-#, fuzzy
 msgid "Impound"
 msgstr "Inbeslagname"
 
@@ -2226,9 +2223,8 @@ msgid "Pictures root name occupied by non directory."
 msgstr ""
 
 #: bauble/connmgr.glade:269 bauble/connmgr.glade:427
-#, fuzzy
 msgid "Pictures root:"
-msgstr "Afbeeldingen wortel:"
+msgstr "Afbeeldingen basislocatie:"
 
 #: bauble/plugins/garden/plant.py:939
 msgid "Plant Editor"
@@ -2447,7 +2443,6 @@ msgid "Rank"
 msgstr "Rang"
 
 #: bauble/plugins/users/ui.glade:165
-#, fuzzy
 msgid "Read"
 msgstr "Lees"
 
@@ -2464,7 +2459,6 @@ msgid "Region"
 msgstr "Regio"
 
 #: bauble/plugins/plants/species_model.py:216
-#, fuzzy
 msgid "Regionally Extinct (RE)"
 msgstr "Regionaal Uitgestorven (RE)"
 
@@ -2491,7 +2485,6 @@ msgid "Report a bug"
 msgstr "Rapporteer een bug"
 
 #: bauble/plugins/garden/accession.py:406
-#, fuzzy
 msgid "Rescue"
 msgstr "Redding"
 
@@ -2753,15 +2746,14 @@ msgid "Slice"
 msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:207
-#, fuzzy
 msgid ""
 "Some or all of the information about your institution or business is not "
 "complete. Please make sure that the Name, Technical Contact, Email, Contact "
 "and Institution Code fields are filled in."
 msgstr ""
-"Sommige of alle informatievelden over uw instituut of bedrijf is of zijn "
-"leeg. Zorg ervoor dat in elk geval de velden Naam, Technisch Contact, Email, "
-"Contact en Instituut Code ingevuld zijn."
+"Één of meer informatievelden over uw instituut of bedrijf zijn leeg. Zorg "
+"ervoor dat in elk geval de velden Naam, Technisch Contact, Email, Contact en "
+"Instituut Code ingevuld zijn."
 
 #: bauble/plugins/garden/acc_editor.glade:2567
 #: bauble/plugins/garden/acc_editor.glade:2617
@@ -3811,7 +3803,6 @@ msgstr "_Knippen"
 #: bauble/plugins/garden/source.py:752 bauble/plugins/plants/family.py:109
 #: bauble/plugins/plants/genus.py:120 bauble/plugins/plants/species.py:120
 #: bauble/plugins/tag/__init__.py:225
-#, fuzzy
 msgid "_Delete"
 msgstr "_Verwijderen"
 
@@ -3828,7 +3819,6 @@ msgid "_File"
 msgstr "_Bestand"
 
 #: bauble/ui.py:447
-#, fuzzy
 msgid "_Help"
 msgstr "_Help"
 
@@ -3841,7 +3831,6 @@ msgid "_New"
 msgstr "_Nieuw"
 
 #: bauble/ui.py:434
-#, fuzzy
 msgid "_Open"
 msgstr "_Open"
 
