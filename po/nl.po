@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-14 08:29-0500\n"
-"PO-Revision-Date: 2018-07-26 17:36+0000\n"
+"PO-Revision-Date: 2018-07-29 16:08+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.1-dev\n"
+"X-Generator: Weblate 3.1.1\n"
 "X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
 
 #: bauble/btypes.py:87
@@ -2148,7 +2148,7 @@ msgstr "Voorbehandeling"
 
 #: bauble/plugins/garden/acc_editor.glade:3249
 msgid "Previous taxon"
-msgstr "Vorige taxon"
+msgstr "Vorig taxon"
 
 #: bauble/plugins/garden/acc_editor.glade:1050
 msgid "Private"
@@ -2925,27 +2925,30 @@ msgid ""
 "The name of the plant determined by taxonomist engaged in systematic "
 "revision of the group."
 msgstr ""
-"De naam van de plant zoals door een taxonoom bepaald, die zich bezighoudt "
-"met een systematische herziening van de groep."
+"De naam van de plant is bepaald door een taxonoom, die momenteel bezig is "
+"met, of recent betrokken was bij, de revisie van de familie of het geslacht."
 
 #: bauble/plugins/garden/accession.py:230
 msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or documented living material."
 msgstr ""
-"De naam van de record bepaald door een taxonoom of door andere deskundige, "
-"gebruik makend van herbarium en/of bibliotheek en/of gedocumenteerd levend "
-"materiaal."
+"De naam van de plant is gedetermineerd door een taxonoom of ander\n"
+"competent persoon gebruik makend van faciliteiten zoals bibliotheek, "
+"herbarium of\n"
+"ander gedocumenteerd  levend materiaal."
 
 #: bauble/plugins/garden/accession.py:228
 msgid ""
 "The name of the record determined by comparison with other named plants."
 msgstr ""
-"De naam van de record bepaald door vergelijking met andere plantbepalingen"
+"De naam van de plant is bepaald door te vergelijken met andere benoemde "
+"planten."
 
 #: bauble/plugins/garden/accession.py:227
 msgid "The name of the record has not been checked by any authority."
-msgstr "De naam van de record is niet door een autoriteit gecontroleerd"
+msgstr ""
+"De naam van de plant is niet gedetermineerd door enig persoon met autoriteit."
 
 #: bauble/plugins/plants/genus.py:414
 msgid "The name or abbreviation of the author that published this genus"
@@ -3008,8 +3011,9 @@ msgid ""
 "The record is part of type gathering or propagated from type material by "
 "asexual methods."
 msgstr ""
-"Het record is deel van  type verzameling of vermeerderd van type materiaal "
-"door middel van aseksuele voortkweking."
+"De plant is het typemateriaal waarop de beschrijving van de naam gebaseerd "
+"is, of de plant is daarvan verkregen door middel van ongeslachtelijke "
+"vermeerdering."
 
 #: bauble/plugins/garden/accession.py:1876
 msgid ""
@@ -3310,7 +3314,7 @@ msgstr "Vegetatieve uitbreiding"
 #: bauble/plugins/garden/acc_editor.glade:2535
 #: bauble/plugins/garden/accession.py:2718
 msgid "Verifications"
-msgstr "Verificaties"
+msgstr "Verificatie plant naam"
 
 #: bauble/plugins/garden/acc_editor.glade:3175
 msgid "Verifier"
@@ -3622,7 +3626,7 @@ msgstr "browse"
 
 #: bauble/plugins/garden/accession.py:1402
 msgid "by %(verifier)s"
-msgstr ""
+msgstr "door %(verifier)s"
 
 #: bauble/plugins/garden/plant.py:978
 msgid "cannot split a new plant"
