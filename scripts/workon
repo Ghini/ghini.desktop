@@ -4,7 +4,7 @@ ECHO=
 
 if [ "$1" == "" ]
 then
-  branch=ghini-1.0-dev
+  branch=ghini-3.1-dev
 elif expr "$1" : '[0-9]\+$' >/dev/null
 then
   branch=ghini-issue-$1
