@@ -7,11 +7,20 @@ PROBLEMS=''
 if ! msgfmt --version >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS gettext"
 fi
-if ! python -c 'import gtk' >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS python-gtk2"
+if ! python3 --version >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS python3-minimal"
 fi
-if ! python -c 'import lxml' >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS python-lxml"
+if ! python3 -c 'import gi' >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS python3-gi"
+fi
+if ! python3 -c 'import gi; gi.require_version('GtkClutter', '1.0'); from gi.repository import Clutter, GtkClutter; ' >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS gir1.2-gtkclutter "
+fi
+if ! python3 -c 'import gi; gi.require_version('GtkClutter', '1.0'); from gi.repository import Clutter, GtkClutter; gi.require_version('Champlain', '0.12'); from gi.repository import GtkChamplain; GtkClutter.init([]); from gi.repository import Champlain' >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS gir1.2-gtkchamplain-0.12 "
+fi
+if ! python3 -c 'import lxml' >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS python3-lxml"
 fi
 if ! git help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS git"
@@ -31,9 +40,9 @@ fi
 if ! gcc --version >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS build-essential"
 fi
-PYTHONHCOUNT=$(find /usr/include/python* /usr/local/include/python* -name Python.h 2>/dev/null | wc -l)
+PYTHONHCOUNT=$(find /usr/include/python3* /usr/local/include/python3* -name Python.h 2>/dev/null | wc -l)
 if [ "$PYTHONHCOUNT" = "0" ]; then
-    PROBLEMS="$PROBLEMS python-all-dev"
+    PROBLEMS="$PROBLEMS libpython3-all-dev"
 fi
 
 # forget password, please.
@@ -71,11 +80,11 @@ if [ $# -ne 0 ]
 then
     git checkout ghini-$1
 else
-    git checkout ghini-1.0
+    git checkout ghini-3.1
 fi
 
 mkdir -p $HOME/.virtualenvs
-virtualenv $HOME/.virtualenvs/ghide --system-site-packages
+virtualenv --python python3 $HOME/.virtualenvs/ghide --system-site-packages
 find $HOME/.virtualenvs/ghide -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
 mkdir -p $HOME/.virtualenvs/ghide/share
 mkdir -p $HOME/.ghini
@@ -90,7 +99,7 @@ fi
 if [ ! -z $MYSQL ]
 then
     echo 'installing mysql adapter'
-    pip install MySQL-python ;    
+    pip install mysqlclient ;    
 fi
 
 python setup.py build
@@ -114,7 +123,7 @@ do
         BUILD=1
         END=1
         ;;
-    m)  pip install MySQL-python
+    m)  pip install mysqlclient
         END=1
         ;;
     p)  pip install psycopg2
@@ -159,7 +168,7 @@ cat <<EOF | sudo tee /usr/local/share/applications/ghini.desktop > /dev/null
 [Desktop Entry]
 Type=Application
 Name=Ghini Desktop
-Version=1.0
+Version=3.1
 GenericName=Biodiversity Manager
 Icon=$HOME/.virtualenvs/ghide/share/icons/hicolor/scalable/apps/ghini.svg
 TryExec=/usr/local/bin/ghini
