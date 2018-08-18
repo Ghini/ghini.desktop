@@ -14,9 +14,12 @@ a selection, so first select something, then start the Report Tool.
 
 .. admonition::  Report on the whole collection.
    :class: toggle
-           
-      To produce a report on your whole plant collection, a shortcut would be from the home screen, to click
-      on the ``Families: in use`` cell.
+
+      There are surely two point of views, to define your "whole collection": you may want all the
+      ``Species``, or you may want all the ``Locations``.
+
+      A handy shortcut to get all your species in the selection, go to the home screen, then click on the
+      ``Families: in use`` cell.
 
       If your focus is more on the garden location than on taxonomy and accessions, you would click on the
       ``Locations: total`` cell.
@@ -96,5 +99,3 @@ Alternatively you can download the `archive
 <http://www.apache.org/dist/xmlgraphics/fop/binaries/>`_.  After
 extracting the archive you must add the directory you extracted the
 archive to to your PATH environment variable.
-
-
