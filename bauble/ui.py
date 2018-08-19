@@ -532,11 +532,6 @@ class GUI(object):
         submenu.append(item)
         self.__insert_menu_cache[label] = item
         item.show()
-        # sort items
-        i = 0
-        for label in sorted(self.__insert_menu_cache.keys()):
-            submenu.reorder_child(self.__insert_menu_cache[label], i)
-            i += 1
 
     def build_tools_menu(self):
         """
