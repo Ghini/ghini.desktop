@@ -128,9 +128,13 @@ class GardenPlugin(pluginmgr.Plugin):
         SearchView.row_meta[Species].child = "accessions"
 
         if bauble.gui is not None:
+            from gi.repository import Gtk
+            submenu = bauble.gui.ui_manager.get_widget('/ui/MenuBar/insert_menu').get_submenu()
+            submenu.append(Gtk.SeparatorMenuItem())
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
             bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
+            submenu.append(Gtk.SeparatorMenuItem())
             bauble.gui.add_to_insert_menu(create_contact, _('Contact'))
 
         # if the plant delimiter isn't in the bauble meta then add the default
