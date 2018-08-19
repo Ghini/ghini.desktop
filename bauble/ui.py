@@ -121,6 +121,7 @@ class GUI(object):
         self.window = self.widgets.main_window
         self.window.hide()
         self.previous_view = None
+        from gi.repository import GdkPixbuf
 
         # restore the window size
         geometry = prefs[self.window_geometry_pref]
@@ -518,7 +519,7 @@ class GUI(object):
 
     __insert_menu_cache = {}
 
-    def add_to_insert_menu(self, editor, label):
+    def add_to_insert_menu(self, editor, label, icon_file_name=None):
         """
         add an editor to the insert menu
 
@@ -527,7 +528,19 @@ class GUI(object):
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()
-        item = Gtk.MenuItem(label)
+        if icon_file_name is not None:
+            try:
+                pb = GdkPixbuf.Pixbuf.new_from_file(icon_file_name)
+                (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+                pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+                image = Gtk.Image.new_from_pixbuf(pb)
+                item = Gtk.ImageMenuItem(label)
+                item.set_image(image)
+            except:
+                print("can't find", icon_file_name)
+                icon_file_name = None
+        if icon_file_name is None:
+            item = Gtk.MenuItem(label)
         item.connect('activate', self.on_insert_menu_item_activate, editor)
         submenu.append(item)
         self.__insert_menu_cache[label] = item
@@ -561,7 +574,15 @@ class GUI(object):
         # add the tools with no category to the root menu
         root_tools = tools.pop('__root')
         for tool in root_tools:
-            item = Gtk.MenuItem(tool.label)
+            try:
+                pb = GdkPixbuf.Pixbuf.new_from_file(tool.icon_file_name)
+                (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+                pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+                image = Gtk.Image.new_from_pixbuf(pb)
+                item = Gtk.ImageMenuItem(tool.label)
+                item.set_image(image)
+            except:
+                item = Gtk.MenuItem(tool.label)
             item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             menu.append(item)

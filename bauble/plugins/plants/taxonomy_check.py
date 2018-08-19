@@ -286,6 +286,8 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
 
 class TaxonomyCheckTool(pluginmgr.Tool):
     label = _('Taxonomy check')
+    icon_file_name = os.path.join(paths.lib_dir(), "plugins", "plants",
+                                  "taxonomy_check.png")
 
     @classmethod
     def start(self):
