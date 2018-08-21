@@ -207,8 +207,8 @@ class FlatFileExporter(GenericEditorPresenter):
                 'filename': filename}
 
 class FlatFileExportTool(pluginmgr.Tool):
-    category = _('Export')
-    label = _('Flat file (csv)')
+    category = _('Report')
+    label = _('Quick CSV')
     last_model = {}
 
     @classmethod
