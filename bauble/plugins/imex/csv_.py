@@ -45,6 +45,7 @@ import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble import pb_set_fraction
+from bauble import paths
 
 # TODO: i've also had a problem with bad insert statements, e.g. importing a
 # geography table after creating a new database and it doesn't use the
@@ -683,6 +684,8 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
 class CSVImportTool(pluginmgr.Tool):
     category = _('Backup')
     label = _('Restore')
+    icon_file_name = os.path.join(paths.lib_dir(), "plugins", "imex",
+                                  "backup-restore.png")
 
     @classmethod
     def start(cls):
@@ -701,6 +704,8 @@ class CSVImportTool(pluginmgr.Tool):
 class CSVExportTool(pluginmgr.Tool):
     category = _('Backup')
     label = _('Create')
+    icon_file_name = os.path.join(paths.lib_dir(), "plugins", "imex",
+                                  "backup-create.png")
 
     @classmethod
     def start(cls):

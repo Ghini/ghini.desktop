@@ -537,7 +537,7 @@ class GUI(object):
                 item = Gtk.ImageMenuItem(label)
                 item.set_image(image)
             except:
-                print("can't find", icon_file_name)
+                logger.debug("can't find %s" % icon_file_name)
                 icon_file_name = None
         if icon_file_name is None:
             item = Gtk.MenuItem(label)
@@ -575,6 +575,7 @@ class GUI(object):
         root_tools = tools.pop('__root')
         for tool in root_tools:
             try:
+                logger.debug("looking for %s" % tool.icon_file_name)
                 pb = GdkPixbuf.Pixbuf.new_from_file(tool.icon_file_name)
                 (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
                 pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
@@ -597,7 +598,16 @@ class GUI(object):
             menu.append(submenu_item)
             for tool in sorted(tools[category],
                                key=lambda x: x.label):
-                item = Gtk.MenuItem(tool.label)
+                try:
+                    logger.debug("looking for %s" % tool.icon_file_name)
+                    pb = GdkPixbuf.Pixbuf.new_from_file(tool.icon_file_name)
+                    (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+                    pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+                    image = Gtk.Image.new_from_pixbuf(pb)
+                    item = Gtk.ImageMenuItem(tool.label)
+                    item.set_image(image)
+                except:
+                    item = Gtk.MenuItem(tool.label)
                 item.connect("activate", self.on_tools_menu_item_activate,
                              tool)
                 submenu.append(item)
