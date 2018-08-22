@@ -108,6 +108,31 @@ class SplashCommandHandler(pluginmgr.CommandHandler):
         self.view.update()
 
 
+def create_menu_item_with_image(label, icon_file_name):
+    '''return a MenuItem with associated image
+
+    if the icon_file_name is a valid image file name and the file can be
+    read, the returned object is a ImageMenuItem, otherwise you get plain
+    MenuItem.
+
+    '''
+    logger.debug("create_menu_item_with_image %s %s" % (label, icon_file_name))
+    try:
+        pb = GdkPixbuf.Pixbuf.new_from_file(icon_file_name)
+        (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+        pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+        image = Gtk.Image.new_from_pixbuf(pb)
+    except:
+        logger.debug("can't find image file %s" % icon_file_name)
+        image = None
+    if image is not None:
+        item = Gtk.ImageMenuItem(label)
+        item.set_image(image)
+    else:
+        item = Gtk.MenuItem(label)
+    return item
+        
+
 class GUI(object):
 
     entry_history_pref = 'bauble.history'
@@ -121,7 +146,6 @@ class GUI(object):
         self.window = self.widgets.main_window
         self.window.hide()
         self.previous_view = None
-        from gi.repository import GdkPixbuf
 
         # restore the window size
         geometry = prefs[self.window_geometry_pref]
@@ -528,19 +552,7 @@ class GUI(object):
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()
-        if icon_file_name is not None:
-            try:
-                pb = GdkPixbuf.Pixbuf.new_from_file(icon_file_name)
-                (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
-                pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-                image = Gtk.Image.new_from_pixbuf(pb)
-                item = Gtk.ImageMenuItem(label)
-                item.set_image(image)
-            except:
-                logger.debug("can't find %s" % icon_file_name)
-                icon_file_name = None
-        if icon_file_name is None:
-            item = Gtk.MenuItem(label)
+        item = create_menu_item_with_image(label, icon_file_name)
         item.connect('activate', self.on_insert_menu_item_activate, editor)
         submenu.append(item)
         self.__insert_menu_cache[label] = item
@@ -574,16 +586,7 @@ class GUI(object):
         # add the tools with no category to the root menu
         root_tools = tools.pop('__root')
         for tool in root_tools:
-            try:
-                logger.debug("looking for %s" % tool.icon_file_name)
-                pb = GdkPixbuf.Pixbuf.new_from_file(tool.icon_file_name)
-                (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
-                pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-                image = Gtk.Image.new_from_pixbuf(pb)
-                item = Gtk.ImageMenuItem(tool.label)
-                item.set_image(image)
-            except:
-                item = Gtk.MenuItem(tool.label)
+            item = create_menu_item_with_image(tool.label, getattr(tool, 'icon_file_name', None))
             item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             menu.append(item)
@@ -598,16 +601,7 @@ class GUI(object):
             menu.append(submenu_item)
             for tool in sorted(tools[category],
                                key=lambda x: x.label):
-                try:
-                    logger.debug("looking for %s" % tool.icon_file_name)
-                    pb = GdkPixbuf.Pixbuf.new_from_file(tool.icon_file_name)
-                    (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
-                    pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-                    image = Gtk.Image.new_from_pixbuf(pb)
-                    item = Gtk.ImageMenuItem(tool.label)
-                    item.set_image(image)
-                except:
-                    item = Gtk.MenuItem(tool.label)
+                item = create_menu_item_with_image(tool.label, getattr(tool, 'icon_file_name', None))
                 item.connect("activate", self.on_tools_menu_item_activate,
                              tool)
                 submenu.append(item)
