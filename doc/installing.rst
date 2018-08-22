@@ -8,7 +8,7 @@ like GNU/Linux and MacOSX, as well as on Windows.
    :class: note
 
            Linux users just download and run `the installation script
-           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh>`_.
+           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_.
            You may read the documentation later.
 
            Windows users, start downloading all external dependencies (`git
@@ -50,7 +50,7 @@ Open a shell terminal window, and follow the following instructions.
 
 #. Download the `devinstall.sh` script:
 
-   `devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh>`_
+   `devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_
 
 #. Invoke the script from a terminal window, starting at the directory where
    you downloaded it, like this::
@@ -104,9 +104,9 @@ Open a shell terminal window, and follow the following instructions.
 
    #. You can also use the ``ghini`` script to switch to a different production
       line.  At the moment ``1.0`` is the stable one, but you can select
-      ``1.1`` if you want to help us with its development::
+      ``3.1`` if you want to help us with its development::
 
-        ~/bin/ghini -s 1.1
+        ~/bin/ghini -s 3.1
 
 .. admonition:: beginner's note
    :class: note
@@ -126,7 +126,7 @@ Open a shell terminal window, and follow the following instructions.
       virtual environment, then it will create a virtual environment named
       ``ghide``, use git to download the sources to a directory named
       ``~/Local/github/Ghini/ghini.desktop``, and connect this git checkout
-      to the ``ghini-1.0`` branch (this you can consider a production line),
+      to the ``ghini-3.1`` branch (this you can consider a production line),
       it then builds ghini, downloading all remaining dependencies in the
       virtual environment, and finally it creates the ``ghini`` startup script.
 
@@ -285,7 +285,7 @@ The installation steps on Windows:
 
 #. We're done with the dependecies, now we can download and run the batch file:
 
-   `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.bat>`_
+   `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.bat>`_
 
    Please don't just follow the above link.  Instead: right click, save link as...
 
@@ -312,7 +312,7 @@ The installation steps on Windows:
 
    Running ``devinstall.bat`` will pull the ``ghini.desktop`` repository from
    github to your home directory, under ``Local\github\Ghini``, checkout the
-   ``ghini-1.0`` production line, create a virtual environment and install
+   ``ghini-3.1`` production line, create a virtual environment and install
    ghini into it.
 
    You can also run ``devinstall.bat`` passing it as argument the numerical
@@ -338,7 +338,7 @@ The installation steps on Windows:
 
 #. download the batch file, it will help you staying up-to-date:
 
-   `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/ghini-update.bat>`_
+   `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/ghini-update.bat>`_
 
    If you are on a recent Ghini installation, each time you start the
    program, Ghini will check on the development site and alert you of any

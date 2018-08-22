@@ -1,9 +1,9 @@
-Documentation for Ghini 1.0
+Documentation for Ghini 3.1
 ############################
 
-.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0
+.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-3.1
 .. image:: https://hosted.weblate.org/widgets/ghini/-/svg-badge.svg
-.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=ghini-1.0-dev
+.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-3.1-dev&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=ghini-3.1-dev
 
 Ghini is a suite of applications for managing botanical specimen collections.
 
