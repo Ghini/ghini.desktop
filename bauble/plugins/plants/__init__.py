@@ -373,9 +373,9 @@ class PlantsPlugin(pluginmgr.Plugin):
 
         if bauble.gui is not None:
             base = os.path.join(paths.lib_dir(), "plugins", "plants")
-            bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'), os.path.join(base, "wiki-family.png"))
-            bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'), os.path.join(base, "wiki-genus.png"))
-            bauble.gui.add_to_insert_menu(SpeciesEditorMenuItem, _('Species'), os.path.join(base, "wiki-species.png"))
+            bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'), "wiki-family.png", base)
+            bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'), "wiki-genus.png", base)
+            bauble.gui.add_to_insert_menu(SpeciesEditorMenuItem, _('Species'), "wiki-species.png", base)
 
         # suggest some useful defaults for stored queries
         import bauble.meta as meta

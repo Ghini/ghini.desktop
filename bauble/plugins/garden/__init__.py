@@ -130,15 +130,15 @@ class GardenPlugin(pluginmgr.Plugin):
         if bauble.gui is not None:
             import os.path
             from bauble import paths
-            base_dir = os.path.join(paths.lib_dir(), "plugins", "garden")
+            base = os.path.join(paths.lib_dir(), "plugins", "garden")
             from gi.repository import Gtk
             submenu = bauble.gui.ui_manager.get_widget('/ui/MenuBar/insert_menu').get_submenu()
             submenu.append(Gtk.SeparatorMenuItem())
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
             bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'))
-            bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
+            bauble.gui.add_to_insert_menu(LocationEditor, _('Location'), "menu-target.png", base)
             submenu.append(Gtk.SeparatorMenuItem())
-            bauble.gui.add_to_insert_menu(create_contact, _('Contact'), os.path.join(base_dir, "emoji-handshake.png"))
+            bauble.gui.add_to_insert_menu(create_contact, _('Contact'), "emoji-handshake.png", base)
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta

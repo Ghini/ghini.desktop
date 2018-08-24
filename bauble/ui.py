@@ -108,7 +108,7 @@ class SplashCommandHandler(pluginmgr.CommandHandler):
         self.view.update()
 
 
-def create_menu_item_with_image(label, icon_file_name):
+def create_menu_item_with_image(label, icon_file_name, base_dir=None):
     '''return a MenuItem with associated image
 
     if the icon_file_name is a valid image file name and the file can be
@@ -116,7 +116,9 @@ def create_menu_item_with_image(label, icon_file_name):
     MenuItem.
 
     '''
-    logger.debug("create_menu_item_with_image %s %s" % (label, icon_file_name))
+    logger.debug("create_menu_item_with_image %s %s %s" % (label, icon_file_name, base_dir))
+    if base_dir is not None:
+        icon_file_name = os.path.join(base_dir, icon_file_name)
     try:
         pb = GdkPixbuf.Pixbuf.new_from_file(icon_file_name)
         (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
@@ -543,7 +545,7 @@ class GUI(object):
 
     __insert_menu_cache = {}
 
-    def add_to_insert_menu(self, editor, label, icon_file_name=None):
+    def add_to_insert_menu(self, editor, label, icon_file_name=None, base_dir=None):
         """
         add an editor to the insert menu
 
@@ -552,7 +554,7 @@ class GUI(object):
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()
-        item = create_menu_item_with_image(label, icon_file_name)
+        item = create_menu_item_with_image(label, icon_file_name, base_dir)
         item.connect('activate', self.on_insert_menu_item_activate, editor)
         submenu.append(item)
         self.__insert_menu_cache[label] = item

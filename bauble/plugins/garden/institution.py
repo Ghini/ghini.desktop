@@ -535,6 +535,7 @@ class InstitutionCommand(pluginmgr.CommandHandler):
 
 class InstitutionTool(pluginmgr.Tool):
     label = _('Institution')
+    icon_file_name = os.path.join(paths.lib_dir(), 'plugins', 'garden', 'information.png')
 
     @classmethod
     def start(cls):
