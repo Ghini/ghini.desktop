@@ -319,7 +319,7 @@ class JSONImporter(editor.GenericEditorPresenter):
 #
 
 class JSONImportTool(pluginmgr.Tool):
-    category = _('Import')
+    category = (_('Import'), "plugins/imex/ghini-import.png")
     label = _('JSON')
 
     @classmethod
@@ -339,7 +339,7 @@ class JSONImportTool(pluginmgr.Tool):
 
 
 class JSONExportTool(pluginmgr.Tool):
-    category = _('Export')
+    category = (_('Export'), "plugins/imex/ghini-export.png")
     label = _('JSON')
 
     @classmethod
