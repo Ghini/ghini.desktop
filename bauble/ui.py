@@ -108,7 +108,7 @@ class SplashCommandHandler(pluginmgr.CommandHandler):
         self.view.update()
 
 
-def create_menu_item_with_image(label, icon_file_name, base_dir=None):
+def create_menu_item_with_image(label, icon_file_name=None, base_dir=None):
     '''return a MenuItem with associated image
 
     if the icon_file_name is a valid image file name and the file can be
@@ -116,8 +116,13 @@ def create_menu_item_with_image(label, icon_file_name, base_dir=None):
     MenuItem.
 
     '''
+    if not isinstance(label, str):
+        tool = label
+        label = tool.label
+        icon_file_name = getattr(tool, 'icon_file_name', None)
+        base_dir = os.path.join(paths.lib_dir(), *(tool.__module__.split('.')[1:-1]))
     logger.debug("create_menu_item_with_image %s %s %s" % (label, icon_file_name, base_dir))
-    if base_dir is not None:
+    if base_dir is not None and icon_file_name is not None:
         icon_file_name = os.path.join(base_dir, icon_file_name)
     try:
         pb = GdkPixbuf.Pixbuf.new_from_file(icon_file_name)
@@ -571,24 +576,20 @@ class GUI(object):
         for child in menu.get_children():
             menu.remove(child)
         menu.show()
-        tools = {'__root': []}
+        tools = {}
+        category_icon = {}
         # categorize the tools into a dict
         for p in list(pluginmgr.plugins.values()):
             for tool in p.tools:
-                if tool.category is not None:
-                    try:
-                        tools[tool.category].append(tool)
-                    except KeyError:
-                        ## initialize tools dictionary
-                        tools[tool.category] = []
-                        tools[tool.category].append(tool)
-                else:
-                    tools['__root'].append(tool)
+                if isinstance(tool.category, tuple):
+                    tool.category, icon = tool.category
+                    category_icon[tool.category] = os.path.join(paths.lib_dir(), icon)
+                tools.setdefault(tool.category, []).append(tool)
 
         # add the tools with no category to the root menu
-        root_tools = tools.pop('__root')
+        root_tools = tools.pop(None)
         for tool in root_tools:
-            item = create_menu_item_with_image(tool.label, getattr(tool, 'icon_file_name', None))
+            item = create_menu_item_with_image(tool)
             item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             menu.append(item)
@@ -598,14 +599,12 @@ class GUI(object):
         # create submenus for the categories and add the tools
         for category in sorted(tools.keys()):
             submenu = Gtk.Menu()
-            submenu_item = Gtk.MenuItem(category)
+            submenu_item = create_menu_item_with_image(category, category_icon.get(category))
             submenu_item.set_submenu(submenu)
             menu.append(submenu_item)
-            for tool in sorted(tools[category],
-                               key=lambda x: x.label):
-                item = create_menu_item_with_image(tool.label, getattr(tool, 'icon_file_name', None))
-                item.connect("activate", self.on_tools_menu_item_activate,
-                             tool)
+            for tool in sorted(tools[category], key=lambda x: x.label):
+                item = create_menu_item_with_image(tool)
+                item.connect("activate", self.on_tools_menu_item_activate, tool)
                 submenu.append(item)
                 if not tool.enabled:
                     item.set_sensitive(False)

@@ -102,14 +102,12 @@ class TagsMenuManager:
         """
         self.item_list = {}
         tags_menu = Gtk.Menu()
-        icon_file_name = os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.png')
-        add_tag_menu_item = ui.create_menu_item_with_image(_('Tag Selection'), icon_file_name)
+        tag_dir = os.path.join(paths.lib_dir(), 'plugins', 'tag')
+        add_tag_menu_item = ui.create_menu_item_with_image(_('Tag Selection'), 'tag.png', tag_dir)
         add_tag_menu_item.connect('activate', _on_add_tag_activated)
-        icon_file_name = os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag_apply.png')
-        self.apply_active_tag_menu_item = ui.create_menu_item_with_image(_('Apply active tag'), icon_file_name)
+        self.apply_active_tag_menu_item = ui.create_menu_item_with_image(_('Apply active tag'), 'tag_apply.png', tag_dir)
         self.apply_active_tag_menu_item.connect('activate', self.on_apply_active_tag_activated)
-        icon_file_name = os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag_remove.png')
-        self.remove_active_tag_menu_item = ui.create_menu_item_with_image(_('Remove active tag'), icon_file_name)
+        self.remove_active_tag_menu_item = ui.create_menu_item_with_image(_('Remove active tag'), 'tag_remove.png', tag_dir)
         self.remove_active_tag_menu_item.connect('activate', self.on_remove_active_tag_activated)
         if bauble.gui:
             accel_group = Gtk.AccelGroup()

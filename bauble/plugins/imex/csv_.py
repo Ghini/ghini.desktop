@@ -681,11 +681,12 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
 # plugin classes
 #
 
+backup_category = (_('Backup'), "plugins/imex/backup.png")
+
 class CSVImportTool(pluginmgr.Tool):
-    category = _('Backup')
+    category = backup_category
     label = _('Restore')
-    icon_file_name = os.path.join(paths.lib_dir(), "plugins", "imex",
-                                  "backup-restore.png")
+    icon_file_name = "backup-restore.png"
 
     @classmethod
     def start(cls):
@@ -702,10 +703,9 @@ class CSVImportTool(pluginmgr.Tool):
 
 
 class CSVExportTool(pluginmgr.Tool):
-    category = _('Backup')
+    category = backup_category
     label = _('Create')
-    icon_file_name = os.path.join(paths.lib_dir(), "plugins", "imex",
-                                  "backup-create.png")
+    icon_file_name = "backup-create.png"
 
     @classmethod
     def start(cls):
