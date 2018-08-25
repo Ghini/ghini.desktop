@@ -4,7 +4,8 @@ h1, h2, h3, h4 {
 }
 
 .toggle .admonition {
-    margin: 0;
+    padding: 0;
+    margin-bottom: 0;
 }
 
 .toggle .admonition-title {
