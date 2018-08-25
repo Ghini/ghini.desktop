@@ -134,9 +134,9 @@ class GardenPlugin(pluginmgr.Plugin):
             from gi.repository import Gtk
             submenu = bauble.gui.ui_manager.get_widget('/ui/MenuBar/insert_menu').get_submenu()
             submenu.append(Gtk.SeparatorMenuItem())
-            bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
-            bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'))
-            bauble.gui.add_to_insert_menu(LocationEditor, _('Location'), "menu-target.png", base)
+            bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'), "insert-new.png", base)
+            bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'), "insert-new.png", base)
+            bauble.gui.add_to_insert_menu(LocationEditor, _('Location'), "insert-new.png", base)
             submenu.append(Gtk.SeparatorMenuItem())
             bauble.gui.add_to_insert_menu(create_contact, _('Contact'), "contact.png", base)
 

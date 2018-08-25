@@ -629,8 +629,9 @@ class ReportToolDialog(object):
 
 
 class ReportTool(pluginmgr.Tool):
-    category = _('Report')
+    category = (_('Report'), "plugins/report/tool-report.png")
     label = _("From Template")
+    icon_file_name = "report/from-template.png"
 
     @classmethod
     def start(self):

@@ -209,6 +209,7 @@ class FlatFileExporter(GenericEditorPresenter):
 class FlatFileExportTool(pluginmgr.Tool):
     category = _('Report')
     label = _('Quick CSV')
+    icon_file_name = "flat_export.png"
     last_model = {}
 
     @classmethod
