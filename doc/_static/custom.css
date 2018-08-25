@@ -3,6 +3,10 @@ h1, h2, h3, h4 {
     border-bottom: 1px solid #ccc;
 }
 
+.toggle .admonition {
+    margin: 0;
+}
+
 .toggle .admonition-title {
     display: block;
     clear: both;
