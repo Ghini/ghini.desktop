@@ -48,6 +48,7 @@ import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location, Source, Contact
 from bauble.plugins.tag import Tag
+from .flat_export import FlatFileExportTool
 
 # TODO: this module should depend on PlantPlugin, GardenPlugin,
 # TagPlugin and should also allow other plugins to register between
@@ -674,7 +675,7 @@ class ReportTool(pluginmgr.Tool):
 class ReportToolPlugin(pluginmgr.Plugin):
     '''
     '''
-    tools = [ReportTool]
+    tools = [ReportTool, FlatFileExportTool, ]
 
 
 try:
