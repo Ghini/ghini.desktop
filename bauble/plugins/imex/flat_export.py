@@ -45,12 +45,17 @@ class FlatFileExporter(GenericEditorPresenter):
         self.domain_map = MapperSearch.get_domain_classes().copy()
         self.domain = None
         self.mapper = None
+        self.results_model = bauble.gui.get_results_model(quiet=True)
 
         self.view.widgets.domain_ls.clear()
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_ls.append([key])
         self.signal_id = None
         self.on_output_file_changed()
+        if self.results_model is None:
+            self.view.widgets.do_collection_button.set_active(True)
+            self.view.widgets.do_selection_button.set_sensitive(False)
+        self.toggling = False
 
     def get_model_fields(self):
         return {'output_file': self.view.widget_get_value('output_file'),
@@ -71,6 +76,15 @@ class FlatFileExporter(GenericEditorPresenter):
         self.view.widgets.exported_fields_ls.clear()
         for i in exported_fields:
             self.view.widgets.exported_fields_ls.append((i, ))
+
+    def on_toggle_toggled(self, target):
+        if self.toggling:
+            return
+        self.toggling = True
+        for button in (self.view.widgets.do_selection_button,
+                       self.view.widgets.do_collection_button):
+            button.set_active(button==target)
+        self.toggling = False
 
     def on_open_btn_clicked(self, *args):
         """browse for output file

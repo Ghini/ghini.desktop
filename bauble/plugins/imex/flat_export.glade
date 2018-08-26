@@ -104,7 +104,7 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">3</property>
-                <property name="width">7</property>
+                <property name="width">9</property>
                 <property name="height">8</property>
               </packing>
             </child>
@@ -124,7 +124,7 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">0</property>
-                <property name="width">3</property>
+                <property name="width">4</property>
               </packing>
             </child>
             <child>
@@ -143,7 +143,7 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">2</property>
-                <property name="width">3</property>
+                <property name="width">4</property>
               </packing>
             </child>
             <child>
@@ -163,7 +163,7 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">1</property>
-                <property name="width">3</property>
+                <property name="width">4</property>
               </packing>
             </child>
             <child>
@@ -174,9 +174,9 @@
                 <property name="receives_default">True</property>
               </object>
               <packing>
-                <property name="left_attach">4</property>
+                <property name="left_attach">5</property>
                 <property name="top_attach">2</property>
-                <property name="width">3</property>
+                <property name="width">4</property>
               </packing>
             </child>
             <child>
@@ -192,9 +192,9 @@
                 </attributes>
               </object>
               <packing>
-                <property name="left_attach">4</property>
+                <property name="left_attach">5</property>
                 <property name="top_attach">1</property>
-                <property name="width">3</property>
+                <property name="width">4</property>
               </packing>
             </child>
             <child>
@@ -207,7 +207,7 @@
                 </attributes>
               </object>
               <packing>
-                <property name="left_attach">3</property>
+                <property name="left_attach">4</property>
                 <property name="top_attach">1</property>
               </packing>
             </child>
@@ -220,7 +220,7 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">12</property>
-                <property name="width">6</property>
+                <property name="width">7</property>
               </packing>
             </child>
             <child>
@@ -233,8 +233,9 @@
                 <signal name="clicked" handler="on_open_btn_clicked" swapped="no"/>
               </object>
               <packing>
-                <property name="left_attach">6</property>
+                <property name="left_attach">7</property>
                 <property name="top_attach">12</property>
+                <property name="width">2</property>
               </packing>
             </child>
             <child>
@@ -253,17 +254,54 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">11</property>
-                <property name="width">3</property>
+                <property name="width">4</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkToggleButton" id="do_selection_button">
+                <property name="label" translatable="yes">selection</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="toggled" handler="on_toggle_toggled" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">5</property>
+                <property name="top_attach">0</property>
+                <property name="width">2</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkToggleButton" id="do_collection_button">
+                <property name="label" translatable="yes">collection</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="toggled" handler="on_toggle_toggled" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">7</property>
+                <property name="top_attach">0</property>
+                <property name="width">2</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="hexpand">True</property>
+                <property name="xpad">5</property>
+                <property name="label" translatable="yes">work on</property>
+                <property name="xalign">0</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">4</property>
+                <property name="top_attach">0</property>
+              </packing>
             </child>
             <child>
               <placeholder/>

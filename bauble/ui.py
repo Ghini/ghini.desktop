@@ -448,6 +448,18 @@ class GUI(object):
                 return kid
         return None
 
+    def get_results_model(self, quiet=False):
+        model = None
+        view = bauble.gui.get_view()
+        from bauble.view import SearchView
+        if isinstance(view, SearchView):
+            model = view.results_view.get_model()
+
+        if model is None and not quiet:
+            utils.message_dialog(_('Search for something first.'))
+
+        return model
+
     def create_main_menu(self):
         """
         get the main menu from the UIManager XML description, add its actions

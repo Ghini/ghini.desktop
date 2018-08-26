@@ -638,16 +638,7 @@ class ReportTool(pluginmgr.Tool):
         '''
         '''
         # get the select results from the search view
-        from bauble.view import SearchView
-        view = bauble.gui.get_view()
-        if not isinstance(view, SearchView):
-            utils.message_dialog(_('Search for something first.'))
-            return
-
-        model = view.results_view.get_model()
-        if model is None:
-            utils.message_dialog(_('Search for something first.'))
-            return
+        model = bauble.gui.get_results_model()
 
         bauble.gui.set_busy(True)
         ok = False
