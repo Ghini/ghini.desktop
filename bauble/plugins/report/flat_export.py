@@ -52,8 +52,8 @@ class FlatFileExporter(GenericEditorPresenter):
             self.view.widgets.domain_ls.append([key])
         self.signal_id = None
         self.on_output_file_changed()
+        self.view.widgets.do_collection_button.set_active(True)
         if self.results_model is None:
-            self.view.widgets.do_collection_button.set_active(True)
             self.view.widgets.do_selection_button.set_sensitive(False)
         self.toggling = False
 
@@ -223,12 +223,12 @@ class FlatFileExporter(GenericEditorPresenter):
 class FlatFileExportTool(pluginmgr.Tool):
     category = _('Report')
     label = _('Quick CSV')
-    icon_file_name = "flat_export.png"
+    icon_file_name = "report-manually.png"
     last_model = {}
 
     @classmethod
     def start(cls):
-        gladefilepath = os.path.join(paths.lib_dir(), "plugins", "imex", "flat_export.glade")
+        gladefilepath = os.path.join(paths.lib_dir(), "plugins", "report", "flat_export.glade")
         view = GenericEditorView(
             gladefilepath,
             parent=None,
