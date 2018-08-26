@@ -8,6 +8,12 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="searchable_ls">
+    <columns>
+      <!-- column-name domain -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkListStore" id="exported_fields_ls">
     <columns>
       <!-- column-name fieldpath -->

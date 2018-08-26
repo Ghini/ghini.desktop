@@ -50,12 +50,18 @@ class FlatFileExporter(GenericEditorPresenter):
         self.view.widgets.domain_ls.clear()
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_ls.append([key])
+        self.view.widgets.searchable_ls.clear()
+        from bauble.plugins import report
+        for key in sorted(dir(report)):
+            if key.startswith('get_') and key.endswith('_pertinent_to'):
+                self.view.widgets.searchable_ls.append([key[4:-13]])
+
         self.signal_id = None
         self.on_output_file_changed()
+        self.toggling = False
         self.view.widgets.do_collection_button.set_active(True)
         if self.results_model is None:
             self.view.widgets.do_selection_button.set_sensitive(False)
-        self.toggling = False
 
     def get_model_fields(self):
         return {'output_file': self.view.widget_get_value('output_file'),
