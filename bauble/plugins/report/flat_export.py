@@ -57,6 +57,13 @@ class FlatFileExporter(GenericEditorPresenter):
         #         self.view.widgets.searchable_ls.append([key[4:-13]])
         for key in ['accession', 'location', 'plant', 'species']:
             self.view.widgets.searchable_ls.append([key])
+        from bauble.plugins.report import (get_plants_pertinent_to, get_accessions_pertinent_to,
+                                           get_species_pertinent_to, get_locations_pertinent_to)
+        self.pertinent_matcher = { 'accession': get_accessions_pertinent_to,
+                                   'location': get_locations_pertinent_to,
+                                   'plant': get_plants_pertinent_to,
+                                   'species': get_species_pertinent_to,
+        }
 
         self.signal_id = None
         self.on_output_file_changed()
@@ -174,8 +181,9 @@ class FlatFileExporter(GenericEditorPresenter):
 
         new_domain = self.active_ls[index][0]
         if new_domain == self.domain:
-            # we were probably called because the combobox changed, not
-            # because the selection changed
+            # we were invoked because the combobox changed, not because the
+            # selected text changed.  the underlying list changed, so the
+            # index changed, but the text remains the same.
             return
 
         self.domain = new_domain
@@ -222,7 +230,13 @@ class FlatFileExporter(GenericEditorPresenter):
             spamwriter = csv.writer(csvfile, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
             session = db.Session()
-            for obj in session.query(self.mapper).all():
+            if self.active_ls == self.view.widgets.searchable_ls:
+                model = bauble.gui.get_results_model()
+                objs = [row[0] for row in model]
+                todo = self.pertinent_matcher[self.domain](objs, session)
+            else:
+                todo = session.query(self.mapper).all()
+            for obj in todo:
                 row = []
                 for j in self.view.widgets.exported_fields_ls:
                     # values is the list of the objects from which to read fields
