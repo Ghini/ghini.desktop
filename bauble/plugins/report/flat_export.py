@@ -51,14 +51,17 @@ class FlatFileExporter(GenericEditorPresenter):
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_ls.append([key])
         self.view.widgets.searchable_ls.clear()
-        from bauble.plugins import report
-        for key in sorted(dir(report)):
-            if key.startswith('get_') and key.endswith('_pertinent_to'):
-                self.view.widgets.searchable_ls.append([key[4:-13]])
+        # from bauble.plugins import report
+        # for key in sorted(dir(report)):
+        #     if key.startswith('get_') and key.endswith('_pertinent_to'):
+        #         self.view.widgets.searchable_ls.append([key[4:-13]])
+        for key in ['accession', 'location', 'plant', 'species']:
+            self.view.widgets.searchable_ls.append([key])
 
         self.signal_id = None
         self.on_output_file_changed()
         self.toggling = False
+        self.active_toggle = None
         self.view.widgets.do_collection_button.set_active(True)
         if self.results_model is None:
             self.view.widgets.do_selection_button.set_sensitive(False)
@@ -90,6 +93,15 @@ class FlatFileExporter(GenericEditorPresenter):
         for button in (self.view.widgets.do_selection_button,
                        self.view.widgets.do_collection_button):
             button.set_active(button==target)
+        if target != self.active_toggle:
+            domain = self.view.widget_get_value('domain_combo')
+            if target == self.view.widgets.do_selection_button:
+                self.active_ls = self.view.widgets.searchable_ls
+            else:
+                self.active_ls = self.view.widgets.domain_ls
+            self.view.widgets.domain_combo.set_model(self.active_ls)
+            self.view.widget_set_value('domain_combo', domain)
+            self.on_domain_combo_changed()
         self.toggling = False
 
     def on_open_btn_clicked(self, *args):
@@ -141,18 +153,32 @@ class FlatFileExporter(GenericEditorPresenter):
             return True
 
     def on_domain_combo_changed(self, *args):
-        """
-        Change the search domain.  Resets the expression table and
+        """react on new domain selection
+
+        when user selects a new domain, reset the expression table and
         deletes all the expression rows.
+
+        when user changes object selection criterium, 
+
         """
+
         try:
             index = self.view.widgets.domain_combo.get_active()
         except AttributeError:
-            return
+            index = -1
         if index == -1:
+            self.view.widgets.exported_fields_ls.clear()
+            if self.signal_id is not None:
+                self.view.widgets.chooser_btn.disconnect(self.signal_id)
             return
 
-        self.domain = self.view.widgets.domain_ls[index][0]
+        new_domain = self.active_ls[index][0]
+        if new_domain == self.domain:
+            # we were probably called because the combobox changed, not
+            # because the selection changed
+            return
+
+        self.domain = new_domain
         self.view.widgets.exported_fields_ls.clear()
         self.mapper = class_mapper(self.domain_map[self.domain])
 
