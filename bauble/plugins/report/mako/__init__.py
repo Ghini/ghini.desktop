@@ -381,7 +381,9 @@ class MakoFormatterPlugin(FormatterPlugin):
             if template.startswith('__'):
                 continue
             cls.templates.append(template)
-
+        from bauble.plugins.report import registered_formatters
+        registered_formatters['mako'] = cls
+        
     @classmethod
     def init(cls):
         """copy default template files to appdata_dir
@@ -439,6 +441,10 @@ class MakoFormatterPlugin(FormatterPlugin):
                                    'default program. You can open the '
                                    'file manually at %s') % filename)
         return report.decode()
+
+    @classmethod
+    def can_handle(cls, template):
+        return True
 
 
 formatter_plugin = MakoFormatterPlugin

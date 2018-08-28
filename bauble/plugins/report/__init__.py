@@ -63,6 +63,7 @@ formatter_settings_expanded_pref = 'report.settings.expanded'
 
 # to be populated by the dialog box, with fields mentioned in the template.
 options = {}
+registered_formatters = {}
 
 
 def _get_pertinent_objects(cls, get_query_func, objs, session):
@@ -299,6 +300,14 @@ class FormatterPlugin(pluginmgr.Plugin):
         '''
         raise NotImplementedError
 
+    @classmethod
+    def can_handle(cls, template):
+        return False
+
+    @classmethod
+    def get_iteration_domain(cls, template):
+        return ''
+
 
 class ReportToolDialogPresenter(GenericEditorPresenter):
 
@@ -366,9 +375,15 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 utils.message_dialog(_('%s already exists') % name)
                 continue
             elif template in templates:
-                utils.message_dialog(_('already activated as %s') % templates[template])
+                utils.message_dialog(_('Already activated as %s') % templates[template])
                 continue
             else:
+                for plugin in registered_formatters.values():
+                    if plugin.can_handle(template):
+                        break
+                else:
+                    utils.message_dialog(_('Not a template, or no valid formatter installed.'))
+                    continue
                 self.set_prefs_for(name, template, {})
                 self.populate_names_combo()
                 self.view.widget_set_value('names_combo', name)
@@ -380,6 +395,9 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         name = self.view.widget_get_value('names_combo')
         self.view.widgets.names_combo.set_active(-1)
         self.view.widgets.names_combo.get_child().set_text('')
+        self.view.widget_set_value('file_entry', '')
+        self.view.widget_set_value('formatter_entry', '')
+        self.view.widget_set_value('domain_entry', '')
         activated_templates.pop(name)
         prefs[config_list_pref] = activated_templates
         self.populate_names_combo()
@@ -387,17 +405,43 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     def on_names_combo_changed(self, combo, *args):
         name = self.view.widget_get_value('names_combo')
         activated_templates = prefs[config_list_pref]
-        self.view.widget_set_sensitive('details_box', name is not None)
+        self.view.widget_set_sensitive('details_box', (name or '') != '')
         prefs[default_config_pref] = name  # set the default to the new name
+        GObject.idle_add(self._names_combo_changed_idle, combo)
+
+    def _names_combo_changed_idle(self, combo):
+        name = self.view.widget_get_value('names_combo')
         try:
-            template, settings = activated_templates[name]
-        except (KeyError, TypeError) as e:
-            # TODO: show a dialog saying that you can't find whatever
-            # you're looking for in the settings
+            template, settings = prefs[config_list_pref][name]
+        except KeyError as e:
             logger.debug(e)
             return
 
-        self.view.widget_set_sensitive('details_box', True)
+        expander = self.view.widgets.settings_expander
+        child = expander.get_child()
+        if child:
+            expander.remove(child)
+
+        self.view.widget_set_sensitive('ok_button', True)
+        for formatter, plugin in registered_formatters.items():
+            if plugin.can_handle(template):
+                self.view.widget_set_value('file_entry', template)
+                self.view.widget_set_value('formatter_entry', formatter)
+                domain = plugin.get_iteration_domain(template)
+                self.view.widget_set_value('domain_entry', domain)
+                break
+        else:
+            utils.message_dialog('this should NOT happen.\nan invalid template at this stage.')
+            return
+        box = plugin.get_settings_box()
+        if box:
+            box.update(settings)
+            expander.add(box)
+            box.show_all()
+        expander.set_sensitive(box is not None)
+        expander.set_expanded(box is not None)
+        self.set_prefs_for(name, template, settings)
+        self.view.widget_set_sensitive('ok_button', True)
 
     def populate_names_combo(self):
         '''copy configuration names from prefs into names_ls
