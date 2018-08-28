@@ -61,7 +61,7 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
-# to be populated by the dialog box, with fields mentioned in the template
+# to be populated by the dialog box, with fields mentioned in the template.
 options = {}
 
 
@@ -379,7 +379,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         activated_templates = prefs[config_list_pref]
         name = self.view.widget_get_value('names_combo')
         self.view.widgets.names_combo.set_active(-1)
-        self.view.widgets.names_combo.get_child().text = ''
+        self.view.widgets.names_combo.get_child().set_text('')
         activated_templates.pop(name)
         prefs[config_list_pref] = activated_templates
         self.populate_names_combo()
