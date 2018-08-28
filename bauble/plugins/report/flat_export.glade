@@ -8,12 +8,6 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkListStore" id="searchable_ls">
-    <columns>
-      <!-- column-name domain -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkListStore" id="exported_fields_ls">
     <columns>
       <!-- column-name fieldpath -->
@@ -66,6 +60,56 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="icon_name">applications-other</property>
+                <property name="icon_size">6</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="icon_name">emblem-documents</property>
+                <property name="icon_size">6</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="icon_name">accessories-text-editor</property>
+                <property name="icon_size">6</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -340,5 +384,11 @@
       <action-widget response="-6">cancel_button</action-widget>
       <action-widget response="-5">confirm_button</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkListStore" id="searchable_ls">
+    <columns>
+      <!-- column-name domain -->
+      <column type="gchararray"/>
+    </columns>
   </object>
 </interface>
