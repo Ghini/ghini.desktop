@@ -48,7 +48,7 @@ formatter engine.  Activated templates are static, once configured you are not e
 Template-less Reports (Quick CSV)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
+Does such a simple tool need any documentation?  Use it, if you don't understand then please ask.
 
 Technical information
 ----------------------------------
@@ -81,16 +81,26 @@ should name the template something like `report.html`.  If the template
 will generate a comma separated value file you should name the
 template `report.csv`.
 
-The template will receive a variable called `values` which will
-contain the list of values in the current search.
+A template must declare its iteration domain, that is, on which type of objects it reports.  The iteration
+domain is declared in a Mako comment line, something like this::
 
-The type of each value in `values` will be the same as the search
-domain used in the search query.  For more information on search
-domains see :ref:`search-domains`.
+     ## DOMAIN <name>
 
-If the query does not have a search domain then the values could all
-be of a different type and the Mako template should prepared to handle
-them.
+Where ``<name>`` is one of ``Species``, ``Accession``, ``Plant``, ``Location``, or ``raw``.
+
+When activating a template, ghini first of all builds a raw list, containing all top-level objects in
+current result.
+
+If the declared iteration domain is ``raw``, ghini will pass the raw list to the template.
+
+If the declared iteration domain is a ghini class, ghini will then build a list of all objects the
+iteration domain, associated to the raw list.
+
+In either case, these objects are available to the Mako template as elements of the list ``values``.
+
+A template working with the ``raw`` list needs more programming logic to do what the user expects, but a
+well-thought set of such mako templates can reduce the amount of template names that your users need to
+handle.
 
 
 Working with XSL Stylesheets
