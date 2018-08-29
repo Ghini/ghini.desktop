@@ -4,7 +4,7 @@
 		xmlns:abcd="http://www.tdwg.org/schemas/abcd/2.06"
 		version="1.0">
   <!-- DOMAIN raw -->
-  <!-- OPTION authorship: (type: bool, default: 'False', tooltip: 'ignore selection and print a range.') -->
+  <!-- OPTION authorship: (type: bool, default: 'False', tooltip: 'include authorship with binomial.') -->
   <xsl:template match="abcd:DataSets">
     <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
       <fo:layout-master-set>

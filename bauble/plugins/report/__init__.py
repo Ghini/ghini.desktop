@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2018 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 # Copyright 2017 Ross Demuth
 #
@@ -337,6 +337,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         combo = self.view.widgets.names_combo
         default = prefs[default_config_pref]
         self.view.widget_set_value('names_combo', default)
+        self.hard_coded_option = set(self.view.widgets.options_box.get_children())
 
     def set_prefs_for(self, name, template, settings):
         '''
@@ -463,6 +464,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         options_box = self.view.widgets.options_box
         # empty the options box
         for child in options_box.get_children():
+            if child in self.hard_coded_option:
+                continue
             options_box.remove(child)
         # which options does the template accept? (can be None)
         try:
@@ -473,10 +476,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         except IOError:
             option_lines = []
 
-        self.view.widgets.settings_expander.set_expanded(option_lines != [])
-
         option_fields = [i.groups() for i in option_lines]
-        current_row = 0
+        current_row = 1  # should not be hard coded
         # populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:
             row = Gtk.HBox()
@@ -487,6 +488,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 fdefault = fdefault.lower() not in ['false', '0']
                 self.options.setdefault(fname, fdefault)
                 entry = Gtk.CheckButton()
+                entry.set_margin_left(4)
                 entry.set_active(self.options[fname])
                 entry.connect('toggled', self.set_bool_option, fname)
             else:
@@ -503,7 +505,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         if self.defaults:
             button = Gtk.Button(_('Reset to defaults'))
             button.connect('clicked', self.reset_options)
-            options_box.attach(button, 3, 0, 2, 1)
+            options_box.attach(button, 3, current_row - 1, 2, 1)
         options_box.show_all()
 
     def reset_options(self, widget):
@@ -577,6 +579,8 @@ class ReportTool(pluginmgr.Tool):
         '''
         # get the select results from the search view
         model = bauble.gui.get_results_model()
+        if model is None:
+            return
 
         bauble.gui.set_busy(True)
         ok = False
