@@ -62,7 +62,6 @@ default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
 # to be populated by the dialog box, with fields mentioned in the template.
-options = {}
 registered_formatters = {}
 
 
@@ -286,14 +285,6 @@ class FormatterPlugin(pluginmgr.Plugin):
     title = ''
 
     @staticmethod
-    def get_settings_box():
-        '''
-        return a class the implement Gtk.Box that should hold the gui for
-        the formatter
-        '''
-        raise NotImplementedError
-
-    @staticmethod
     def format(selfobjs, **kwargs):
         '''
         called when the use clicks on OK, this is the worker
@@ -418,7 +409,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         name = self.view.widget_get_value('names_combo')
         self.view.widgets.names_combo.set_active(-1)
         self.view.widgets.names_combo.get_child().set_text('')
-        self.view.widget_set_value('file_entry', '')
+        self.view.widget_set_value('dirname_entry', '')
+        self.view.widget_set_value('basename_entry', '')
         self.view.widget_set_value('formatter_entry', '')
         self.view.widget_set_value('domain_entry', '')
         activated_templates.pop(name)
@@ -426,6 +418,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         self.populate_names_combo()
 
     def on_names_combo_changed(self, combo, *args):
+        self.options = {}
         name = self.view.widget_get_value('names_combo')
         activated_templates = prefs[config_list_pref]
         self.view.widget_set_sensitive('details_box', (name or '') != '')
@@ -440,19 +433,22 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             logger.debug(e)
             return
 
-        expander = self.view.widgets.settings_expander
-        child = expander.get_child()
-        if child:
-            expander.remove(child)
-
         self.view.widget_set_sensitive('ok_button', False)
-        self.view.widget_set_value('file_entry', '')
+        self.view.widget_set_value('dirname_entry', '')
+        self.view.widget_set_value('basename_entry', '')
         self.view.widget_set_value('formatter_entry', '')
         self.view.widget_set_value('domain_entry', '')
         for formatter, plugin in registered_formatters.items():
             domain = plugin.get_iteration_domain(template)
             if domain != '':
-                self.view.widget_set_value('file_entry', template)
+                if domain == 'raw':
+                    model = bauble.gui.get_results_model()
+                    top_left_content = model[0][0]
+                    domain = '(%s)' % top_left_content.__class__.__name__.lower()
+                dirname = os.path.dirname(template)
+                basename = os.path.basename(template)
+                self.view.widget_set_value('dirname_entry', dirname)
+                self.view.widget_set_value('basename_entry', basename)
                 self.view.widget_set_value('formatter_entry', formatter)
                 self.view.widget_set_value('domain_entry', domain)
                 self.view.widget_set_sensitive('ok_button', True)
@@ -460,14 +456,68 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         else:
             utils.message_dialog('this should NOT happen.\nan invalid template at this stage.')
             return
-        box = plugin.get_settings_box()
-        if box:
-            box.update(settings)
-            expander.add(box)
-            box.show_all()
-        expander.set_sensitive(box is not None)
-        expander.set_expanded(box is not None)
+
         self.set_prefs_for(name, template, settings)
+
+        self.defaults = []
+        options_box = self.view.widgets.options_box
+        # empty the options box
+        for child in options_box.get_children():
+            options_box.remove(child)
+        # which options does the template accept? (can be None)
+        try:
+            with open(template) as f:
+                option_lines = [m for m in [plugin.option_pattern.match(i.strip())
+                                            for i in f.readlines()]
+                                if m is not None]
+        except IOError:
+            option_lines = []
+
+        self.view.widgets.settings_expander.set_expanded(option_lines != [])
+
+        option_fields = [i.groups() for i in option_lines]
+        current_row = 0
+        # populate the options box
+        for fname, ftype, fdefault, ftooltip in option_fields:
+            row = Gtk.HBox()
+            label = Gtk.Label(fname.replace('_', ' ') + _(':'))
+            label.set_alignment(0, 0.5)
+            ftype = ftype.lower()
+            if ftype == 'bool':
+                fdefault = fdefault.lower() not in ['false', '0']
+                self.options.setdefault(fname, fdefault)
+                entry = Gtk.CheckButton()
+                entry.set_active(self.options[fname])
+                entry.connect('toggled', self.set_bool_option, fname)
+            else:
+                self.options.setdefault(fname, fdefault)
+                entry = Gtk.Entry()
+                entry.set_text(self.options[fname])
+                entry.connect('changed', self.set_option, fname)
+            entry.set_tooltip_text(ftooltip)
+            # entry updates the corresponding item in report.options
+            self.defaults.append((entry, fdefault))
+            options_box.attach(label, 0, current_row, 1, 1)
+            options_box.attach(entry, 1, current_row, 2, 1)
+            current_row += 1
+        if self.defaults:
+            button = Gtk.Button(_('Reset to defaults'))
+            button.connect('clicked', self.reset_options)
+            options_box.attach(button, 3, 0, 2, 1)
+        options_box.show_all()
+
+    def reset_options(self, widget):
+        for entry, value in self.defaults:
+            if isinstance(value, bool):
+                entry.set_active(value)
+            else:
+                entry.set_text(value)
+
+    def set_option(self, widget, fname):
+        self.options[fname] = widget.get_text()
+
+    def set_bool_option(self, widget, fname):
+            self.options[fname] = widget.get_active()
 
     def populate_names_combo(self):
         '''copy configuration names from prefs into names_ls
@@ -481,9 +531,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     def save_formatter_settings(self):
         name = self.view.widget_get_value('names_combo')
         title, dummy = prefs[config_list_pref][name]
-        box = self.view.widgets.settings_expander.get_child()
         activated_templates = prefs[config_list_pref]
-        activated_templates[name] = template, box.get_settings()
+        activated_templates[name] = template, self.options
         prefs[config_list_pref] = activated_templates
 
     def start(self):

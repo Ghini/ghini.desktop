@@ -301,54 +301,13 @@ class MakoFormatterSettingsBox(SettingsBox):
             self.widgets.private_check.set_active(settings['private'])
 
     def on_file_set(self, *args, **kwargs):
-        self.defaults = []
-        options_box = self.widgets.mako_options_box
-        # empty the options box
-        list(map(options_box.remove, options_box.get_children()))
-        # which options does the template accept? (can be None)
-        try:
-            with open(self.widgets.template_chooser.get_filename()) as f:
-                # scan the header filtering lines starting with # OPTION
-                option_lines = [_f for _f in [self.option_pattern.match(i.strip())
-                                       for i in f.readlines()] if _f]
-        except IOError:
-            option_lines = []
-
-        option_fields = [i.groups() for i in option_lines]
-        from bauble.plugins.report import options
-        current_row = 0
-        # populate the options box
-        for fname, ftype, fdefault, ftooltip in option_fields:
-            row = Gtk.HBox()
-            label = Gtk.Label(fname.replace('_', ' ') + _(':'))
-            label.set_alignment(0, 0.5)
-            entry = Gtk.Entry()
-            options.setdefault(fname, fdefault)
-            entry.set_text(options[fname])
-            entry.set_tooltip_text(ftooltip)
-            # entry updates the corresponding item in report.options
-            entry.connect('changed', self.set_option, fname)
-            self.defaults.append((entry, fdefault))
-            options_box.attach(label, 0, 1, current_row, current_row+1,
-                               xoptions=Gtk.AttachOptions.FILL)
-            options_box.attach(entry, 1, 2, current_row, current_row+1,
-                               xoptions=Gtk.AttachOptions.FILL)
-            current_row += 1
-        if self.defaults:
-            button = Gtk.Button(_('Reset to defaults'))
-            button.connect('clicked', self.reset_options)
-            options_box.attach(button, 0, 2, current_row, current_row+1,
-                               xoptions=Gtk.AttachOptions.FILL)
-        options_box.show_all()
+        pass
 
     def reset_options(self, widget):
-        for entry, text in self.defaults:
-            entry.set_text(text)
+        pass
 
     def set_option(self, widget, fname):
-        from bauble.plugins.report import options
-        options[fname] = widget.get_text()
-
+        pass
 
 _settings_box = MakoFormatterSettingsBox()
 
@@ -362,6 +321,10 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     title = 'Mako'
     domain_pattern = re.compile(r"^##\s*DOMAIN\s+([a-z_]*)\s*$")
+    option_pattern = re.compile("^## OPTION ([a-z_]*): \("
+                                "type: ([a-z_]*), "
+                                "default: '(.*)', "
+                                "tooltip: '(.*)'\)$")
 
     @classmethod
     def install(cls, import_defaults=True):
@@ -400,10 +363,6 @@ class MakoFormatterPlugin(FormatterPlugin):
             dst = os.path.join(cls.plugin_dir, template)
             if not os.path.exists(dst) and os.path.exists(src):
                 shutil.copy(src, dst)
-
-    @staticmethod
-    def get_settings_box():
-        return _settings_box
 
     @staticmethod
     def format(objs, **kwargs):

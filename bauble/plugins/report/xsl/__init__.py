@@ -491,6 +491,10 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     title = _('XSL')
     domain_pattern = re.compile(r"^\s*<!--\s*DOMAIN\s+([a-z_]*)\s*-->\s*$")
+    option_pattern = re.compile(r"^\s*<!--\s*OPTION ([a-z_]*): \("
+                                "type: ([a-z_]*), "
+                                "default: '(.*)', "
+                                "tooltip: '(.*)'\)\s*-->\s*$")
 
     @classmethod
     def install(cls, import_defaults=True):
@@ -525,12 +529,8 @@ class XSLFormatterPlugin(FormatterPlugin):
                 shutil.copy(src, dst)        
 
     @staticmethod
-    def get_settings_box():
-        return _settings_box
-
-    @staticmethod
     def format(objs, **kwargs):
-#        debug('format(%s)' % kwargs)
+        logger.debug('format(%s)' % kwargs)
         stylesheet = kwargs['stylesheet']
         authors = kwargs['authors']
         renderer = kwargs['renderer']
@@ -601,7 +601,7 @@ class XSLFormatterPlugin(FormatterPlugin):
             # nothing adapted....possibly everything was private
             # TODO: if everything was private and that is really why we got
             # here then it is probably better to show a dialog with a message
-            # and raise and exception which appears as an error
+            # than raise an exception which appears as an error
             raise Exception('No objects could be adapted to ABCD units.')
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
 

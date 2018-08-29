@@ -192,16 +192,19 @@
           <object class="GtkExpander" id="details_box">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="hexpand">True</property>
             <child>
-              <object class="GtkGrid">
+              <object class="GtkGrid" id="details_grid">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
                 <property name="column_spacing">2</property>
                 <property name="row_homogeneous">True</property>
                 <property name="column_homogeneous">True</property>
                 <child>
-                  <object class="GtkGrid" id="xsl_engine_grid">
+                  <object class="GtkGrid" id="plugin_2x2_grid">
                     <property name="can_focus">False</property>
+                    <property name="column_spacing">2</property>
                     <property name="row_homogeneous">True</property>
                     <property name="column_homogeneous">True</property>
                     <child>
@@ -249,7 +252,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">2</property>
                     <property name="width">2</property>
                     <property name="height">2</property>
                   </packing>
@@ -265,7 +268,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
+                    <property name="top_attach">3</property>
                     <property name="width">2</property>
                   </packing>
                 </child>
@@ -280,7 +283,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">2</property>
                     <property name="width">2</property>
                   </packing>
                 </child>
@@ -297,7 +300,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
+                    <property name="top_attach">3</property>
                   </packing>
                 </child>
                 <child>
@@ -313,7 +316,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">2</property>
                   </packing>
                 </child>
                 <child>
@@ -329,13 +332,44 @@
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="basename_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_top">2</property>
+                    <property name="margin_bottom">2</property>
+                    <property name="editable">False</property>
+                    <property name="width_chars">8</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">baseline</property>
+                    <property name="label" translatable="yes">File location</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="file_entry">
+                  <object class="GtkEntry" id="dirname_entry">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can_focus">False</property>
                     <property name="margin_top">2</property>
                     <property name="margin_bottom">2</property>
                     <property name="editable">False</property>
@@ -369,10 +403,62 @@
         <child>
           <object class="GtkExpander" id="settings_expander">
             <property name="visible">True</property>
-            <property name="sensitive">False</property>
             <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
             <child>
-              <placeholder/>
+              <object class="GtkGrid" id="options_box">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="column_spacing">2</property>
+                <property name="row_homogeneous">True</property>
+                <property name="column_homogeneous">True</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
             </child>
             <child type="label">
               <object class="GtkLabel" id="label2">
