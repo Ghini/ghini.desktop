@@ -6,17 +6,21 @@ export your data in table format (open them in your spreadsheet editor of
 choice), as labels (to be printed or engraved), as html pages or pdf or
 postscript documents.
 
-The Report Tool
+The Report Tools
 ---------------------
 
-You activate the Report Tool from the main menu: :menuselection:`Tools-->Report`.  The Report Tools acts on
-a selection, so first select something, then start the Report Tool.
+Ghini has two Report Tools, one based on templates, which are more flexible than you you can imagine, and a
+quick solution for flat file production, sharing much of its user interface with the query builder.
 
-.. admonition::  Report on the whole collection.
+You activate the Report Tools from the main menu: :menuselection:`Tools-->Report`, then choose either `From
+Template`, or `Quick CSV`.  Both Report Tools act on the current result in the results view, so you first
+select something, then start the Report Tool.
+
+.. admonition::  Selecting the whole collection.
    :class: toggle
 
-      There are surely two point of views, to define your "whole collection": you may want all the
-      ``Species``, or you may want all the ``Locations``.
+      If you want to produce a report regarding your whole collection, you can do it from at least two
+      points of view: you may want all the ``Species``, or you may want all the ``Locations``.
 
       A handy shortcut to get all your species in the selection, go to the home screen, then click on the
       ``Families: in use`` cell.
@@ -24,16 +28,30 @@ a selection, so first select something, then start the Report Tool.
       If your focus is more on the garden location than on taxonomy and accessions, you would click on the
       ``Locations: total`` cell.
 
-Reports are produced by a report engine, making use of a report template.  Ghini relies upon two different
-report engines (Mako & XSL), and offers several report templates, meant as usable examples.
+      The `Quick CSV` report tool can act on the whole collection, regardless the content of the content of
+      the results view.
+
+Template Based Reports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Reports are produced by a report engine.  Each report engine tranforms your selection into a report, by
+ways of report templates.  Ghini relies upon two different report engines (Mako & XSL), and offers several
+report templates, meant as usable examples.
 
 Choose the report you need, specify parameters if required, and produce the report.  Ghini will open the
 report in the associated application.
 
-Configuring report templates, that's a task for who installs and configures ghini at your institution.
-Basically, you create a template name, indicating the report engine and specifying the template.  Configured
-templates are static, once configured you are not expected to alter them.  Only the special ``**scratch**``
-template can be modified on the fly.
+Activating report templates, that's a task for who installs and configures ghini at your institution.
+Basically, you associate a name to a report template.  Selecting a report template implicitly selects the
+formatter engine.  Activated templates are static, once configured you are not expected to alter them.
+
+Template-less Reports (Quick CSV)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+Technical information
+----------------------------------
 
 The remainder of this page provides technical information and links regarding the formatter engines, and
 gives hints on writing report templates.  Writing templates comes very close to writing a computer program,
@@ -41,8 +59,8 @@ and that's beyond the scope of this manual, but we have hints that will definite
 interested reader.
 
 
-Using the Mako Report Formatter
--------------------------------
+Working with Mako Templates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Mako report formatter uses the Mako template language for
 generating reports. More information about Mako and its language can
@@ -75,12 +93,15 @@ be of a different type and the Mako template should prepared to handle
 them.
 
 
-Using the XSL Report Formatter
-------------------------------
+Working with XSL Stylesheets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The XSL report formatter requires an XSL to PDF renderer to
 convert the data to a PDF file. Apache FOP is is a free and
 open-source XSL->PDF renderer and is recommended.
+
+Installing Apache FOP on GNULinux
+...................................
 
 If using Linux, Apache FOP should be installable using your package
 manager.  On Debian/Ubuntu it is installable as ``fop`` in Synaptic or
