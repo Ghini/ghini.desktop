@@ -20,6 +20,8 @@
 ##
 ## report/mako/
 ##
+## DOMAIN plant
+##
 ## OPTION colour: (type: string, default: '#0000ff', tooltip: 'use blue for engraver, black for printer')
 ## OPTION extra_text: (type: string, default: '', tooltip: 'trailing text to accession code')
 ## OPTION accession_format: (type: string, default: '', tooltip: 'ignore selection and print a range')

@@ -19,6 +19,8 @@
 ##
 ## report/mako/
 ##
+## DOMAIN plant
+##
 ## OPTION single_page: (type: boolean, default: 'true', tooltip: 'use false for engraver, true for printer.\ndon\'t exceed the 72 elements on single page.')
 ## OPTION colour: (type: string, default: '#000000', tooltip: 'use blue for engraver, black for printer.')
 ## OPTION extra_text: (type: string, default: '', tooltip: 'trailing text to accession code.')

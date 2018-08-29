@@ -32,6 +32,7 @@ import shutil
 import sys
 import os
 import tempfile
+import re
 
 from gi.repository import Gtk
 
@@ -489,6 +490,7 @@ _settings_box = XSLFormatterSettingsBox()
 class XSLFormatterPlugin(FormatterPlugin):
 
     title = _('XSL')
+    domain_pattern = re.compile(r"^\s*<!--\s*DOMAIN\s+([a-z_]*)\s*-->\s*$")
 
     @classmethod
     def install(cls, import_defaults=True):
@@ -500,6 +502,8 @@ class XSLFormatterPlugin(FormatterPlugin):
         cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", "xsl")
         if not os.path.exists(cls.plugin_dir):
             os.mkdir(cls.plugin_dir)
+        from bauble.plugins.report import registered_formatters
+        registered_formatters['xsl'] = cls
 
     @classmethod
     def init(cls):
@@ -518,7 +522,7 @@ class XSLFormatterPlugin(FormatterPlugin):
             src = os.path.join(src_dir, template)
             dst = os.path.join(cls.plugin_dir, template)
             if not os.path.exists(dst) and os.path.exists(src):
-                shutil.copy(src, dst)
+                shutil.copy(src, dst)        
 
     @staticmethod
     def get_settings_box():

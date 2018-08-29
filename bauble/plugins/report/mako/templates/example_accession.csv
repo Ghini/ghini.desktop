@@ -13,6 +13,8 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
+## DOMAIN accession
+##
 <%
 from bauble.plugins.report import get_accessions_pertinent_to
 %>Item	Family	Genus	Species	Author	Acquisition date	CITES	Condition	Conservation	Acquisition document 	Doc. Number	No.of Plants	Habit

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--  DOMAIN plant -->
-<!--  OPTION authorship: True -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:fo="http://www.w3.org/1999/XSL/Format"
 		xmlns:abcd="http://www.tdwg.org/schemas/abcd/2.06"
 		version="1.0">
+  <!-- DOMAIN plant -->
+  <!-- OPTION authorship: True -->
   <xsl:template match="abcd:DataSets">
     <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
       <fo:layout-master-set>

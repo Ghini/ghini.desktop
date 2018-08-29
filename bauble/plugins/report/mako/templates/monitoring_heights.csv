@@ -13,12 +13,13 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
-##
 ## heights of plants, monitored per year.
 ## accession code starts with the four digits of the planting.
+##
+## DOMAIN plant
+##
 <%
 from bauble.plugins.report import get_plants_pertinent_to
-from bauble.plugins.report import get_species_pertinent_to
 planting_years = set()
 monitoring_years = set()
 ##data = {}

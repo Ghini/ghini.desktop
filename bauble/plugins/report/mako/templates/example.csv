@@ -14,6 +14,8 @@
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
 ##
+## DOMAIN plant
+##
 <% from bauble.plugins.report import get_plants_pertinent_to %>\
 ##
 code,name,location
