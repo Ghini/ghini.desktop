@@ -302,11 +302,33 @@ class FormatterPlugin(pluginmgr.Plugin):
 
     @classmethod
     def can_handle(cls, template):
-        return False
+        '''tell whether plugin can handle template
+        '''
+        return cls.get_iteration_domain(template) != ''
 
     @classmethod
     def get_iteration_domain(cls, template):
-        return ''
+        '''return template iteration domain
+
+        a template that does not declare its iteration domain is not
+        considered valid.
+
+        '''
+        try:
+            with open(template) as f:
+                domains = [m.group(1) for m in [cls.domain_pattern.match(line.strip())
+                                                for line in f.readlines()]
+                           if m is not None]
+                try:
+                    domain = domains[0]
+                except IndexError as e:
+                    logger.debug("template %s contains no DOMAIN declarations" % (template, ))
+                    domain = ''
+        except:
+            logger.debug("template %s can't be read" % template)
+            domain = ''
+
+        return domain
 
 
 class ReportToolDialogPresenter(GenericEditorPresenter):
@@ -384,10 +406,11 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 else:
                     utils.message_dialog(_('Not a template, or no valid formatter installed.'))
                     continue
-                self.set_prefs_for(name, template, {})
-                self.populate_names_combo()
-                self.view.widget_set_value('names_combo', name)
-                break
+
+            self.set_prefs_for(name, template, {})
+            self.populate_names_combo()
+            self.view.widget_set_value('names_combo', name)
+            break
         d.destroy()
 
     def on_remove_button_clicked(self, *args):
@@ -422,13 +445,17 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         if child:
             expander.remove(child)
 
-        self.view.widget_set_sensitive('ok_button', True)
+        self.view.widget_set_sensitive('ok_button', False)
+        self.view.widget_set_value('file_entry', '')
+        self.view.widget_set_value('formatter_entry', '')
+        self.view.widget_set_value('domain_entry', '')
         for formatter, plugin in registered_formatters.items():
-            if plugin.can_handle(template):
+            domain = plugin.get_iteration_domain(template)
+            if domain != '':
                 self.view.widget_set_value('file_entry', template)
                 self.view.widget_set_value('formatter_entry', formatter)
-                domain = plugin.get_iteration_domain(template)
                 self.view.widget_set_value('domain_entry', domain)
+                self.view.widget_set_sensitive('ok_button', True)
                 break
         else:
             utils.message_dialog('this should NOT happen.\nan invalid template at this stage.')
@@ -441,7 +468,6 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         expander.set_sensitive(box is not None)
         expander.set_expanded(box is not None)
         self.set_prefs_for(name, template, settings)
-        self.view.widget_set_sensitive('ok_button', True)
 
     def populate_names_combo(self):
         '''copy configuration names from prefs into names_ls

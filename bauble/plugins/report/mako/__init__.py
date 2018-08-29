@@ -29,6 +29,7 @@ import os
 import shutil
 import tempfile
 import math
+import re
 
 from gi.repository import Gtk
 
@@ -223,7 +224,6 @@ class Code39:
 class add_qr_functor:
     import pyqrcode
     def __init__(self):
-        import re
         self.pattern = {
             'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
             'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
@@ -269,11 +269,10 @@ add_qr = add_qr_functor()
     
 
 class MakoFormatterSettingsBox(SettingsBox):
-    import re
-    pattern = re.compile("^## OPTION ([a-z_]*): \("
-                         "type: ([a-z_]*), "
-                         "default: '(.*)', "
-                         "tooltip: '(.*)'\)$")
+    option_pattern = re.compile("^## OPTION ([a-z_]*): \("
+                                "type: ([a-z_]*), "
+                                "default: '(.*)', "
+                                "tooltip: '(.*)'\)$")
 
     def __init__(self, report_dialog=None, *args):
         super().__init__(*args)
@@ -310,7 +309,7 @@ class MakoFormatterSettingsBox(SettingsBox):
         try:
             with open(self.widgets.template_chooser.get_filename()) as f:
                 # scan the header filtering lines starting with # OPTION
-                option_lines = [_f for _f in [self.pattern.match(i.strip())
+                option_lines = [_f for _f in [self.option_pattern.match(i.strip())
                                        for i in f.readlines()] if _f]
         except IOError:
             option_lines = []
@@ -362,6 +361,7 @@ class MakoFormatterPlugin(FormatterPlugin):
     """
 
     title = 'Mako'
+    domain_pattern = re.compile(r"^##\s*DOMAIN\s+([a-z_]*)\s*$")
 
     @classmethod
     def install(cls, import_defaults=True):
@@ -418,7 +418,7 @@ class MakoFormatterPlugin(FormatterPlugin):
 
         # make sure the options dictionary is initialized at all
         with open(template_filename) as f:
-            option_lines = [_f for _f in [MakoFormatterSettingsBox.pattern.match(i.strip())
+            option_lines = [_f for _f in [MakoFormatterSettingsBox.option_pattern.match(i.strip())
                                    for i in f.readlines()] if _f]
         option_fields = [i.groups() for i in option_lines]
         from bauble.plugins.report import options
@@ -441,10 +441,6 @@ class MakoFormatterPlugin(FormatterPlugin):
                                    'default program. You can open the '
                                    'file manually at %s') % filename)
         return report.decode()
-
-    @classmethod
-    def can_handle(cls, template):
-        return True
 
 
 formatter_plugin = MakoFormatterPlugin

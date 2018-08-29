@@ -2,6 +2,11 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.18"/>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">dialog-password</property>
+  </object>
   <object class="GtkListStore" id="names_ls">
     <columns>
       <!-- column-name name -->
@@ -373,7 +378,7 @@
               <object class="GtkLabel" id="label2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Parameters</property>
+                <property name="label" translatable="yes">Options</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -384,6 +389,21 @@
             <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Include data marked as private</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="image">image1</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">5</property>
           </packing>
         </child>
       </object>
