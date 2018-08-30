@@ -285,7 +285,7 @@ class FormatterPlugin(pluginmgr.Plugin):
     title = ''
 
     @staticmethod
-    def format(selfobjs, **kwargs):
+    def format(objs, **kwargs):
         '''
         called when the use clicks on OK, this is the worker
         '''
@@ -538,6 +538,16 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         prefs[config_list_pref] = activated_templates
 
     def start(self):
+        '''collect user choices, so that tool can invoke formatter.
+
+        return the 2-tuple (formatter, settings).
+
+        formatter is a subclass of FormatterPlugin (not an instance).
+
+        settings is a dictionary, to be passed as keyword arguments to
+        formatter.format, after the first shared argument `objs`.
+
+        '''
         formatter = None
         settings = None
         while True:
@@ -557,17 +567,6 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         return formatter, settings
 
 
-class ReportToolDialog(object):
-
-    def __init__(self):
-        filename = os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade')
-        self.view = GenericEditorView(filename, root_widget_name='report_dialog')
-        self.presenter = ReportToolDialogPresenter(self.view)
-
-    def start(self):
-        return self.presenter.start()
-
-
 class ReportTool(pluginmgr.Tool):
     category = (_('Report'), "plugins/report/tool-report.png")
     label = _("From Template")
@@ -585,9 +584,11 @@ class ReportTool(pluginmgr.Tool):
         bauble.gui.set_busy(True)
         ok = False
         try:
+            filename = os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade')
+            view = GenericEditorView(filename, root_widget_name='report_dialog')
             while True:
-                dialog = ReportToolDialog()
-                formatter, settings = dialog.start()
+                presenter = ReportToolDialogPresenter(view)
+                formatter, settings = presenter.start()
                 if formatter is None:
                     break
                 ok = formatter.format([row[0] for row in model], **settings)

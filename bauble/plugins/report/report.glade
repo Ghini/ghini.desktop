@@ -202,14 +202,10 @@
                 <property name="row_homogeneous">True</property>
                 <property name="column_homogeneous">True</property>
                 <child>
-                  <object class="GtkGrid" id="plugin_2x2_grid">
+                  <object class="GtkBox" id="plugin_box">
+                    <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="column_spacing">2</property>
-                    <property name="row_homogeneous">True</property>
-                    <property name="column_homogeneous">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
+                    <property name="orientation">vertical</property>
                     <child>
                       <placeholder/>
                     </child>
