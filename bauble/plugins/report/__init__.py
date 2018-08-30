@@ -295,10 +295,9 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     # to be populated by template plugins
     formatter_class_map = {}  # title->class map
 
-    def __init__(self, view, selection):
+    def __init__(self, view):
         super().__init__(model=self, view=view, refresh_view=False)
         self.populate_names_combo()
-        self.selection = selection
 
         self.view.widget_set_sensitive('ok_button', False)
 
@@ -585,7 +584,6 @@ class ReportTool(pluginmgr.Tool):
         # is anything selected?  if not, refuse even considering
         if not bauble.gui.get_results_model():
             return
-        selection = [row[0] for row in view_model]
 
         bauble.gui.set_busy(True)
         ok = False
