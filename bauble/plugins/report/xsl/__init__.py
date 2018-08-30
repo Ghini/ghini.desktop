@@ -50,7 +50,7 @@ from bauble.plugins.plants.species import Species
 from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import (
     get_plants_pertinent_to, get_species_pertinent_to,
-    get_accessions_pertinent_to, FormatterPlugin, SettingsBox)
+    get_accessions_pertinent_to, FormatterPlugin)
 import bauble.prefs as prefs
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
@@ -358,135 +358,6 @@ class PlantABCDAdapter(AccessionABCDAdapter):
         super().extra_elements(unit)
 
 
-class SettingsBoxPresenter(object):
-
-    def __init__(self, widgets):
-        self.widgets = widgets
-        for name in renderers_map:
-            self.widgets.renderer_combo.append_text(name)
-
-
-# TODO: could make this look more a Gtk.FileChooserButton but make it
-# an hbox and adding the separator and file icon
-class FileChooserButton(Gtk.Button):
-    """
-    Create our own basic FileChooserButton to work around the issue that
-    if you click the Gtk.FileChooseButton the label gets reset to "None"
-    but doesn't revert back to the original file of the dialog is cancelled.
-    """
-
-    _default_label = _("Select a file…")
-
-    def __init__(self, dialog_parent):
-        super().__init__(self._default_label)
-        self._filename = False
-        self.props.use_underline = False
-        self.props.xalign = 0
-        self.dialog = \
-            Gtk.FileChooserDialog(title=_('Select a stylesheet'),
-                                  parent=dialog_parent,
-                                  buttons=(
-                                      Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                                      Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-        self.dialog.set_select_multiple(False)
-        self.dialog.set_current_folder(paths.appdata_dir())
-        self.dialog.connect('response', self._on_response)
-        self.connect('clicked', self._on_clicked)
-
-    def _on_clicked(self, *args):
-        self.dialog.run()
-        self.dialog.hide()
-
-    def _on_response(self, dialog, response):
-        if response == Gtk.ResponseType.ACCEPT:
-            self.set_filename(self.dialog.get_filename())
-
-    def get_filename(self):
-        return self._filename
-
-    def set_filename(self, filename):
-        if not filename:
-            self._filename = None
-            self.dialog.set_filename('')
-            self.dialog.set_current_folder(paths.appdata_dir())
-            self.props.label = self._default_label
-        else:
-            self._filename = filename
-            head, tail = os.path.split(self._filename)
-            self.dialog.set_filename(self._filename)
-            self.props.label = tail
-
-
-class XSLFormatterSettingsBox(SettingsBox):
-
-    def __init__(self, report_dialog=None, *args):
-        super().__init__(*args)
-        filename = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl',
-                                'gui.glade')
-        self.widgets = utils.BuilderWidgets(filename)
-
-        utils.setup_text_combobox(self.widgets.renderer_combo)
-
-        combo = self.widgets.source_type_combo
-        values = [_('Accession'), _('Plant/Clone'), _('Species')]
-        utils.setup_text_combobox(combo, values=values)
-
-        # keep a refefence to settings box so it doesn't get destroyed in
-        # remove_parent()
-        self.settings_box = self.widgets.settings_box
-        self.widgets.remove_parent(self.widgets.settings_box)
-        self.pack_start(self.settings_box, True, True, 0)
-        self.presenter = SettingsBoxPresenter(self.widgets)
-
-        self.stylesheet_chooser = FileChooserButton(
-            dialog_parent=report_dialog)
-        self.widgets.stylesheet_alignment.add(self.stylesheet_chooser)
-
-    def get_settings(self):
-        '''
-        return a dict of settings from the settings box gui
-        '''
-        return {
-            'stylesheet': self.stylesheet_chooser.get_filename(),
-            'renderer': self.widgets.renderer_combo.get_active_text(),
-            'source_type': self.widgets.source_type_combo.get_active_text(),
-            'authors': self.widgets.author_check.get_active(),
-            'private': self.widgets.private_check.get_active()}
-
-    def update(self, settings):
-        if 'stylesheet' in settings and settings['stylesheet'] is not None:
-            self.stylesheet_chooser.set_filename(settings['stylesheet'])
-        else:
-            self.stylesheet_chooser.set_filename(None)
-
-        if 'renderer' not in settings:
-            utils.combo_set_active_text(self.widgets.renderer_combo,
-                                        default_renderer)
-        else:
-            utils.combo_set_active_text(self.widgets.renderer_combo,
-                                        settings['renderer'])
-
-        if 'source_type' not in settings:
-            utils.combo_set_active_text(self.widgets.source_type_combo,
-                                        default_source_type)
-        else:
-            utils.combo_set_active_text(self.widgets.source_type_combo,
-                                        settings['source_type'])
-
-        if 'authors' in settings:
-            self.widgets.author_check.set_active(settings['authors'])
-        else:
-            self.widgets.author_check.set_active(False)
-
-        if 'private' in settings:
-            self.widgets.private_check.set_active(settings['private'])
-        else:
-            self.widgets.private_check.set_active(False)
-
-
-_settings_box = XSLFormatterSettingsBox()
-
-
 class XSLFormatterPlugin(FormatterPlugin):
 
     title = _('XSL')
@@ -506,8 +377,6 @@ class XSLFormatterPlugin(FormatterPlugin):
         cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", "xsl")
         if not os.path.exists(cls.plugin_dir):
             os.mkdir(cls.plugin_dir)
-        from bauble.plugins.report import registered_formatters
-        registered_formatters['xsl'] = cls
 
     @classmethod
     def init(cls):
@@ -517,7 +386,7 @@ class XSLFormatterPlugin(FormatterPlugin):
         because new version of plugin might provide new templates.
 
         """
-        cls.install()  # plugins still not versioned...
+        super().init()
 
         templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
                      'plant_list_ex.xsl', 'small_labels.xsl']
@@ -531,11 +400,11 @@ class XSLFormatterPlugin(FormatterPlugin):
     @staticmethod
     def format(objs, **kwargs):
         logger.debug('format(%s)' % kwargs)
-        stylesheet = kwargs['stylesheet']
-        authors = kwargs['authors']
-        renderer = kwargs['renderer']
-        source_type = kwargs['source_type']
-        use_private = kwargs['private']
+        stylesheet = kwargs['template']
+        authors = kwargs.get('authors', False)
+        renderer = kwargs.get('renderer', 'Apache FOP')
+        source_type = kwargs.get('domain', 'plant').replace('(', '').replace(')', '')
+        use_private = kwargs.get('private', True)
         error_msg = None
         if not stylesheet:
             error_msg = _('Please select a stylesheet.')
@@ -560,7 +429,7 @@ class XSLFormatterPlugin(FormatterPlugin):
         # convert objects to ABCDAdapters depending on source type for
         # passing to create_abcd
         adapted = []
-        if source_type == plant_source_type:
+        if source_type == 'plant':
             plants = sorted(get_plants_pertinent_to(objs, session=session),
                             key=utils.natsort_key)
             if len(plants) == 0:
@@ -572,7 +441,7 @@ class XSLFormatterPlugin(FormatterPlugin):
                     adapted.append(PlantABCDAdapter(p, for_labels=True))
                 elif not p.accession.private:
                     adapted.append(PlantABCDAdapter(p, for_labels=True))
-        elif source_type == species_source_type:
+        elif source_type == 'species':
             species = sorted(get_species_pertinent_to(objs, session=session),
                              key=utils.natsort_key)
             if len(species) == 0:
@@ -581,7 +450,7 @@ class XSLFormatterPlugin(FormatterPlugin):
                 return False
             for s in species:
                 adapted.append(SpeciesABCDAdapter(s, for_labels=True))
-        elif source_type == accession_source_type:
+        elif source_type == 'accession':
             accessions = sorted(get_accessions_pertinent_to(objs,
                                                             session=session),
                                 key=utils.natsort_key)
@@ -595,7 +464,7 @@ class XSLFormatterPlugin(FormatterPlugin):
                 elif not a.private:
                     adapted.append(AccessionABCDAdapter(a, for_labels=True))
         else:
-            raise NotImplementedError('unknown source type')
+            raise NotImplementedError('unknown source type %s' % source_type)
 
         if len(adapted) == 0:
             # nothing adapted....possibly everything was private
@@ -638,7 +507,7 @@ class XSLFormatterPlugin(FormatterPlugin):
             return False
         else:
             try:
-                desktop.open(filename)
+                desktop.open("file://%s" % filename)
             except OSError:
                 utils.message_dialog(_('Could not open the report with the '
                                        'default program. You can open the '

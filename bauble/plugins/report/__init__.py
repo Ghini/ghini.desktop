@@ -61,9 +61,6 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
-# to be populated by the dialog box, with fields mentioned in the template.
-registered_formatters = {}
-
 
 def _get_pertinent_objects(cls, get_query_func, objs, session):
     """
@@ -284,6 +281,15 @@ class FormatterPlugin(pluginmgr.Plugin):
 
     title = ''
 
+    @classmethod
+    def init(cls):
+        '''inform report presenter that this plugin is available
+
+        (extend in derived classes)
+        '''
+        cls.install()  # plugins still not versioned...
+        ReportToolDialogPresenter.formatter_class_map[cls.title] = cls
+    
     @staticmethod
     def format(objs, **kwargs):
         '''
@@ -323,7 +329,14 @@ class FormatterPlugin(pluginmgr.Plugin):
 
 
 class ReportToolDialogPresenter(GenericEditorPresenter):
+    '''presenter, and at same time model.
 
+    Let user set parameters for report production, return them to invoking
+    function, and die.
+
+    '''
+    
+    # to be populated by template plugins
     formatter_class_map = {}  # title->class map
 
     def __init__(self, view):
@@ -392,7 +405,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 utils.message_dialog(_('Already activated as %s') % templates[template])
                 continue
             else:
-                for plugin in registered_formatters.values():
+                for plugin in self.formatter_class_map.values():
                     if plugin.can_handle(template):
                         break
                 else:
@@ -439,7 +452,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         self.view.widget_set_value('basename_entry', '')
         self.view.widget_set_value('formatter_entry', '')
         self.view.widget_set_value('domain_entry', '')
-        for formatter, plugin in registered_formatters.items():
+        for formatter, plugin in self.formatter_class_map.items():
             domain = plugin.get_iteration_domain(template)
             if domain != '':
                 if domain == 'raw':
@@ -531,10 +544,10 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             self.view.widgets.names_ls.append((name, ))
 
     def save_formatter_settings(self):
-        name = self.view.widget_get_value('names_combo')
-        title, dummy = prefs[config_list_pref][name]
         activated_templates = prefs[config_list_pref]
-        activated_templates[name] = template, self.options
+        name = self.view.widget_get_value('names_combo')
+        title, dummy = activated_templates[name]
+        activated_templates[name] = title, self.options
         prefs[config_list_pref] = activated_templates
 
     def start(self):
@@ -558,7 +571,10 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 name = self.view.widget_get_value('names_combo')
                 prefs[default_config_pref] = name
                 self.save_formatter_settings()
-                title, settings = prefs[config_list_pref][name]
+                template, settings = prefs[config_list_pref][name]
+                settings['template'] = template
+                settings['domain']= self.view.widget_get_value('domain_entry')
+                title = self.view.widget_get_value('formatter_entry')
                 formatter = self.formatter_class_map[title]
                 break
             else:
@@ -586,14 +602,10 @@ class ReportTool(pluginmgr.Tool):
         try:
             filename = os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade')
             view = GenericEditorView(filename, root_widget_name='report_dialog')
-            while True:
-                presenter = ReportToolDialogPresenter(view)
-                formatter, settings = presenter.start()
-                if formatter is None:
-                    break
+            presenter = ReportToolDialogPresenter(view)
+            formatter, settings = presenter.start()
+            if formatter is not None:
                 ok = formatter.format([row[0] for row in model], **settings)
-                if ok:
-                    break
         except AssertionError as e:
             logger.debug(e)
             logger.debug(traceback.format_exc())
@@ -601,13 +613,12 @@ class ReportTool(pluginmgr.Tool):
             if hasattr(self, 'view') and hasattr(self.view, 'dialog'):
                 parent = self.view.get_window()
 
-            utils.message_details_dialog(str(e), traceback.format_exc(),
+            utils.message_details_dialog("AssertionError(%s)" % e, traceback.format_exc(),
                                          Gtk.MessageType.ERROR, parent=parent)
         except Exception as e:
             logger.debug(traceback.format_exc())
             utils.message_details_dialog(_('Formatting Error\n\n'
-                                           '%(exception)s') %
-                                         {"exception": utils.utf8(e)},
+                                           '%s(%s)') % (type(e).__name__, utils.utf8(e)),
                                          traceback.format_exc(),
                                          Gtk.MessageType.ERROR)
         bauble.gui.set_busy(False)

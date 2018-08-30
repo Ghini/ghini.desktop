@@ -35,7 +35,6 @@
             <child>
               <object class="GtkButton" id="cancel_button">
                 <property name="label">gtk-cancel</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -51,7 +50,6 @@
             <child>
               <object class="GtkButton" id="ok_button">
                 <property name="label">gtk-ok</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -132,34 +130,6 @@
             <property name="row_homogeneous">True</property>
             <property name="column_homogeneous">True</property>
             <child>
-              <object class="GtkButton" id="new_button">
-                <property name="label">gtk-add</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_new_button_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">3</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="remove_button">
-                <property name="label">gtk-remove</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_remove_button_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">4</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkComboBox" id="names_combo">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -178,6 +148,76 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">0</property>
+                <property name="width">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="output_name">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">Specify output file, or let system decide</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
+                <property name="width">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="remove_button">
+                <property name="label">gtk-remove</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="receives_default">False</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_remove_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">12</property>
+                <property name="top_attach">0</property>
+                <property name="width">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="new_button">
+                <property name="label">gtk-add</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="receives_default">False</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_new_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">9</property>
+                <property name="top_attach">0</property>
+                <property name="width">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="specific_btn">
+                <property name="label">gtk-open</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">9</property>
+                <property name="top_attach">1</property>
+                <property name="width">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="automatic_btn">
+                <property name="label">gtk-clear</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">12</property>
+                <property name="top_attach">1</property>
                 <property name="width">3</property>
               </packing>
             </child>
@@ -201,22 +241,6 @@
                 <property name="column_spacing">2</property>
                 <property name="row_homogeneous">True</property>
                 <property name="column_homogeneous">True</property>
-                <child>
-                  <object class="GtkBox" id="plugin_box">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">2</property>
-                    <property name="width">2</property>
-                    <property name="height">2</property>
-                  </packing>
-                </child>
                 <child>
                   <object class="GtkEntry" id="domain_entry">
                     <property name="visible">True</property>
@@ -339,6 +363,22 @@
                     <property name="left_attach">1</property>
                     <property name="top_attach">0</property>
                     <property name="width">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="plugin_box">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">2</property>
+                    <property name="width">2</property>
+                    <property name="height">2</property>
                   </packing>
                 </child>
               </object>

@@ -25555,20 +25555,20 @@ currentdict end
 /SCALE { 0.45 0.45 scale 21 35 translate } bind def
 </%text>
 <%
-from bauble.plugins.report import get_plants_pertinent_to, options
+from bauble.plugins.report import get_plants_pertinent_to
 from bauble.plugins.report.mako import add_qr
 page = 1
 xpos = 0
 ypos = 17
 
-if options['accession_format']:
-    format = options['accession_format']
+if accession_format:
+    format = accession_format
     start = format.rstrip('#')
     if start != format:
         digits = len(format) - len(start)
         format = start + '%%0%dd' % digits
-    first = int(options['accession_first'])
-    enumeration = [(i - first, format % i, None) for i in range(first, int(options['accession_last']) + 1)]
+    first = int(accession_first)
+    enumeration = [(i - first, format % i, None) for i in range(first, int(accession_last) + 1)]
 else:
     enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(get_plants_pertinent_to(values))]
 
@@ -25600,7 +25600,7 @@ grestore
 </%text>\
   % endif
 <%
-et = options['extra_text']
+et = extra_text
 if et:
   if accession and et.startswith('{') and et.endswith('}'):
     ets = accession

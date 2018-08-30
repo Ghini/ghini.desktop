@@ -38,7 +38,7 @@ from mako.template import Template
 
 import bauble.db as db
 import bauble.paths as paths
-from bauble.plugins.report import FormatterPlugin, SettingsBox
+from bauble.plugins.report import FormatterPlugin
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 
@@ -268,49 +268,6 @@ class add_qr_functor:
 add_qr = add_qr_functor()
     
 
-class MakoFormatterSettingsBox(SettingsBox):
-    option_pattern = re.compile("^## OPTION ([a-z_]*): \("
-                                "type: ([a-z_]*), "
-                                "default: '(.*)', "
-                                "tooltip: '(.*)'\)$")
-
-    def __init__(self, report_dialog=None, *args):
-        super().__init__(*args)
-        self.widgets = utils.BuilderWidgets(
-            os.path.join(paths.lib_dir(),
-                         "plugins", "report", 'mako', 'gui.glade'))
-        # keep a refefence to settings box so it doesn't get destroyed in
-        # remove_parent()
-        self.settings_box = self.widgets.settings_box
-        self.widgets.remove_parent(self.widgets.settings_box)
-        self.pack_start(self.settings_box, True, True, 0)
-        self.widgets.template_chooser.connect('file-set', self.on_file_set)
-        self.defaults = []
-
-    def get_settings(self):
-        """
-        """
-        return {'template': self.widgets.template_chooser.get_filename(),
-                'private': self.widgets.private_check.get_active()}
-
-    def update(self, settings):
-        if settings.get('template'):
-            self.widgets.template_chooser.set_filename(settings['template'])
-            self.on_file_set()
-        if 'private' in settings:
-            self.widgets.private_check.set_active(settings['private'])
-
-    def on_file_set(self, *args, **kwargs):
-        pass
-
-    def reset_options(self, widget):
-        pass
-
-    def set_option(self, widget, fname):
-        pass
-
-_settings_box = MakoFormatterSettingsBox()
-
 
 class MakoFormatterPlugin(FormatterPlugin):
     """
@@ -344,8 +301,6 @@ class MakoFormatterPlugin(FormatterPlugin):
             if template.startswith('__'):
                 continue
             cls.templates.append(template)
-        from bauble.plugins.report import registered_formatters
-        registered_formatters['mako'] = cls
         
     @classmethod
     def init(cls):
@@ -355,7 +310,7 @@ class MakoFormatterPlugin(FormatterPlugin):
         because new version of plugin might provide new templates.
 
         """
-        cls.install()  # plugins still not versioned...
+        super().init()
 
         src_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako', 'templates')
         for template in cls.templates:
@@ -375,18 +330,9 @@ class MakoFormatterPlugin(FormatterPlugin):
         template = Template(filename=template_filename,
                             input_encoding='utf-8', output_encoding='utf-8')
 
-        # make sure the options dictionary is initialized at all
-        with open(template_filename) as f:
-            option_lines = [_f for _f in [MakoFormatterSettingsBox.option_pattern.match(i.strip())
-                                   for i in f.readlines()] if _f]
-        option_fields = [i.groups() for i in option_lines]
-        from bauble.plugins.report import options
-        for fname, ftype, fdefault, ftooltip in option_fields:
-            options.setdefault(fname, fdefault)
-
         session = db.Session()
         values = list(map(session.merge, objs))
-        report = template.render(values=values)
+        report = template.render(values=values, **kwargs)
         session.close()
         # assume the template is the same file type as the output file
         head, ext = os.path.splitext(template_filename)
@@ -394,7 +340,7 @@ class MakoFormatterPlugin(FormatterPlugin):
         os.write(fd, report)
         os.close(fd)
         try:
-            desktop.open(filename)
+            desktop.open("file://%s" % filename)
         except OSError:
             utils.message_dialog(_('Could not open the report with the '
                                    'default program. You can open the '
