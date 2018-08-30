@@ -17,7 +17,6 @@
 ##
 ingreso	egreso	código JBQ	género	especie	N.º IC	N.º Factura	N.º Acta	Observaciones
 <%
-from bauble.plugins.report import get_plants_pertinent_to
 
 subfamiliad = {
     '': '',
@@ -207,7 +206,7 @@ subtribusd = {
 'Zygopetalum': 'Zygopetalinae',
 }
 %>\
-% for v in get_plants_pertinent_to(values):
+% for v in values:
 <%
     code = v.accession.code
     genus = v.accession.species.genus.genus

@@ -45,12 +45,10 @@ from sqlalchemy.orm import object_session
 import bauble.db as db
 import bauble.paths as paths
 from bauble.plugins.plants.species import Species
-#from bauble.plugins.garden.plant import Plant
-#from bauble.plugins.garden.accession import Accession
+from bauble.plugins.garden.plant import Plant
+from bauble.plugins.garden.accession import Accession
 from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
-from bauble.plugins.report import (
-    get_plants_pertinent_to, get_species_pertinent_to,
-    get_accessions_pertinent_to, FormatterPlugin)
+from bauble.plugins.report import FormatterPlugin
 import bauble.prefs as prefs
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
@@ -83,11 +81,6 @@ renderers_map = {'Apache FOP': (fop_cmd + ' -fo %(fo_filename)s '
                  # ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'
                  }
 default_renderer = 'Apache FOP'
-
-plant_source_type = _('Plant/Clone')
-accession_source_type = _('Accession')
-species_source_type = _('Species')
-default_source_type = plant_source_type
 
 
 def on_path(exe):
@@ -424,57 +417,24 @@ class XSLFormatterPlugin(FormatterPlugin):
                                  Gtk.MessageType.ERROR)
             return False
 
-        session = db.Session()
-
         # convert objects to ABCDAdapters depending on source type for
         # passing to create_abcd
         adapted = []
-        if source_type == 'plant':
-            plants = sorted(get_plants_pertinent_to(objs, session=session),
-                            key=utils.natsort_key)
-            if len(plants) == 0:
-                utils.message_dialog(_('There are no plants in the search '
-                                       'results.  Please try another search.'))
-                return False
-            for p in plants:
-                if use_private:
-                    adapted.append(PlantABCDAdapter(p, for_labels=True))
-                elif not p.accession.private:
-                    adapted.append(PlantABCDAdapter(p, for_labels=True))
-        elif source_type == 'species':
-            species = sorted(get_species_pertinent_to(objs, session=session),
-                             key=utils.natsort_key)
-            if len(species) == 0:
-                utils.message_dialog(_('There are no species in the search '
-                                       'results.  Please try another search.'))
-                return False
-            for s in species:
-                adapted.append(SpeciesABCDAdapter(s, for_labels=True))
-        elif source_type == 'accession':
-            accessions = sorted(get_accessions_pertinent_to(objs,
-                                                            session=session),
-                                key=utils.natsort_key)
-            if len(accessions) == 0:
-                utils.message_dialog(_('There are no accessions in the search '
-                                       'results.  Please try another search.'))
-                return False
-            for a in accessions:
-                if use_private:
-                    adapted.append(AccessionABCDAdapter(a, for_labels=True))
-                elif not a.private:
-                    adapted.append(AccessionABCDAdapter(a, for_labels=True))
-        else:
-            raise NotImplementedError('unknown source type %s' % source_type)
+        for obj in objs:
+            if isinstance(obj, Plant):
+                if obj.accession.private and not use_private:
+                    continue
+                adapted.append(PlantABCDAdapter(obj, for_labels=True))
+            elif isinstance(obj, Species):
+                adapted.append(SpeciesABCDAdapter(obj, for_labels=True))
+            elif isinstance(obj, Accession):
+                if obj.private and not use_private:
+                    continue
+                adapted.append(AccessionABCDAdapter(obj, for_labels=True))
 
         if len(adapted) == 0:
-            # nothing adapted....possibly everything was private
-            # TODO: if everything was private and that is really why we got
-            # here then it is probably better to show a dialog with a message
-            # than raise an exception which appears as an error
-            raise Exception('No objects could be adapted to ABCD units.')
+            return True  # invoker must complain in our stead
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
-
-        session.close()
 
         logger.debug(etree.dump(abcd_data.getroot()))
 
@@ -504,7 +464,6 @@ class XSLFormatterPlugin(FormatterPlugin):
             utils.message_dialog(_('Error creating the PDF file. Please '
                                    'ensure that your PDF formatter is '
                                    'properly installed.'), Gtk.MessageType.ERROR)
-            return False
         else:
             try:
                 desktop.open("file://%s" % filename)
@@ -512,8 +471,6 @@ class XSLFormatterPlugin(FormatterPlugin):
                 utils.message_dialog(_('Could not open the report with the '
                                        'default program. You can open the '
                                        'file manually at %s') % filename)
-
-        return True
 
 
 # expose the formatter

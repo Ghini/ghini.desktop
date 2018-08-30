@@ -25555,7 +25555,6 @@ currentdict end
 /SCALE { 0.45 0.45 scale 21 35 translate } bind def
 </%text>
 <%
-from bauble.plugins.report import get_plants_pertinent_to
 from bauble.plugins.report.mako import add_qr
 page = 1
 xpos = 0
@@ -25570,7 +25569,7 @@ if accession_format:
     first = int(accession_first)
     enumeration = [(i - first, format % i, None) for i in range(first, int(accession_last) + 1)]
 else:
-    enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(get_plants_pertinent_to(values))]
+    enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(values)]
 
 # `enumeration` is an iterable with tuple elements like (i, code, obj),
 # where: i are sequential and start at 0; code is the plant code; obj may be
