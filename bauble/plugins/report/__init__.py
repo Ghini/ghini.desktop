@@ -339,9 +339,10 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     # to be populated by template plugins
     formatter_class_map = {}  # title->class map
 
-    def __init__(self, view):
+    def __init__(self, view, selection):
         super().__init__(model=self, view=view, refresh_view=False)
         self.populate_names_combo()
+        self.selection = selection
 
         self.view.widget_set_sensitive('ok_button', False)
 
@@ -551,36 +552,25 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         prefs[config_list_pref] = activated_templates
 
     def start(self):
-        '''collect user choices, so that tool can invoke formatter.
-
-        return the 2-tuple (formatter, settings).
-
-        formatter is a subclass of FormatterPlugin (not an instance).
-
-        settings is a dictionary, to be passed as keyword arguments to
-        formatter.format, after the first shared argument `objs`.
+        '''collect user choices, invoke formatter, repeat.
 
         '''
         formatter = None
         settings = None
         while True:
             response = self.view.start()
-            if response == Gtk.ResponseType.OK:
-                # get format method
-                # save default
-                name = self.view.widget_get_value('names_combo')
-                prefs[default_config_pref] = name
-                self.save_formatter_settings()
-                template, settings = prefs[config_list_pref][name]
-                settings['template'] = template
-                settings['domain']= self.view.widget_get_value('domain_entry')
-                title = self.view.widget_get_value('formatter_entry')
-                formatter = self.formatter_class_map[title]
+            if response != Gtk.ResponseType.OK:
                 break
-            else:
-                break
+            name = self.view.widget_get_value('names_combo')
+            prefs[default_config_pref] = name
+            self.save_formatter_settings()
+            template, settings = prefs[config_list_pref][name]
+            settings['template'] = template
+            settings['domain']= self.view.widget_get_value('domain_entry')
+            title = self.view.widget_get_value('formatter_entry')
+            formatter = self.formatter_class_map[title]
+            formatter.format(self.selection, **settings)
         self.view.disconnect_all()
-        return formatter, settings
 
 
 class ReportTool(pluginmgr.Tool):
@@ -593,19 +583,18 @@ class ReportTool(pluginmgr.Tool):
         '''
         '''
         # get the select results from the search view
-        model = bauble.gui.get_results_model()
-        if model is None:
+        view_model = bauble.gui.get_results_model()
+        if view_model is None:
             return
+        selection = [row[0] for row in view_model]
 
         bauble.gui.set_busy(True)
         ok = False
         try:
             filename = os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade')
             view = GenericEditorView(filename, root_widget_name='report_dialog')
-            presenter = ReportToolDialogPresenter(view)
-            formatter, settings = presenter.start()
-            if formatter is not None:
-                ok = formatter.format([row[0] for row in model], **settings)
+            presenter = ReportToolDialogPresenter(view, selection)
+            presenter.start()
         except AssertionError as e:
             logger.debug(e)
             logger.debug(traceback.format_exc())
