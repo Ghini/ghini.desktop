@@ -345,7 +345,6 @@ class MakoFormatterPlugin(FormatterPlugin):
             utils.message_dialog(_('Could not open the report with the '
                                    'default program. You can open the '
                                    'file manually at %s') % filename)
-        return report.decode()
 
 
 formatter_plugin = MakoFormatterPlugin

@@ -62,26 +62,6 @@ default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
 
-def _get_pertinent_objects(cls, get_query_func, objs, session):
-    """
-    :param cls:
-    :param get_query_func:
-    :param objs:
-    :param session:
-    """
-    if session is None:
-        import bauble.db as db
-        session = db.Session()
-    if not isinstance(objs, (tuple, list)):
-        objs = [objs]
-    queries = [get_query_func(o, session) for o in objs]
-    # TODO: what is the problem with the following form?
-    # results = session.query(cls).order_by(None).union(*queries)
-    unions = union(*[q.statement for q in queries])
-    results = session.query(cls).from_statement(unions)
-    return results
-
-
 def get_plant_query(obj, session):
     """
     """
@@ -115,16 +95,6 @@ def get_plant_query(obj, session):
         raise BaubleError(_("Can't get plants from a %s") % type(obj).__name__)
 
 
-def get_plants_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
-
-    Return all the plants found in objs.
-    """
-    return _get_pertinent_objects(Plant, get_plant_query, objs, session)
-
-
 def get_accession_query(obj, session):
     """
     """
@@ -153,17 +123,6 @@ def get_accession_query(obj, session):
     else:
         raise BaubleError(_("Can't get accessions from a %s") %
                           type(obj).__name__)
-
-
-def get_accessions_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
-
-    Return all the accessions found in objs.
-    """
-    return _get_pertinent_objects(
-        Accession, get_accession_query, objs, session)
 
 
 def get_species_query(obj, session):
@@ -196,18 +155,6 @@ def get_species_query(obj, session):
     else:
         raise BaubleError(_("Can't get species from a %s") %
                           type(obj).__name__)
-
-
-def get_species_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
-
-    Return all the species found in objs.
-    """
-    return sorted(
-        _get_pertinent_objects(Species, get_species_query, objs, session),
-        key=lambda x: "%s" % x)
 
 
 def get_location_query(obj, session):
@@ -243,16 +190,25 @@ def get_location_query(obj, session):
                           type(obj).__name__)
 
 
-def get_locations_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
+def get_pertinent_objects(cls, objs):
+    """return a query containing all `csl` objects reachable from `objs`
 
-    Return all the locations found in objs.
+    :param cls:
+    :param objs:
     """
-    return sorted(
-        _get_pertinent_objects(Location, get_location_query, objs, session),
-        key=str)
+    from sqlalchemy.orm import object_session
+    session = object_session(objs[0])
+
+    get_query_func = {
+        Plant: get_plant_query,
+        Accession: get_accession_query,
+        Species: get_species_query,
+        Location: get_location_query,
+    }[cls]
+
+    queries = [get_query_func(o, session) for o in objs]
+    unions = union(*[q.statement for q in queries])
+    return session.query(cls).from_statement(unions)
 
 
 class SettingsBox(Gtk.VBox):
@@ -289,7 +245,7 @@ class FormatterPlugin(pluginmgr.Plugin):
         '''
         cls.install()  # plugins still not versioned...
         ReportToolDialogPresenter.formatter_class_map[cls.title] = cls
-    
+
     @staticmethod
     def format(objs, **kwargs):
         '''
@@ -335,7 +291,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     function, and die.
 
     '''
-    
+
     # to be populated by template plugins
     formatter_class_map = {}  # title->class map
 
@@ -550,35 +506,70 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         activated_templates[name] = title, self.options
         prefs[config_list_pref] = activated_templates
 
-    def start(self):
-        '''collect user choices, so that tool can invoke formatter.
+    def selection_to_domain(self, domain):
+        '''convert the selection to the corresponding domain
 
-        return the 2-tuple (formatter, settings).
+        if domain is one of species, accession, plant, location, then
+        retrieve all objects in the domain that are associated to the
+        selected objects.
 
-        formatter is a subclass of FormatterPlugin (not an instance).
+        if domain looks like `(domain)`, then it is an implicit domain,
+        i.e.: it was inferred from the selection itself, so the selection
+        itself is what we need.
 
-        settings is a dictionary, to be passed as keyword arguments to
-        formatter.format, after the first shared argument `objs`.
+        if the domain is `raw`, also that tells us to return the raw
+        selection (the template will handle it).
 
         '''
+        try:
+            cls = {
+                'plant': Plant,
+                'accession': Accession,
+                'species': Species,
+                'location': Location,
+            }[domain]
+            return sorted(get_pertinent_objects(cls, self.selection),
+                          key=utils.natsort_key)
+        except KeyError:
+            return self.selection
+
+    def start(self):
+        '''collect user choices, invokes formatter.
+
+        '''
+        results_model = bauble.gui.get_results_model()  # guaranteed not empty
+        self.selection = [row[0] for row in results_model]  # only top level selected
+        from sqlalchemy.orm import object_session
+        self.session = object_session(self.selection[0])  # reuse the same session
+
         formatter = None
         settings = None
         while True:
             response = self.view.start()
-            if response == Gtk.ResponseType.OK:
-                # get format method
-                # save default
-                name = self.view.widget_get_value('names_combo')
-                prefs[default_config_pref] = name
-                self.save_formatter_settings()
-                template, settings = prefs[config_list_pref][name]
-                settings['template'] = template
-                settings['domain']= self.view.widget_get_value('domain_entry')
-                title = self.view.widget_get_value('formatter_entry')
-                formatter = self.formatter_class_map[title]
+            if response != Gtk.ResponseType.OK:
                 break
-            else:
-                break
+            # get format method
+            # save default
+            name = self.view.widget_get_value('names_combo')
+            prefs[default_config_pref] = name
+            self.save_formatter_settings()
+            template, settings = prefs[config_list_pref][name]
+            settings['template'] = template
+            domain = self.view.widget_get_value('domain_entry')
+            title = self.view.widget_get_value('formatter_entry')
+            formatter = self.formatter_class_map[title]
+            todo = self.selection_to_domain(domain)
+            if todo:
+                error = formatter.format(todo, **settings)
+            if not todo or error:
+                translated_name = {
+                    'plant': _('plants/clones'),
+                    'accession': _('accessions'),
+                    'species': _('species'),
+                    'location': _('locations'),
+                }[domain]
+                utils.message_dialog(_('There are no %s in the search results.\n'
+                                       'Please try another search.') % translated_name)
         self.view.disconnect_all()
         return formatter, settings
 
@@ -592,9 +583,8 @@ class ReportTool(pluginmgr.Tool):
     def start(self):
         '''
         '''
-        # get the select results from the search view
-        model = bauble.gui.get_results_model()
-        if model is None:
+        # is anything selected?  if not, refuse even considering
+        if not bauble.gui.get_results_model():
             return
 
         bauble.gui.set_busy(True)
@@ -603,9 +593,7 @@ class ReportTool(pluginmgr.Tool):
             filename = os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade')
             view = GenericEditorView(filename, root_widget_name='report_dialog')
             presenter = ReportToolDialogPresenter(view)
-            formatter, settings = presenter.start()
-            if formatter is not None:
-                ok = formatter.format([row[0] for row in model], **settings)
+            presenter.start()
         except AssertionError as e:
             logger.debug(e)
             logger.debug(traceback.format_exc())
@@ -643,8 +631,3 @@ else:
         from bauble.plugins.report.mako import MakoFormatterPlugin
         return [ReportToolPlugin, XSLFormatterPlugin,
                 MakoFormatterPlugin]
-
-## compatibility aliases:
-get_all_plants = get_plants_pertinent_to
-get_all_accessions = get_accessions_pertinent_to
-get_all_species = get_species_pertinent_to
