@@ -535,7 +535,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             return self.selection
 
     def start(self):
-        '''collect user choices, invokes formatter.
+        '''collect user choices, invokes formatter, repeat.
 
         '''
         results_model = bauble.gui.get_results_model()  # guaranteed not empty
@@ -549,8 +549,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             response = self.view.start()
             if response != Gtk.ResponseType.OK:
                 break
-            # get format method
-            # save default
+
             name = self.view.widget_get_value('names_combo')
             prefs[default_config_pref] = name
             self.save_formatter_settings()
