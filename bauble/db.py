@@ -536,9 +536,9 @@ def make_note_class(name, compute_serializable_fields=None, as_dict=None, retrie
               '__mapper_args__': {'order_by': table_name + '.date'},
               
               'date': sa.Column(types.Date, default=sa.func.now()),
-              'user': sa.Column(sa.Unicode(64)),
-              'category': sa.Column(sa.Unicode(32)),
-              'type': sa.Column(sa.Unicode(32)),
+              'user': sa.Column(sa.Unicode(64), default=''),
+              'category': sa.Column(sa.Unicode(32), default=''),
+              'type': sa.Column(sa.Unicode(32), default=''),
               'note': sa.Column(sa.UnicodeText, nullable=False),
               name.lower() + '_id': sa.Column(sa.Integer, sa.ForeignKey(name.lower() + '.id'), nullable=False),
               name.lower(): sa.orm.relation(name, uselist=False, backref=sa.orm.backref(
