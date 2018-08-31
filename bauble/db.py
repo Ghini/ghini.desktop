@@ -572,7 +572,9 @@ class WithNotes:
         result = []
         is_dict = False
         for n in self.notes:
-            if n.category == ('[%s]' % name):
+            if n.category is None:
+                pass
+            elif n.category == ('[%s]' % name):
                 result.append(n.note)
             elif n.category.startswith('{%s:' % name) and n.category.endswith('}'):
                 is_dict = True
