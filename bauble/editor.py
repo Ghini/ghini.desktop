@@ -1275,8 +1275,13 @@ class GenericEditorPresenter(object):
         return value
 
     def on_numeric_text_entry_changed(self, widget, value=None):
-        "handle 'changed' signal on numeric text entry widgets."
+        """handle 'changed' signal on numeric text entry widgets.
 
+        if the widget is associated to a model attribute, new value is
+        type-checked.  as long as the user types digits, they are accepted.
+        whatever else gets ignored.
+
+        """
         attr = self.__get_widget_attr(widget)
         if attr is None:
             return
@@ -1285,8 +1290,6 @@ class GenericEditorPresenter(object):
             value = 0
         try:
             value = int(value)
-            logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
-                         % (widget, attr, getattr(self.model, attr), value))
             self.__set_model_attr(attr, value)
         except:
             value = getattr(self.model, attr)
