@@ -208,11 +208,7 @@ class GUI(object):
         statusbar.set_spacing(10)
         self._cids = []
 
-        def on_statusbar_push(sb, cid, txt):
-            if cid not in self._cids:
-                self._cids.append(cid)
-
-        statusbar.connect('text-pushed', on_statusbar_push)
+        statusbar.connect('text-pushed', self.on_statusbar_push)
 
         # remove label from frame
         frame = statusbar.get_children()[0]
@@ -240,6 +236,10 @@ class GUI(object):
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
 
         combo.grab_focus()
+
+    def on_statusbar_push(self, sb, cid, txt):
+        if cid not in self._cids:
+            self._cids.append(cid)
 
     def close_message_box(self, *args):
         parent = self.widgets.msg_box_parent
