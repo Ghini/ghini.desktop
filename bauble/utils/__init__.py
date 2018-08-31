@@ -665,7 +665,7 @@ def create_message_details_dialog(msg, details, type=Gtk.MessageType.INFO,
     text_view.set_editable(False)
     text_view.set_wrap_mode(Gtk.WrapMode.WORD)
     tb = Gtk.TextBuffer()
-    tb.set_text(details)
+    tb.set_text(details[:4096])
     text_view.set_buffer(tb)
     sw = Gtk.ScrolledWindow()
     sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -1285,7 +1285,7 @@ class MessageBox(GenericMessageBox):
         self.details_label = Gtk.Label()
         viewport.add(self.details_label)
 
-        self.details = details
+        self.details = details[:4096]
         self.details_expander.add(sw)
 
         def on_expanded(*args):

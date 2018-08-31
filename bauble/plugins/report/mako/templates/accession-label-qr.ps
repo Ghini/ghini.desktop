@@ -244,7 +244,7 @@ font = {
 }
 
 def add_text(x, y, s, style, size, align=0, maxwidth=None):
-    s = s.replace(u'\u200b', '')
+    s = (s or '').replace(u'\u200b', '')
     glyphs = ['<']
     widths = ['[']
     totalwidth = 0

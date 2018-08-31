@@ -34,7 +34,10 @@ logger = logging.getLogger(__name__)
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import GObject
+
+from threading import Thread
 
 from sqlalchemy import union
 
@@ -559,8 +562,14 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             formatter = self.formatter_class_map[title]
             todo = self.selection_to_domain(domain)
             if todo:
-                error = formatter.format(todo, **settings)
-            if not todo or error:
+                self.work_thread = Thread(target=self.run_thread, args=[formatter, todo, settings])
+                self.running = True
+                GObject.timeout_add(200, self.update_progress)
+                self.view.widgets.main_grid.set_sensitive(False)
+                self.view.widget_set_sensitive('ok_button', False)
+                self.view.widget_set_sensitive('cancel_button', False)
+                self.work_thread.start()
+            else:
                 translated_name = {
                     'plant': _('plants/clones'),
                     'accession': _('accessions'),
@@ -569,8 +578,30 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 }[domain]
                 utils.message_dialog(_('There are no %s in the search results.\n'
                                        'Please try another search.') % translated_name)
+
         self.view.disconnect_all()
 
+    def update_progress(self):
+        if self.running:
+            self.view.widgets.progressbar.pulse()
+        return self.running
+
+    def run_thread(self, formatter, todo, settings):
+        from bauble import db
+        session = db.Session()
+        todo = [session.merge(i) for i in todo]
+        formatter.format(todo, **settings)
+        session.close()
+        GObject.idle_add(self.stop_progress)
+
+    def stop_progress(self):
+        self.running = False
+        self.work_thread.join()
+        self.view.widgets.main_grid.set_sensitive(True)
+        self.view.widget_set_sensitive('ok_button', True)
+        self.view.widget_set_sensitive('cancel_button', True)
+        self.view.widgets.progressbar.set_fraction(0)
+        
 
 class ReportTool(pluginmgr.Tool):
     category = (_('Report'), "plugins/report/tool-report.png")
