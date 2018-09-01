@@ -61,12 +61,10 @@ class Enum(types.TypeDecorator):
         if len(values) != len(set(values)):
             raise EnumError(_('Enum requires the values to be different'))
         self.translations = dict((v, v) for v in values)
-        for key, value in translations.items():
-            self.translations[key] = value
         if empty_to_none and (None not in values):
             raise EnumError(_('You have configured empty_to_none=True but '
                               'None is not in the values lists'))
-        self.values = values[:]
+        self.values = values[:]  # copy, not reference
         self.strict = strict
         self.empty_to_none = empty_to_none
         # the length of the string/unicode column should be the
@@ -81,6 +79,8 @@ class Enum(types.TypeDecorator):
         logger.debug('Enum::process_bind_param %s %s(%s)' % (type(self).__name__, type(value).__name__, value))
         if (self.empty_to_none) and (not value):
             value = None
+        if value is None and None not in self.values and '' in self.values:
+            value = ''
         if value not in self.values:
             raise EnumError(_('%(type_name)s(%(value)s) not in Enum.values: %(all_values)s'
                               ) % {'value': value,
