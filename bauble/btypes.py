@@ -83,6 +83,8 @@ class Enum(types.TypeDecorator):
         """
         if self.empty_to_none and value is '':
             value = None
+        if value is None and None not in self.values and '' in self.values:
+            value = ''
         if value not in self.values:
             raise EnumError(_('"%(value)s" not in Enum.values: %(all_values)s'
                               ) % dict(value=value, all_values=self.values))
