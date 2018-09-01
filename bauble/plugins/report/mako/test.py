@@ -326,7 +326,7 @@ class QRCodeTests(BaubleTestCase):
         self.assertEqual(parts[2], '</g>')
 
     def test_can_get_qr_as_string_translated_framed(self):
-        g = add_qr(30, 10, 'http://ghini.readthedocs.io/en/ghini-1.0-dev/', side=30)
+        g = add_qr(30, 10, 'http://ghini.readthedocs.io/en/ghini-3.1-dev/', side=30)
         parts = g.split('\n')
         self.assertEqual(len(parts), 3)
         self.assertTrue(parts[0].startswith('<g transform="translate(30,10)scale(0.731707317073'))
