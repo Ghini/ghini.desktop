@@ -44,11 +44,9 @@ Installing on GNU/Linux
 
 Open a shell terminal window, and follow the following instructions.
 
-#. Download the `devinstall.sh` script:
-
-   `devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_
-
-   Don't follow the link please, instead right-click on it, and choose *Save link as…*.
+#. Download the `devinstall.sh
+   <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_ script.
+   Please do not follow the link, instead right-click on it, and choose *Save link as…*.
 
 #. Invoke the script from a terminal window, starting at the directory where
    you downloaded it, like this::
