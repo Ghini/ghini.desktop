@@ -7,7 +7,7 @@ like GNU/Linux and MacOSX, as well as on Windows.
 .. admonition:: one-liner for hurried users.
    :class: note
 
-      Linux users just download and run `the installation script
+      Linux users just download and run :download:`the installation script
       <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_.
 
       Windows users in a real hurry don't the instructions and use a recent `Windows installer
@@ -46,7 +46,7 @@ Open a shell terminal window, and follow the following instructions.
 
 #. Download the `devinstall.sh` script:
 
-   `devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_
+   :download:`devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_
 
    Don't follow the link please, instead right-click on it, and choose *Save link as…*.
 
