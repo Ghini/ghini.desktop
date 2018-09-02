@@ -688,7 +688,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
         """
         first, second = (utils.xml_safe(str(self)),
-                         self.species_str(markup=True))
+                         self.species_str(markup=True, authors=True))
         suffix = _("%(1)s plant groups in %(2)s location(s)") % {
             '1': len(set(self.plants)),
             '2': len(set(p.location for p in self.plants))}
@@ -738,9 +738,10 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
         If the species isn't part of a session of if the species is dirty,
         i.e. in object_session(species).dirty, then a new string will be
-        built even if the species hasn't been changeq since the last call
+        built even if the species hasn't been changed since the last call
         to this method.
         """
+
         # WARNING: don't use session.is_modified() here because it
         # will query lots of dependencies
         try:
@@ -782,7 +783,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         return sp_str
 
     def markup(self):
-        return '%s (%s)' % (self.code, self.species.markup())
+        return '%s (%s)' % (self.code, self.accession.species_str(markup=True, authors=True))
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
@@ -2534,8 +2535,6 @@ class GeneralAccessionExpander(InfoExpander):
                               utils.xml_safe(str(row.code)),
                               markup=True)
 
-        # TODO: i don't know why we can't just set the visible
-        # property to False here
         acc_private = self.widgets.acc_private_data
         if row.private:
             if acc_private.get_parent() != self.widgets.acc_code_box:
@@ -2543,7 +2542,7 @@ class GeneralAccessionExpander(InfoExpander):
         else:
             self.widgets.remove_parent(acc_private)
 
-        self.widget_set_value('name_data', row.species_str(markup=True),
+        self.widget_set_value('name_data', row.species_str(markup=True, authors=True),
                               markup=True)
 
         session = object_session(row)

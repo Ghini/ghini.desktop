@@ -407,7 +407,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         import inspect
         logger.debug('entering search_view_markup_pair %s, %s' % (
             self, str(inspect.stack()[1])))
-        sp_str = self.accession.species_str(markup=True)
+        sp_str = self.accession.species_str(markup=True, authors=True)
         dead_color = "#9900ff"
         if self.quantity <= 0:
             dead_markup = '<span foreground="%s">%s</span>' % \
@@ -470,7 +470,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     def markup(self):
         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
-                                self.accession.species_str(markup=True))
+                                self.accession.species_str(markup=True, authors=True))
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
@@ -1174,7 +1174,7 @@ class GeneralPlantExpander(InfoExpander):
         self.widget_set_value('plant_code_data', '<big>%s</big>' %
                               utils.xml_safe(str(tail)), markup=True)
         self.widget_set_value('name_data',
-                              row.accession.species_str(markup=True),
+                              row.accession.species_str(markup=True, authors=True),
                               markup=True)
         self.widget_set_value('location_data', str(row.location))
         self.widget_set_value('quantity_data', row.quantity)
