@@ -44,7 +44,7 @@ please check the Bauble site for further details about it.
 Within the Ghini organization
 
 - ``ghini.desktop`` is the new name of the stable and well established
-  software previously distributed as ``bauble.classic``. ``ghini.desktop``
+  software previously distributed as ``bauble.classic``.  ``ghini.desktop``
   is Ghini's flagship, it is a GTK+ desktop application and it is described
   here.
 - ``ghini.web`` is the name for the geographic and web interface to a
@@ -72,14 +72,14 @@ each of the following database connectors is optional, but at least one is neede
 * mysql-python >= 1.2.1 
 
 To use the formatter plugin you will also need to install an
-XSL->PDF renderer. For a free renderer check out Apache FOP
+XSL->PDF renderer.  For a free renderer check out Apache FOP
 (>=.92beta) at http://xmlgraphics.apache.org/fop/
 
 Further info
 ------------
 
 The complete documentation for ghini.desktop is to be found at
-http://ghini.readthedocs.org. It includes detailed and up-to-date
+http://ghini.readthedocs.org.  It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 
