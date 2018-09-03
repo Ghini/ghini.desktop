@@ -1,37 +1,38 @@
 Importing and Exporting Data
 ============================
 
-Although Ghini can be extended through plugins to support alternate
-import and export formats, by default it can only import and export
-comma separated values files or CSV.
+Ghini offers several formats, custom and standard, for exchanging data with other systems.
+The two central formats are: CSV, aiming at saving and restoring whole tables, and JSON,
+meant for selections and for non-destructive updating existing data.  Additional formats may
+be provided in the form of additional plug-ins.
 
-There is some support for exporting to the Access for Biological
-Collections Data it is limited.
+There is some support for exporting in Access for Biological Collections Data (ABCD) format.
 
 There is also limited support for exporting to an XML format that more
 or less reflects exactly the tables and row of the database.
 
 Exporting ABCD and XML will not be covered here.
 
-.. warning:: Importing files will most likely destroy any data you
-   have in the database so make sure you have backed up your data.
-
-Flat-files / CSV
+Backup as Flat-files / CSV
 ------------------------------
 
-Mention the difference between reporting and import/export.  QuickCSV also
-produces flat files, but that looks like producing a report, on the active
-selection.  This here is about creating and (partially) restoring databases.
+This section is about exporting the complete database as CSV files, one file per table.
+These files can be later used to restore your database, to initialize an other Ghini
+instance, as a base for migrating your data to a newer Ghini version.
+
+Please note that we also have a QuickCSV reporter, able to produce a single CSV file, where
+the user decides, on-the-fly, which fields have to be included in the report.  Here we talk
+about creating and (partially) restoring databases.
 
 Creating a backup
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-To export the Ghini data to CSV select
-:menuselection:`Tools-->Export-->Comma Separated Values` from the menu.
+To export the Ghini data to CSV select :menuselection:`Tools-->Backup-->Create` from the
+menu.
 
 This tool will ask you to select a directory to export the CSV data.
 All of the tables in Ghini will be exported to files in the format
-tablename.txt where tablename is the name of the table where the data
+``table_name.txt`` if ``TableName`` is the name of the table where the data
 was exported from.
 
 Restoring a backup
@@ -41,13 +42,14 @@ In general it is best to only import CSV files into Ghini that were
 previously exported from Ghini.  It is possible to import any CSV file
 but that is more advanced that this doc will cover.  
 
-To import CSV files into Ghini select
-:menuselection:`Tools-->Export-->Comma Separated Values` from the
+To import CSV files into Ghini select :menuselection:`Tools-->Backup-->Restore` from the
 menu.
 
 After clicking OK on the dialog that ask if you are sure you know what
 you're doing a file chooser will open.  In the file chooser select the
-files you want to import.  
+files you want to import.
+
+Restoring a backup deletes all previous content from restored tables.
 
 JSON - JavaScript Object Notation
 -----------------------------------------
@@ -84,17 +86,6 @@ need any further help.
 
 Using the Ghini json interchange format, you can import data which you have
 exported from a different Ghini installation.
-
-Importing from a Generic Database
-----------------------------------
-
-This functionality is the object of `issue #127
-<https://github.com/Ghini/ghini.desktop/issues/127>`_, for which
-we have no generic solution yet.
-
-If you're interested in importing data from some flat file
-(e.g.: Excel spreadsheet) or from any database, contact the
-developers.
 
 Importing a Pictures Collection
 ----------------------------------
@@ -198,3 +189,14 @@ Importing from ghini.pocket
 Put ghini.desktop in server mode :menuselection:`Tools-->Pocket Server..` from the menu,
 then initiate interaction from ghini.pocket.
 
+
+Importing from a Generic Database
+----------------------------------
+
+This functionality is the object of `issue #127
+<https://github.com/Ghini/ghini.desktop/issues/127>`_, for which
+we have no generic solution yet.
+
+If you're interested in importing data from some flat file
+(e.g.: Excel spreadsheet) or from any database, contact the
+developers.
