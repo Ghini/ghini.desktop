@@ -55,23 +55,24 @@
               </object>
               <packing>
                 <property name="left_attach">3</property>
-                <property name="top_attach">1</property>
+                <property name="top_attach">2</property>
                 <property name="width">4</property>
                 <property name="height">4</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="remove_client_button">
                 <property name="label">gtk-remove</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Remove selected client from list.</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_remove_client_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">7</property>
-                <property name="top_attach">1</property>
+                <property name="top_attach">2</property>
                 <property name="width">2</property>
               </packing>
             </child>
@@ -84,7 +85,7 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
+                <property name="top_attach">1</property>
                 <property name="width">3</property>
               </packing>
             </child>
@@ -96,22 +97,23 @@
               </object>
               <packing>
                 <property name="left_attach">3</property>
-                <property name="top_attach">0</property>
+                <property name="top_attach">1</property>
                 <property name="width">4</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="new_snapshot_button">
                 <property name="label">gtk-new</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Update ghini.pocket database snapshot.</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_new_snapshot_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">7</property>
-                <property name="top_attach">0</property>
+                <property name="top_attach">1</property>
                 <property name="width">2</property>
               </packing>
             </child>
@@ -124,7 +126,7 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
+                <property name="top_attach">2</property>
                 <property name="width">3</property>
               </packing>
             </child>
@@ -137,39 +139,40 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">5</property>
+                <property name="top_attach">6</property>
                 <property name="width">3</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="code_entry">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="editable">False</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
-                <property name="top_attach">5</property>
+                <property name="top_attach">6</property>
                 <property name="width">4</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="refresh_code_button">
                 <property name="label">gtk-refresh</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Refresh registration code.b</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_refresh_code_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">7</property>
-                <property name="top_attach">5</property>
+                <property name="top_attach">6</property>
                 <property name="width">2</property>
               </packing>
             </child>
             <child>
-              <object class="GtkToggleButton">
+              <object class="GtkToggleButton" id="server_toggle_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -187,7 +190,7 @@
               </object>
               <packing>
                 <property name="left_attach">4</property>
-                <property name="top_attach">8</property>
+                <property name="top_attach">9</property>
                 <property name="width">2</property>
                 <property name="height">2</property>
               </packing>
@@ -201,7 +204,7 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">6</property>
+                <property name="top_attach">7</property>
                 <property name="width">3</property>
               </packing>
             </child>
@@ -214,31 +217,31 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">7</property>
+                <property name="top_attach">8</property>
                 <property name="width">3</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="ip_address_entry">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="editable">False</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
-                <property name="top_attach">6</property>
+                <property name="top_attach">7</property>
                 <property name="width">4</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="port_entry">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="input_purpose">digits</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
-                <property name="top_attach">7</property>
+                <property name="top_attach">8</property>
                 <property name="width">4</property>
               </packing>
             </child>
@@ -252,9 +255,25 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">8</property>
+                <property name="top_attach">9</property>
                 <property name="width">4</property>
                 <property name="height">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Ghini pocket/desktop xmlrpc server ­— control panel</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+                <property name="width">9</property>
               </packing>
             </child>
             <child>
