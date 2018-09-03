@@ -166,8 +166,10 @@ Managing ghini.pocket interaction
 
 Interaction with ghini.pocket is handled following a client server scheme.  When you need to
 export to, or import from ghini.pocket, you put ghini.desktop in server mode, so that it
-awaits for requests from registered ghini.pocket clients.  The remainder of this section
-assumes that ghini.desktop be in server mode.
+awaits for requests from registered ghini.pocket clients.  
+
+You activate server mode on ghini.desktop with :menuselection:`Tools-->Pocket Server..`. The
+remainder of this section assumes that ghini.desktop is already in server mode.
 
 While in server mode, ghini.desktop is not available for other uses, and ghini.pocket
 clients are allowed to register, requests snapshots, or sends collected updates.
