@@ -197,14 +197,17 @@ ghini.desktop runs a xmlrpc simple server, exposing the following API1:
 .. admonition:: current_snapshot(client_id)
    :class: toggle
 
-      Create a ``pocket.db`` snapshot of the database, and send it to the client.  This may
-      take time.
+      Check that the current ``pocket.db`` snapshot of the database is up to date, and send
+      it to the requesting client.  If the snapshot is not up to date, open a pop-up on the
+      server and request permission for updating it.  The operator at the ghini.desktop end
+      may choose not to have the snapshot updated, in which case the operation will abort
+      also on the client side.
    
 .. admonition:: update_from_pocket(client_id, content)
    :class: toggle
 
-      Update the ghini database with the content.  Content does not include pictures, which
-      are sent separately, one per request.
+      Update the ghini database with the content from the ghini.pocket client.  Content does
+      not include pictures, which are sent separately, one per request.
 
 .. admonition:: add_picture(client_id, name, base64)
    :class: toggle
