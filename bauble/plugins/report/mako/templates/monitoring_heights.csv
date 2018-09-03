@@ -19,11 +19,10 @@
 ## DOMAIN plant
 ##
 <%
-from bauble.plugins.report import get_plants_pertinent_to
 planting_years = set()
 monitoring_years = set()
 ##data = {}
-for p in get_plants_pertinent_to(values):
+for p in values:
     planting_year = p.accession.code.split('.')[0]
     planting_years.add(planting_year)
     try:
@@ -65,7 +64,7 @@ Family	Genus	Species	Plant code\
 ##
 ## now report per individual plant
 ##
-% for p in get_plants_pertinent_to(values):
+% for p in values:
 ${p.accession.species.genus.family.family}	\
 ${p.accession.species.genus.genus}	\
 ${p.accession.species.sp}	\

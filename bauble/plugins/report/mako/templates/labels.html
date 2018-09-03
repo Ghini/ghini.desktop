@@ -89,7 +89,6 @@
 <body>
 <%
    from bauble.plugins.garden import Plant
-   from bauble.plugins.report import get_plants_pertinent_to
    import bauble.db as db
    session = db.Session()
    delimiter = ','
@@ -125,10 +124,8 @@
 
 	
 </%def>
-   % for v in values:
-       % for p in get_plants_pertinent_to(v, session):
-           ${make_label(p)}
-       % endfor
+   % for p in values:
+       ${make_label(p)}
    % endfor
 </body>
 

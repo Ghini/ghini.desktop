@@ -16,9 +16,8 @@
 ## DOMAIN species
 ##
 <%
-from bauble.plugins.report import get_species_pertinent_to
 %>Family	Genus	Species	Author	CITES	Condition	Conservation	Groups	Plants	Habit
-% for v in get_species_pertinent_to(values):
+% for v in values:
 <%
     genus = v.genus.genus
     if genus.startswith('Zzz-'):

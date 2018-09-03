@@ -15,10 +15,8 @@
 ##
 ## DOMAIN accession
 ##
-<%
-from bauble.plugins.report import get_accessions_pertinent_to
-%>Item	Family	Genus	Species	Author	Acquisition date	CITES	Condition	Conservation	Acquisition document 	Doc. Number	No.of Plants	Habit
-% for v in get_accessions_pertinent_to(values):
+Item	Family	Genus	Species	Author	Acquisition date	CITES	Condition	Conservation	Acquisition document 	Doc. Number	No.of Plants	Habit
+% for v in values:
 <%
     genus = v.species.genus.genus
     if genus.startswith('Zzz-'):

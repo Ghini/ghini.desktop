@@ -16,11 +16,10 @@
 ##
 ## DOMAIN plant
 ##
-<% from bauble.plugins.report import get_plants_pertinent_to %>\
 ##
 code,name,location
 ##
-% for p in get_plants_pertinent_to(values):
+% for p in values:
 ##
 ${p},${p.accession.species_str()},${p.location}
 ##

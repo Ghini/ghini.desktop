@@ -15,10 +15,8 @@
 ##
 ## DOMAIN plant
 ##
-<%
-from bauble.plugins.report import get_plants_pertinent_to
-%>Item	Family	Genus	Species	Author	Acquisition date	CITES	Acquisition document 	Doc. Number	Location	Habit
-% for v in get_plants_pertinent_to(values):
+Item	Family	Genus	Species	Author	Acquisition date	CITES	Acquisition document 	Doc. Number	Location	Habit
+% for v in values:
 <%
     genus = v.accession.species.genus.genus
     if genus.startswith('Zzz-'):

@@ -99,7 +99,6 @@
 </style>
 </head>
 <body>
-<% from bauble.plugins.report import get_plants_pertinent_to %>\
 <%def name="make_label(plant)">
 <div class="label">
   <div class="code">${plant}</div>
@@ -113,7 +112,7 @@
   </div>
 </div>
 </%def>
-% for p in get_plants_pertinent_to(values):
+% for p in values:
     ${make_label(p)}
 % endfor
 </body>
