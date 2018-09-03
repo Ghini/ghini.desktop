@@ -34,7 +34,6 @@ from bauble.editor import (
 from bauble import paths, pluginmgr
 from bauble.querybuilder import SchemaMenu
 
-
 class FlatFileExporter(GenericEditorPresenter):
 
     view_accept_buttons = ['cancel_button', 'confirm_button']
@@ -51,19 +50,8 @@ class FlatFileExporter(GenericEditorPresenter):
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_ls.append([key])
         self.view.widgets.searchable_ls.clear()
-        # from bauble.plugins import report
-        # for key in sorted(dir(report)):
-        #     if key.startswith('get_') and key.endswith('_pertinent_to'):
-        #         self.view.widgets.searchable_ls.append([key[4:-13]])
         for key in ['accession', 'location', 'plant', 'species']:
             self.view.widgets.searchable_ls.append([key])
-        from bauble.plugins.report import (get_plants_pertinent_to, get_accessions_pertinent_to,
-                                           get_species_pertinent_to, get_locations_pertinent_to)
-        self.pertinent_matcher = { 'accession': get_accessions_pertinent_to,
-                                   'location': get_locations_pertinent_to,
-                                   'plant': get_plants_pertinent_to,
-                                   'species': get_species_pertinent_to,
-        }
 
         self.signal_id = None
         self.on_output_file_changed()
@@ -233,7 +221,8 @@ class FlatFileExporter(GenericEditorPresenter):
             if self.active_ls == self.view.widgets.searchable_ls:
                 model = bauble.gui.get_results_model()
                 objs = [row[0] for row in model]
-                todo = self.pertinent_matcher[self.domain](objs, session)
+                from . import get_pertinent_objects
+                todo = get_pertinent_objects(self.domain_map[self.domain], objs)
             else:
                 todo = session.query(self.mapper).all()
             for obj in todo:

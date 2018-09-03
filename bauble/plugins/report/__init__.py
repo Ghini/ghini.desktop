@@ -92,7 +92,7 @@ def get_plant_query(obj, session):
         return q.join('accession', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        plants = get_plants_pertinent_to(obj.objects, session)
+        plants = get_pertinent_objects(Plant, obj.objects)
         return q.filter(Plant.id.in_([p.id for p in plants]))
     else:
         raise BaubleError(_("Can't get plants from a %s") % type(obj).__name__)
@@ -121,7 +121,7 @@ def get_accession_query(obj, session):
     elif isinstance(obj, Contact):
         return q.join('source', 'source_detail').filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        acc = get_accessions_pertinent_to(obj.objects, session)
+        acc = get_pertinent_objects(Accession, obj.objects)
         return q.filter(Accession.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get accessions from a %s") %
@@ -153,7 +153,7 @@ def get_species_query(obj, session):
         return q.join('accessions', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        acc = get_species_pertinent_to(obj.objects, session)
+        acc = get_pertinent_objects(Species, obj.objects)
         return q.filter(Species.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get species from a %s") %
@@ -186,7 +186,7 @@ def get_location_query(obj, session):
         return q.join('plants', 'accession', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        locs = get_locations_pertinent_to(obj.objects, session)
+        locs = get_pertinent_objects(Location, obj.objects)
         return q.filter(Location.id.in_([l.id for l in locs]))
     else:
         raise BaubleError(_("Can't get Location from a %s") %
