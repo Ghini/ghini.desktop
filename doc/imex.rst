@@ -1,12 +1,19 @@
 Importing and Exporting Data
 ============================
 
-Ghini offers several formats, custom and standard, for exchanging data with other systems.
-The two central formats are: CSV, aiming at saving and restoring whole tables, and JSON,
-meant for selections and for non-destructive updating existing data.  Additional formats may
-be provided in the form of additional plug-ins.
+Ghini offers several formats for exchanging data with other systems, while additional
+formats may be provided in the form of plug-ins.
 
-There is some support for exporting in Access for Biological Collections Data (ABCD) format.
+For two formats (CSV and JSON) Ghini offers both import and export.  CSV aims at saving and
+restoring whole tables.  JSON is mostly meant for selections, for non-destructive updating
+existing data, for combining selections from different databases.
+
+A special case of import-export is handling ghini.pocket snapshots, and accepting collected
+updates from ghini.pocket instances.
+
+There is some support for exporting in Access for Biological Collections Data (ABCD) format,
+while export in BGCI format is provided by the Report plug-in in the form of a Mako
+Template.
 
 There is also limited support for exporting to an XML format that more
 or less reflects exactly the tables and row of the database.
@@ -143,20 +150,49 @@ When the Picture Collection importer creates or updates objects,
 it also sets a Note that you can use for selecting the objects
 involved in the import, and for reviewing if needed.
 
+Importing from a Generic Database
+----------------------------------
+
+This functionality is the object of `issue #127
+<https://github.com/Ghini/ghini.desktop/issues/127>`_, for which
+we have no generic solution yet.
+
+If you're interested in importing data from some flat file
+(e.g.: Excel spreadsheet) or from any database, contact the
+developers.
+
 Managing ghini.pocket interaction
 ----------------------------------------
 
 Interaction with ghini.pocket is handled following a client server scheme.  When you need to
-interact with ghini.pocket, you put ghini.desktop in server mode, so that it awaits for
-requests from registered ghini.pocket clients.  ghini.pocket requests its snapshot, or sends
-collected updates.  While in server mode, ghini.desktop is not available for other uses.
+export to, or import from ghini.pocket, you put ghini.desktop in server mode, so that it
+awaits for requests from registered ghini.pocket clients.  The remainder of this section
+assumes that ghini.desktop be in server mode.
+
+While in server mode, ghini.desktop is not available for other uses, and ghini.pocket
+clients are allowed to register, requests snapshots, or sends collected updates.
+
+ghini.desktop keeps a list of registered ghini.pocket clients.  In order to register a
+phone, you have the ghini.desktop produce a new code, enter it on the client, and click on
+register.
+
+ghini.desktop keeps a snapshot of your database, in ghini.pocket format.  You refresh the
+snapshot before you update your ghini.pocket devices.  The GUI tells you whether the current
+snapshot is up-to-date with the database or it needs be recomputed.  On the client, click on
+get snapshot.
 
 Exposed API
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This is a somewhat technical section, you may skip it or come later to it.
+This is a technical reference section, you may skip it or come later to it.
 
 ghini.desktop runs a xmlrpc simple server, exposing the following API1:
+
+.. admonition:: register(client_id, security_code)
+   :class: toggle
+
+      Register the client on the server, if the provided security_code matches the expected
+      one.
 
 .. admonition:: current_snapshot(client_id)
    :class: toggle
@@ -189,14 +225,3 @@ Importing from ghini.pocket
 Put ghini.desktop in server mode :menuselection:`Tools-->Pocket Server..` from the menu,
 then initiate interaction from ghini.pocket.
 
-
-Importing from a Generic Database
-----------------------------------
-
-This functionality is the object of `issue #127
-<https://github.com/Ghini/ghini.desktop/issues/127>`_, for which
-we have no generic solution yet.
-
-If you're interested in importing data from some flat file
-(e.g.: Excel spreadsheet) or from any database, contact the
-developers.
