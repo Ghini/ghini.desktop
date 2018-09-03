@@ -23,9 +23,7 @@
 import os
 
 from bauble.test import BaubleTestCase, check_dupids
-from bauble.plugins.report import (
-    get_species_pertinent_to, get_accessions_pertinent_to,
-    get_plants_pertinent_to, get_locations_pertinent_to)
+from bauble.plugins.report import get_pertinent_objects
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location, Source, Contact
 from bauble.plugins.tag import tag_objects, Tag
