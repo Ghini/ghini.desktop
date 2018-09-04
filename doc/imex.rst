@@ -166,29 +166,56 @@ Managing ghini.pocket interaction
 
 Interaction with ghini.pocket is handled following a client server scheme.  When you need to
 export to, or import from ghini.pocket, you put ghini.desktop in server mode, so that it
-awaits for requests from registered ghini.pocket clients.  
+awaits for requests from registered ghini.pocket clients.
 
-You activate server mode on ghini.desktop with :menuselection:`Tools-->Pocket Server..`. The
-remainder of this section assumes that ghini.desktop is already in server mode.
+ghini.desktop server mode
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You activate server mode on ghini.desktop with :menuselection:`Tools-->Pocket Server..`.
+The remainder of this section describes the GUI for ghini.desktop in server mode.
 
 While in server mode, ghini.desktop is not available for other uses, and ghini.pocket
 clients are allowed to register, requests snapshots, or sends collected updates.
 
-ghini.desktop keeps a list of registered ghini.pocket clients.  In order to register a
-phone, you have the ghini.desktop produce a new code, enter it on the client, and click on
-register.
-
 ghini.desktop keeps a snapshot of your database, in ghini.pocket format.  You refresh the
-snapshot before you update your ghini.pocket devices.  The GUI tells you whether the current
-snapshot is up-to-date with the database or it needs be recomputed.  On the client, click on
-get snapshot.
+snapshot before you request an update from a ghini.pocket device.  If the current snapshot
+is not up-to-date, the New button next to the last snapshot timestamp will be active.  Click
+on the New button, this will refresh the snapshot and disable the button.
+
+ghini.desktop and ghini.pocket need to be connected to the same local network.  The server
+GUI includes an entry for the server IP address, which you can't edit, and an entry for the
+port number, which defaults to GHINI/44464.  Make sure that the configuration on the client
+match the settings on the server.
+
+ghini.desktop keeps a list of registered ghini.pocket clients.  In order to register a
+phone, you let ghini.desktop produce a new code (or use the one already on the screen),
+enter it on the client, and click on register.  When receiving a registration request,
+associating an IMEI to the registration code, the IMEI is added to the list of registered
+clients.
+
+Start the server on ghini.desktop and move your focus to your ghini.pocket client.  It is
+from the ghini.pocket client that you handle the communication.  When done, come back to
+ghini.desktop, stop the server, review the logs, close the Pocket Server window.
+
+The next two sections describe the ghini.pocket user interface.
+   
+Exporting to ghini.pocket
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+initiate interaction from ghini.pocket.
+
+Importing from ghini.pocket
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+initiate interaction from ghini.pocket.
 
 Exposed API
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This is a technical reference section, you may skip it or come later to it.
+This is a technical reference section, you may safely ignore it if you aren't sure what it
+is about.
 
-ghini.desktop runs a xmlrpc simple server, exposing the following API1:
+ghini.desktop runs a xmlrpc server, exposing the following API1:
 
 .. admonition:: register(client_id, security_code)
    :class: toggle
@@ -217,16 +244,3 @@ ghini.desktop runs a xmlrpc simple server, exposing the following API1:
       Add a picture to the collection.  These are sent after the textual data has been
       updated.  There is no check whether or not the picture is indeed referred to in the
       database.
-   
-Exporting to ghini.pocket
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Put ghini.desktop in server mode :menuselection:`Tools-->Pocket Server..` from the menu,
-then initiate interaction from ghini.pocket.
-
-Importing from ghini.pocket
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Put ghini.desktop in server mode :menuselection:`Tools-->Pocket Server..` from the menu,
-then initiate interaction from ghini.pocket.
-
