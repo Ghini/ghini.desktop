@@ -35,6 +35,7 @@ from bauble import paths
 from bauble import pluginmgr
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
+from bauble import meta
 
 
 def get_ip():
@@ -61,6 +62,48 @@ def get_code():
     return ''.join(chr(int(random.random()*24) + 97) for i in range(6))
 
 
+from threading import Thread
+from xmlrpc.server import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCRequestHandler
+
+
+class RequestHandler(SimpleXMLRPCRequestHandler):
+    rpc_paths = ('/API1',)
+
+
+class PocketServer(Thread):
+    def __init__(self, ip, port, ls):
+        super().__init__()
+
+        class Instance:
+            def __init__(self, ls):
+                self.store = ls
+            def mul(self, x, y):
+                self.store.append(("MUL ›%s‹ ›%s‹" % (x,y), ))
+                return x * y
+            def add(self, x, y):
+                self.store.append(("ADD ›%s‹ ›%s‹" % (x,y), ))
+                return x * y
+            def send(self, *args):
+                self.store.append(("STO ›%s‹" % (args, ), ))
+                return True
+        self.ip = ip
+        self.port = int(port)
+        self.instance = Instance(ls)
+
+    def run(self):
+        self.server = SimpleXMLRPCServer((self.ip, self.port),
+                                         requestHandler=RequestHandler,
+                                         logRequests=False)
+        self.server.register_introspection_functions()
+        self.server.register_instance(self.instance)
+        self.server.serve_forever()
+
+    def cancel(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
 class PocketServerPresenter(GenericEditorPresenter):
     '''manage the xmlrpc server for pocket communication
 
@@ -74,15 +117,48 @@ class PocketServerPresenter(GenericEditorPresenter):
         }
 
     def __init__(self, view):
+        # prepare fields
         self.port = 44464
         self.ip_address = get_ip()
         self.last_snapshot_date = ''
         self.code = get_code()
-
+        # invoke constructor
         super().__init__(model=self, view=view, refresh_view=True)
-
+        # put list_store directly in presenter and grab list from database
+        self.clients_ls = self.view.widgets.clients_ls
         # other initialization
         self.stop_spinner()
+        self.read_clients_list()
+
+    def cleanup(self):
+        super().cleanup()
+        self.cancel_threads()
+
+    def read_clients_list(self):
+        ls = self.clients_ls
+        ls.clear()
+        query = (self.session.
+                 query(meta.BaubleMeta).
+                 filter_by(name='pocket-clients'))
+        row = query.first()
+        if row:
+            elems = eval(row.value)
+        else:
+            elems = []
+        for i, value in enumerate(elems):
+            ls.append((i+1, value, ))
+
+    def write_clients_list(self):
+        ls = self.clients_ls
+        query = (self.session.
+                 query(meta.BaubleMeta).
+                 filter_by(name='pocket-clients'))
+        row = query.first()
+        if row:
+            row.value = str([i[1] for i in self.clients_ls])
+        else:
+            row.value = []
+        self.session.commit()
         
     def on_activity_expander_activate(self, target, *args):
         self.view.widgets.activity_log.set_visible(not target.get_expanded())
@@ -99,6 +175,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         if iter is None:
             return
         ls.remove(iter)
+        self.write_clients_list()
 
     def on_refresh_code_button_clicked(self, target, *args):
         self.code = get_code()
@@ -107,9 +184,11 @@ class PocketServerPresenter(GenericEditorPresenter):
         
     def start_stop_server(self, target, *args):
         if target.get_active():
+            self.start_thread(PocketServer(self.ip_address, int(self.port), self.view.widgets.log_ls))
             self.start_spinner()
             self.view.widgets.close_button.set_sensitive(False)
         else:
+            self.cancel_threads()
             self.stop_spinner()
             self.view.widgets.close_button.set_sensitive(True)
 
