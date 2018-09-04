@@ -28,6 +28,7 @@
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.imex.csv_ import CSVImportTool, CSVExportTool, \
     CSVExportCommandHandler, CSVImportCommandHandler
+from bauble.plugins.imex.pocket_server import PocketServerTool
 from bauble.plugins.imex.iojson import JSONImportTool, JSONExportTool
 from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
 
@@ -44,7 +45,7 @@ from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
 
 
 class ImexPlugin(pluginmgr.Plugin):
-    tools = [CSVImportTool, CSVExportTool,
+    tools = [CSVImportTool, CSVExportTool, PocketServerTool,
              JSONImportTool, JSONExportTool, XMLExportTool]
     commands = [CSVExportCommandHandler, CSVImportCommandHandler,
                 XMLExportCommandHandler]
