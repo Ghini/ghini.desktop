@@ -47,7 +47,7 @@ Restoring a backup
 
 In general it is best to only import CSV files into Ghini that were
 previously exported from Ghini.  It is possible to import any CSV file
-but that is more advanced that this doc will cover.  
+but that is more advanced that this doc will cover.
 
 To import CSV files into Ghini select :menuselection:`Tools-->Backup-->Restore` from the
 menu.
@@ -174,7 +174,7 @@ ghini.desktop server mode
 You activate server mode on ghini.desktop with :menuselection:`Tools-->Pocket Server..`.
 
 While in server mode, ghini.desktop is not available for other uses, and ghini.pocket
-clients are allowed to register, request snapshot updates, or send collected updates.
+clients will be able to register, request database snapshots, or send collected updates.
 
 ghini.desktop keeps a snapshot of your database in ghini.pocket format.  You better refresh
 the snapshot on ghini.desktop before you let ghini.pocket request an update.  If the current
@@ -183,8 +183,8 @@ active.  Click on the New button, this will refresh the snapshot and disable the
 
 ghini.desktop and ghini.pocket need to be connected to the same local network.  The server
 GUI includes an entry for the server IP address, which you can't edit, and an entry for the
-port number, which defaults to GHINI/44464.  Make sure that the configuration on the client
-match the settings on the server.
+port number, which defaults to GHINI/44464.  Make sure that every configuration on your
+clients matches the settings on the server.
 
 ghini.desktop keeps a list of registered ghini.pocket clients.  In order to register a
 phone, you let ghini.desktop produce a new code (or use the one already on the screen),
@@ -199,7 +199,7 @@ from your ghini.pocket clients, refresh the snapshot and update it on all your c
 When done, stop the server, review the logs, close the Pocket Server window.
 
 The next two sections describe the ghini.pocket user interface.
-   
+
 Exporting to ghini.pocket
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -227,12 +227,9 @@ ghini.desktop runs a xmlrpc server, exposing the following API1:
 .. admonition:: current_snapshot(client_id)
    :class: toggle
 
-      Check that the current ``pocket.db`` snapshot of the database is up to date, and send
-      it to the requesting client.  If the snapshot is not up to date, open a pop-up on the
-      server and request permission for updating it.  The operator at the ghini.desktop end
-      may choose not to have the snapshot updated, in which case the operation will abort
-      also on the client side.
-   
+      Check that the current ``pocket.db`` snapshot of the database is up to date, and
+      return it to the requesting client.  If the snapshot is not up to date, return None.
+
 .. admonition:: update_from_pocket(client_id, content)
    :class: toggle
 
