@@ -193,21 +193,39 @@ class SpeciesABCDAdapter(ABCDAdapter):
         else:
             return utils.xml_safe(vernacular_name)
 
-    def get_Notes(self):
-        if not self.species.notes:
+    @staticmethod
+    def notes_in_list(notes, unit, for_labels):
+        if not notes:
             return None
-        notes = []
-        for note in self.species.notes:
+        notes_list = []
+        for note in notes:
             date = utils.xml_safe(note.date.isoformat())
             user = utils.xml_safe(note.user) if note.user else ''
-            category = (utils.xml_safe_name(note.category)
-                        if note.category else '')
-            text = note.note or ''
-            notes.append(dict(date=date,
-                              user=user,
-                              category=category,
-                              text=text))
-        return notes
+            # category being a tag name we prefer 'None' or '_' over ''
+            category = utils.xml_safe(note.category)
+            category_name = utils.xml_safe_name(note.category)
+            text = note.note
+            notes_list.append(dict(date=date,
+                                   user=user,
+                                   category=category,
+                                   category_name=category_name,
+                                   text=text))
+
+        # not abcd so only create when making labels
+        if for_labels:
+            note_unit = etree.SubElement(unit, 'Note')
+            for note in notes_list:
+                etree.SubElement(
+                    note_unit,
+                    note['category_name'],
+                    attrib={'User': note['user'],
+                            'Date': note['date']}
+                ).text = note['text']
+
+        return notes_list
+
+    def get_Notes(self, unit):
+        return self.notes_in_list(self.species.notes, unit, self.for_labels)
 
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
@@ -255,21 +273,8 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def get_DateLastEdited(self):
         return utils.xml_safe(self.accession._last_updated.isoformat())
 
-    def get_Notes(self):
-        if not self.accession.notes:
-            return None
-        notes = []
-        for note in self.accession.notes:
-            date = utils.xml_safe(note.date.isoformat())
-            user = utils.xml_safe(note.user) if note.user else ''
-            category = (utils.xml_safe_name(note.category)
-                        if note.category else '')
-            text = note.note or ''
-            notes.append(dict(date=date,
-                              user=user,
-                              category=category,
-                              text=text))
-        return notes
+    def get_Notes(self, unit):
+        return self.notes_in_list(self.accession.notes, unit, self.for_labels)
 
     def extra_elements(self, unit):
         super(AccessionABCDAdapter, self).extra_elements(unit)
@@ -358,21 +363,8 @@ class PlantABCDAdapter(AccessionABCDAdapter):
     def get_DateLastEdited(self):
         return utils.xml_safe(self.plant._last_updated.isoformat())
 
-    def get_Notes(self):
-        if not self.plant.notes:
-            return None
-        notes = []
-        for note in self.plant.notes:
-            date = utils.xml_safe(note.date.isoformat())
-            user = utils.xml_safe(note.user) if note.user else ''
-            category = (utils.xml_safe_name(note.category)
-                        if note.category else '')
-            text = note.note or ''
-            notes.append(dict(date=date,
-                              user=user,
-                              category=category,
-                              text=text))
-        return notes
+    def get_Notes(self, unit):
+        return self.notes_in_list(self.plant.notes, unit, self.for_labels)
 
     def extra_elements(self, unit):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')

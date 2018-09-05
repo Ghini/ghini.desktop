@@ -315,17 +315,15 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         # notes are last in the schema and extra_elements() shouldn't
         # add anything that comes past Notes, e.g. RecordURI,
         # EAnnotations, UnitExtension
-        notes = obj.get_Notes()
-        if notes:
-            # the original version that sent them all as a dictionary
-            ABCDElement(unit, 'Notes', text=utils.xml_safe(str(notes)))
-
-            # the idividual notes version.
-            note_unit = ABCDElement(unit, 'Note')
-            for note in notes:
-                ABCDElement(note_unit, note['category'], text=note['text'],
-                            attrib={'User': note['user'],
-                                    'Date': note['date']})
+        notes_list = obj.get_Notes(unit)
+        notes_str = ''
+        if notes_list:
+            for note in notes_list:
+                notes_str += '%s = %s (%s : %s)|' % (note['category'],
+                                                     note['text'],
+                                                     note['user'],
+                                                     note['date'])
+            ABCDElement(unit, 'Notes', text=utils.xml_safe(str(notes_str)))
 
 
     if validate:
