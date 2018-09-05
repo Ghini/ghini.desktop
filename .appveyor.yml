@@ -1,12 +1,12 @@
 image: Visual Studio 2017
 
 environment:
-    PYTHON_HOME: 'C:/Python27'
+    PYTHON_HOME: 'C:\Python27'
 
 branches:
   only:
-    - ghini-1.0-mrbg
-
+    - ghini-1.0
+  
 install:
   - set PATH=%PYTHON_HOME%;%PYTHON_HOME%\Scripts;%PATH%;C:\Program Files (x86)\NSIS\Bin
   - ps: if (-not (Test-Path pygtk-all-in-one-2.24.2.win32-py2.7.msi)) { Start-FileDownload "https://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi" }
@@ -21,17 +21,19 @@ build_script:
   - 'pip install .'
   - 'python setup.py py2exe'
   - 'python setup.py nsis'
+  - 'mkdir ghini-runtime\Appdata'
+  - ps: $RuntimeName = Get-ChildItem C:\projects\ghini-desktop\dist -Name | Select-String -Pattern ".*-setup\.exe" | %{$_ -Replace "setup.exe","runtime.zip"}
+  - ps: Add-Type -Assembly "System.IO.Compression.FileSystem" ; [System.IO.Compression.ZipFile]::CreateFromDirectory("C:\projects\ghini-desktop\ghini-runtime", "C:\projects\ghini-desktop\dist\" + $RuntimeName)
 
 cache:
   - pygtk-all-in-one-2.24.2.win32-py2.7.msi
 
 artifacts:
-  - path: dist/ghini.desktop-*-setup.exe
-
-test: off
+  - path: dist\ghini.desktop-*-setup.exe
+  - path: dist\ghini.desktop-*-runtime.zip
 
 deploy:
-  release: 'v1.0.86 (MRBG Branch)' # :bump
+  release: 'v1.0.87' # :bump
   description: ''
   provider: GitHub
   auth_token:
@@ -40,3 +42,8 @@ deploy:
   prerelease: false
   # on:
   #   appveyor_repo_tag: true        # deploy on tag push only
+
+test_script:
+  - "pip install nose"
+  - "pip install coverage"
+  - "nosetests"

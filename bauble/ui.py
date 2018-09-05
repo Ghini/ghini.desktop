@@ -735,7 +735,7 @@ class GUI(object):
             self.widgets.statusbar.pop(cid)
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://ghini.readthedocs.io/en/latest/',
+        desktop.open('http://ghini.readthedocs.io/en/ghini-1.0-dev/',
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):

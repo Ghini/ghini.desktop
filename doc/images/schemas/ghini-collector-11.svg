@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" version="1.1" width="695.45959" height="428.61081" id="svg4298" sodipodi:docname="ghini-collector-12.svg" inkscape:version="0.92.1 r15371">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" version="1.1" width="695.45959" height="428.61081" id="svg4298" sodipodi:docname="ghini-collector-11.svg" inkscape:version="0.92.1 r15371">
   <sodipodi:namedview pagecolor="#ffffff" bordercolor="#666666" borderopacity="1" objecttolerance="10" gridtolerance="10" guidetolerance="10" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-width="1366" inkscape:window-height="704" id="namedview86" showgrid="false" inkscape:zoom="1.138562" inkscape:cx="347.7298" inkscape:cy="214.3054" inkscape:window-x="0" inkscape:window-y="27" inkscape:window-maximized="1" inkscape:current-layer="svg4298" />
   <metadata id="metadata4728">
     <rdf:RDF>
@@ -96,7 +96,6 @@
   <path d="m 403.67379,244.12874 20.26253,0 c 6.66667,0 10,-3.33333 10,-10 l 0,-83 c 0,-6.66668 -3.33333,-10 -10,-10 l -19.63383,0" id="path-accession-contact-2-2" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <path d="m 405.18632,348.12874 28.75,0 c 6.66667,0 10,-3.33333 10,-10 l 0,-207 c 0,-6.66668 -3.33333,-10 -10,-10 l -29.63383,0" id="path-accession-contact-2-2-3" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <text x="405" y="379" id="text4012-7" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
-  <path d="m 403.99076,381.13396 45.87548,0 c 10.35491,0 15.52726,-2.56417 15.52726,-14.14 l 0,-248 c 0,-6.86348 2.78156,-10.14 10.47274,-10.14 l 28.82157,0" id="path-verification-taxon" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <text x="406" y="139" id="text3040-5" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
   <text x="406" y="119" id="text3040-5-9" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
   <text x="252" y="265" id="text3044-2-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
@@ -105,4 +104,37 @@
   </g>
   <text x="252" y="225" id="text3044-2-2-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
   <text x="190" y="261" id="text3040-9" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..1</text>
+  <g transform="translate(475,4.9999994)" id="taxonomy-container-3">
+    <path inkscape:connector-curvature="0" d="M 0,0 H 215 V 418 H 0 Z" id="rect-taxonomy-6" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;enable-background:accumulate" />
+    <text x="10" y="410" id="text3821-7" style="font-style:normal;font-weight:bold;font-size:20px;line-height:125%;font-family:'DejaVu Sans'">Taxonomy</text>
+    <g transform="translate(30,20)" id="species-group-5">
+      <path inkscape:connector-curvature="0" d="M 0,0 H 150 V 90 H 0 Z" id="species-block-3" style="fill:#91e5ed;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1" />
+      <path inkscape:connector-curvature="0" d="M 0,0 V 26 H 150 V 0 Z" id="species-title-5" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#35cce6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" />
+      <text x="75" y="18" id="text3826-6" style="font-size:12px;font-family:'DejaVu Sans';text-anchor:middle;fill:#000000">Species</text>
+      <text x="6" y="45" id="text3828-2" style="font-size:12px;font-family:'DejaVu Sans';text-align:start;fill:#000000">epithet</text>
+      <text x="6" y="65" id="text3830-9" style="font-size:12px;font-family:'DejaVu Sans';text-align:start;fill:#000000">authorship</text>
+    </g>
+    <g transform="translate(30,160)" id="genus-group">
+      <path inkscape:connector-curvature="0" d="M 0,0 H 150 V 90.000001 H 0 Z" id="genus-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" sodipodi:nodetypes="ccccc" />
+      <path inkscape:connector-curvature="0" d="M 0,0 V 26 H 150 V 0 Z" id="genus-title" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
+      <text x="75" y="18" id="text3835" style="font-size:12px;font-family:'DejaVu Sans';text-anchor:middle;fill:#000000">Genus</text>
+      <text x="6" y="45" id="text3837" style="font-size:12px;font-family:'DejaVu Sans';text-align:start;fill:#000000">epithet</text>
+      <text x="6" y="65" id="text3839" style="font-size:12px;font-family:'DejaVu Sans';text-align:start;fill:#000000">authorship</text>
+    </g>
+    <g transform="translate(30,300)" id="family-group">
+      <path inkscape:connector-curvature="0" d="M 0,-12 H 150 V 78.000001 H 0 Z" id="family-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" sodipodi:nodetypes="ccccc" />
+      <path inkscape:connector-curvature="0" d="M 0,-12 V 14 H 150 V -12 Z" id="family-title" style="fill:#e0e0e0;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1" sodipodi:nodetypes="ccccc" />
+      <text x="75" y="6" id="text3844" style="font-size:12px;font-family:'DejaVu Sans';text-anchor:middle;fill:#000000">Family</text>
+      <text x="6" y="33" id="text3846" style="font-size:12px;font-family:'DejaVu Sans';text-align:start;fill:#000000">epithet</text>
+      <text x="6" y="53" id="text3545" style="font-size:12px;font-family:'DejaVu Sans';text-align:start;fill:#000000">authorship</text>
+    </g>
+    <text x="28" y="100" id="text3311" style="font-weight:bold;font-size:8.75px;font-family:'DejaVu Sans';text-anchor:end">1</text>
+    <text x="182" y="82" id="text3313" style="font-weight:bold;font-size:8.75px;font-family:'DejaVu Sans';text-anchor:start">0..n</text>
+    <text x="182" y="190" id="text3315-2" style="font-weight:bold;font-size:8.75px;font-family:'DejaVu Sans';text-anchor:start">1</text>
+    <text x="182" y="230" id="text3317" style="font-weight:bold;font-size:8.75px;font-family:'DejaVu Sans';text-anchor:start">0..n</text>
+    <text x="182" y="318" id="text3319" style="font-weight:bold;font-size:8.75px;font-family:'DejaVu Sans';text-anchor:start">1</text>
+  </g>
+  <path d="m 403.99076,381.13396 45.87548,0 c 10.35491,0 15.52726,-2.56417 15.52726,-14.14 l 0,-248 c 0,-6.86348 2.78156,-10.14 10.47274,-10.14 l 28.82157,0" id="path-verification-taxon" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path inkscape:connector-curvature="0" d="m 654.83718,237.11082 h 18 c 6.66667,0 10,3.33333 10,10 v 69 c 0,6.66667 -3.33333,10 -10,10 h -18" id="path4722" style="fill:none;stroke:#000000;stroke-miterlimit:10" sodipodi:nodetypes="cssssc" />
+  <path inkscape:connector-curvature="0" d="m 654.83718,89.110819 h 18 c 6.66667,0 10,3.33333 10,10 v 89.000001 c 0,6.66667 -3.33333,10 -10,10 h -18" id="path4722-6" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
 </svg>
