@@ -189,9 +189,9 @@ clients matches the settings on the server.
 
 ghini.desktop keeps a list of registered ghini.pocket clients.  In order to register a
 phone, you let ghini.desktop produce a new code (or use the one already on the screen),
-enter it on the client, and click on register.  When receiving a registration request,
-associating an IMEI to the registration code, the IMEI is added to the list of registered
-clients.
+enter it on the client, and click on register.  When ghini.desktop receives a valid
+registration request for a specific IMEI number, the specified IMEI is added to the list of
+registered clients.
 
 Start the server on ghini.desktop and move your focus to your ghini.pocket client.  It is
 from the ghini.pocket clients that you handle the communication.  After accepting updates
