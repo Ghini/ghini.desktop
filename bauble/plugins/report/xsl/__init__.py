@@ -473,8 +473,16 @@ class XSLFormatterSettingsBox(SettingsBox):
         '''
         return a dict of settings from the settings box gui
         '''
+        stylesheet = self.stylesheet_chooser.get_filename()
+        additional = os.path.splitext(stylesheet)[0]
+        try:
+            os.listdir(additional)
+        except OSError:
+            additional = False
+
         return {
-            'stylesheet': self.stylesheet_chooser.get_filename(),
+            'stylesheet': stylesheet,
+            'additional': additional,
             'renderer': self.widgets.renderer_combo.get_active_text(),
             'source_type': self.widgets.source_type_combo.get_active_text(),
             'authors': self.widgets.author_check.get_active(),
@@ -556,6 +564,7 @@ class XSLFormatterPlugin(FormatterPlugin):
     def format(objs, **kwargs):
 #        debug('format(%s)' % kwargs)
         stylesheet = kwargs['stylesheet']
+        additional = kwargs['additional']
         authors = kwargs['authors']
         renderer = kwargs['renderer']
         source_type = kwargs['source_type']
@@ -645,6 +654,11 @@ class XSLFormatterPlugin(FormatterPlugin):
         filename = '%s.pdf' % filename
 
         # TODO: checkout pyexpect for spawning processes
+
+        if additional:
+            from distutils.dir_util import copy_tree
+            fo_dir = os.path.dirname(fo_filename)
+            copy_tree(additional, fo_dir)
 
         # run the report to produce the pdf file, the command has to be
         # on the path for this to work
