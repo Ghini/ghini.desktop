@@ -97,8 +97,16 @@ class PocketServer(Thread):
                     return 0
 
             def current_snapshot(self, client_id):
-                self.log.append(("current_snapshot ›%s‹" % (client_id, ), ))
-                return 0
+                self.log.append(("current_snapshot ›%s‹ ›%s‹" % (client_id, self.presenter.pocket_fn), ))
+                if client_id not in set((i[1] for i in self.clients)):
+                    return 1
+                elif not isinstance(client_id, str):
+                    return 2
+                import base64
+                with open(self.presenter.pocket_fn, "rb") as pocket_file:
+                    encoded_string = base64.b64encode(pocket_file.read())
+                    return encoded_string
+                return -1
 
             def update_from_pocket(self, client_id, content):
                 self.log.append(("update_from_pocket ›%s‹" % (client_id, ), ))
