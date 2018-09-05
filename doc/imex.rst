@@ -201,15 +201,27 @@ When done, stop the server, review the logs, close the Pocket Server window.
 
 The next two sections describe the ghini.pocket user interface.
 
-Exporting to ghini.pocket
+ghini.pocket user interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-initiate interaction from ghini.pocket.
+ghini.pocket initial screen (that's page 2 in the pager) has a ``desktop`` button, taking
+you to a different activity which implements all interaction with the ghini.desktop server.
 
-Importing from ghini.pocket
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Enter your ghini.desktop user name, configure the server IP address, edit if necessary the
+communication port, type the security code as shown in the server settings, then you are all
+set to interact with the server.
 
-initiate interaction from ghini.pocket.
+``register`` button checks the parameters you inserted, and requires authorization from the
+server.  If all goes well, the remaining buttons will now become active.
+
+``pull`` button refreshes the ghini.pocket database with the snapshot from the server.  This
+also resets the log, which gets anyway overruled by the new snapshot.  Since this is a
+potentially destructive operation, you need to confirm you really mean it.
+
+``push`` button sends your collected information: inventory log, corrections, pictures.
+In particular if you took pictures, this operation will take time.  Please don't be
+surprised if copying 20 high resolution pictures, over your high speed local network
+connection, ghini is making you wait a couple of minutes: it's the sum that makes the total.
 
 Exposed API
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -220,7 +232,7 @@ is about.
 ghini.desktop runs an XML-RPC server, exposing the following API1.  All functions but
 ``current_snapshot`` return 0 on success; all functions may return a numeric error code.
 
-.. admonition:: register(client_id, security_code)
+.. admonition:: register(client_id, user_name, security_code)
    :class: toggle
 
       Register the client on the server, if the provided security_code matches the expected
