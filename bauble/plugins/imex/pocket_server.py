@@ -72,31 +72,52 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
 
 
 class PocketServer(Thread):
-    def __init__(self, ip, port, ls):
+    def __init__(self, presenter):
         super().__init__()
 
-        class Instance:
-            def __init__(self, ls):
-                self.store = ls
-            def mul(self, x, y):
-                self.store.append(("MUL ›%s‹ ›%s‹" % (x,y), ))
-                return x * y
-            def add(self, x, y):
-                self.store.append(("ADD ›%s‹ ›%s‹" % (x,y), ))
-                return x * y
-            def send(self, *args):
-                self.store.append(("STO ›%s‹" % (args, ), ))
+        class API:
+            def __init__(self, presenter):
+                # different thread: we can read from and write to presenter
+                # and list stores, but only read graphic widgets.
+                self.presenter = presenter
+                self.log = presenter.view.widgets.log_ls
+                self.clients = presenter.view.widgets.clients_ls
+
+            def register(self, client_id, security_code):
+                self.log.append(("register ›%s‹ ›%s‹" % (client_id, security_code), ))
+                if client_id in set((i[1] for i in self.clients)):
+                    return 1
+                elif not isinstance(client_id, str):
+                    return 2
+                elif security_code != self.presenter.code:
+                    return 3
+                else:
+                    self.presenter._dirty = True
+                    self.clients.append((len(self.clients), client_id, ))
+                    return 0
+
+            def current_snapshot(self, client_id):
+                self.log.append(("current_snapshot ›%s‹" % (client_id, ), ))
+                return 0
+
+            def update_from_pocket(self, client_id, content):
+                self.log.append(("update_from_pocket ›%s‹" % (client_id, ), ))
                 return True
-        self.ip = ip
-        self.port = int(port)
-        self.instance = Instance(ls)
+
+            def add_picture(self, client_id, name, base64_content):
+                self.log.append(("add_picture ›%s‹ ›%s‹" % (client_id, name, ), ))
+                return True
+
+        self.ip = presenter.ip_address
+        self.port = int(presenter.port)
+        self.api = API(presenter)
 
     def run(self):
         self.server = SimpleXMLRPCServer((self.ip, self.port),
                                          requestHandler=RequestHandler,
                                          logRequests=False)
         self.server.register_introspection_functions()
-        self.server.register_instance(self.instance)
+        self.server.register_instance(self.api)
         self.server.serve_forever()
 
     def cancel(self):
@@ -123,7 +144,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.last_snapshot_date = ''
         self.code = get_code()
         # invoke constructor
-        super().__init__(model=self, view=view, refresh_view=True)
+        super().__init__(model=self, view=view, refresh_view=True, do_commit=True)
         # put list_store directly in presenter and grab list from database
         self.clients_ls = self.view.widgets.clients_ls
         # other initialization
@@ -135,8 +156,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.cancel_threads()
 
     def read_clients_list(self):
-        ls = self.clients_ls
-        ls.clear()
+        self.clients_ls.clear()
         query = (self.session.
                  query(meta.BaubleMeta).
                  filter_by(name='pocket-clients'))
@@ -146,18 +166,21 @@ class PocketServerPresenter(GenericEditorPresenter):
         else:
             elems = []
         for i, value in enumerate(elems):
-            ls.append((i+1, value, ))
+            self.clients_ls.append((i, value, ))
+
+    def commit_changes(self):
+        self.write_clients_list()
 
     def write_clients_list(self):
-        ls = self.clients_ls
         query = (self.session.
                  query(meta.BaubleMeta).
                  filter_by(name='pocket-clients'))
         row = query.first()
-        if row:
+        if row is not None:
             row.value = str([i[1] for i in self.clients_ls])
         else:
-            row.value = []
+            ## should create object
+            pass
         self.session.commit()
         
     def on_activity_expander_activate(self, target, *args):
@@ -175,7 +198,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         if iter is None:
             return
         ls.remove(iter)
-        self.write_clients_list()
+        self._dirty = True
 
     def on_refresh_code_button_clicked(self, target, *args):
         self.code = get_code()
@@ -184,7 +207,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         
     def start_stop_server(self, target, *args):
         if target.get_active():
-            self.start_thread(PocketServer(self.ip_address, int(self.port), self.view.widgets.log_ls))
+            self.start_thread(PocketServer(presenter=self))
             self.start_spinner()
             self.view.widgets.close_button.set_sensitive(False)
         else:
