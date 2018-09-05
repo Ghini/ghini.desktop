@@ -923,13 +923,17 @@ def xml_safe_utf8(obj):
 def xml_safe_name(obj):
     """
     Return a string that conforms to W3C XML 1.0 (fifth edition) recommendation
-    for XML names
+    for XML names.  Space is replaced with _ and <{[()]}> are stripped.    If
+    string does not provide any chars that conform return _
     """
     # make sure we have a unicode string with no spaces or surrounding
     # parentheses
     uni = to_unicode(obj).replace(' ', '_').strip('<{[()]}>')
+    # if nothing is left return '_'
+    if not uni:
+        return '_'
 
-    start_char = (ur'[A-Z]|[:_]|[a-z]|\xc0-\xd6]|[\xd8-\xf6]|[\xf8-\xff]|'
+    start_char = (ur'[A-Z]|[_]|[a-z]|\xc0-\xd6]|[\xd8-\xf6]|[\xf8-\xff]|'
                   ur'[\u0100-\u02ff]|[\u0370-\u037d]|[\u037f-\u1fff]|'
                   ur'[\u200c-\u200d]|[\u2070-\u218f]|[\u2c00-\u2fef]|'
                   ur'[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD]|')
