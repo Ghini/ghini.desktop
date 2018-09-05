@@ -103,18 +103,34 @@ class PocketServer(Thread):
                 elif not isinstance(client_id, str):
                     return 2
                 import base64
-                with open(self.presenter.pocket_fn, "rb") as pocket_file:
-                    encoded_string = base64.b64encode(pocket_file.read())
-                    return encoded_string
-                return -1
+                try:
+                    with open(self.presenter.pocket_fn, "rb") as pocket_file:
+                        encoded_string = base64.b64encode(pocket_file.read())
+                        return encoded_string
+                except:
+                    return -1
 
-            def update_from_pocket(self, client_id, content):
+            def update_from_pocket(self, client_id, log_line):
                 self.log.append(("update_from_pocket ›%s‹" % (client_id, ), ))
                 return True
 
             def add_picture(self, client_id, name, base64_content):
                 self.log.append(("add_picture ›%s‹ ›%s‹" % (client_id, name, ), ))
-                return True
+                if client_id not in set((i[1] for i in self.clients)):
+                    return 1
+                elif not isinstance(client_id, str) or not isinstance(name, str) or not isinstance(base64_content, str):
+                    return 2
+                from bauble import prefs
+                filename = os.path.join(prefs.prefs[prefs.picture_root_pref], name)
+                try:
+                    with open(filename, "xb") as picture_file:
+                        import base64
+                        content = base64.b64decode(base64_content)
+                        picture_file.write(content)
+                        picture_file.close()
+                        return 0
+                except:
+                    return -1
 
         self.ip = presenter.ip_address
         self.port = int(presenter.port)

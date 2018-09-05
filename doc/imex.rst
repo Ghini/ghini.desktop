@@ -217,7 +217,8 @@ Exposed API
 This is a technical reference section, you may safely ignore it if you aren't sure what it
 is about.
 
-ghini.desktop runs an XML-RPC server, exposing the following API1:
+ghini.desktop runs an XML-RPC server, exposing the following API1.  All functions but
+``current_snapshot`` return 0 on success; all functions may return a numeric error code.
 
 .. admonition:: register(client_id, security_code)
    :class: toggle
@@ -229,7 +230,7 @@ ghini.desktop runs an XML-RPC server, exposing the following API1:
    :class: toggle
 
       Check that the current ``pocket.db`` snapshot of the database is up to date, and
-      return it to the requesting client.  If the snapshot is not up to date, return None.
+      return it to the requesting client.
 
       If client is not registered, return a numeric error code.
 
@@ -249,5 +250,8 @@ ghini.desktop runs an XML-RPC server, exposing the following API1:
       Add a picture to the collection.  These are sent after the textual data has been
       updated.  There is no check whether or not the picture is indeed referred to in the
       database.
+
+      If a picture by the same name already exists, the action fails with a numeric error
+      code.
 
       If client is not registered, return a numeric error code.
