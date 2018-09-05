@@ -145,7 +145,7 @@ class ImageLoader(threading.Thread):
         if url.find(self.inline_picture_marker) != -1:
             self.reader_function = self.read_base64
             self.url = url
-        elif (url.startswith('http://') or url.startswith('https://')):
+        elif url[:url.find('/')] in ['http:', 'https:', 'file:']:
             self.reader_function = self.read_global_url
             self.url = url
         else:
