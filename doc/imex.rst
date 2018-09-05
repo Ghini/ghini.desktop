@@ -211,17 +211,17 @@ Enter your ghini.desktop user name, configure the server IP address, edit if nec
 communication port, type the security code as shown in the server settings, then you are all
 set to interact with the server.
 
-``register`` button checks the parameters you inserted, and requires authorization from the
-server.  If all goes well, the remaining buttons will now become active.
+``register`` to check the parameters you inserted, and have ghini.desktop give you
+authorization.  If all goes well, the remaining buttons will now become active.
 
-``pull`` button refreshes the ghini.pocket database with the snapshot from the server.  This
-also resets the log, which gets anyway overruled by the new snapshot.  Since this is a
+``pull`` to refresh the ghini.pocket database with the snapshot from the server.  This also
+resets the log, which gets anyway overruled by the new snapshot.  Since this is a
 potentially destructive operation, you need to confirm you really mean it.
 
-``push`` button sends your collected information: inventory log, corrections, pictures.
-In particular if you took pictures, this operation will take time.  Please don't be
-surprised if copying 20 high resolution pictures, over your high speed local network
-connection, ghini is making you wait a couple of minutes: it's the sum that makes the total.
+``push`` to send your collected information: inventory log, corrections, pictures.  In
+particular if you took pictures, this operation will take time.  Please don't be surprised
+if copying 20 high resolution pictures, over your high speed local network connection, ghini
+is making you wait a couple of minutes: it's the sum that makes the total.
 
 Exposed API
 ^^^^^^^^^^^^^^^^^^^^^^
