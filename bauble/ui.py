@@ -108,10 +108,10 @@ class SplashCommandHandler(pluginmgr.CommandHandler):
         self.view.update()
 
 
-def create_menu_item_with_image(label, icon_file_name=None, base_dir=None):
+def create_menu_item_with_image(label, icon_name=None, base_dir=None):
     '''return a MenuItem with associated image
 
-    if the icon_file_name is a valid image file name and the file can be
+    if the icon_name is a valid image file name and the file can be
     read, the returned object is a ImageMenuItem, otherwise you get plain
     MenuItem.
 
@@ -119,19 +119,28 @@ def create_menu_item_with_image(label, icon_file_name=None, base_dir=None):
     if not isinstance(label, str):
         tool = label
         label = tool.label
-        icon_file_name = getattr(tool, 'icon_file_name', None)
+        icon_name = getattr(tool, 'icon_name', None)
         base_dir = os.path.join(paths.lib_dir(), *(tool.__module__.split('.')[1:-1]))
-    logger.debug("create_menu_item_with_image %s %s %s" % (label, icon_file_name, base_dir))
-    if base_dir is not None and icon_file_name is not None:
-        icon_file_name = os.path.join(base_dir, icon_file_name)
-    try:
-        pb = GdkPixbuf.Pixbuf.new_from_file(icon_file_name)
-        (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
-        pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-        image = Gtk.Image.new_from_pixbuf(pb)
-    except:
-        logger.debug("can't find image file %s" % icon_file_name)
+    logger.debug("create_menu_item_with_image %s %s %s" % (label, icon_name, base_dir))
+    if base_dir is not None and icon_name is not None and icon_name.endswith(".png"):
+        icon_name = os.path.join(base_dir, icon_name)
+    if icon_name is None:
         image = None
+    elif icon_name.endswith(".png"):
+        try:
+            pb = GdkPixbuf.Pixbuf.new_from_file(icon_name)
+            (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+            pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+            image = Gtk.Image.new_from_pixbuf(pb)
+        except:
+            logger.debug("can't find image file %s" % icon_name)
+            image = None
+    else:
+        try:
+            image = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU)
+        except:
+            logger.debug("can't find theme icon %s" % icon_name)
+            image = None
     if image is not None:
         item = Gtk.ImageMenuItem(label)
         item.set_image(image)
@@ -562,7 +571,7 @@ class GUI(object):
 
     __insert_menu_cache = {}
 
-    def add_to_insert_menu(self, editor, label, icon_file_name=None, base_dir=None):
+    def add_to_insert_menu(self, editor, label, icon_name=None, base_dir=None):
         """
         add an editor to the insert menu
 
@@ -571,7 +580,7 @@ class GUI(object):
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()
-        item = create_menu_item_with_image(label, icon_file_name, base_dir)
+        item = create_menu_item_with_image(label, icon_name, base_dir)
         item.connect('activate', self.on_insert_menu_item_activate, editor)
         submenu.append(item)
         self.__insert_menu_cache[label] = item

@@ -606,7 +606,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 class ReportTool(pluginmgr.Tool):
     category = (_('Report'), "plugins/report/tool-report.png")
     label = _("From Template")
-    icon_file_name = "report/from-template.png"
+    icon_name = "text-x-generic-template"
 
     @classmethod
     def start(self):

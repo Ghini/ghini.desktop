@@ -686,7 +686,7 @@ backup_category = (_('Backup'), "plugins/imex/backup.png")
 class CSVImportTool(pluginmgr.Tool):
     category = backup_category
     label = _('Restore')
-    icon_file_name = "backup-restore.png"
+    icon_name = "backup-restore.png"
 
     @classmethod
     def start(cls):
@@ -705,7 +705,7 @@ class CSVImportTool(pluginmgr.Tool):
 class CSVExportTool(pluginmgr.Tool):
     category = backup_category
     label = _('Create')
-    icon_file_name = "backup-create.png"
+    icon_name = "backup-create.png"
 
     @classmethod
     def start(cls):
