@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017,2018 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
@@ -74,6 +74,11 @@ CREATE TABLE "plant" (
   PRIMARY KEY(_id)
 );
 ''']
+    try:
+        # do not reuse it
+        os.unlink(filename)
+    except:
+        pass
     import sqlite3
     cn = sqlite3.connect(filename)
     cr = cn.cursor()
@@ -82,10 +87,8 @@ CREATE TABLE "plant" (
     cn.commit()
 
 
-def export_to_pocket(filename, include_private=True):
+def export_to_pocket(filename, callback, include_private=True):
     from bauble.plugins.plants import Species
-    from bauble import pb_set_fraction, pb_grab, pb_release
-    GObject.idle_add(pb_grab)
     session = db.Session()
     plant_query = (session.query(Plant)
                    .order_by(Plant.code)
@@ -115,7 +118,6 @@ def export_to_pocket(filename, include_private=True):
                     i.infraspecific_author or i.author or ''))
         except Exception as e:
             logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
-        GObject.idle_add(pb_set_fraction, 0.05 * count / len(species))
         count += 1
     count = 1
     for i in accessions:
@@ -130,7 +132,6 @@ def export_to_pocket(filename, include_private=True):
                        (i.id, i.code, i.species_id, source_name, i.date_accd))
         except Exception as e:
             logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
-        GObject.idle_add(pb_set_fraction, 0.05 + 0.4 * count / len(accessions))
         count += 1
     count = 1
     for i in plants:
@@ -141,36 +142,8 @@ def export_to_pocket(filename, include_private=True):
                        (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures), i.quantity))
         except Exception as e:
             logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
-        GObject.idle_add(pb_set_fraction, 0.45 + 0.55 * count / len(plants))
         count += 1
     cn.commit()
     session.close()
-    GObject.idle_add(pb_release)
+    callback()
     return True
-
-
-class ExportToPocketTool(pluginmgr.Tool):
-    category = _('Export')
-    label = _('to ghini.pocket')
-
-    @classmethod
-    def start(self):
-        d = Gtk.FileChooserDialog(_("Choose a file to export to…"), None,
-                                  Gtk.FileChooserAction.Save,
-                                  (Gtk.Stock.OK, Gtk.Response.ACCEPT,
-                                   Gtk.Stock.CANCEL, Gtk.Response.CANCEL))
-        if d.run() == Gtk.Response.ACCEPT:
-            pocket = d.get_filename()
-            try:
-                os.unlink(pocket)
-            except:
-                pass
-        else:
-            pocket = None
-        d.destroy()
-        if pocket:
-            create_pocket(pocket)
-            from threading import Thread
-            thread = Thread(target=export_to_pocket,
-                            args=[pocket])
-            thread.start()

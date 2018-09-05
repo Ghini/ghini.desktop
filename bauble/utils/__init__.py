@@ -215,10 +215,14 @@ class ImageLoader(threading.Thread):
     def read_local_url(self):
         self.loader.connect("area-prepared", self.loader_notified)
         pieces = []
-        with open(self.url, "rb") as f:
-            for piece in read_in_chunks(f, 4096):
-                self.loader.write(piece)
-                pieces.append(piece)
+        try:
+            with open(self.url, "rb") as f:
+                for piece in read_in_chunks(f, 4096):
+                    self.loader.write(piece)
+                    pieces.append(piece)
+        except FileNotFoundError as e:
+            logger.debug("picture %s caused FileNotFoundError %s" %
+                         (self.url, e))
         return b''.join(pieces)
 
 

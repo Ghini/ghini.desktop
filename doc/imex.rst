@@ -176,10 +176,11 @@ You activate server mode on ghini.desktop with :menuselection:`Tools-->Pocket Se
 While in server mode, ghini.desktop is not available for other uses, and ghini.pocket
 clients will be able to register, request database snapshots, or send collected updates.
 
-ghini.desktop keeps a snapshot of your database in ghini.pocket format.  You better refresh
-the snapshot on ghini.desktop before you let ghini.pocket request an update.  If the current
-snapshot is not up-to-date, the New button next to the last snapshot timestamp will be
-active.  Click on the New button, this will refresh the snapshot and disable the button.
+ghini.pocket works with a reduced database snapshot, containing only the most significant
+elements, under a simplified schema.  ghini.desktop produces such a snapshot when it enters
+server mode, automatically and in the background.  Production of a snapshot is generally
+fast, and a typical Pocket Server session consists of: importing from ghini.pocket clients,
+refreshing your snapshot, updating your clients.
 
 ghini.desktop and ghini.pocket need to be connected to the same local network.  The server
 GUI includes an entry for the server IP address, which you can't edit, and an entry for the
@@ -216,13 +217,13 @@ Exposed API
 This is a technical reference section, you may safely ignore it if you aren't sure what it
 is about.
 
-ghini.desktop runs a xmlrpc server, exposing the following API1:
+ghini.desktop runs an XML-RPC server, exposing the following API1:
 
 .. admonition:: register(client_id, security_code)
    :class: toggle
 
       Register the client on the server, if the provided security_code matches the expected
-      one.
+      one.  Return 0 if successful, otherwise a numeric error code.
 
 .. admonition:: current_snapshot(client_id)
    :class: toggle
@@ -230,11 +231,17 @@ ghini.desktop runs a xmlrpc server, exposing the following API1:
       Check that the current ``pocket.db`` snapshot of the database is up to date, and
       return it to the requesting client.  If the snapshot is not up to date, return None.
 
+      If client is not registered, return a numeric error code.
+
 .. admonition:: update_from_pocket(client_id, content)
    :class: toggle
 
-      Update the ghini database with the content from the ghini.pocket client.  Content does
-      not include pictures, which are sent separately, one per request.
+      Update the ghini database with the content from the ghini.pocket client.
+
+      Content is a single log line from ghini.pocket, and obviously cannot include pictures.
+      These are sent separately, also one per request.
+
+      If client is not registered, return a numeric error code.
 
 .. admonition:: add_picture(client_id, name, base64)
    :class: toggle
@@ -242,3 +249,5 @@ ghini.desktop runs a xmlrpc server, exposing the following API1:
       Add a picture to the collection.  These are sent after the textual data has been
       updated.  There is no check whether or not the picture is indeed referred to in the
       database.
+
+      If client is not registered, return a numeric error code.

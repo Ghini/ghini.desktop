@@ -147,13 +147,20 @@ class PocketServerPresenter(GenericEditorPresenter):
         super().__init__(model=self, view=view, refresh_view=True, do_commit=True)
         # put list_store directly in presenter and grab list from database
         self.clients_ls = self.view.widgets.clients_ls
+        # guarantee that self.pocket_fn exists
+        import tempfile
+        handle, self.pocket_fn = tempfile.mkstemp()
+        os.close(handle)
         # other initialization
         self.stop_spinner()
         self.read_clients_list()
+        self.on_new_snapshot_button_clicked()
 
     def cleanup(self):
         super().cleanup()
         self.cancel_threads()
+        # remove self.pocket_fn
+        os.unlink(self.pocket_fn)
 
     def read_clients_list(self):
         self.clients_ls.clear()
@@ -186,12 +193,25 @@ class PocketServerPresenter(GenericEditorPresenter):
     def on_activity_expander_activate(self, target, *args):
         self.view.widgets.activity_log.set_visible(not target.get_expanded())
 
-    def on_new_snapshot_button_clicked(self, target, *args):
-        now = datetime.datetime.now().isoformat().split('.')[0]
-        entry = self.view.widgets.last_snapshot_date_entry
-        entry.set_text(now)
-        target.set_sensitive(False)
+    def on_new_snapshot_button_clicked(self, *args):
+        text = self.view.widgets.creating_snapshot_label.get_text()
+        self.view.widgets.last_snapshot_date_entry.set_text(text)
+        self.view.widgets.new_snapshot_button.set_sensitive(False)
+        from threading import Thread
+        from .exporttopocket import create_pocket, export_to_pocket
+        create_pocket(self.pocket_fn)
+        thread = Thread(target=export_to_pocket,
+                        args=[self.pocket_fn, self.on_export_complete])
+        thread.start()
+        self.opacity = 0.0
+        self.is_exporting = True
+        GLib.timeout_add(50, self.flashing_creating)
 
+    def on_export_complete(self):
+        now = datetime.datetime.now().isoformat().split('.')[0]
+        self.view.widgets.last_snapshot_date_entry.set_text(now)
+        self.is_exporting = False
+        
     def on_remove_client_button_clicked(self, target, *args):
         selection = self.view.widgets.client_selection
         ls, iter = selection.get_selected()
@@ -233,6 +253,20 @@ class PocketServerPresenter(GenericEditorPresenter):
             return True
         self.angle = 0
         self.view.widgets.spinner.set_angle(self.angle)
+
+    def flashing_creating(self, *args):
+        self.opacity += 0.08
+        if self.opacity > 2.0:
+            self.opacity -= 2.0
+        opacity = abs(1.0 - self.opacity)
+        self.view.widgets.creating_snapshot_label.set_opacity(opacity)
+        self.view.widgets.last_snapshot_date_entry.set_opacity(1.0 - opacity)
+        if not self.is_exporting:
+            self.view.widgets.creating_snapshot_label.set_opacity(0)
+            self.view.widgets.last_snapshot_date_entry.set_opacity(1)
+            self.view.widgets.new_snapshot_button.set_sensitive(True)
+            return False
+        return True
 
 
 class PocketServerTool(pluginmgr.Tool):
