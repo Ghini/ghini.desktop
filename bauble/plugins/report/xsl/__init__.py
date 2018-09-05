@@ -80,7 +80,7 @@ renderers_map = {'Apache FOP': (fop_cmd + ' -fo %(fo_filename)s '
                  # 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
                  # 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar
                  # ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'
-                 }
+                }
 default_renderer = 'Apache FOP'
 
 plant_source_type = _('Plant/Clone')
@@ -123,7 +123,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
         # ABCD data NOT valid ABCD but it does make it work for
         # creating reports without including the accession or plant
         # code
-        return ""
+        return utils.xml_safe(self.species.id)
 
     def get_DateLastEdited(self):
         return utils.xml_safe(self.species._last_updated.isoformat())
@@ -139,7 +139,10 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(str(self.species.genus))
 
     def get_FirstEpithet(self):
-        return utils.xml_safe(str(self.species.sp))
+        species = self.species.sp
+        if species is None:
+            return None
+        return utils.xml_safe(str(species))
 
     def get_AuthorTeam(self):
         author = self.species.sp_author
@@ -157,12 +160,12 @@ class SpeciesABCDAdapter(ABCDAdapter):
     def get_InfraspecificEpithet(self):
         infrasp = ''
         infrasp1 = self.species.infrasp1
-        cv = self.species.cultivar_epithet
+        cultivar = self.species.cultivar_epithet
         rank = self.species.infraspecific_rank
         # if not a cultivar or normal infrspecific part return the unranked
         # part.  A better solution would be to have a seperate field for
         # additional (informal, descriptive...) parts
-        if all(part in (None, '') for part in (cv, rank)) and infrasp1:
+        if all(part in (None, '') for part in (cultivar, rank)) and infrasp1:
             infrasp = infrasp1
         else:
             infrasp = self.species.infraspecific_epithet
@@ -170,7 +173,12 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(str(infrasp))
 
     def get_CultivarName(self):
-        return utils.xml_safe(str(self.species.cultivar_epithet))
+        cultivar = self.species.cultivar_epithet
+        if cultivar is None:
+            return 'cv.'
+        if cultivar:
+            return utils.xml_safe("'%s'" % cultivar)
+        return ''
 
     def get_HybridFlag(self):
         if self.species.hybrid is True:
@@ -233,8 +241,9 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         idqual=self.accession.id_qual
         if idqual is None:
             return None
-        else:
-            return utils.xml_safe(idqual)
+        if idqual in('forsan', 'near', 'incorrect'):
+            idqual = '(%s)' % idqual
+        return utils.xml_safe(idqual)
 
     def get_IdentificationQualifierRank(self):
         idqrank=self.accession.id_qual_rank
