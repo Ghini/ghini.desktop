@@ -8,6 +8,8 @@
       <column type="gint"/>
       <!-- column-name IMEI -->
       <column type="gchararray"/>
+      <!-- column-name user_name -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkImage" id="image1">
