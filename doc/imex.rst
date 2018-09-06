@@ -1,3 +1,7 @@
+.. |ghini.pocket| replace:: <span class="program-name">ghini.pocket</span>
+.. |ghini.desktop| replace:: <span class="program-name">ghini.desktop</span>
+
+
 Importing and Exporting Data
 ============================
 
@@ -8,8 +12,8 @@ For two formats (CSV and JSON) Ghini offers both import and export.  CSV aims at
 restoring whole tables.  JSON is mostly meant for selections, for non-destructive updating
 existing data, for combining selections from different databases.
 
-A special case of import-export is handling ghini.pocket snapshots, and accepting collected
-updates from ghini.pocket instances.
+A special case of import-export is handling |ghini.pocket| snapshots, and accepting collected
+updates from |ghini.pocket| instances.
 
 There is some support for exporting in Access for Biological Collections Data (ABCD) format,
 while export in BGCI format is provided by the Report plug-in in the form of a Mako
@@ -46,7 +50,7 @@ Restoring a backup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In general it is best to only import CSV files into Ghini that were
-previously exported from Ghini.  It is possible to import any CSV file
+previously exported from |Ghini.|  It is possible to import any CSV file
 but that is more advanced that this doc will cover.
 
 To import CSV files into Ghini select :menuselection:`Tools-->Backup-->Restore` from the
@@ -154,74 +158,74 @@ Importing from a Generic Database
 ----------------------------------
 
 This functionality is the object of `issue #127
-<https://github.com/Ghini/ghini.desktop/issues/127>`_, for which
+<https://github.com/Ghini/|ghini.desktop|/issues/127>`_, for which
 we have no generic solution yet.
 
 If you're interested in importing data from some flat file
 (e.g.: Excel spreadsheet) or from any database, contact the
 developers.
 
-Managing ghini.pocket interaction
+Managing |ghini.pocket| interaction
+============================================
+
+Interaction with |ghini.pocket| is handled following a client server scheme.  When you need to
+export to, or import from |ghini.pocket|, you put |ghini.desktop| in server mode, so that it
+awaits for requests from registered |ghini.pocket| clients.
+
+|ghini.desktop| server mode
 ----------------------------------------
 
-Interaction with ghini.pocket is handled following a client server scheme.  When you need to
-export to, or import from ghini.pocket, you put ghini.desktop in server mode, so that it
-awaits for requests from registered ghini.pocket clients.
+You activate server mode on |ghini.desktop| with :menuselection:`Tools-->Pocket Server..`.
 
-ghini.desktop server mode
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You activate server mode on ghini.desktop with :menuselection:`Tools-->Pocket Server..`.
-
-While in server mode, ghini.desktop is not available for other uses, and ghini.pocket
+While in server mode, |ghini.desktop| is not available for other uses, and |ghini.pocket|
 clients will be able to register, request database snapshots, or send collected updates.
 
 .. image:: images/pocket-server-starting.png
 
-ghini.pocket works with a reduced database snapshot, containing only the most significant
-elements, under a simplified schema.  ghini.desktop produces such a snapshot when it enters
+|ghini.pocket| works with a reduced database snapshot, containing only the most significant
+elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
 server mode, automatically and in the background.  Production of a snapshot is generally
-fast, and a typical Pocket Server session consists of: importing from ghini.pocket clients,
+fast, and a typical Pocket Server session consists of: importing from |ghini.pocket| clients,
 refreshing your snapshot, updating your clients.
 
-ghini.desktop and ghini.pocket need to be connected to the same local network.  The server
+|ghini.desktop| and |ghini.pocket| need to be connected to the same local network.  The server
 GUI includes an entry for the server IP address, which you can't edit, and an entry for the
 port number, which defaults to GHINI/44464.  Make sure that every configuration on your
 clients matches the settings on the server.
 
 .. image:: images/pocket-server-settings.png
 
-ghini.desktop holds a list of registered ghini.pocket clients.  In order to register a
-phone, you let ghini.desktop produce a new code (or use the one already on the screen),
+|ghini.desktop| holds a list of registered |ghini.pocket| clients.  In order to register a
+phone, you let |ghini.desktop| produce a new code (or use the one already on the screen),
 enter it on the client together with your user name, and click on ``register``.  When
-ghini.desktop receives a valid registration request for a specific IMEI number, the
+|ghini.desktop| receives a valid registration request for a specific IMEI number, the
 specified IMEI is added to the list of registered clients.  The registration is persistent,
 and registrations are not overwritten, so if you want to change the user name associated to
 an IMEI number, please first remove the entry from the list, then register again the phone
 for a different user.
 
-Start the server on ghini.desktop and move your focus to your ghini.pocket client.  It is
-from the ghini.pocket clients that you handle the communication.  After accepting updates
-from your ghini.pocket clients, refresh the snapshot and update it on all your clients.
+Start the server on |ghini.desktop| and move your focus to your |ghini.pocket| client.  It is
+from the |ghini.pocket| clients that you handle the communication.  After accepting updates
+from your |ghini.pocket| clients, refresh the snapshot and update it on all your clients.
 
 When done, stop the server, review the logs, close the Pocket Server window.
 
-ghini.pocket user interface
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+|ghini.pocket| user interface
+----------------------------------------
 
-ghini.pocket initial screen (that's page 2 in the pager) has a ``desktop`` button, taking
-you to a different activity which implements all interaction with the ghini.desktop server.
+|ghini.pocket| initial screen (that's page 2 in the pager) has a ``desktop`` button, taking
+you to a different activity which implements all interaction with the |ghini.desktop| server.
 
-Enter your ghini.desktop user name, configure the server IP address, edit if necessary the
+Enter your |ghini.desktop| user name, configure the server IP address, edit if necessary the
 communication port, type the security code as shown in the server settings, then you are all
 set to interact with the server.
 
-``register`` to check the parameters you inserted, and have ghini.desktop give you
+``register`` to check the parameters you inserted, and have |ghini.desktop| give you
 authorization.  Registration is permanent, so if you had already previously registered your
 phone, you don't need registering again, unless you want to assign the same phone to a
 different user.  This is described in the above server section.
 
-``pull`` to refresh the ghini.pocket database with the snapshot from the server.  This also
+``pull`` to refresh the |ghini.pocket| database with the snapshot from the server.  This also
 resets the log, which gets anyway overruled by the new snapshot.  Since this is a
 potentially destructive operation, you need to confirm you really mean it.
 
@@ -231,12 +235,12 @@ surprised if copying 20 high resolution pictures, over your high speed local net
 connection, ghini is making you wait a couple of minutes: it's the sum that makes the total.
 
 Exposed API
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------
 
 This is a technical reference section, you may safely ignore it if you aren't sure what it
 is about.
 
-ghini.desktop runs an XML-RPC server, exposing the following API1.  All functions but
+|ghini.desktop| runs an XML-RPC server, exposing the following API1.  All functions but
 ``current_snapshot`` return 0 on success; all functions may return a numeric error code.
 
 .. admonition:: register(client_id, user_name, security_code)
@@ -256,9 +260,9 @@ ghini.desktop runs an XML-RPC server, exposing the following API1.  All function
 .. admonition:: update_from_pocket(client_id, content)
    :class: toggle
 
-      Update the ghini database with the content from the ghini.pocket client.
+      Update the ghini database with the content from the |ghini.pocket| client.
 
-      Content is a single log line from ghini.pocket, and obviously cannot include pictures.
+      Content is a single log line from |ghini.pocket|, and obviously cannot include pictures.
       These are sent separately, also one per request.
 
       If client is not registered, return a numeric error code.
