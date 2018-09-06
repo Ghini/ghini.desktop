@@ -83,7 +83,7 @@ class PocketServer(Thread):
                 self.log = presenter.view.widgets.log_ls
                 self.clients = presenter.view.widgets.clients_ls
 
-            def register(self, client_id, security_code):
+            def register(self, client_id, user_name, security_code):
                 self.log.append(("register ›%s‹ ›%s‹" % (client_id, security_code), ))
                 if client_id in set((i[1] for i in self.clients)):
                     return 1
@@ -93,7 +93,7 @@ class PocketServer(Thread):
                     return 3
                 else:
                     self.presenter._dirty = True
-                    self.clients.append((len(self.clients), client_id, ))
+                    self.clients.append((len(self.clients), client_id, user_name, ))
                     return 0
 
             def current_snapshot(self, client_id):
@@ -169,6 +169,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.code = get_code()
         # invoke constructor
         super().__init__(model=self, view=view, refresh_view=True, do_commit=True)
+        self.committing_results = [-5, -4, -1]  # close, ×, ESC
         # put list_store directly in presenter and grab list from database
         self.clients_ls = self.view.widgets.clients_ls
         # guarantee that self.pocket_fn exists
@@ -195,9 +196,9 @@ class PocketServerPresenter(GenericEditorPresenter):
         if row:
             elems = eval(row.value)
         else:
-            elems = []
-        for i, value in enumerate(elems):
-            self.clients_ls.append((i, value, ))
+            elems = {}
+        for i, key in enumerate(elems):
+            self.clients_ls.append((i, key, elems[key]))
 
     def commit_changes(self):
         self.write_clients_list()
@@ -208,7 +209,7 @@ class PocketServerPresenter(GenericEditorPresenter):
                  filter_by(name='pocket-clients'))
         row = query.first()
         if row is not None:
-            row.value = str([i[1] for i in self.clients_ls])
+            row.value = str(dict((i[1], i[2]) for i in self.clients_ls))
         else:
             ## should create object
             pass
