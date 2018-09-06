@@ -196,16 +196,15 @@ phone, you let ghini.desktop produce a new code (or use the one already on the s
 enter it on the client together with your user name, and click on ``register``.  When
 ghini.desktop receives a valid registration request for a specific IMEI number, the
 specified IMEI is added to the list of registered clients.  The registration is persistent,
-so if you want to change the user name associated to an IMEI number, please first remove the
-entry from the list, then register again your phone.
+and registrations are not overwritten, so if you want to change the user name associated to
+an IMEI number, please first remove the entry from the list, then register again the phone
+for a different user.
 
 Start the server on ghini.desktop and move your focus to your ghini.pocket client.  It is
 from the ghini.pocket clients that you handle the communication.  After accepting updates
 from your ghini.pocket clients, refresh the snapshot and update it on all your clients.
 
 When done, stop the server, review the logs, close the Pocket Server window.
-
-The next section describes the ghini.pocket user interface.
 
 ghini.pocket user interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -218,16 +217,18 @@ communication port, type the security code as shown in the server settings, then
 set to interact with the server.
 
 ``register`` to check the parameters you inserted, and have ghini.desktop give you
-authorization.  If all goes well, the remaining buttons will now become active.
+authorization.  Registration is permanent, so if you had already previously registered your
+phone, you don't need registering again, unless you want to assign the same phone to a
+different user.  This is described in the above server section.
 
 ``pull`` to refresh the ghini.pocket database with the snapshot from the server.  This also
 resets the log, which gets anyway overruled by the new snapshot.  Since this is a
 potentially destructive operation, you need to confirm you really mean it.
 
 ``push`` to send your collected information: inventory log, corrections, pictures.  In
-particular if you took pictures, this operation will take time.  Please don't be surprised
-if copying 20 high resolution pictures, over your high speed local network connection, ghini
-is making you wait a couple of minutes: it's the sum that makes the total.
+particular if you are sending pictures, this operation will take time.  Please don't be
+surprised if copying 20 high resolution pictures, over your high speed local network
+connection, ghini is making you wait a couple of minutes: it's the sum that makes the total.
 
 Exposed API
 ^^^^^^^^^^^^^^^^^^^^^^
