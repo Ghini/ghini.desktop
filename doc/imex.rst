@@ -176,6 +176,8 @@ You activate server mode on ghini.desktop with :menuselection:`Tools-->Pocket Se
 While in server mode, ghini.desktop is not available for other uses, and ghini.pocket
 clients will be able to register, request database snapshots, or send collected updates.
 
+.. image:: images/pocket-server-starting.png
+
 ghini.pocket works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  ghini.desktop produces such a snapshot when it enters
 server mode, automatically and in the background.  Production of a snapshot is generally
@@ -187,11 +189,15 @@ GUI includes an entry for the server IP address, which you can't edit, and an en
 port number, which defaults to GHINI/44464.  Make sure that every configuration on your
 clients matches the settings on the server.
 
-ghini.desktop keeps a list of registered ghini.pocket clients.  In order to register a
+.. image:: images/pocket-server-settings.png
+
+ghini.desktop holds a list of registered ghini.pocket clients.  In order to register a
 phone, you let ghini.desktop produce a new code (or use the one already on the screen),
-enter it on the client, and click on register.  When ghini.desktop receives a valid
-registration request for a specific IMEI number, the specified IMEI is added to the list of
-registered clients.
+enter it on the client together with your user name, and click on ``register``.  When
+ghini.desktop receives a valid registration request for a specific IMEI number, the
+specified IMEI is added to the list of registered clients.  The registration is persistent,
+so if you want to change the user name associated to an IMEI number, please first remove the
+entry from the list, then register again your phone.
 
 Start the server on ghini.desktop and move your focus to your ghini.pocket client.  It is
 from the ghini.pocket clients that you handle the communication.  After accepting updates
@@ -199,7 +205,7 @@ from your ghini.pocket clients, refresh the snapshot and update it on all your c
 
 When done, stop the server, review the logs, close the Pocket Server window.
 
-The next two sections describe the ghini.pocket user interface.
+The next section describes the ghini.pocket user interface.
 
 ghini.pocket user interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
