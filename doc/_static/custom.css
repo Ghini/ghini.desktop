@@ -10,7 +10,7 @@ code.py-obj {
     background: turquoise;
 }
 code.py-mod, code.py-obj {
-    font-size: larger;
+    font-size: inherit;
     padding: 2pt;
     border-radius: 5pt;
 }
