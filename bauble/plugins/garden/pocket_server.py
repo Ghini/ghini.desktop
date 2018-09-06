@@ -82,18 +82,20 @@ class PocketServer(Thread):
                 self.presenter = presenter
                 self.log = presenter.view.widgets.log_ls
                 self.clients = presenter.view.widgets.clients_ls
+                self.imei_to_user_name = dict((v[1], v[2]) for v in self.clients)
 
             def register(self, client_id, user_name, security_code):
                 self.log.append(("register ›%s‹ ›%s‹" % (client_id, security_code), ))
                 if client_id in set((i[1] for i in self.clients)):
                     return 1
-                elif not isinstance(client_id, str):
+                elif not isinstance(client_id, str) or not isinstance(user_name, str):
                     return 2
                 elif security_code != self.presenter.code:
                     return 3
                 else:
                     self.presenter._dirty = True
                     self.clients.append((len(self.clients), client_id, user_name, ))
+                    self.imei_to_user_name[client_id] = user_name
                     return 0
 
             def current_snapshot(self, client_id):
@@ -254,11 +256,9 @@ class PocketServerPresenter(GenericEditorPresenter):
         if target.get_active():
             self.start_thread(PocketServer(presenter=self))
             self.start_spinner()
-            self.view.widgets.close_button.set_sensitive(False)
         else:
             self.cancel_threads()
             self.stop_spinner()
-            self.view.widgets.close_button.set_sensitive(True)
 
     def start_spinner(self, *args):
         if self.keep_spinning:
