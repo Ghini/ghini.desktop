@@ -3,9 +3,14 @@ h1, h2, h3, h4 {
     border-bottom: 1px solid #ccc;
 }
 
-strong.program {
-    font-weight: unset;
-    background: aliceblue;
+code.py-mod {
+    background: azure;
+}
+code.py-obj {
+    background: turquoise;
+}
+code.py-mod, code.py-obj {
+    font-size: larger;
     padding: 2pt;
     border-radius: 5pt;
 }

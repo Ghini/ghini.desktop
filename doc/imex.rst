@@ -1,5 +1,10 @@
-.. |ghini.pocket| replace:: :program:`ghini.pocket`
-.. |ghini.desktop| replace:: :program:`ghini.desktop`
+.. |ghini.pocket| replace:: :py:mod:`ghini.pocket`
+.. |ghini.desktop| replace:: :py:mod:`ghini.desktop`
+.. |register| replace:: :py:obj:`register`
+.. |push| replace:: :py:obj:`push`
+.. |pull| replace:: :py:obj:`pull`
+.. |desktop| replace:: :py:obj:`desktop`
+.. |OK| replace:: :py:obj:`OK`
 
 
 Importing and Exporting Data
@@ -56,7 +61,7 @@ but that is more advanced that this doc will cover.
 To import CSV files into Ghini select :menuselection:`Tools-->Backup-->Restore` from the
 menu.
 
-After clicking OK on the dialog that ask if you are sure you know what
+After clicking |OK| on the dialog that ask if you are sure you know what
 you're doing a file chooser will open.  In the file chooser select the
 files you want to import.
 
@@ -65,7 +70,10 @@ Restoring a backup deletes all previous content from restored tables.
 JSON - JavaScript Object Notation
 -----------------------------------------
 
-This feature is still under development.
+This feature has being developed when a user asked for it.  Their request was quite simple,
+but we preferred anyway to lay down the bases for a more generic solution.  At the moment,
+everything we ever needed is in place.  Even so, this feature is still quite far from
+complete, so if it does not satisfy your needs, please contact the maintainers.
 
 Exporting to JSON
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -123,8 +131,8 @@ import tool.  Import goes in several steps: parameter
 definition; data revision and confirmation; the import step
 proper; finally review the import log.  At the first two steps
 you can confirm the data and go to the next step by clicking on
-the ``next`` button, or you can go back to the previous step by
-clicking on the ``prev`` button.  Once the import is done and
+the |next| button, or you can go back to the previous step by
+clicking on the |prev| button.  Once the import is done and
 you're reviewing the log, you can only either confirm —or abort—
 the whole transaction.
 
@@ -197,7 +205,7 @@ clients matches the settings on the server.
 
 |ghini.desktop| holds a list of registered |ghini.pocket| clients.  In order to register a
 phone, you let |ghini.desktop| produce a new code (or use the one already on the screen),
-enter it on the client together with your user name, and click on ``register``.  When
+enter it on the client together with your user name, and click on |register|.  When
 |ghini.desktop| receives a valid registration request for a specific IMEI number, the
 specified IMEI is added to the list of registered clients.  The registration is persistent,
 and registrations are not overwritten, so if you want to change the user name associated to
@@ -213,23 +221,23 @@ When done, stop the server, review the logs, close the Pocket Server window.
 |ghini.pocket| user interface
 ----------------------------------------
 
-|ghini.pocket| initial screen (that's page 2 in the pager) has a ``desktop`` button, taking
+|ghini.pocket| initial screen (that's page 2 in the pager) has a |desktop| button, taking
 you to a different activity which implements all interaction with the |ghini.desktop| server.
 
 Enter your |ghini.desktop| user name, configure the server IP address, edit if necessary the
 communication port, type the security code as shown in the server settings, then you are all
 set to interact with the server.
 
-``register`` to check the parameters you inserted, and have |ghini.desktop| give you
+|register| to check the parameters you inserted, and have |ghini.desktop| give you
 authorization.  Registration is permanent, so if you had already previously registered your
 phone, you don't need registering again, unless you want to assign the same phone to a
 different user.  This is described in the above server section.
 
-``pull`` to refresh the |ghini.pocket| database with the snapshot from the server.  This also
+|pull| to refresh the |ghini.pocket| database with the snapshot from the server.  This also
 resets the log, which gets anyway overruled by the new snapshot.  Since this is a
 potentially destructive operation, you need to confirm you really mean it.
 
-``push`` to send your collected information: inventory log, corrections, pictures.  In
+|push| to send your collected information: inventory log, corrections, pictures.  In
 particular if you are sending pictures, this operation will take time.  Please don't be
 surprised if copying 20 high resolution pictures, over your high speed local network
 connection, ghini is making you wait a couple of minutes: it's the sum that makes the total.
