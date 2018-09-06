@@ -46,6 +46,7 @@ from bauble.plugins.garden.source import (
 from bauble.plugins.garden.institution import (
     Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
 from bauble.plugins.garden.picture_importer import PictureImporterTool
+from bauble.plugins.garden.pocket_server import PocketServerTool
 
 #from bauble.plugins.garden.propagation import *
 import bauble.search as search
@@ -59,7 +60,7 @@ import re
 class GardenPlugin(pluginmgr.Plugin):
 
     depends = ["PlantsPlugin"]
-    tools = [InstitutionTool, PictureImporterTool]
+    tools = [InstitutionTool, PictureImporterTool, PocketServerTool]
     commands = [InstitutionCommand]
     provides = {'Accession': Accession,
                 'AccessionNote': AccessionNote,

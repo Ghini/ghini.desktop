@@ -147,10 +147,10 @@ for line in fileinput.input():
             sys.stdout.write(':')  # we altered a plant location
         else:
             sys.stdout.write('.')  # we confirmed a plant location
-    except Exception, e:
+    except Exception as e:
         try:
             accession = session.query(Accession).filter(Accession.code == obj['acc_code']).one()
-        except Exception, e:
+        except Exception as e:
             accession = Accession(species=species, code=obj['acc_code'])
             session.add(accession)
             sys.stdout.write('a')  # we added a new accession

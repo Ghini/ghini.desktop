@@ -131,6 +131,8 @@ class PocketServer(Thread):
                         picture_file.write(content)
                         picture_file.close()
                         return 0
+                except FileExistsError:
+                    return 4
                 except:
                     return -1
 
