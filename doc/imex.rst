@@ -1,5 +1,5 @@
-.. |ghini.pocket| replace:: <span class="program-name">ghini.pocket</span>
-.. |ghini.desktop| replace:: <span class="program-name">ghini.desktop</span>
+.. |ghini.pocket| replace:: ghini.pocket
+.. |ghini.desktop| replace:: ghini.desktop
 
 
 Importing and Exporting Data
