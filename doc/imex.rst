@@ -203,14 +203,13 @@ clients matches the settings on the server.
 
 .. image:: images/pocket-server-settings.png
 
-|ghini.desktop| holds a list of registered |ghini.pocket| clients.  In order to register a
-phone, you let |ghini.desktop| produce a new code (or use the one already on the screen),
-enter it on the client together with your user name, and click on |register|.  When
-|ghini.desktop| receives a valid registration request for a specific IMEI number, the
-specified IMEI is added to the list of registered clients.  The registration is persistent,
-and registrations are not overwritten, so if you want to change the user name associated to
-an IMEI number, please first remove the entry from the list, then register again the phone
-for a different user.
+|ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section
+on the client user interface, for how to register a phone.)  When |ghini.desktop| receives a
+valid registration request for a specific IMEI number, the specified IMEI is added to the
+list of registered clients and associated to the remote user name.  The registration is
+persistent, and registrations are not overwritten, so if you want to change the user name
+associated to an IMEI number, please first remove the entry from the list, then register
+again the phone for a different user.
 
 Start the server on |ghini.desktop| and move your focus to your |ghini.pocket| client.  It is
 from the |ghini.pocket| clients that you handle the communication.  After accepting updates
