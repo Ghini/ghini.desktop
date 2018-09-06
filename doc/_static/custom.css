@@ -3,6 +3,13 @@ h1, h2, h3, h4 {
     border-bottom: 1px solid #ccc;
 }
 
+strong.program {
+    font-weight: unset;
+    background: aliceblue;
+    padding: 2pt;
+    border-radius: 5pt;
+}
+
 .toggle.admonition { /* both classes */
     padding: 0;
     margin-bottom: 20px;

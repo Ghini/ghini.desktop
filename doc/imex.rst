@@ -1,5 +1,5 @@
-.. |ghini.pocket| replace:: ghini.pocket
-.. |ghini.desktop| replace:: ghini.desktop
+.. |ghini.pocket| replace:: :program:`ghini.pocket`
+.. |ghini.desktop| replace:: :program:`ghini.desktop`
 
 
 Importing and Exporting Data
@@ -50,7 +50,7 @@ Restoring a backup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In general it is best to only import CSV files into Ghini that were
-previously exported from |Ghini.|  It is possible to import any CSV file
+previously exported from Ghini.  It is possible to import any CSV file
 but that is more advanced that this doc will cover.
 
 To import CSV files into Ghini select :menuselection:`Tools-->Backup-->Restore` from the
