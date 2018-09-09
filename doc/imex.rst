@@ -207,9 +207,10 @@ clients matches the settings on the server.
 on the client user interface, for how to register a phone.)  When |ghini.desktop| receives a
 valid registration request for a specific IMEI number, the specified IMEI is added to the
 list of registered clients and associated to the remote user name.  The registration is
-persistent, and registrations are not overwritten, so if you want to change the user name
-associated to an IMEI number, please first remove the entry from the list, then register
-again the phone for a different user.
+persistent, and is used as a basic identity check for all client-server interaction.  If you
+need to use the same phone with a different user name, you must overrule the existing
+registration, and to do so, you need the security code as shown in the desktop server
+settings.
 
 Start the server on |ghini.desktop| and move your focus to your |ghini.pocket| client.  It is
 from the |ghini.pocket| clients that you handle the communication.  After accepting updates
@@ -220,17 +221,31 @@ When done, stop the server, review the logs, close the Pocket Server window.
 |ghini.pocket| user interface
 ----------------------------------------
 
-|ghini.pocket| initial screen (that's page 2 in the pager) has a |desktop| button, taking
-you to a different activity which implements all interaction with the |ghini.desktop| server.
+|ghini.pocket| options menu has a |connect to desktop| item.  Activate it to activate the
+"desktop-client" window, which implements all interaction with the |ghini.desktop| server.
 
-Enter your |ghini.desktop| user name, configure the server IP address, edit if necessary the
-communication port, type the security code as shown in the server settings, then you are all
-set to interact with the server.
+The "desktop-client" window contains data fields you have to edit in order to gain access to
+the server, and buttons for server communication.  The communication buttons are not enabled
+unless you validate your identity.
 
-|register| to check the parameters you inserted, and have |ghini.desktop| give you
-authorization.  Registration is permanent, so if you had already previously registered your
-phone, you don't need registering again, unless you want to assign the same phone to a
-different user.  This is described in the above server section.
+|ghini.pocket| implements a very basic authentication check, trusting that your local
+network is secure.  In fact the main goal of authentication between pocket and desktop is to
+make sure that you know which user is going to be credited with the edits you are supplying
+from pocket.
+
+|verify| to check the communication parameters and the registered user name for your phone.
+Enter the server IP address, edit if necessary the communication port, and verify whether
+your phone is already registered.  If your phone id matches an already registered IMEI
+number, the User Name widget will show you the currently registered user name, and the
+bottom communication buttons will be enabled.  If no user is registered for your phone, a
+notification will briefly flash on your phone, asking you to please register.
+
+|register| your new user name if necessary.  Enter both a User Name, a Security Code, and
+press on |register|.  This informs the desktop server that your phone, and through your
+phone, all the information you push to desktop, is associated to your user name.
+Registration is permanent, so if you had already previously registered your phone with your
+name, you don't need registering again.  You do need to register if you want to assign the
+same phone to a different user.
 
 |pull| to refresh the |ghini.pocket| database with the snapshot from the server.  This also
 resets the log, which gets anyway overruled by the new snapshot.  Since this is a
@@ -250,27 +265,36 @@ is about.
 |ghini.desktop| runs an XML-RPC server, exposing the following API1.  All functions but
 ``current_snapshot`` return 0 on success; all functions may return a numeric error code.
 
+.. admonition:: verify(client_id)
+   :class: toggle
+
+      Return the user name associated to the client.  The result is either a non-empty
+      string, or a numeric error code.
+
 .. admonition:: register(client_id, user_name, security_code)
    :class: toggle
 
-      Register the client on the server, if the provided security_code matches the expected
-      one.  Return 0 if successful, otherwise a numeric error code.
+      Register the client on the server, associating it to the given user_name, given that
+      the provided security_code matches the expected one.
+
+      Overwrite any previous registration of the same client.
+
+      Return 0 if successful, otherwise a numeric error code.
 
 .. admonition:: current_snapshot(client_id)
    :class: toggle
 
-      Check that the current ``pocket.db`` snapshot of the database is up to date, and
-      return it to the requesting client.
+      Return the current ``pocket.db`` snapshot of the database.
 
       If client is not registered, return a numeric error code.
 
 .. admonition:: update_from_pocket(client_id, content)
    :class: toggle
 
-      Update the ghini database with the content from the |ghini.pocket| client.
+      Update the ghini database with the content of the collected pocket client logs.
 
-      Content is a single log line from |ghini.pocket|, and obviously cannot include pictures.
-      These are sent separately, also one per request.
+      Content is a single log line, each line describes a single plant, and it may refer to
+      pictures, which are sent separately, also one per request.
 
       If client is not registered, return a numeric error code.
 
