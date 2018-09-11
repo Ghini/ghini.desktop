@@ -1,9 +1,10 @@
 .. |ghini.pocket| replace:: :py:mod:`ghini.pocket`
 .. |ghini.desktop| replace:: :py:mod:`ghini.desktop`
+.. |verify| replace:: :py:obj:`verify`
 .. |register| replace:: :py:obj:`register`
 .. |push| replace:: :py:obj:`push`
 .. |pull| replace:: :py:obj:`pull`
-.. |desktop| replace:: :py:obj:`desktop`
+.. |desktop| replace:: :py:obj:`connect to g.desktop`
 .. |OK| replace:: :py:obj:`OK`
 
 
@@ -192,14 +193,14 @@ clients will be able to register, request database snapshots, or send collected 
 
 |ghini.pocket| works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
-server mode, automatically and in the background.  Production of a snapshot is generally
-fast, and a typical Pocket Server session consists of: importing from |ghini.pocket| clients,
-refreshing your snapshot, updating your clients.
+server mode, automatically and in the background.  Production of a snapshot is generally fast,
+and a typical Pocket Server session consists of: pushing updates from |ghini.pocket| clients,
+refreshing your snapshot on |ghini.desktop|, pulling the new snapshot to each of your clients.
 
 |ghini.desktop| and |ghini.pocket| need to be connected to the same local network.  The server
-GUI includes an entry for the server IP address, which you can't edit, and an entry for the
-port number, which defaults to GHINI/44464.  Make sure that every configuration on your
-clients matches the settings on the server.
+GUI includes an informative entry for the server IP address, this you obviously don't edit,
+and an entry for the port number, which defaults to GHINI/44464.  Make sure that every
+configuration on your clients matches the settings on the server.
 
 .. image:: images/pocket-server-settings.png
 
@@ -221,7 +222,7 @@ When done, stop the server, review the logs, close the Pocket Server window.
 |ghini.pocket| user interface
 ----------------------------------------
 
-|ghini.pocket| options menu has a |connect to desktop| item.  Activate it to activate the
+|ghini.pocket| options menu has a |desktop| item.  Use it to activate the
 "desktop-client" window, which implements all interaction with the |ghini.desktop| server.
 
 The "desktop-client" window contains data fields you have to edit in order to gain access to
