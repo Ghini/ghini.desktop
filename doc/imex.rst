@@ -266,7 +266,8 @@ This is a technical reference section, you may safely ignore it if you aren't su
 is about.
 
 |ghini.desktop| runs an XML-RPC server, exposing the following API1.  All functions but
-``current_snapshot`` return 0 on success; all functions may return a numeric error code.
+``verify`` and ``current_snapshot`` return 0 on success; ``verify`` and ``current_snapshot``
+return a string on success; for all functions, if the result is numeric, it is an error code.
 
 .. admonition:: verify(client_id)
    :class: toggle
