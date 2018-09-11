@@ -241,9 +241,9 @@ number, the User Name widget will show you the currently registered user name, a
 bottom communication buttons will be enabled.  If no user is registered for your phone, a
 notification will briefly flash on your phone, asking you to please register.
 
-|register| your new user name if necessary.  Enter both a User Name, a Security Code, and
-press on |register|.  This informs the desktop server that your phone, and through your
-phone, all the information you push to desktop, is associated to your user name.
+|register|, to associate your new user name to your phone IMEI code.  Enter both a User Name,
+a Security Code, and press on |register|.  This informs the desktop server that your phone,
+all the information you push from your phone to desktop, is associated to your user name.
 Registration is permanent, so if you had already previously registered your phone with your
 name, you don't need registering again.  You do need to register if you want to assign the
 same phone to a different user.
