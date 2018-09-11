@@ -120,7 +120,7 @@ class PocketServer(Thread):
                     return -1
 
             def update_from_pocket(self, client_id, log_line):
-                self.log.append(("update_from_pocket ›%s‹" % (client_id, ), ))
+                self.log.append(("update_from_pocket ›%s‹ ›%s‹" % (client_id, log_line[:45]), ))
                 return True
 
             def add_picture(self, client_id, name, base64_content):
