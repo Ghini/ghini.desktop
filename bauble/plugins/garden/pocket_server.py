@@ -115,7 +115,7 @@ class PocketServer(Thread):
                 try:
                     with open(self.presenter.pocket_fn, "rb") as pocket_file:
                         encoded_string = base64.b64encode(pocket_file.read())
-                        return encoded_string
+                        return encoded_string.decode("utf-8") 
                 except:
                     return -1
 
