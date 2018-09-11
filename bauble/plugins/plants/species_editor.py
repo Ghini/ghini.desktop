@@ -249,7 +249,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(kid)
 
             binomial = '%s %s' % (self.model.genus, self.model.epithet)
-            AskTPL(binomial, sp_species_TPL_callback, timeout=2, gui=True
+            timeout = prefs.get('network_timeout')
+            AskTPL(binomial, sp_species_TPL_callback, timeout=timeout, gui=True
                    ).start()
             b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
             b0.message = _("querying the plant list")
