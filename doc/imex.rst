@@ -245,10 +245,10 @@ notification will briefly flash on your phone, asking you to please register.
 
 |register|, to associate your new user name to your phone IMEI code.  Enter both a User Name,
 a Security Code, and press on |register|.  This informs the desktop server that your phone,
-all the information you push from your phone to desktop, is associated to your user name.
-Registration is permanent, so if you had already previously registered your phone with your
-name, you don't need registering again.  You do need to register if you want to assign the
-same phone to a different user.
+and through it all the information you push from your phone to desktop, is associated to your
+user name.  Registration is permanent, so if you had already previously registered your phone
+with your name, you don't need registering again.  You do need to register if you want to
+assign the same phone to a different user.
 
 |pull| to refresh the |ghini.pocket| database with the snapshot from the server.  This also
 resets the log, which gets anyway overruled by the new snapshot.  Since this is a
