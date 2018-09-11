@@ -229,6 +229,8 @@ The "desktop-client" window contains data fields you have to edit in order to ga
 the server, and buttons for server communication.  The communication buttons are not enabled
 unless you validate your identity.
 
+.. image::  images/ghini-pocket-client.png
+
 |ghini.pocket| implements a very basic authentication check, trusting that your local
 network is secure.  In fact the main goal of authentication between pocket and desktop is to
 make sure that you know which user is going to be credited with the edits you are supplying
