@@ -292,15 +292,28 @@ return a string on success; for all functions, if the result is numeric, it is a
 
       If client is not registered, return a numeric error code.
 
-.. admonition:: put_change(client_id, content)
+.. admonition:: put_change(client_id, content, baseline)
    :class: toggle
 
       Update the ghini database with the content of the collected pocket client logs.
 
-      Content is a single log line, each line describes a single plant, and it may refer to
-      pictures, which are sent separately, also one per request.
+      Content is a complete log file, to be handled as a block.
+
+      Baseline is a timestamp, expressed as seconds since the Unix Epoch.
+
+      Each change line applies to a single plant or accession.  Change lines are composed of
+      change atoms, and atoms come in two flavours: additions (plant photos, accession
+      verification) and overwrites (location name, location coordinates, quantity).  Photos
+      need be sent separately, one per request.  Addition-atoms are always performed, while
+      overwrite-atoms are approved, or rejected, based on their timestamp, the baseline
+      value, and the last change of the affected object.  In particular, an overwrite-atom
+      is rejected if the affected object had been changed since the baseline, except of
+      course if the change was part of this put_change action.
 
       If client is not registered, return a numeric error code.
+
+      Returns a list of numeric values, each corresponding to a log line, indicating whether
+      the line was successfully applied, or (partially) rejected.
 
 .. admonition:: put_picture(client_id, name, base64)
    :class: toggle
