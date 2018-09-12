@@ -309,8 +309,7 @@ class PocketServerTool(pluginmgr.Tool):
 
     @classmethod
     def start(cls):
-        filename = os.path.join(paths.lib_dir(), "plugins", "imex", 'select_export.glade')
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden", 'pocket_server.glade')
         view = GenericEditorView(filename, root_widget_name='pocket_server_dialog')
         c = PocketServerPresenter(view)
         c.start()
-        print(c.ip_address, c.port, c.code, c.last_snapshot_date)
