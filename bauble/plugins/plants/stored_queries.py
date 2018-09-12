@@ -188,6 +188,7 @@ def edit_callback():
 
 
 class StoredQueryEditorTool(pluginmgr.Tool):
+    item_position = 20
     label = _('Edit stored queries')
 
     @classmethod

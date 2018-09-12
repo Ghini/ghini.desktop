@@ -304,6 +304,7 @@ class PocketServerPresenter(GenericEditorPresenter):
 
 
 class PocketServerTool(pluginmgr.Tool):
+    item_position = 32
     label = _('Pocket Server…')
     icon_name = "server"
 

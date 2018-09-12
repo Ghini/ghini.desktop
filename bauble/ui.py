@@ -609,7 +609,7 @@ class GUI(object):
 
         # add the tools with no category to the root menu
         root_tools = tools.pop(None)
-        for tool in root_tools:
+        for tool in sorted(root_tools, key=lambda x:getattr(x, 'item_position', 0)):
             item = create_menu_item_with_image(tool)
             item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
