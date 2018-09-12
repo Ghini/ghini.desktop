@@ -93,6 +93,7 @@ class PocketServer(Thread):
                     return user_name
 
             def register(self, client_id, user_name, security_code):
+                self.presenter._dirty = True
                 self.log.append(("register ›%s‹ ›%s‹" % (client_id, security_code), ))
                 if not isinstance(client_id, str) or not isinstance(user_name, str):
                     return 2
@@ -119,8 +120,8 @@ class PocketServer(Thread):
                 except:
                     return -1
 
-            def put_change(self, client_id, log_line):
-                self.log.append(("put_change ›%s‹ ›%s‹" % (client_id, log_line[:45]), ))
+            def put_change(self, client_id, log_lines, baseline):
+                self.log.append(("put_change ›%s‹ ›%s‹" % (client_id, len(log_lines)), ))
                 return 0
 
             def put_picture(self, client_id, name, base64_content):
@@ -179,8 +180,8 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.last_snapshot_date = ''
         self.code = get_code()
         # invoke constructor
-        super().__init__(model=self, view=view, refresh_view=True, do_commit=True)
-        self.committing_results = [-5, -4, -1]  # close, ×, ESC
+        super().__init__(model=self, view=view, refresh_view=True, do_commit=True,
+                         committing_results=[-5, -4, -1])  # close, ×, ESC
         # put list_store directly in presenter and grab list from database
         self.clients_ls = self.view.widgets.clients_ls
         # guarantee that self.pocket_fn exists
@@ -219,11 +220,10 @@ class PocketServerPresenter(GenericEditorPresenter):
                  query(meta.BaubleMeta).
                  filter_by(name='pocket-clients'))
         row = query.first()
-        if row is not None:
-            row.value = str(dict((i[1], i[2]) for i in self.clients_ls))
-        else:
-            ## should create object
-            pass
+        if row is None:
+            row = meta.BaubleMeta(name='pocket-clients')
+            self.session.add(row)
+        row.value = str(dict((i[1], i[2]) for i in self.clients_ls))
         self.session.commit()
         
     def on_activity_expander_activate(self, target, *args):
