@@ -105,8 +105,8 @@ class PocketServer(Thread):
                     self.imei_to_user_name[client_id] = user_name
                     return 0
 
-            def current_snapshot(self, client_id):
-                self.log.append(("current_snapshot ›%s‹ ›%s‹" % (client_id, self.presenter.pocket_fn), ))
+            def get_snapshot(self, client_id):
+                self.log.append(("get_snapshot ›%s‹ ›%s‹" % (client_id, self.presenter.pocket_fn), ))
                 if client_id not in set((i[1] for i in self.clients)):
                     return 1
                 elif not isinstance(client_id, str):
@@ -119,12 +119,12 @@ class PocketServer(Thread):
                 except:
                     return -1
 
-            def update_from_pocket(self, client_id, log_line):
-                self.log.append(("update_from_pocket ›%s‹ ›%s‹" % (client_id, log_line[:45]), ))
-                return True
+            def put_change(self, client_id, log_line):
+                self.log.append(("put_change ›%s‹ ›%s‹" % (client_id, log_line[:45]), ))
+                return 0
 
-            def add_picture(self, client_id, name, base64_content):
-                self.log.append(("add_picture ›%s‹ ›%s‹" % (client_id, name, ), ))
+            def put_picture(self, client_id, name, base64_content):
+                self.log.append(("put_picture ›%s‹ ›%s‹" % (client_id, name, ), ))
                 if client_id not in set((i[1] for i in self.clients)):
                     return 1
                 elif not isinstance(client_id, str) or not isinstance(name, str) or not isinstance(base64_content, str):

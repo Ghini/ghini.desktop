@@ -266,7 +266,7 @@ This is a technical reference section, you may safely ignore it if you aren't su
 is about.
 
 |ghini.desktop| runs an XML-RPC server, exposing the following API1.  All functions but
-``verify`` and ``current_snapshot`` return 0 on success; ``verify`` and ``current_snapshot``
+``verify`` and ``get_snapshot`` return 0 on success; ``verify`` and ``get_snapshot``
 return a string on success; for all functions, if the result is numeric, it is an error code.
 
 .. admonition:: verify(client_id)
@@ -285,14 +285,14 @@ return a string on success; for all functions, if the result is numeric, it is a
 
       Return 0 if successful, otherwise a numeric error code.
 
-.. admonition:: current_snapshot(client_id)
+.. admonition:: get_snapshot(client_id)
    :class: toggle
 
       Return the current ``pocket.db`` snapshot of the database.
 
       If client is not registered, return a numeric error code.
 
-.. admonition:: update_from_pocket(client_id, content)
+.. admonition:: put_change(client_id, content)
    :class: toggle
 
       Update the ghini database with the content of the collected pocket client logs.
@@ -302,7 +302,7 @@ return a string on success; for all functions, if the result is numeric, it is a
 
       If client is not registered, return a numeric error code.
 
-.. admonition:: add_picture(client_id, name, base64)
+.. admonition:: put_picture(client_id, name, base64)
    :class: toggle
 
       Add a picture to the collection.  These are sent after the textual data has been
