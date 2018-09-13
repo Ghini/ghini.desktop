@@ -307,7 +307,7 @@ class ImportInventoryLines(BaubleTestCase):
         fam = Family(epithet='Myrtaceae')
         gen = Genus(epithet='Eugenia', family=fam)
         spe = Species(epithet='stipitata', genus=gen)
-        self.session.add_all([fam, gen, spe, fam_fictive, gen_fictive])
+        self.session.add_all([fam, gen, spe, fam_fictive, gen_fictive, loc])
         self.session.commit()
         self.loc, self.fam, self.gen, self.spe, self.fam_fictive, self.gen_fictive = (
             loc, fam, gen, spe, fam_fictive, gen_fictive)
@@ -316,7 +316,6 @@ class ImportInventoryLines(BaubleTestCase):
         # prepare T0
         a = lookup(self.session, Accession, code='2013.1317', species=self.spe)
         p = lookup(self.session, Plant, accession=a, code='1', location=self.loc, quantity=1)
-        self.session.commit()
         # test T0
         self.assertEquals(p.location, self.loc)
 
@@ -345,3 +344,138 @@ class ImportInventoryLines(BaubleTestCase):
         a = self.session.query(Accession).filter_by(code='2013.1317').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
         self.assertEquals(p.location.code, 'A09x')
+
+    def test_inventory_useless_line(self):
+        # prepare T0
+        a = lookup(self.session, Accession, code='2013.1317', species=self.spe)
+        p = lookup(self.session, Plant, accession=a, code='1', location=self.loc, quantity=1)
+        # test T0
+        self.assertEquals(p.location, self.loc)
+
+        # action
+        line = '20180223_092139 :INVENTORY:  : 2013.1317 : 000000000000000'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+
+        # test T1
+        a = self.session.query(Accession).filter_by(code='2013.1317').first()
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertEquals(p.location, self.loc)
+
+    def test_inventory_totally_useless_line(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).first()
+        self.assertEquals(a, None)
+        self.assertEquals(len(self.session.query(Location).all()), 1)
+
+        # action
+        line = '20180223_092139 :INVENTORY:  :  : 000000000000000'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+
+        # test T1
+        a = self.session.query(Accession).first()
+        self.assertEquals(a, None)
+        self.assertEquals(len(self.session.query(Location).all()), 1)
+
+    def test_inventory_existence_assertion(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).first()
+        self.assertEquals(a, None)
+        self.assertEquals(len(self.session.query(Location).all()), 1)
+
+        # action
+        line = '20180223_092139 :INVENTORY:  : 2013.1317 : 000000000000000'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+
+        # test T1
+        self.assertEquals(len(self.session.query(Location).all()), 2)
+        a = self.session.query(Accession).filter_by(code='2013.1317').first()
+        self.assertNotEquals(a, None)
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertNotEquals(p, None)
+        self.assertEquals(p.location.code, 'default')
+
+
+class ImportGPSCoordinates(BaubleTestCase):
+    def setUp(self):
+        super().setUp()
+        loc = Location(code='somewhere')
+        fam_fictive = Family(epithet='Zz-Plantae')
+        gen_fictive = Genus(epithet='Zzd-Plantae', family=fam_fictive)
+        self.session.add_all([fam_fictive, gen_fictive, loc])
+        self.session.commit()
+        self.loc, self.fam_fictive, self.gen_fictive = (
+            loc, fam_fictive, gen_fictive)
+
+    def test_gps_coordinates_defining(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).first()
+        self.assertEquals(a, None)
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 2018.0001 :  :  : (31.5215;-5.5312)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+        # T1
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(len(a.plants), 1)
+        p = a.plants[0]
+        self.assertEquals(p.coords, {'lat': 31.5215, 'lon': -5.5312})
+
+    def test_gps_coordinates_overwriting(self):
+        # prepare T0
+        l = lookup(self.session, Location, code='somewhere')
+        s = lookup(self.session, Species, genus=self.gen_fictive, infrasp1='sp')
+        a = lookup(self.session, Accession, code='2018.0002', species=s)
+        p = lookup(self.session, Plant, accession=a, code='1', location=l, quantity=1)
+        pn = lookup(self.session, PlantNote, plant=p, category='<coords>', note="{lat:32.2996,lon:-9.2395}")
+
+        # test T0
+        self.assertEquals(p.coords, {'lat': 32.2996, 'lon': -9.2395})
+        
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 2018.0002 :  :  : (31.5215;-5.5312)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+
+        # T1
+        a = self.session.query(Accession).filter_by(code='2018.0002').first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(len(a.plants), 1)
+        p = a.plants[0]
+        self.assertEquals(p.coords, {'lat': 31.5215, 'lon': -5.5312})
+
+
+class ImportPictures(BaubleTestCase):
+    def setUp(self):
+        super().setUp()
+        loc = Location(code='somewhere')
+        fam_fictive = Family(epithet='Zz-Plantae')
+        gen_fictive = Genus(epithet='Zzd-Plantae', family=fam_fictive)
+        self.session.add_all([fam_fictive, gen_fictive, loc])
+        self.session.commit()
+        self.loc, self.fam_fictive, self.gen_fictive = (
+            loc, fam_fictive, gen_fictive)
+
+    def test_pictures_adding_two(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).first()
+        self.assertEquals(a, None)
+
+        # action
+        line = '20180223_130951 :PENDING_EDIT: 2015.0901 :  :  : (@;@) : file:///storage/sdcard/Android/data/me.ghini.pocket/files/Pictures/GPP_20180223_130931-958344128.jpg : file:///storage/sdcard/Android/data/me.ghini.pocket/files/Pictures/GPP_20180223_130943948184518.jpg'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+
+        # T1
+        a = self.session.query(Accession).filter_by(code='2015.0901').first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(len(a.plants), 1)
+        p = a.plants[0]
+        self.assertEquals(len(p.pictures), 2)

@@ -25,6 +25,8 @@
 import logging
 logger = logging.getLogger(__name__)
 
+import os.path
+
 import bauble.db
 import bauble.utils
 
@@ -100,16 +102,18 @@ def heuristic_split(full_plant_code):
 
 def process_inventory_line(session, user_name, baseline, timestamp, parameters):
     location_code, full_plant_code, imei = parameters
-    if not location_code:
-        # skip null-edit
+    if not full_plant_code:
+        # what should we do…
         return
     accession_code, plant_code = heuristic_split(full_plant_code)
-    location = lookup(session, Location, code=location_code)
+    location = lookup(session, Location, code=(location_code or 'default'))
 
     # if plant is in place, edit it, otherwise, create it.
     plant = session.query(Plant).filter_by(code=plant_code).join(Accession).filter_by(code=accession_code).first()
     if plant is not None:
-        plant.location = location
+        # no location_code means just asserting existence
+        if location_code:
+            plant.location = location
     else:
         # if not even accession is in place, let's create a default one
         accession = session.query(Accession).filter_by(code=accession_code).first()
@@ -165,6 +169,19 @@ def process_pending_edit_line(session, user_name, baseline, timestamp, parameter
 
     if species != fictive_species:
         accession.species = species
+
+    if coordinates != '(@;@)':
+        # remove any previous such note
+        coords = session.query(PlantNote).filter_by(plant=plant, category='<coords>')
+        coords.delete()
+        # add new one
+        lat, lon = (float(i) for i in coordinates[1:-1].split(';'))
+        value = "{lat:%0.6f,lon:%0.6f}" % (lat, lon)
+        note = lookup(session, PlantNote, plant=plant, category='<coords>', note=value)
+
+    for picture in pictures:
+        basename = os.path.basename(picture)
+        note = lookup(session, PlantNote, plant=plant, category='<picture>', note=basename)
 
 
 def process_line(session, user_name, line, baseline):
