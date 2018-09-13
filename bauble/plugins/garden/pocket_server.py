@@ -121,10 +121,11 @@ class PocketServer(Thread):
                     return -1
 
             def put_change(self, client_id, log_lines, baseline):
+                user_name = self.imei_to_user_name.get(client_id, None)
                 from import_pocket_log import process_line
                 self.log.append(("put_change ›%s‹ ›%s‹" % (client_id, len(log_lines)), ))
                 for line in log_lines:
-                    process_line(self.presenter.session, line, baseline)
+                    process_line(self.presenter.session, user_name, line, baseline)
                 return 0
 
             def put_picture(self, client_id, name, base64_content):

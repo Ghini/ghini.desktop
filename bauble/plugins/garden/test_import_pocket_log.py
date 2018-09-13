@@ -37,7 +37,8 @@ from bauble.plugins.garden.plant import Plant, PlantNote, PlantChange
 from bauble.plugins.garden.location import Location
 from bauble.plugins.plants import Family, Genus, Species
 
-from .import_pocket_log import process_line
+from .import_pocket_log import process_line, lookup
+
 
 class ImportNewPlant(BaubleTestCase):
     def test_completely_identified_existing_species(self):
@@ -56,7 +57,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertNotEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia stipitata : 1 : (@;@)'
-        process_line(self.session, line, 1536845535)
+        process_line(self.session, 'Mario', line, 1536845535)
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         self.assertNotEquals(a, None)
@@ -81,7 +82,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia stipitata : 1 : (@;@)'
-        process_line(self.session, line, 1536845535)
+        process_line(self.session, 'Mario', line, 1536845535)
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         self.assertNotEquals(a, None)
@@ -106,7 +107,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia : 1 : (@;@)'
-        process_line(self.session, line, 1536845535)
+        process_line(self.session, 'Mario', line, 1536845535)
         # T1
         eugenia_sp = self.session.query(Species).filter_by(genus=eugenia, infrasp1='sp', infrasp1_rank=None).first()
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -126,7 +127,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 1 : (@;@)'
-        process_line(self.session, line, 1536845535)
+        process_line(self.session, 'Mario', line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -134,6 +135,96 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(a.species.infrasp1, 'sp')
         self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
         self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEquals(a.quantity_recvd, 1)
+        self.assertEquals(len(a.plants), 1)
+        self.assertEquals(a.plants[0].quantity, 1)
+
+    def test_not_identified_no_quantity_defaults_to_one(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        self.assertEquals(a, None)
+        s = self.session.query(Species).first()
+        self.assertEquals(s, None)
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  :  : (@;@)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+        # T1
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(a.species.infrasp1, 'sp')
+        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEquals(a.quantity_recvd, 1)
+        self.assertEquals(len(a.plants), 1)
+        self.assertEquals(a.plants[0].quantity, 1)
+
+    def test_not_identified_some_quantity_not_one(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        self.assertEquals(a, None)
+        s = self.session.query(Species).first()
+        self.assertEquals(s, None)
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 3 : (@;@)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+        # T1
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(a.species.infrasp1, 'sp')
+        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEquals(a.quantity_recvd, 3)
+        self.assertEquals(len(a.plants), 1)
+        self.assertEquals(a.plants[0].quantity, 3)
+
+    def test_not_identified_no_plant_code(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        self.assertEquals(a, None)
+        s = self.session.query(Species).first()
+        self.assertEquals(s, None)
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 2018.0001 :  : 1 : (@;@)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+        # T1
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(a.species.infrasp1, 'sp')
+        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEquals(a.quantity_recvd, 1)
+        self.assertEquals(len(a.plants), 1)
+        self.assertEquals(a.plants[0].quantity, 1)
+
+    def test_not_identified_quito_accession_code(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).filter_by(code='018901').first()
+        self.assertEquals(a, None)
+        s = self.session.query(Species).first()
+        self.assertEquals(s, None)
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 018901 :  : 1 : (@;@)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        line = '20180905_170619 :PENDING_EDIT: 018901.2 :  : 2 : (@;@)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+        # T1
+        a = self.session.query(Accession).filter_by(code='018901').first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(a.species.infrasp1, 'sp')
+        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEquals(a.quantity_recvd, 1)
+        self.assertEquals(len(a.plants), 2)
+        self.assertEquals(a.plants[0].quantity, 1)
+        self.assertEquals(a.plants[1].quantity, 2)
         
 
 class ImportExistingPlant(BaubleTestCase):
@@ -146,7 +237,111 @@ class ImportExistingPlant(BaubleTestCase):
         spe = Species(epithet='stipitata', genus=gen)
         self.session.add_all([fam, gen, spe, fam_fictive, gen_fictive])
         self.session.commit()
+        self.fam, self.gen, self.spe, self.fam_fictive, self.gen_fictive = fam, gen, spe, fam_fictive, gen_fictive
 
     def test_import_unidentified_not_overwriting_existing_identification(self):
-        line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 1 : (@;@)'
-        pass
+        # prepare T0
+        l = lookup(self.session, Location, code='somewhere')
+        a = lookup(self.session, Accession, code='2018.0001', species=self.spe)
+        p = lookup(self.session, Plant, accession=a, code='1', location=l, quantity=1)
+        # test T0
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(a.species.epithet, 'stipitata')
+        self.assertEquals(a.species.genus.epithet, 'Eugenia')
+        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertNotEquals(p, None)
+        self.assertEquals(p.location, l)
+        self.assertEquals(p.quantity, 1)
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 3 : (@;@)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        # test T1
+        a = self.session.query(Accession).filter_by(code='2018.0001').first()
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(a.species.epithet, 'stipitata')
+        self.assertEquals(a.species.genus.epithet, 'Eugenia')
+        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertNotEquals(p, None)
+        self.assertEquals(p.location, l)
+        self.assertEquals(p.quantity, 3)
+
+    def test_import_identified_overwriting_identification(self):
+        # prepare T0
+        l = lookup(self.session, Location, code='somewhere')
+        a = lookup(self.session, Accession, code='2018.0002', species=self.spe)
+        p = lookup(self.session, Plant, accession=a, code='1', location=l, quantity=1)
+        # test T0
+        a = self.session.query(Accession).filter_by(code='2018.0002').first()
+        self.assertNotEquals(a, None)
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertNotEquals(p, None)
+        self.assertEquals(a.species.epithet, 'stipitata')
+        self.assertEquals(a.species.genus.epithet, 'Eugenia')
+        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertEquals(p.location, l)
+        self.assertEquals(p.quantity, 1)
+        # action
+        line = '20180905_170619 :PENDING_EDIT: 2018.0002.1 : Eugenia insignis : 1 : (@;@)'
+        process_line(self.session, 'Mario', line, 1536845535)
+        # test T1
+        a = self.session.query(Accession).filter_by(code='2018.0002').first()
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertNotEquals(a, None)
+        self.assertEquals(a.species.epithet, 'insignis')
+        self.assertEquals(a.species.genus.epithet, 'Eugenia')
+        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertNotEquals(p, None)
+        self.assertEquals(p.location, l)
+        self.assertEquals(p.quantity, 1)
+        
+
+class ImportInventoryLines(BaubleTestCase):
+    def setUp(self):
+        super().setUp()
+        loc = Location(code='somewhere')
+        fam_fictive = Family(epithet='Zz-Plantae')
+        gen_fictive = Genus(epithet='Zzd-Plantae', family=fam_fictive)
+        fam = Family(epithet='Myrtaceae')
+        gen = Genus(epithet='Eugenia', family=fam)
+        spe = Species(epithet='stipitata', genus=gen)
+        self.session.add_all([fam, gen, spe, fam_fictive, gen_fictive])
+        self.session.commit()
+        self.loc, self.fam, self.gen, self.spe, self.fam_fictive, self.gen_fictive = (
+            loc, fam, gen, spe, fam_fictive, gen_fictive)
+
+    def test_inventory_existing_plant(self):
+        # prepare T0
+        a = lookup(self.session, Accession, code='2013.1317', species=self.spe)
+        p = lookup(self.session, Plant, accession=a, code='1', location=self.loc, quantity=1)
+        self.session.commit()
+        # test T0
+        self.assertEquals(p.location, self.loc)
+
+        # action
+        line = '20180223_092139 :INVENTORY: A09x : 2013.1317 : 000000000000000'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+
+        # test T1
+        a = self.session.query(Accession).filter_by(code='2013.1317').first()
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertEquals(p.location.code, 'A09x')
+
+    def test_inventory_unknown_plant(self):
+        # prepare T0
+        # test T0
+        a = self.session.query(Accession).first()
+        self.assertEquals(a, None)
+
+        # action
+        line = '20180223_092139 :INVENTORY: A09x : 2013.1317 : 000000000000000'
+        process_line(self.session, 'Mario', line, 1536845535)
+        self.session.commit()
+
+        # test T1
+        a = self.session.query(Accession).filter_by(code='2013.1317').first()
+        p = self.session.query(Plant).filter_by(code='1', accession=a).first()
+        self.assertEquals(p.location.code, 'A09x')

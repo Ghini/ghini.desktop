@@ -24,12 +24,6 @@
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-consoleHandler = logging.StreamHandler()
-logging.getLogger().addHandler(consoleHandler)
-consoleHandler.setLevel(logging.DEBUG)
-logging.getLogger().setLevel(logging.DEBUG)
 
 import bauble.db
 import bauble.utils
@@ -92,12 +86,42 @@ def lookup(session, klass, **kwargs):
     return obj
 
 
-def process_inventory_line(session, baseline, timestamp, parameters):
-    location_code, accession_code, imei = parameters
-    pass
+def heuristic_split(full_plant_code):
+    try:
+        accession_code, plant_code = full_plant_code.rsplit('.', 1)
+        if plant_code[0] == '0':
+            raise ValueError('plant code does not start with a 0')
+        if len(accession_code) < 6:
+            raise ValueError('seems there was no plant code after all')
+    except:
+        accession_code, plant_code = full_plant_code, '1'
+    return accession_code, plant_code
 
 
-def process_pending_edit_line(session, baseline, timestamp, parameters):
+def process_inventory_line(session, user_name, baseline, timestamp, parameters):
+    location_code, full_plant_code, imei = parameters
+    if not location_code:
+        # skip null-edit
+        return
+    accession_code, plant_code = heuristic_split(full_plant_code)
+    location = lookup(session, Location, code=location_code)
+
+    # if plant is in place, edit it, otherwise, create it.
+    plant = session.query(Plant).filter_by(code=plant_code).join(Accession).filter_by(code=accession_code).first()
+    if plant is not None:
+        plant.location = location
+    else:
+        # if not even accession is in place, let's create a default one
+        accession = session.query(Accession).filter_by(code=accession_code).first()
+        if accession is None:
+            fictive_family = lookup(session, Family, epithet='Zz-Plantae')
+            fictive_genus = lookup(session, Genus, family=fictive_family, epithet='Zzd-Plantae')
+            fictive_species = lookup(session, Species, genus=fictive_genus, infrasp1='sp')
+            accession = lookup(session, Accession, code=accession_code, species=fictive_species)
+        plant = lookup(session, Plant, code=plant_code, accession=accession, quantity=1, location=location)
+
+
+def process_pending_edit_line(session, user_name, baseline, timestamp, parameters):
     full_plant_code, scientific_name, quantity, coordinates, *pictures = parameters
 
     if quantity:
@@ -106,7 +130,7 @@ def process_pending_edit_line(session, baseline, timestamp, parameters):
         quantity = 1
 
     # does the accession code actually indicate a specific plant within the accession?
-    accession_code, plant_code = full_plant_code.rsplit('.', 1)
+    accession_code, plant_code = heuristic_split(full_plant_code)
 
     fictive_family = lookup(session, Family, epithet='Zz-Plantae')
     fictive_genus = lookup(session, Genus, family=fictive_family, epithet='Zzd-Plantae')
@@ -136,11 +160,14 @@ def process_pending_edit_line(session, baseline, timestamp, parameters):
         if accession is None:
             accession = lookup(session, Accession, code=accession_code, species=species, quantity_recvd=quantity)
         plant = lookup(session, Plant, code=plant_code, accession=accession, location=location, quantity=quantity)
-        print(plant, accession, species)
-    pass
+    else:
+        plant.quantity=quantity
+
+    if species != fictive_species:
+        accession.species = species
 
 
-def process_line(session, line, baseline):
+def process_line(session, user_name, line, baseline):
     """process the changes in 'line'
 
     """
@@ -152,9 +179,9 @@ def process_line(session, line, baseline):
         return None
     parameters = re.split(r' : ', trailer)
     if category == 'INVENTORY':
-        process_inventory_line(session, baseline, timestamp, parameters)
+        process_inventory_line(session, user_name, baseline, timestamp, parameters)
     elif category == 'PENDING_EDIT':
-        process_pending_edit_line(session, baseline, timestamp, parameters)
+        process_pending_edit_line(session, user_name, baseline, timestamp, parameters)
     else:
         logger.error("unhandled category in your pocket data line ›%s‹" % line)
 
