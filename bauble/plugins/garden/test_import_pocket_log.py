@@ -57,7 +57,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertNotEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia stipitata : 1 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         self.assertNotEquals(a, None)
@@ -82,7 +82,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia stipitata : 1 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         self.assertNotEquals(a, None)
@@ -107,7 +107,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia : 1 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         # T1
         eugenia_sp = self.session.query(Species).filter_by(genus=eugenia, infrasp1='sp', infrasp1_rank=None).first()
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -127,7 +127,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 1 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -148,7 +148,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  :  : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -169,7 +169,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 3 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -190,7 +190,7 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001 :  : 1 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -211,9 +211,9 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 018901 :  : 1 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         line = '20180905_170619 :PENDING_EDIT: 018901.2 :  : 2 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='018901').first()
@@ -256,7 +256,7 @@ class ImportExistingPlant(BaubleTestCase):
         self.assertEquals(p.quantity, 1)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 3 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         # test T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
@@ -285,7 +285,7 @@ class ImportExistingPlant(BaubleTestCase):
         self.assertEquals(p.quantity, 1)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0002.1 : Eugenia insignis : 1 : (@;@)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         # test T1
         a = self.session.query(Accession).filter_by(code='2018.0002').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
@@ -321,7 +321,7 @@ class ImportInventoryLines(BaubleTestCase):
 
         # action
         line = '20180223_092139 :INVENTORY: A09x : 2013.1317 : 000000000000000'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
 
         # test T1
@@ -337,7 +337,7 @@ class ImportInventoryLines(BaubleTestCase):
 
         # action
         line = '20180223_092139 :INVENTORY: A09x : 2013.1317 : 000000000000000'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
 
         # test T1
@@ -354,7 +354,7 @@ class ImportInventoryLines(BaubleTestCase):
 
         # action
         line = '20180223_092139 :INVENTORY:  : 2013.1317 : 000000000000000'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
 
         # test T1
@@ -371,7 +371,7 @@ class ImportInventoryLines(BaubleTestCase):
 
         # action
         line = '20180223_092139 :INVENTORY:  :  : 000000000000000'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
 
         # test T1
@@ -388,7 +388,7 @@ class ImportInventoryLines(BaubleTestCase):
 
         # action
         line = '20180223_092139 :INVENTORY:  : 2013.1317 : 000000000000000'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
 
         # test T1
@@ -418,7 +418,7 @@ class ImportGPSCoordinates(BaubleTestCase):
         self.assertEquals(a, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001 :  :  : (31.5215;-5.5312)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
@@ -440,7 +440,7 @@ class ImportGPSCoordinates(BaubleTestCase):
         
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0002 :  :  : (31.5215;-5.5312)'
-        process_line(self.session, 'Mario', line, 1536845535)
+        process_line(self.session, line, 1536845535)
         self.session.commit()
 
         # T1
@@ -470,7 +470,9 @@ class ImportPictures(BaubleTestCase):
 
         # action
         line = '20180223_130951 :PENDING_EDIT: 2015.0901 :  :  : (@;@) : file:///storage/sdcard/Android/data/me.ghini.pocket/files/Pictures/GPP_20180223_130931-958344128.jpg : file:///storage/sdcard/Android/data/me.ghini.pocket/files/Pictures/GPP_20180223_130943948184518.jpg'
-        process_line(self.session, 'Mario', line, 1536845535)
+        db.current_user.override('Antonio')
+        process_line(self.session, line, 1536845535)
+        db.current_user.override()
         self.session.commit()
 
         # T1

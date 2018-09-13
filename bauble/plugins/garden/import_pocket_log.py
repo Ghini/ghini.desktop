@@ -100,7 +100,7 @@ def heuristic_split(full_plant_code):
     return accession_code, plant_code
 
 
-def process_inventory_line(session, user_name, baseline, timestamp, parameters):
+def process_inventory_line(session, baseline, timestamp, parameters):
     location_code, full_plant_code, imei = parameters
     if not full_plant_code:
         # what should we do…
@@ -125,7 +125,7 @@ def process_inventory_line(session, user_name, baseline, timestamp, parameters):
         plant = lookup(session, Plant, code=plant_code, accession=accession, quantity=1, location=location)
 
 
-def process_pending_edit_line(session, user_name, baseline, timestamp, parameters):
+def process_pending_edit_line(session, baseline, timestamp, parameters):
     full_plant_code, scientific_name, quantity, coordinates, *pictures = parameters
 
     if quantity:
@@ -172,8 +172,7 @@ def process_pending_edit_line(session, user_name, baseline, timestamp, parameter
 
     if coordinates != '(@;@)':
         # remove any previous such note
-        coords = session.query(PlantNote).filter_by(plant=plant, category='<coords>')
-        coords.delete()
+        session.query(PlantNote).filter_by(plant=plant, category='<coords>').delete()
         # add new one
         lat, lon = (float(i) for i in coordinates[1:-1].split(';'))
         value = "{lat:%0.6f,lon:%0.6f}" % (lat, lon)
@@ -184,7 +183,7 @@ def process_pending_edit_line(session, user_name, baseline, timestamp, parameter
         note = lookup(session, PlantNote, plant=plant, category='<picture>', note=basename)
 
 
-def process_line(session, user_name, line, baseline):
+def process_line(session, line, baseline):
     """process the changes in 'line'
 
     """
@@ -196,9 +195,9 @@ def process_line(session, user_name, line, baseline):
         return None
     parameters = re.split(r' : ', trailer)
     if category == 'INVENTORY':
-        process_inventory_line(session, user_name, baseline, timestamp, parameters)
+        process_inventory_line(session, baseline, timestamp, parameters)
     elif category == 'PENDING_EDIT':
-        process_pending_edit_line(session, user_name, baseline, timestamp, parameters)
+        process_pending_edit_line(session, baseline, timestamp, parameters)
     else:
         logger.error("unhandled category in your pocket data line ›%s‹" % line)
 
