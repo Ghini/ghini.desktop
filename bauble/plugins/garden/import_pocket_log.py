@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016,2017 Mario Frasca <mario@anche.no>.
+# Copyright 2016-2018 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
@@ -18,12 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-#
-# This file is a first start for importing data from a ghini.pocket log.
-#
-# You invoke this temporary script from the command line, it reads your
-# connection configuration from a 'settings.json' file in the same scripts
-# directory.
 #
 # Data from the ghini.pocket log is written to the session, inconditionally.
 #
@@ -43,8 +37,7 @@ import bauble.utils
 from bauble.plugins.garden import Location
 from bauble.plugins.garden import Plant, PlantNote
 from bauble.plugins.garden import Accession
-from bauble.plugins.plants import Species
-from bauble.plugins.plants import Genus
+from bauble.plugins.plants import Species, Genus, Family
 
 
 def get_genus(session, keys):
@@ -90,83 +83,139 @@ def get_species(session, keys):
     return species
 
 
-def get_location(session, keys):
+def lookup(session, klass, **kwargs):
+    obj = session.query(klass).filter_by(**kwargs).first()
+    if obj is None:
+        obj = klass(**kwargs)
+        session.add(obj)
+        session.flush()
+    return obj
+
+
+def process_inventory_line(session, baseline, timestamp, parameters):
+    location_code, accession_code, imei = parameters
+    pass
+
+
+def process_pending_edit_line(session, baseline, timestamp, parameters):
+    full_plant_code, scientific_name, quantity, coordinates, *pictures = parameters
+
+    if quantity:
+        quantity = int(quantity)
+    else:
+        quantity = 1
+
+    # does the accession code actually indicate a specific plant within the accession?
+    accession_code, plant_code = full_plant_code.rsplit('.', 1)
+
+    fictive_family = lookup(session, Family, epithet='Zz-Plantae')
+    fictive_genus = lookup(session, Genus, family=fictive_family, epithet='Zzd-Plantae')
+    fictive_species = lookup(session, Species, genus=fictive_genus, infrasp1='sp')
+
+    # how long is the species indication?
+    epithets = [i for i in scientific_name.split(' ') if i]
+    if len(epithets) == 0:
+        # no identification whatsoever
+        species = fictive_species
+    elif len(epithets) == 1:
+        # identified to rank genus, which must exist
+        genus = lookup(session, Genus, epithet=epithets[0])
+        species = lookup(session, Species, genus=genus, infrasp1='sp')
+    elif len(epithets) >= 2:
+        if len(epithets) > 2:
+            logger.info("ignoring infraspecific epithets ›%s‹" % scientific_name)
+        genus = lookup(session, Genus, epithet=epithets[0])
+        species = lookup(session, Species, genus=genus, epithet=epithets[1])
+    
+    # does this plant already exist?  
+    plant = session.query(Plant).filter_by(code=plant_code).join(Accession).filter_by(code=accession_code).first()
+    accession = session.query(Accession).filter_by(code=accession_code).first()
+    if plant is None:
+        # if it does not, we have work to do …
+        location = lookup(session, Location, code='default')
+        if accession is None:
+            accession = lookup(session, Accession, code=accession_code, species=species, quantity_recvd=quantity)
+        plant = lookup(session, Plant, code=plant_code, accession=accession, location=location, quantity=quantity)
+        print(plant, accession, species)
+    pass
+
+
+def process_line(session, line, baseline):
+    """process the changes in 'line'
+
+    """
+    import re
     try:
-        loc = session.query(Location).filter(bauble.utils.ilike(Location.code, unicode(keys['location']))).one()
+        timestamp, category, trailer = re.split(r' :(?:([A-Z_]*):) ', line)
     except:
-        loc = Location(code=keys['location'].upper())
-        session.add(loc)
-        session.flush()
-    return loc
+        logger.error("some serious error in your pocket data line ›%s‹" % line)
+        return None
+    parameters = re.split(r' : ', trailer)
+    if category == 'INVENTORY':
+        process_inventory_line(session, baseline, timestamp, parameters)
+    elif category == 'PENDING_EDIT':
+        process_pending_edit_line(session, baseline, timestamp, parameters)
+    else:
+        logger.error("unhandled category in your pocket data line ›%s‹" % line)
 
 
-import os.path
-path = os.path.dirname(os.path.realpath(__file__))
+if False:
+    q = session.query(Species).filter(Species.infrasp1 == u'sp')
+    q = q.join(Genus).filter(Genus.epithet == u'Zzz')
+    zzz = q.one()
 
-import json
+    import csv
+    import sys
 
-with open(os.path.join(path, 'settings.json'), 'r') as f:
-    (user, pw, filename, imei2user, dburi, pic_path) = json.load(f)
+    header = ['timestamp', 'location', 'acc_code', 'imei', 'species']
+    last_loc = None
 
-bauble.db.open(dburi, True, True)
-session = bauble.db.Session()
+    import fileinput
+    for line in fileinput.input():
+        sys.stdout.flush()
+        obj = dict(zip(header, [i.strip() for i in unicode(line).split(':')]))
+        if len(obj) < 3:
+            continue  # ignore blank lines
+        obj.setdefault('species', 'Zzz sp')
 
-q = session.query(Species).filter(Species.infrasp1 == u'sp')
-q = q.join(Genus).filter(Genus.epithet == u'Zzz')
-zzz = q.one()
+        if not obj['location']:
+            obj['location'] = last_loc
+        last_loc = obj['location']
 
-import csv
-import sys
+        loc = lookup(session, Location, code=last_loc)
+        genus = get_genus(session, obj)  # alters obj
+        species = get_species(session, obj)
 
-header = ['timestamp', 'location', 'acc_code', 'imei', 'species']
-last_loc = None
-
-import fileinput
-for line in fileinput.input():
-    sys.stdout.flush()
-    obj = dict(zip(header, [i.strip() for i in unicode(line).split(':')]))
-    if len(obj) < 3:
-        continue  # ignore blank lines
-    obj.setdefault('species', 'Zzz sp')
-
-    if not obj['location']:
-        obj['location'] = last_loc
-    last_loc = obj['location']
-
-    loc = get_location(session, obj)
-    genus = get_genus(session, obj)  # alters obj
-    species = get_species(session, obj)
-
-    try:
-        q = session.query(Plant)
-        q = q.join(Accession).filter(Accession.code == obj['acc_code'])
-        q = q.filter(Plant.code == u'1')
-        plant = q.one()
-        if plant.location != loc:
-            plant.location = loc
-            sys.stdout.write(':')  # we altered a plant location
-        else:
-            sys.stdout.write('.')  # we confirmed a plant location
-    except Exception as e:
         try:
-            accession = session.query(Accession).filter(Accession.code == obj['acc_code']).one()
+            q = session.query(Plant)
+            q = q.join(Accession).filter(Accession.code == obj['acc_code'])
+            q = q.filter(Plant.code == u'1')
+            plant = q.one()
+            if plant.location != loc:
+                plant.location = loc
+                sys.stdout.write(':')  # we altered a plant location
+            else:
+                sys.stdout.write('.')  # we confirmed a plant location
         except Exception as e:
-            accession = Accession(species=species, code=obj['acc_code'])
-            session.add(accession)
-            sys.stdout.write('a')  # we added a new accession
-        plant = Plant(accession=accession, location=loc, quantity=1, code=u'1')
-        session.add(plant)
-        session.flush()
-        sys.stdout.write('p')  # we added a new plant
-    # operación perro - mark the plant as seen today
-    q = session.query(PlantNote)
-    q = q.filter(PlantNote.plant == plant)
-    q = q.filter(PlantNote.category == u'inventario')
-    q = q.filter(PlantNote.note == obj['timestamp'][:8])
-    if q.count() == 0:
-        note = PlantNote(plant=plant, category=u'inventario', note=obj['timestamp'][:8])
-        session.add(note)
-        session.flush()
+            try:
+                accession = session.query(Accession).filter(Accession.code == obj['acc_code']).one()
+            except Exception as e:
+                accession = Accession(species=species, code=obj['acc_code'])
+                session.add(accession)
+                sys.stdout.write('a')  # we added a new accession
+            plant = Plant(accession=accession, location=loc, quantity=1, code=u'1')
+            session.add(plant)
+            session.flush()
+            sys.stdout.write('p')  # we added a new plant
+        # operación perro - mark the plant as seen today
+        q = session.query(PlantNote)
+        q = q.filter(PlantNote.plant == plant)
+        q = q.filter(PlantNote.category == u'inventario')
+        q = q.filter(PlantNote.note == obj['timestamp'][:8])
+        if q.count() == 0:
+            note = PlantNote(plant=plant, category=u'inventario', note=obj['timestamp'][:8])
+            session.add(note)
+            session.flush()
 
-print
-session.commit()
+    print
+    session.commit()

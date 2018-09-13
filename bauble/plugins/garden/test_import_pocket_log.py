@@ -127,6 +127,7 @@ class ImportNewPlant(BaubleTestCase):
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 1 : (@;@)'
         process_line(self.session, line, 1536845535)
+        self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         self.assertNotEquals(a, None)
@@ -134,3 +135,18 @@ class ImportNewPlant(BaubleTestCase):
         self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
         self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
         
+
+class ImportExistingPlant(BaubleTestCase):
+    def setUp(self):
+        super().setUp()
+        fam_fictive = Family(epithet='Zz-Plantae')
+        gen_fictive = Genus(epithet='Zzd-Plantae', family=fam_fictive)
+        fam = Family(epithet='Myrtaceae')
+        gen = Genus(epithet='Eugenia', family=fam)
+        spe = Species(epithet='stipitata', genus=gen)
+        self.session.add_all([fam, gen, spe, fam_fictive, gen_fictive])
+        self.session.commit()
+
+    def test_import_unidentified_not_overwriting_existing_identification(self):
+        line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 1 : (@;@)'
+        pass
