@@ -3,6 +3,7 @@
 #
 # Copyright 2016-2018 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
+# Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
