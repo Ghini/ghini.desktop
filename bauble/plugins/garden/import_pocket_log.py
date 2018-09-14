@@ -27,12 +27,9 @@ logger = logging.getLogger(__name__)
 
 import os.path
 
-import bauble.db
-import bauble.utils
-
-from bauble.plugins.garden import Location
-from bauble.plugins.garden import Plant, PlantNote
-from bauble.plugins.garden import Accession
+from dateutil.parser import parse
+from bauble import db
+from bauble.plugins.garden import Location, Plant, PlantNote, Accession, Verification
 from bauble.plugins.plants import Species, Genus, Family
 
 
@@ -111,7 +108,7 @@ def process_inventory_line(session, baseline, timestamp, parameters):
     # if plant is in place, edit it, otherwise, create it.
     plant = session.query(Plant).filter_by(code=plant_code).join(Accession).filter_by(code=accession_code).first()
     if plant is not None:
-        # no location_code means just asserting existence
+        # no location_code means just asserting existence, on existing plant, so no effect.
         if location_code:
             plant.location = location
     else:
@@ -124,14 +121,18 @@ def process_inventory_line(session, baseline, timestamp, parameters):
             accession = lookup(session, Accession, code=accession_code, species=fictive_species)
         plant = lookup(session, Plant, code=plant_code, accession=accession, quantity=1, location=location)
 
+    # even if location is none, still we have seen the plant today, so we make a note of it
+    date_str = str(timestamp.date())
+    lookup(session, PlantNote, plant=plant, category='inventory', date=timestamp, note=date_str)
+
 
 def process_pending_edit_line(session, baseline, timestamp, parameters):
     full_plant_code, scientific_name, quantity, coordinates, *pictures = parameters
+    if not full_plant_code:
+        # what should we do…
+        return
 
-    if quantity:
-        quantity = int(quantity)
-    else:
-        quantity = 1
+    quantity = int(quantity or '1')
 
     # does the accession code actually indicate a specific plant within the accession?
     accession_code, plant_code = heuristic_split(full_plant_code)
@@ -168,7 +169,11 @@ def process_pending_edit_line(session, baseline, timestamp, parameters):
         plant.quantity=quantity
 
     if species != fictive_species:
+        if species.epithet:
+            lookup(session, Verification, date=timestamp, accession=accession, species=species,
+                   verifier=db.current_user(), level=0, prev_species=accession.species)
         accession.species = species
+        
 
     if coordinates != '(@;@)':
         # remove any previous such note
@@ -190,6 +195,7 @@ def process_line(session, line, baseline):
     import re
     try:
         timestamp, category, trailer = re.split(r' :(?:([A-Z_]*):) ', line)
+        timestamp = parse(timestamp.replace("_", "T")+"Z")
     except:
         logger.error("some serious error in your pocket data line ›%s‹" % line)
         return None
