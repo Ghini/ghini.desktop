@@ -120,7 +120,7 @@
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="icon_name">image-x-generic</property>
+                <property name="icon_name">emblem-photos</property>
                 <property name="icon_size">6</property>
               </object>
               <packing>

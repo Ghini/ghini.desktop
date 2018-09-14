@@ -390,6 +390,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
 class PictureImporterTool(pluginmgr.Tool):
     category = _('Import')
     label = _('Picture Collection')
+    icon_name = 'emblem-photos'
     model = type('Model', (object,),
                  {'visible_pane': 0,
                   'filepath': '',
