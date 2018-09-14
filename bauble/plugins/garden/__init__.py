@@ -33,6 +33,7 @@ import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
 from bauble.plugins.garden.accession import AccessionEditor, \
     Accession, AccessionInfoBox, AccessionNote, \
+    Verification, \
     acc_context_menu
 from bauble.plugins.garden.location import LocationEditor, \
     Location, LocationInfoBox, loc_context_menu
