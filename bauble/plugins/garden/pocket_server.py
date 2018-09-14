@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2018 Mario Frasca <mario@anche.no>.
+# Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
