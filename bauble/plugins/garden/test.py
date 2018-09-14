@@ -2430,7 +2430,7 @@ class TestExportToPocket(GardenTestCase):
         os.close(fd)
         os.unlink(filename)
         create_pocket(filename)
-        export_to_pocket(filename)
+        export_to_pocket(filename, lambda: None)
 
         import sqlite3
         cn = sqlite3.connect(filename)
@@ -2459,7 +2459,7 @@ class TestExportToPocket(GardenTestCase):
         os.close(fd)
         os.unlink(filename)
         create_pocket(filename)
-        export_to_pocket(filename)
+        export_to_pocket(filename, lambda: None)
 
         import sqlite3
         cn = sqlite3.connect(filename)
@@ -2473,3 +2473,19 @@ class TestExportToPocket(GardenTestCase):
         cr.execute('select * from "plant"')
         content = cr.fetchall()
         self.assertEqual(len(content), 2)
+
+    def test_invokes_callback(self):
+        GardenTestCase.setUp(self)
+        import tempfile
+        fd, filename = tempfile.mkstemp()
+        os.close(fd)
+        os.unlink(filename)
+
+        self.invoked = False
+        def callback():
+            self.invoked = True
+        create_pocket(filename)
+        export_to_pocket(filename, callback)
+
+        self.assertEqual(self.invoked, True)
+        
