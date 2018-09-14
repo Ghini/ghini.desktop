@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015,2018 Mario Frasca <mario@anche.no>.
+# Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -604,7 +605,7 @@ class GUI(object):
             for tool in p.tools:
                 if isinstance(tool.category, tuple):
                     tool.category, icon = tool.category
-                    category_icon[tool.category] = os.path.join(paths.lib_dir(), icon)
+                    category_icon[tool.category] = icon
                 tools.setdefault(tool.category, []).append(tool)
 
         # add the tools with no category to the root menu
@@ -620,7 +621,7 @@ class GUI(object):
         # create submenus for the categories and add the tools
         for category in sorted(tools.keys()):
             submenu = Gtk.Menu()
-            submenu_item = create_menu_item_with_image(category, category_icon.get(category))
+            submenu_item = create_menu_item_with_image(category, category_icon.get(category), paths.lib_dir())
             submenu_item.set_submenu(submenu)
             menu.append(submenu_item)
             for tool in sorted(tools[category], key=lambda x: x.label):
