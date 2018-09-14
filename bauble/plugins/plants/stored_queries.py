@@ -190,6 +190,7 @@ def edit_callback():
 class StoredQueryEditorTool(pluginmgr.Tool):
     item_position = 20
     label = _('Edit stored queries')
+    icon_name = 'x-office-spreadsheet'
 
     @classmethod
     def start(self):
