@@ -211,6 +211,11 @@ class _prefs(dict):
                 for section in sorted(prefs.config.sections())
                 for name, value in prefs.config.items(section)]
 
+    def setdefault(self, key, default=None):
+        if key not in self:
+            self.__setitem__(key, default)
+        return self[key]
+
     def __setitem__(self, key, value):
         section, option = _prefs._parse_key(key)
         if not self.config.has_section(section):
