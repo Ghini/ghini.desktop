@@ -199,6 +199,8 @@ def get_pertinent_objects(cls, objs):
     :param cls:
     :param objs:
     """
+    if not isinstance(objs, (list, tuple)):
+        objs = [objs]
     from sqlalchemy.orm import object_session
     session = object_session(objs[0])
 
