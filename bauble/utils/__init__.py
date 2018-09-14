@@ -87,11 +87,11 @@ class Cache:
             value = self.storage[key][1]
             on_hit(value)
         else:
+            value = getter()
             if len(self.storage) == self.size:
                 # remove the oldest entry
                 k = min(list(zip(list(self.storage.values()), list(self.storage.keys()))))[1]
                 del self.storage[k]
-            value = getter()
         import time
         self.storage[key] = time.time(), value
         return value
@@ -170,9 +170,9 @@ class ImageLoader(threading.Thread):
                 image = Gtk.Image()
                 self.box.add(image)
             image.set_from_pixbuf(scaled_buf)
-        except GLib.GError as e:
-            logger.debug("picture %s caused GLib.GError %s" %
-                         (self.url, e))
+        except (GLib.GError, AttributeError) as e:
+            logger.debug("picture %s caused %s %s" %
+                         (self.url, type(e).__name__, e))
             text = _('picture file %s not found.') % self.url
             label = Gtk.Label()
             label.set_text(text)
@@ -192,7 +192,10 @@ class ImageLoader(threading.Thread):
         self.loader.connect("closed", self.loader_notified)
         self.cache.get(
             self.url, self.reader_function, on_hit=self.loader.write)
-        self.loader.close()
+        try:
+            self.loader.close()
+        except GLib.GError as e:
+            logger.debug('broken picture %s' % self.url)
 
     def read_base64(self):
         self.loader.connect("area-prepared", self.loader_notified)
