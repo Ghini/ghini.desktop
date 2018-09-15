@@ -20,6 +20,8 @@
 ##
 ## report/mako/
 ##
+## DOMAIN species
+##
 <%text filter="h">%!PS-Adobe-3.0
 %%BoundingBox: (atend)
 %%Creator: (Ghini)
@@ -25435,8 +25437,7 @@ currentdict end
 } stopped cleartomark
 %%EndSetup
 </%text>
-<% from bauble.plugins.report import get_species_pertinent_to %>
-% for p, v in enumerate(get_species_pertinent_to(values)):
+% for p, v in enumerate(values):
 <%text>%%Page: </%text>${p} ${p}
 <%text>%%PageOrientation: Portrait
 %%PageBoundingBox: 18 18 322 180

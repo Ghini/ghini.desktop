@@ -285,7 +285,9 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
 
 
 class TaxonomyCheckTool(pluginmgr.Tool):
+    item_position = 15
     label = _('Taxonomy check')
+    icon_name = "taxonomy_check.png"
 
     @classmethod
     def start(self):

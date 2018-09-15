@@ -34,7 +34,6 @@ from bauble.editor import (
 from bauble import paths, pluginmgr
 from bauble.querybuilder import SchemaMenu
 
-
 class FlatFileExporter(GenericEditorPresenter):
 
     view_accept_buttons = ['cancel_button', 'confirm_button']
@@ -45,12 +44,22 @@ class FlatFileExporter(GenericEditorPresenter):
         self.domain_map = MapperSearch.get_domain_classes().copy()
         self.domain = None
         self.mapper = None
+        self.results_model = bauble.gui.get_results_model(quiet=True)
 
         self.view.widgets.domain_ls.clear()
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_ls.append([key])
+        self.view.widgets.searchable_ls.clear()
+        for key in ['accession', 'location', 'plant', 'species']:
+            self.view.widgets.searchable_ls.append([key])
+
         self.signal_id = None
         self.on_output_file_changed()
+        self.toggling = False
+        self.active_toggle = None
+        self.view.widgets.do_collection_button.set_active(True)
+        if self.results_model is None:
+            self.view.widgets.do_selection_button.set_sensitive(False)
 
     def get_model_fields(self):
         return {'output_file': self.view.widget_get_value('output_file'),
@@ -71,6 +80,24 @@ class FlatFileExporter(GenericEditorPresenter):
         self.view.widgets.exported_fields_ls.clear()
         for i in exported_fields:
             self.view.widgets.exported_fields_ls.append((i, ))
+
+    def on_toggle_toggled(self, target):
+        if self.toggling:
+            return
+        self.toggling = True
+        for button in (self.view.widgets.do_selection_button,
+                       self.view.widgets.do_collection_button):
+            button.set_active(button==target)
+        if target != self.active_toggle:
+            domain = self.view.widget_get_value('domain_combo')
+            if target == self.view.widgets.do_selection_button:
+                self.active_ls = self.view.widgets.searchable_ls
+            else:
+                self.active_ls = self.view.widgets.domain_ls
+            self.view.widgets.domain_combo.set_model(self.active_ls)
+            self.view.widget_set_value('domain_combo', domain)
+            self.on_domain_combo_changed()
+        self.toggling = False
 
     def on_open_btn_clicked(self, *args):
         """browse for output file
@@ -121,18 +148,33 @@ class FlatFileExporter(GenericEditorPresenter):
             return True
 
     def on_domain_combo_changed(self, *args):
-        """
-        Change the search domain.  Resets the expression table and
+        """react on new domain selection
+
+        when user selects a new domain, reset the expression table and
         deletes all the expression rows.
+
+        when user changes object selection criterium, 
+
         """
+
         try:
             index = self.view.widgets.domain_combo.get_active()
         except AttributeError:
-            return
+            index = -1
         if index == -1:
+            self.view.widgets.exported_fields_ls.clear()
+            if self.signal_id is not None:
+                self.view.widgets.chooser_btn.disconnect(self.signal_id)
             return
 
-        self.domain = self.view.widgets.domain_ls[index][0]
+        new_domain = self.active_ls[index][0]
+        if new_domain == self.domain:
+            # we were invoked because the combobox changed, not because the
+            # selected text changed.  the underlying list changed, so the
+            # index changed, but the text remains the same.
+            return
+
+        self.domain = new_domain
         self.view.widgets.exported_fields_ls.clear()
         self.mapper = class_mapper(self.domain_map[self.domain])
 
@@ -176,7 +218,14 @@ class FlatFileExporter(GenericEditorPresenter):
             spamwriter = csv.writer(csvfile, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
             session = db.Session()
-            for obj in session.query(self.mapper).all():
+            if self.active_ls == self.view.widgets.searchable_ls:
+                model = bauble.gui.get_results_model()
+                objs = [row[0] for row in model]
+                from . import get_pertinent_objects
+                todo = get_pertinent_objects(self.domain_map[self.domain], objs)
+            else:
+                todo = session.query(self.mapper).all()
+            for obj in todo:
                 row = []
                 for j in self.view.widgets.exported_fields_ls:
                     # values is the list of the objects from which to read fields
@@ -207,13 +256,14 @@ class FlatFileExporter(GenericEditorPresenter):
                 'filename': filename}
 
 class FlatFileExportTool(pluginmgr.Tool):
-    category = _('Export')
-    label = _('Flat file (csv)')
+    category = _('Report')
+    label = _('Quick CSV')
+    icon_name = "accessories-text-editor"
     last_model = {}
 
     @classmethod
     def start(cls):
-        gladefilepath = os.path.join(paths.lib_dir(), "plugins", "imex", "flat_export.glade")
+        gladefilepath = os.path.join(paths.lib_dir(), "plugins", "report", "flat_export.glade")
         view = GenericEditorView(
             gladefilepath,
             parent=None,

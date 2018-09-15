@@ -381,7 +381,6 @@ class FamilyTests(PlantTestCase):
 
     def test_editor(self):
         raise SkipTest('Not Implemented')
-        #loc = self.create(Family, name=u'some site')
         fam = Family(epithet='some family')
         editor = FamilyEditor(model=fam)
         editor.start()
@@ -574,7 +573,6 @@ class GenusTests(PlantTestCase):
         Interactively test the GenusEditor
         """
         raise SkipTest('Not Implemented')
-        #loc = self.create(Genus, name=u'some site')
         fam = Family(epithet='family')
         fam2 = Family(epithet='family2')
         fam2.synonyms.append(fam)

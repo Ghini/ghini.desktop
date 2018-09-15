@@ -31,7 +31,7 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.INFO)
 
-from gi.repository import Gdk
+from gi.repository import Gtk, Gdk
 
 import bauble
 import bauble.db as db

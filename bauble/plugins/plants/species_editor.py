@@ -67,6 +67,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, model, view):
         super().__init__(model, view)
+        self.initializing = True
         self.create_toolbar()
         self.session = object_session(model)
         self._dirty = False
@@ -248,7 +249,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(kid)
 
             binomial = '%s %s' % (self.model.genus, self.model.epithet)
-            AskTPL(binomial, sp_species_TPL_callback, timeout=2, gui=True
+            timeout = prefs.get('network_timeout')
+            AskTPL(binomial, sp_species_TPL_callback, timeout=timeout, gui=True
                    ).start()
             b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
             b0.message = _("querying the plant list")
@@ -321,6 +323,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.sp_ok_and_add_button.set_sensitive(True)
         except Exception:
             pass
+        self.initializing = False
 
     def set_visible_buttons(self, visible):
         self.view.widgets.sp_ok_and_add_button.set_visible(visible)
@@ -375,8 +378,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         Resets the sensitivity on the ok buttons and the name widgets
         when values change in the model
         '''
-        super().set_model_attr(field, value,
-                                                           validator)
+        super().set_model_attr(field, value, validator)
         self._dirty = True
         sensitive = True
         if len(self.problems) != 0 \
@@ -386,9 +388,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             sensitive = False
         elif not self.model.genus:
             sensitive = False
-        # elif not (self.model.sp or self.model.cv_group or \
-        #         (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
-        #     sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
 
     def refresh_sensitivity(self):

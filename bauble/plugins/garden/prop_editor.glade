@@ -222,6 +222,7 @@
                                                 <property name="invisible_char">&#x25CF;</property>
                                                 <property name="width_chars">8</property>
                                                 <property name="xalign">1</property>
+                                                <signal name="changed" handler="on_numeric_text_entry_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -299,6 +300,7 @@
                                                 <property name="invisible_char">&#x25CF;</property>
                                                 <property name="width_chars">5</property>
                                                 <property name="xalign">1</property>
+                                                <signal name="changed" handler="on_numeric_text_entry_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -587,6 +589,7 @@
                                                     <property name="invisible_char">&#x25CF;</property>
                                                     <property name="width_chars">5</property>
                                                     <property name="xalign">1</property>
+                                                    <signal name="changed" handler="on_numeric_text_entry_changed" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -906,6 +909,7 @@
                                                 <property name="invisible_char">&#x25CF;</property>
                                                 <property name="width_chars">3</property>
                                                 <property name="xalign">1</property>
+                                                <signal name="changed" handler="on_numeric_text_entry_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -1126,6 +1130,7 @@
                                             <property name="max_length">6</property>
                                             <property name="invisible_char">&#x25CF;</property>
                                             <property name="width_chars">6</property>
+                                            <signal name="changed" handler="on_numeric_text_entry_changed" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1372,6 +1377,7 @@
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">&#x25CF;</property>
                                             <property name="width_chars">6</property>
+                                            <signal name="changed" handler="on_numeric_text_entry_changed" swapped="no"/>
                                           </object>
                                         </child>
                                       </object>
@@ -1404,6 +1410,7 @@
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">&#x25CF;</property>
                                             <property name="width_chars">5</property>
+                                            <signal name="changed" handler="on_numeric_text_entry_changed" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>

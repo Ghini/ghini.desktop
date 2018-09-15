@@ -67,24 +67,9 @@ doc/*.txt
 po/*.mo
 pot
 
-## temporary files from the Cuchubo activity. ask mario@anche.no
-scripts/drop2bauble.py
-scripts/fixme.py
-scripts/gh-issues-import.py
-scripts/map2db.py
-scripts/tomongo.py
-scripts/what_are_the_problems.py
-scripts/what_is_available.py
-scripts/ghini.lnk
-bauble/test/test_search2.py
-bauble/multiple-orig.py 
-bauble/multiple.py
-piccolo_test.py
 po/.doctrees/
-issues/
 doc/_build/
 doc/locale/
-bauble/plugins/plants/ipni.org/
 .build/
 cover/
 .project
@@ -102,12 +87,15 @@ issue-0177.py
 issue-0177.py.txt
 try-me
 
+## temporary files from the Cuchubo activity. ask mario@anche.no
 aaa-start-here.py
+glade-tester.py
+glade-tester.glade
+
 todo*.txt
 from_*.tar.gz
 settings.json
 odk-seen.json
-lab-csv2json.py
-test.py
 imex-it.rst
 ghini.py
+what-icon-at-menuitem.org

@@ -218,7 +218,7 @@ information pane. When an Accession in the selection is highlighted, any
 picture associated to the plants in the highlighted accession are displayed
 in the pictures pane.
 
-In Ghini-1.0, pictures are special notes, with category "<picture>", and
+In Ghini-3.1, pictures are special notes, with category "<picture>", and
 text the path to the file, relative to the pictures root folder.  In the
 Notes tab, Picture notes will show as normal notes, and you can edit them
 without limitations.

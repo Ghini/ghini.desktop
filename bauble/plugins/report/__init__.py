@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2018 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 # Copyright 2017 Ross Demuth
 #
@@ -34,7 +34,10 @@ logger = logging.getLogger(__name__)
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import GObject
+
+from threading import Thread
 
 from sqlalchemy import union
 
@@ -49,13 +52,10 @@ from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location, Source, Contact
 from bauble.plugins.tag import Tag
 
-# TODO: this module should depend on PlantPlugin, GardenPlugin,
-# TagPlugin and should also allow other plugins to register between
-# two type of objects
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
 
-# TODO: should be able to drop a new formatter plugin and have it
-# automatically detected, right now we to return it in this modules
-# plugin() function
+from .flat_export import FlatFileExportTool
 
 # name: formatter_class, formatter_kwargs
 config_list_pref = 'report.configs'
@@ -63,30 +63,6 @@ config_list_pref = 'report.configs'
 # the default report generator to select on start
 default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
-
-
-# to be populated by the dialog box, with fields mentioned in the template
-options = {}
-
-
-def _get_pertinent_objects(cls, get_query_func, objs, session):
-    """
-    :param cls:
-    :param get_query_func:
-    :param objs:
-    :param session:
-    """
-    if session is None:
-        import bauble.db as db
-        session = db.Session()
-    if not isinstance(objs, (tuple, list)):
-        objs = [objs]
-    queries = [get_query_func(o, session) for o in objs]
-    # TODO: what is the problem with the following form?
-    # results = session.query(cls).order_by(None).union(*queries)
-    unions = union(*[q.statement for q in queries])
-    results = session.query(cls).from_statement(unions)
-    return results
 
 
 def get_plant_query(obj, session):
@@ -116,20 +92,10 @@ def get_plant_query(obj, session):
         return q.join('accession', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        plants = get_plants_pertinent_to(obj.objects, session)
+        plants = get_pertinent_objects(Plant, obj.objects)
         return q.filter(Plant.id.in_([p.id for p in plants]))
     else:
         raise BaubleError(_("Can't get plants from a %s") % type(obj).__name__)
-
-
-def get_plants_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
-
-    Return all the plants found in objs.
-    """
-    return _get_pertinent_objects(Plant, get_plant_query, objs, session)
 
 
 def get_accession_query(obj, session):
@@ -155,22 +121,11 @@ def get_accession_query(obj, session):
     elif isinstance(obj, Contact):
         return q.join('source', 'source_detail').filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        acc = get_accessions_pertinent_to(obj.objects, session)
+        acc = get_pertinent_objects(Accession, obj.objects)
         return q.filter(Accession.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get accessions from a %s") %
                           type(obj).__name__)
-
-
-def get_accessions_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
-
-    Return all the accessions found in objs.
-    """
-    return _get_pertinent_objects(
-        Accession, get_accession_query, objs, session)
 
 
 def get_species_query(obj, session):
@@ -198,23 +153,11 @@ def get_species_query(obj, session):
         return q.join('accessions', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        acc = get_species_pertinent_to(obj.objects, session)
+        acc = get_pertinent_objects(Species, obj.objects)
         return q.filter(Species.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get species from a %s") %
                           type(obj).__name__)
-
-
-def get_species_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
-
-    Return all the species found in objs.
-    """
-    return sorted(
-        _get_pertinent_objects(Species, get_species_query, objs, session),
-        key=lambda x: "%s" % x)
 
 
 def get_location_query(obj, session):
@@ -243,23 +186,34 @@ def get_location_query(obj, session):
         return q.join('plants', 'accession', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        locs = get_locations_pertinent_to(obj.objects, session)
+        locs = get_pertinent_objects(Location, obj.objects)
         return q.filter(Location.id.in_([l.id for l in locs]))
     else:
         raise BaubleError(_("Can't get Location from a %s") %
                           type(obj).__name__)
 
 
-def get_locations_pertinent_to(objs, session=None):
-    """
-    :param objs: an instance of a mapped object
-    :param session: the session to use for the queries
+def get_pertinent_objects(cls, objs):
+    """return a query containing all `csl` objects reachable from `objs`
 
-    Return all the locations found in objs.
+    :param cls:
+    :param objs:
     """
-    return sorted(
-        _get_pertinent_objects(Location, get_location_query, objs, session),
-        key=str)
+    if not isinstance(objs, (list, tuple)):
+        objs = [objs]
+    from sqlalchemy.orm import object_session
+    session = object_session(objs[0])
+
+    get_query_func = {
+        Plant: get_plant_query,
+        Accession: get_accession_query,
+        Species: get_species_query,
+        Location: get_location_query,
+    }[cls]
+
+    queries = [get_query_func(o, session) for o in objs]
+    unions = union(*[q.statement for q in queries])
+    return session.query(cls).from_statement(unions)
 
 
 class SettingsBox(Gtk.VBox):
@@ -288,391 +242,402 @@ class FormatterPlugin(pluginmgr.Plugin):
 
     title = ''
 
-    @staticmethod
-    def get_settings_box():
+    @classmethod
+    def init(cls):
+        '''inform report presenter that this plugin is available
+
+        (extend in derived classes)
         '''
-        return a class the implement Gtk.Box that should hold the gui for
-        the formatter
-        '''
-        raise NotImplementedError
+        cls.install()  # plugins still not versioned...
+        ReportToolDialogPresenter.formatter_class_map[cls.title] = cls
 
     @staticmethod
-    def format(selfobjs, **kwargs):
+    def format(objs, **kwargs):
         '''
         called when the use clicks on OK, this is the worker
         '''
         raise NotImplementedError
 
-
-class ReportToolDialogView(object):
-
-    def __init__(self):
-        self.widgets = utils.BuilderWidgets(
-            os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade'))
-        self.dialog = self.widgets.report_dialog
-        self.dialog.set_transient_for(bauble.gui.window)
-        self.builder = self.widgets.builder
-        utils.setup_text_combobox(self.widgets.names_combo)
-        utils.setup_text_combobox(self.widgets.formatter_combo)
-
-        self._delete_sid = self.dialog.connect(
-            'delete-event', self.on_dialog_close_or_delete)
-        self._close_sid = self.dialog.connect(
-            'close', self.on_dialog_close_or_delete)
-        self._response_sid = self.dialog.connect(
-            'response', self.on_dialog_response)
-
-    def on_dialog_response(self, dialog, response, *args):
+    @classmethod
+    def can_handle(cls, template):
+        '''tell whether plugin can handle template
         '''
-        Called if self.get_window() is a Gtk.Dialog and it receives
-        the response signal.
+        return cls.get_iteration_domain(template) != ''
+
+    @classmethod
+    def get_iteration_domain(cls, template):
+        '''return template iteration domain
+
+        a template that does not declare its iteration domain is not
+        considered valid.
+
         '''
-        dialog.hide()
-        self.response = response
-        return response
-
-    def on_dialog_close_or_delete(self, dialog, event=None):
-        """
-        Called if self.get_window() is a Gtk.Dialog and it receives
-        the close signal.
-        """
-        dialog.hide()
-        return False
-
-    def disconnect_all(self):
-        self.dialog.disconnect(self._delete_sid)
-        self.dialog.disconnect(self._close_sid)
-        self.dialog.disconnect(self._response_sid)
-
-    def start(self):
-        return self.dialog.run()
-
-    def set_sensitive(self, name, sensitivity):
         try:
-            self.builder.get_object(name).set_sensitive(sensitivity)
+            with open(template) as f:
+                domains = [m.group(1) for m in [cls.domain_pattern.match(line.strip())
+                                                for line in f.readlines()]
+                           if m is not None]
+                try:
+                    domain = domains[0]
+                except IndexError as e:
+                    logger.debug("template %s contains no DOMAIN declarations" % (template, ))
+                    domain = ''
         except:
-            logger.debug("can't set sensitivity of %s" % name)
+            logger.debug("template %s can't be read" % template)
+            domain = ''
+
+        return domain
 
 
-class ReportToolDialogPresenter(object):
+class ReportToolDialogPresenter(GenericEditorPresenter):
+    '''presenter, and at same time model.
 
+    Let user set parameters for report production, return them to invoking
+    function, and die.
+
+    '''
+
+    # to be populated by template plugins
     formatter_class_map = {}  # title->class map
 
     def __init__(self, view):
-        self.view = view
-        self.init_names_combo()
-        self.init_formatter_combo()
+        super().__init__(model=self, view=view, refresh_view=False)
+        self.populate_names_combo()
 
-        self.view.builder.connect_signals(self)
+        self.view.widget_set_sensitive('ok_button', False)
 
-        self.view.set_sensitive('ok_button', False)
-
-        # set the names combo to the default, on_names_combo_changes should
-        # do the rest of the work
+        # set the names combo to the default. this activates
+        # on_names_combo_changes, which does the rest of the work
         combo = self.view.widgets.names_combo
         default = prefs[default_config_pref]
-        try:
-            self.set_names_combo(default)
-        except Exception as e:
-            logger.debug(e)
-            self.set_names_combo(0)
+        self.view.widget_set_value('names_combo', default)
+        self.hard_coded_option = set(self.view.widgets.options_box.get_children())
 
-    def set_names_combo(self, val):
-        """
-        Set the names combo to val and emit the 'changed' signal,
-        :param val: either an integer index or a string value in the combo
-
-        If the model on the combo is None then this method will return
-        and not emit the changed signal
-        """
-        combo = self.view.widgets.names_combo
-        if combo.get_model() is None:
-            self.view.set_sensitive('details_box', False)
-            return
-        if val is None:
-            combo.set_active(-1)
-        elif isinstance(val, int):
-            combo.set_active(val)
-        else:
-            utils.combo_set_active_text(combo, val)
-
-    def set_formatter_combo(self, val):
-        """
-        Set the formatter combo to val and emit the 'changed' signal.
-
-        :param val: either an integer index or a string value in the
-          combo combo = self.view.widgets.formatter_combo
-        """
-        combo = self.view.widgets.formatter_combo
-        if val is None:
-            combo.set_active(-1)
-        elif isinstance(val, int):
-            combo.set_active(val)
-        else:
-            utils.combo_set_active_text(combo, val)
-
-    def set_prefs_for(self, name, formatter_title, settings):
+    def set_prefs_for(self, name, template, settings):
         '''
         This will overwrite any other report settings with name
         '''
-        formatters = prefs[config_list_pref]
-        if formatters is None:
-            formatters = {}
-        formatters[name] = formatter_title, settings
-        prefs[config_list_pref] = formatters
+        activated_templates = prefs[config_list_pref]
+        if activated_templates is None:
+            activated_templates = {}
+        activated_templates[name] = template, settings
+        prefs[config_list_pref] = activated_templates
 
     def on_new_button_clicked(self, *args):
-        # TODO: don't set the OK button as sensitive in the name dialog
-        # if the name already exists
-        # TODO: make "Enter" in the entry fire the default response
-        d = Gtk.Dialog(_("Formatter Name"), self.view.dialog,
+        d = Gtk.Dialog(_("Activate Formatter Template"), self.view.get_window(),
                        Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
                        buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
                                 Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
         d.vbox.set_spacing(10)
         d.set_default_response(Gtk.ResponseType.ACCEPT)
-        text = '<b>%s</b>' % _('Enter a name for the new formatter')
+
+        # label
+        text = '<b>%s</b>' % _('Enter a Name and choose a Formatter Template')
         label = Gtk.Label()
         label.set_markup(text)
-        label.set_padding(10, 10)
+        label.set_xalign(0)
         d.vbox.pack_start(label, True, True, 0)
+
+        # entry
         entry = Gtk.Entry()
         entry.set_activates_default(True)
         d.vbox.pack_start(entry, True, True, 0)
+
+        # file_chooser_widget
+        chooser = Gtk.FileChooserWidget(0)
+        d.vbox.pack_start(chooser, True, True, 0)
+
+        # action
         d.show_all()
-        names_model = self.view.widgets.names_combo.get_model()
+        names = set(prefs[config_list_pref].keys())
+        templates = dict([(v[0], k) for (k, v) in prefs[config_list_pref].items()])
         while True:
-            if d.run() == Gtk.ResponseType.ACCEPT:
-                name = entry.get_text()
-                if name == '':
-                    continue
-                elif names_model is not None \
-                        and utils.tree_model_has(names_model, name):
-                    utils.message_dialog(_('%s already exists') % name)
-                    continue
-                else:
-                    self.set_prefs_for(entry.get_text(), None, {})
-                    self.populate_names_combo()
-                    utils.combo_set_active_text(self.view.widgets.names_combo,
-                                                name)
-                    break
-            else:
+            if d.run() != Gtk.ResponseType.ACCEPT:
                 break
+            name = entry.get_text()
+            template = chooser.get_filename()
+            if name == '' or template is None:
+                # ignore action on emtpy choice
+                continue
+            elif name in names:
+                utils.message_dialog(_('%s already exists') % name)
+                continue
+            elif template in templates:
+                utils.message_dialog(_('Already activated as %s') % templates[template])
+                continue
+            else:
+                for plugin in self.formatter_class_map.values():
+                    if plugin.can_handle(template):
+                        break
+                else:
+                    utils.message_dialog(_('Not a template, or no valid formatter installed.'))
+                    continue
+
+            self.set_prefs_for(name, template, {})
+            self.populate_names_combo()
+            self.view.widget_set_value('names_combo', name)
+            break
         d.destroy()
 
     def on_remove_button_clicked(self, *args):
-        formatters = prefs[config_list_pref]
-        names_combo = self.view.widgets.names_combo
-        name = names_combo.get_active_text()
-        formatters.pop(name)
-        prefs[config_list_pref] = formatters
+        activated_templates = prefs[config_list_pref]
+        name = self.view.widget_get_value('names_combo')
+        self.view.widgets.names_combo.set_active(-1)
+        self.view.widgets.names_combo.get_child().set_text('')
+        self.view.widget_set_value('dirname_entry', '')
+        self.view.widget_set_value('basename_entry', '')
+        self.view.widget_set_value('formatter_entry', '')
+        self.view.widget_set_value('domain_entry', '')
+        activated_templates.pop(name)
+        prefs[config_list_pref] = activated_templates
         self.populate_names_combo()
-        names_combo.set_active(0)
 
     def on_names_combo_changed(self, combo, *args):
-        if combo.get_model() is None:
-            self.view.set_sensitive('details_box', False)
-            return
-
-        name = combo.get_active_text()
-        formatters = prefs[config_list_pref]
-        self.view.set_sensitive('details_box', name is not None)
+        self.options = {}
+        name = self.view.widget_get_value('names_combo')
+        activated_templates = prefs[config_list_pref]
+        self.view.widget_set_sensitive('details_box', (name or '') != '')
         prefs[default_config_pref] = name  # set the default to the new name
-        try:
-            title, settings = formatters[name]
-        except (KeyError, TypeError) as e:
-            # TODO: show a dialog saying that you can't find whatever
-            # you're looking for in the settings
-            logger.debug(e)
-            return
+        GObject.idle_add(self._names_combo_changed_idle, combo)
 
+    def _names_combo_changed_idle(self, combo):
+        name = self.view.widget_get_value('names_combo')
         try:
-            self.set_formatter_combo(title)
-        except Exception as e:
-            # TODO: show a dialog saying that you can't find whatever
-            # you're looking for in the settings
-            logger.debug(e)
-            self.set_formatter_combo(-1)
-        self.view.set_sensitive('details_box', True)
-
-    def on_formatter_combo_changed(self, combo, *args):
-        '''
-        formatter_combo changed signal handler
-        '''
-        self.view.set_sensitive('ok_button', False)
-        GObject.idle_add(self._formatter_combo_changed_idle, combo)
-
-    def _formatter_combo_changed_idle(self, combo):
-        formatter = combo.get_active_text()
-        name = self.view.widgets.names_combo.get_active_text()
-        try:
-            saved_name, settings = prefs[config_list_pref][name]
+            template, settings = prefs[config_list_pref][name]
         except KeyError as e:
             logger.debug(e)
             return
 
-        expander = self.view.widgets.settings_expander
-        child = expander.get_child()
-        if child:
-            expander.remove(child)
-
-        #self.widgets.ok_button.set_sensitive(title is not None)
-        self.view.set_sensitive('ok_button', formatter is not None)
-        if not formatter:
+        self.view.widget_set_sensitive('ok_button', False)
+        self.view.widget_set_value('dirname_entry', '')
+        self.view.widget_set_value('basename_entry', '')
+        self.view.widget_set_value('formatter_entry', '')
+        self.view.widget_set_value('domain_entry', '')
+        for formatter, plugin in self.formatter_class_map.items():
+            domain = plugin.get_iteration_domain(template)
+            if domain != '':
+                if domain == 'raw':
+                    model = bauble.gui.get_results_model()
+                    top_left_content = model[0][0]
+                    domain = '(%s)' % top_left_content.__class__.__name__.lower()
+                dirname = os.path.dirname(template)
+                basename = os.path.basename(template)
+                self.view.widget_set_value('dirname_entry', dirname)
+                self.view.widget_set_value('basename_entry', basename)
+                self.view.widget_set_value('formatter_entry', formatter)
+                self.view.widget_set_value('domain_entry', domain)
+                self.view.widget_set_sensitive('ok_button', True)
+                break
+        else:
+            utils.message_dialog('this should NOT happen.\nan invalid template at this stage.')
             return
+
+        self.set_prefs_for(name, template, settings)
+
+        self.defaults = []
+        options_box = self.view.widgets.options_box
+        # empty the options box
+        for child in options_box.get_children():
+            if child in self.hard_coded_option:
+                continue
+            options_box.remove(child)
+        # which options does the template accept? (can be None)
         try:
-            cls = self.formatter_class_map[formatter]
-        except KeyError:
-            return
-        box = cls.get_settings_box()
-        if box:
-            box.update(settings)
-            expander.add(box)
-            box.show_all()
-        expander.set_sensitive(box is not None)
-        # TODO: should probably remember expanded state,
-        # see formatter_settings_expander_pref
-        expander.set_expanded(box is not None)
-        #formatter = combo.get_active_text()
-        self.set_prefs_for(name, formatter, settings)
-        self.view.set_sensitive('ok_button', True)
+            with open(template) as f:
+                option_lines = [m for m in [plugin.option_pattern.match(i.strip())
+                                            for i in f.readlines()]
+                                if m is not None]
+        except IOError:
+            option_lines = []
 
-    def init_formatter_combo(self):
-        plugins = []
-        for p in list(pluginmgr.plugins.values()):
-            if isinstance(p, FormatterPlugin):
-                logger.debug('recognized %s as a FormatterPlugin', p)
-                plugins.append(p)
+        option_fields = [i.groups() for i in option_lines]
+        current_row = 1  # should not be hard coded
+        # populate the options box
+        for fname, ftype, fdefault, ftooltip in option_fields:
+            row = Gtk.HBox()
+            label = Gtk.Label(fname.replace('_', ' ') + _(':'))
+            label.set_alignment(0, 0.5)
+            ftype = ftype.lower()
+            if ftype == 'bool':
+                fdefault = fdefault.lower() not in ['false', '0']
+                self.options.setdefault(fname, fdefault)
+                entry = Gtk.CheckButton()
+                entry.set_margin_left(4)
+                entry.set_active(self.options[fname])
+                entry.connect('toggled', self.set_bool_option, fname)
             else:
-                logger.debug('discarded %s: not a FormatterPlugin', p)
+                self.options.setdefault(fname, fdefault)
+                entry = Gtk.Entry()
+                entry.set_text(self.options[fname])
+                entry.connect('changed', self.set_option, fname)
+            entry.set_tooltip_text(ftooltip)
+            # entry updates the corresponding item in report.options
+            self.defaults.append((entry, fdefault))
+            options_box.attach(label, 0, current_row, 1, 1)
+            options_box.attach(entry, 1, current_row, 2, 1)
+            current_row += 1
+        if self.defaults:
+            button = Gtk.Button(_('Reset to defaults'))
+            button.connect('clicked', self.reset_options)
+            options_box.attach(button, 3, current_row - 1, 2, 1)
+        options_box.show_all()
 
-        # we should always have at least the default formatter
-        model = Gtk.ListStore(str)
-        if len(plugins) == 0:
-            utils.message_dialog(_('No formatter plugins defined'),
-                                 Gtk.MessageType.WARNING)
-            return
+    def reset_options(self, widget):
+        for entry, value in self.defaults:
+            if isinstance(value, bool):
+                entry.set_active(value)
+            else:
+                entry.set_text(value)
 
-        for item in plugins:
-            title = item.title
-            self.formatter_class_map[title] = item
-            model.append([item.title])
-        self.view.widgets.formatter_combo.set_model(model)
+    def set_option(self, widget, fname):
+        self.options[fname] = widget.get_text()
+
+    def set_bool_option(self, widget, fname):
+            self.options[fname] = widget.get_active()
 
     def populate_names_combo(self):
-        '''
-        populates the combo with the list of configuration names
-        from the prefs
-        '''
-        configs = prefs[config_list_pref]
-        combo = self.view.widgets.names_combo
-        if configs is None:
-            self.view.set_sensitive('details_box', False)
-            utils.clear_model(combo)
-            return
-        try:
-            model = Gtk.ListStore(str)
-            for cfg in list(configs.keys()):
-                model.append([cfg])
-            combo.set_model(model)
-        except AttributeError as e:
-            # no formatters
-            logger.debug(e)
-            pass
+        '''copy configuration names from prefs into names_ls
 
-    def init_names_combo(self):
-        formatters = prefs[config_list_pref]
-        if formatters is None or len(formatters) == 0:
-            msg = _('No formatters found. To create a new formatter click '
-                    'the "New" button.')
-            utils.message_dialog(msg, parent=self.view.dialog)
-            self.view.widgets.names_combo.set_model(None)
-        self.populate_names_combo()
+        '''
+        activated_templates = prefs[config_list_pref]
+        self.view.widgets.names_ls.clear()
+        for name in list(activated_templates.keys()):
+            self.view.widgets.names_ls.append((name, ))
 
     def save_formatter_settings(self):
-        name = self.view.widgets.names_combo.get_active_text()
-        title, dummy = prefs[config_list_pref][name]
-        box = self.view.widgets.settings_expander.get_child()
-        formatters = prefs[config_list_pref]
-        formatters[name] = title, box.get_settings()
-        prefs[config_list_pref] = formatters
+        activated_templates = prefs[config_list_pref]
+        name = self.view.widget_get_value('names_combo')
+        title, dummy = activated_templates[name]
+        activated_templates[name] = title, self.options
+        prefs[config_list_pref] = activated_templates
+
+    def selection_to_domain(self, domain):
+        '''convert the selection to the corresponding domain
+
+        if domain is one of species, accession, plant, location, then
+        retrieve all objects in the domain that are associated to the
+        selected objects.
+
+        if domain looks like `(domain)`, then it is an implicit domain,
+        i.e.: it was inferred from the selection itself, so the selection
+        itself is what we need.
+
+        if the domain is `raw`, also that tells us to return the raw
+        selection (the template will handle it).
+
+        '''
+        try:
+            cls = {
+                'plant': Plant,
+                'accession': Accession,
+                'species': Species,
+                'location': Location,
+            }[domain]
+            return sorted(get_pertinent_objects(cls, self.selection),
+                          key=utils.natsort_key)
+        except KeyError:
+            return self.selection
 
     def start(self):
+        '''collect user choices, invokes formatter, repeat.
+
+        '''
+        results_model = bauble.gui.get_results_model()  # guaranteed not empty
+        self.selection = [row[0] for row in results_model]  # only top level selected
+        from sqlalchemy.orm import object_session
+        self.session = object_session(self.selection[0])  # reuse the same session
+
         formatter = None
         settings = None
         while True:
             response = self.view.start()
-            if response == Gtk.ResponseType.OK:
-                # get format method
-                # save default
-                prefs[default_config_pref] = \
-                    self.view.widgets.names_combo.get_active_text()
-                self.save_formatter_settings()
-                name = self.view.widgets.names_combo.get_active_text()
-                title, settings = prefs[config_list_pref][name]
-                formatter = self.formatter_class_map[title]
+            if response != Gtk.ResponseType.OK:
                 break
+
+            name = self.view.widget_get_value('names_combo')
+            prefs[default_config_pref] = name
+            self.save_formatter_settings()
+            template, settings = prefs[config_list_pref][name]
+            settings['template'] = template
+            domain = self.view.widget_get_value('domain_entry')
+            title = self.view.widget_get_value('formatter_entry')
+            formatter = self.formatter_class_map[title]
+            todo = self.selection_to_domain(domain)
+            if todo:
+                self.work_thread = Thread(target=self.run_thread, args=[formatter, todo, settings])
+                self.running = True
+                GObject.timeout_add(200, self.update_progress)
+                self.view.widgets.main_grid.set_sensitive(False)
+                self.view.widget_set_sensitive('ok_button', False)
+                self.view.widget_set_sensitive('cancel_button', False)
+                self.work_thread.start()
             else:
-                break
+                translated_name = {
+                    'plant': _('plants/clones'),
+                    'accession': _('accessions'),
+                    'species': _('species'),
+                    'location': _('locations'),
+                }[domain]
+                utils.message_dialog(_('There are no %s in the search results.\n'
+                                       'Please try another search.') % translated_name)
+
         self.view.disconnect_all()
-        return formatter, settings
 
+    def update_progress(self):
+        if self.running:
+            self.view.widgets.progressbar.pulse()
+        return self.running
 
-class ReportToolDialog(object):
+    def run_thread(self, formatter, todo, settings):
+        from bauble import db
+        session = db.Session()
+        todo = [session.merge(i) for i in todo]
+        formatter.format(todo, **settings)
+        session.close()
+        GObject.idle_add(self.stop_progress)
 
-    def __init__(self):
-        self.view = ReportToolDialogView()
-        self.presenter = ReportToolDialogPresenter(self.view)
-
-    def start(self):
-        return self.presenter.start()
-
+    def stop_progress(self):
+        self.running = False
+        self.work_thread.join()
+        self.view.widgets.main_grid.set_sensitive(True)
+        self.view.widget_set_sensitive('ok_button', True)
+        self.view.widget_set_sensitive('cancel_button', True)
+        self.view.widgets.progressbar.set_fraction(0)
+        
 
 class ReportTool(pluginmgr.Tool):
-
-    label = _("Report")
+    category = (_('Report'), "plugins/report/tool-report.png")
+    label = _("From Template")
+    icon_name = "text-x-generic-template"
 
     @classmethod
     def start(self):
         '''
         '''
-        # get the select results from the search view
-        from bauble.view import SearchView
-        view = bauble.gui.get_view()
-        if not isinstance(view, SearchView):
-            utils.message_dialog(_('Search for something first.'))
-            return
-
-        model = view.results_view.get_model()
-        if model is None:
-            utils.message_dialog(_('Search for something first.'))
+        # is anything selected?  if not, refuse even considering
+        if not bauble.gui.get_results_model():
             return
 
         bauble.gui.set_busy(True)
         ok = False
         try:
-            while True:
-                dialog = ReportToolDialog()
-                formatter, settings = dialog.start()
-                if formatter is None:
-                    break
-                ok = formatter.format([row[0] for row in model], **settings)
-                if ok:
-                    break
+            filename = os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade')
+            view = GenericEditorView(filename, root_widget_name='report_dialog')
+            presenter = ReportToolDialogPresenter(view)
+            presenter.start()
         except AssertionError as e:
             logger.debug(e)
             logger.debug(traceback.format_exc())
             parent = None
             if hasattr(self, 'view') and hasattr(self.view, 'dialog'):
-                parent = self.view.dialog
+                parent = self.view.get_window()
 
-            utils.message_details_dialog(str(e), traceback.format_exc(),
+            utils.message_details_dialog("AssertionError(%s)" % e, traceback.format_exc(),
                                          Gtk.MessageType.ERROR, parent=parent)
         except Exception as e:
             logger.debug(traceback.format_exc())
             utils.message_details_dialog(_('Formatting Error\n\n'
-                                           '%(exception)s') %
-                                         {"exception": utils.utf8(e)},
+                                           '%s(%s)') % (type(e).__name__, utils.utf8(e)),
                                          traceback.format_exc(),
                                          Gtk.MessageType.ERROR)
         bauble.gui.set_busy(False)
@@ -682,7 +647,7 @@ class ReportTool(pluginmgr.Tool):
 class ReportToolPlugin(pluginmgr.Plugin):
     '''
     '''
-    tools = [ReportTool]
+    tools = [ReportTool, FlatFileExportTool, ]
 
 
 try:
@@ -697,8 +662,3 @@ else:
         from bauble.plugins.report.mako import MakoFormatterPlugin
         return [ReportToolPlugin, XSLFormatterPlugin,
                 MakoFormatterPlugin]
-
-## compatibility aliases:
-get_all_plants = get_plants_pertinent_to
-get_all_accessions = get_accessions_pertinent_to
-get_all_species = get_species_pertinent_to

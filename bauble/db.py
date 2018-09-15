@@ -536,9 +536,9 @@ def make_note_class(name, compute_serializable_fields=None, as_dict=None, retrie
               '__mapper_args__': {'order_by': table_name + '.date'},
               
               'date': sa.Column(types.Date, default=sa.func.now()),
-              'user': sa.Column(sa.Unicode(64)),
-              'category': sa.Column(sa.Unicode(32)),
-              'type': sa.Column(sa.Unicode(32)),
+              'user': sa.Column(sa.Unicode(64), default=''),
+              'category': sa.Column(sa.Unicode(32), default=''),
+              'type': sa.Column(sa.Unicode(32), default=''),
               'note': sa.Column(sa.UnicodeText, nullable=False),
               name.lower() + '_id': sa.Column(sa.Integer, sa.ForeignKey(name.lower() + '.id'), nullable=False),
               name.lower(): sa.orm.relation(name, uselist=False, backref=sa.orm.backref(
@@ -572,7 +572,9 @@ class WithNotes:
         result = []
         is_dict = False
         for n in self.notes:
-            if n.category == ('[%s]' % name):
+            if n.category is None:
+                pass
+            elif n.category == ('[%s]' % name):
                 result.append(n.note)
             elif n.category.startswith('{%s:' % name) and n.category.endswith('}'):
                 is_dict = True
@@ -788,24 +790,40 @@ def class_of_object(o):
     return cls
 
 
-def current_user():
-    '''return current user name: from database, or system
-    '''
-    try:
-        if engine.name.startswith('postgresql'):
-            r = engine.execute('select current_user;')
-            user = r.fetchone()[0]
-            r.close()
-        elif engine.name.startswith('mysql'):
-            r = engine.execute('select current_user();')
-            user = r.fetchone()[0]
-            r.close()
-        else:
-            raise TypeError()
-    except:
-        logger.debug("retrieving user name from system")
-        user = (os.getenv('USER') or os.getenv('USERNAME') or
-                os.getenv('LOGNAME') or os.getenv('LNAME'))
+class current_user_functor:
+    """implement the current_user function, and allow overriding.
 
-    return user
-    
+    invoke the current_user object as a function.
+    invoke current_user.override(user_name) to set user name.
+    invoke current_user.override() to reset.
+    """
+    def __init__(self):
+        self.override_value = None
+
+    def override(self, value=None):
+        self.override_value = value
+
+    def __call__(self):
+        '''return current user name: from database, or system
+        '''
+        if self.override_value:
+            return self.override_value
+        try:
+            if engine.name.startswith('postgresql'):
+                r = engine.execute('select current_user;')
+                user = r.fetchone()[0]
+                r.close()
+            elif engine.name.startswith('mysql'):
+                r = engine.execute('select current_user();')
+                user = r.fetchone()[0]
+                r.close()
+            else:
+                raise TypeError()
+        except:
+            logger.debug("retrieving user name from system")
+            user = (os.getenv('USER') or os.getenv('USERNAME') or
+                    os.getenv('LOGNAME') or os.getenv('LNAME'))
+
+        return user
+
+current_user = current_user_functor()

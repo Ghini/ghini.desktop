@@ -362,10 +362,10 @@ Taxonomy
   ..  admonition:: At rank genus
       :class: toggle
 
-         Ghini-1.0 prescribes that an accession is identified at rank
+         Ghini-3.1 prescribes that an accession is identified at rank
          species, in all cases. The current maintainer acknowledges that
          this is a mistake, coming from the early Bauble days, and which
-         Ghini-1.0 has in common with other botanic software. Until this is
+         Ghini-3.1 has in common with other botanic software. Until this is
          fixed, we rely on established practices.
 
          If an accession is identified at rank genus, we add a fictive
@@ -785,7 +785,7 @@ Let the database fit the garden
 
          The accession editor offers the option "origin" option. When a
          plant is traceable to a wild source, we can specified its specific
-         origin. We want to comply with ITF2, and ghini-1.0 only partly
+         origin. We want to comply with ITF2, and ghini-3.1 only partly
          respects that standard. The ITF2 complying options are:
 
          - Wild: Accession of wild source.

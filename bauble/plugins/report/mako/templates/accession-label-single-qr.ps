@@ -17,6 +17,8 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
+## DOMAIN plant
+##
 ## OPTION extra_text: (type: string, default: '', tooltip: 'print this on the second text line.')
 ## OPTION accession_format: (type: string, default: '', tooltip: 'ignore selection and print a range.')
 ## OPTION accession_first: (type: integer, default: '', tooltip: 'start of range.')
@@ -25553,7 +25555,7 @@ currentdict end
 /SCALE { 0.45 0.45 scale 0 30 translate } bind def
 </%text>
 <%
-from bauble.plugins.report import get_plants_pertinent_to, options
+from bauble.plugins.report import options
 from bauble.plugins.report.mako import add_qr
 page = 1
 
@@ -25566,7 +25568,7 @@ if options['accession_format']:
     first = int(options['accession_first'])
     enumeration = [(i - first, format % i, None) for i in range(first, int(options['accession_last']) + 1)]
 else:
-    enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(get_plants_pertinent_to(values))]
+    enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(values)]
 
 # `enumeration` is an iterable with tuple elements like (i, code, obj),
 # where: i are sequential and start at 0; code is the plant code; obj may be

@@ -13,10 +13,10 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
-<%
-from bauble.plugins.report import get_plants_pertinent_to
-%>Item	Family	Genus	Species	Author	Acquisition date	CITES	Acquisition document 	Doc. Number	Location	Habit
-% for v in get_plants_pertinent_to(values):
+## DOMAIN plant
+##
+Item	Family	Genus	Species	Author	Acquisition date	CITES	Acquisition document 	Doc. Number	Location	Habit
+% for v in values:
 <%
     genus = v.accession.species.genus.genus
     if genus.startswith('Zzz-'):

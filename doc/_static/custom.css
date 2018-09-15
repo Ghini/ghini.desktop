@@ -3,6 +3,23 @@ h1, h2, h3, h4 {
     border-bottom: 1px solid #ccc;
 }
 
+code.py-mod {
+    background: #f2f2f2;
+}
+code.py-obj {
+    background: turquoise;
+}
+code.py-mod, code.py-obj {
+    font-size: inherit;
+    padding: 1pt;
+    border-radius: 5pt;
+}
+
+.toggle.admonition { /* both classes */
+    padding: 0;
+    margin-bottom: 20px;
+}
+
 .toggle .admonition-title {
     display: block;
     clear: both;

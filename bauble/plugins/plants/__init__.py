@@ -372,9 +372,10 @@ class PlantsPlugin(pluginmgr.Plugin):
         DefaultView.infoboxclass = SplashInfoBox
 
         if bauble.gui is not None:
-            bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))
-            bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
-            bauble.gui.add_to_insert_menu(SpeciesEditorMenuItem, _('Species'))
+            base = os.path.join(paths.lib_dir(), "plugins", "plants")
+            bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'), "wiki-family.png", base)
+            bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'), "wiki-genus.png", base)
+            bauble.gui.add_to_insert_menu(SpeciesEditorMenuItem, _('Species'), "wiki-species.png", base)
 
         # suggest some useful defaults for stored queries
         import bauble.meta as meta

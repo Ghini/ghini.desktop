@@ -534,7 +534,9 @@ class InstitutionCommand(pluginmgr.CommandHandler):
 
 
 class InstitutionTool(pluginmgr.Tool):
+    item_position = 2
     label = _('Institution')
+    icon_name = 'x-office-presentation'
 
     @classmethod
     def start(cls):

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015,2018 Mario Frasca <mario@anche.no>.
+# Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -108,6 +109,47 @@ class SplashCommandHandler(pluginmgr.CommandHandler):
         self.view.update()
 
 
+def create_menu_item_with_image(label, icon_name=None, base_dir=None):
+    '''return a MenuItem with associated image
+
+    if the icon_name is a valid image file name and the file can be
+    read, the returned object is a ImageMenuItem, otherwise you get plain
+    MenuItem.
+
+    '''
+    if not isinstance(label, str):
+        tool = label
+        label = tool.label
+        icon_name = getattr(tool, 'icon_name', None)
+        base_dir = os.path.join(paths.lib_dir(), *(tool.__module__.split('.')[1:-1]))
+    logger.debug("create_menu_item_with_image %s %s %s" % (label, icon_name, base_dir))
+    if base_dir is not None and icon_name is not None and icon_name.endswith(".png"):
+        icon_name = os.path.join(base_dir, icon_name)
+    if icon_name is None:
+        image = None
+    elif icon_name.endswith(".png"):
+        try:
+            pb = GdkPixbuf.Pixbuf.new_from_file(icon_name)
+            (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+            pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+            image = Gtk.Image.new_from_pixbuf(pb)
+        except:
+            logger.debug("can't find image file %s" % icon_name)
+            image = None
+    else:
+        try:
+            image = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU)
+        except:
+            logger.debug("can't find theme icon %s" % icon_name)
+            image = None
+    if image is not None:
+        item = Gtk.ImageMenuItem(label)
+        item.set_image(image)
+    else:
+        item = Gtk.MenuItem(label)
+    return item
+        
+
 class GUI(object):
 
     entry_history_pref = 'bauble.history'
@@ -176,11 +218,7 @@ class GUI(object):
         statusbar.set_spacing(10)
         self._cids = []
 
-        def on_statusbar_push(sb, cid, txt):
-            if cid not in self._cids:
-                self._cids.append(cid)
-
-        statusbar.connect('text-pushed', on_statusbar_push)
+        statusbar.connect('text-pushed', self.on_statusbar_push)
 
         # remove label from frame
         frame = statusbar.get_children()[0]
@@ -208,6 +246,10 @@ class GUI(object):
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
 
         combo.grab_focus()
+
+    def on_statusbar_push(self, sb, cid, txt):
+        if cid not in self._cids:
+            self._cids.append(cid)
 
     def close_message_box(self, *args):
         parent = self.widgets.msg_box_parent
@@ -416,6 +458,18 @@ class GUI(object):
                 return kid
         return None
 
+    def get_results_model(self, quiet=False):
+        model = None
+        view = bauble.gui.get_view()
+        from bauble.view import SearchView
+        if isinstance(view, SearchView):
+            model = view.results_view.get_model()
+
+        if model is None and not quiet:
+            utils.message_dialog(_('Search for something first.'))
+
+        return model
+
     def create_main_menu(self):
         """
         get the main menu from the UIManager XML description, add its actions
@@ -518,7 +572,7 @@ class GUI(object):
 
     __insert_menu_cache = {}
 
-    def add_to_insert_menu(self, editor, label):
+    def add_to_insert_menu(self, editor, label, icon_name=None, base_dir=None):
         """
         add an editor to the insert menu
 
@@ -527,16 +581,11 @@ class GUI(object):
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()
-        item = Gtk.MenuItem(label)
+        item = create_menu_item_with_image(label, icon_name, base_dir)
         item.connect('activate', self.on_insert_menu_item_activate, editor)
         submenu.append(item)
         self.__insert_menu_cache[label] = item
         item.show()
-        # sort items
-        i = 0
-        for label in sorted(self.__insert_menu_cache.keys()):
-            submenu.reorder_child(self.__insert_menu_cache[label], i)
-            i += 1
 
     def build_tools_menu(self):
         """
@@ -549,24 +598,20 @@ class GUI(object):
         for child in menu.get_children():
             menu.remove(child)
         menu.show()
-        tools = {'__root': []}
+        tools = {}
+        category_icon = {}
         # categorize the tools into a dict
         for p in list(pluginmgr.plugins.values()):
             for tool in p.tools:
-                if tool.category is not None:
-                    try:
-                        tools[tool.category].append(tool)
-                    except KeyError:
-                        ## initialize tools dictionary
-                        tools[tool.category] = []
-                        tools[tool.category].append(tool)
-                else:
-                    tools['__root'].append(tool)
+                if isinstance(tool.category, tuple):
+                    tool.category, icon = tool.category
+                    category_icon[tool.category] = icon
+                tools.setdefault(tool.category, []).append(tool)
 
         # add the tools with no category to the root menu
-        root_tools = tools.pop('__root')
-        for tool in root_tools:
-            item = Gtk.MenuItem(tool.label)
+        root_tools = tools.pop(None)
+        for tool in sorted(root_tools, key=lambda x:getattr(x, 'item_position', 0)):
+            item = create_menu_item_with_image(tool)
             item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             menu.append(item)
@@ -576,14 +621,12 @@ class GUI(object):
         # create submenus for the categories and add the tools
         for category in sorted(tools.keys()):
             submenu = Gtk.Menu()
-            submenu_item = Gtk.MenuItem(category)
+            submenu_item = create_menu_item_with_image(category, category_icon.get(category), paths.lib_dir())
             submenu_item.set_submenu(submenu)
             menu.append(submenu_item)
-            for tool in sorted(tools[category],
-                               key=lambda x: x.label):
-                item = Gtk.MenuItem(tool.label)
-                item.connect("activate", self.on_tools_menu_item_activate,
-                             tool)
+            for tool in sorted(tools[category], key=lambda x: x.label):
+                item = create_menu_item_with_image(tool)
+                item.connect("activate", self.on_tools_menu_item_activate, tool)
                 submenu.append(item)
                 if not tool.enabled:
                     item.set_sensitive(False)
@@ -739,7 +782,7 @@ class GUI(object):
             self.widgets.statusbar.pop(cid)
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://ghini.readthedocs.io/en/latest/',
+        desktop.open('http://ghini.readthedocs.io/en/ghini-3.1-dev/',
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):

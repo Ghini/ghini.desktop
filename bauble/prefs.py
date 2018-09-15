@@ -75,6 +75,11 @@ picture_root_pref = 'bauble.picture_root'
 The preferences key for the default data format.
 """
 
+ask_timeout_pref = 'bauble.network_timeout'
+"""
+The preferences key for remote server querying timeout.
+"""
+
 parse_dayfirst_pref = 'bauble.parse_dayfirst'
 """
 The preferences key for to determine whether the date should come
@@ -152,12 +157,11 @@ class _prefs(dict):
             self[config_version_pref] = config_version
 
         # set some defaults if they don't exist
-        if use_sentry_client_pref not in self:
-            self[use_sentry_client_pref] = False
-        if picture_root_pref not in self:
-            self[picture_root_pref] = ''
-        if date_format_pref not in self:
-            self[date_format_pref] = '%d-%m-%Y'
+        self.setdefault(use_sentry_client_pref, False)
+        self.setdefault(picture_root_pref, '')
+        self.setdefault(date_format_pref, '%d-%m-%Y')
+        self.setdefault(units_pref, 'metric')
+        self.setdefault(ask_timeout_pref, 4)
         if parse_dayfirst_pref not in self:
             format = self[date_format_pref]
             if format.find('%d') < format.find('%m'):
@@ -170,9 +174,6 @@ class _prefs(dict):
                 self[parse_yearfirst_pref] = True
             else:
                 self[parse_yearfirst_pref] = False
-
-        if units_pref not in self:
-            self[units_pref] = 'metric'
 
     @staticmethod
     def _parse_key(name):
@@ -209,6 +210,11 @@ class _prefs(dict):
         return [('%s.%s' % (section, name), value)
                 for section in sorted(prefs.config.sections())
                 for name, value in prefs.config.items(section)]
+
+    def setdefault(self, key, default=None):
+        if key not in self:
+            self.__setitem__(key, default)
+        return self[key]
 
     def __setitem__(self, key, value):
         section, option = _prefs._parse_key(key)

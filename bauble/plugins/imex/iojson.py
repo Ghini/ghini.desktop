@@ -319,7 +319,7 @@ class JSONImporter(editor.GenericEditorPresenter):
 #
 
 class JSONImportTool(pluginmgr.Tool):
-    category = _('Import')
+    category = (_('Import'), "edit-undo")
     label = _('JSON')
 
     @classmethod
@@ -339,7 +339,7 @@ class JSONImportTool(pluginmgr.Tool):
 
 
 class JSONExportTool(pluginmgr.Tool):
-    category = _('Export')
+    category = (_('Export'), "edit-redo")
     label = _('JSON')
 
     @classmethod

@@ -44,12 +44,13 @@ from sqlalchemy.orm.session import object_session
 
 
 import bauble
-import bauble.db as db
-import bauble.editor as editor
-import bauble.pluginmgr as pluginmgr
-import bauble.paths as paths
-import bauble.search as search
-import bauble.utils as utils
+from bauble import ui
+from bauble import db
+from bauble import editor
+from bauble import pluginmgr
+from bauble import paths
+from bauble import search
+from bauble import utils
 from bauble.view import InfoBox, InfoExpander, SearchView, Action
 
 from bauble.editor import (
@@ -101,11 +102,12 @@ class TagsMenuManager:
         """
         self.item_list = {}
         tags_menu = Gtk.Menu()
-        add_tag_menu_item = Gtk.MenuItem(_('Tag Selection'))
+        tag_dir = os.path.join(paths.lib_dir(), 'plugins', 'tag')
+        add_tag_menu_item = ui.create_menu_item_with_image(_('Tag Selection'), 'tag.png', tag_dir)
         add_tag_menu_item.connect('activate', _on_add_tag_activated)
-        self.apply_active_tag_menu_item = Gtk.MenuItem(_('Apply active tag'))
+        self.apply_active_tag_menu_item = ui.create_menu_item_with_image(_('Apply active tag'), 'tag_apply.png', tag_dir)
         self.apply_active_tag_menu_item.connect('activate', self.on_apply_active_tag_activated)
-        self.remove_active_tag_menu_item = Gtk.MenuItem(_('Remove active tag'))
+        self.remove_active_tag_menu_item = ui.create_menu_item_with_image(_('Remove active tag'), 'tag_remove.png', tag_dir)
         self.remove_active_tag_menu_item.connect('activate', self.on_remove_active_tag_activated)
         if bauble.gui:
             accel_group = Gtk.AccelGroup()

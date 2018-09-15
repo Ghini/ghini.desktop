@@ -13,12 +13,13 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
+## DOMAIN location
+##
 ingreso	egreso	código JBQ	género	especie	N.º IC	N.º Factura	N.º Acta	Observaciones
 <%
-from bauble.plugins.report import get_locations_pertinent_to
 
 %>\
-% for v in get_locations_pertinent_to(values):
+% for v in values:
 ${v.code}	\
 % for p in v.plants:
 ${p.accession.code}.${p.code}	\

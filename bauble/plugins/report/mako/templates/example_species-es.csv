@@ -13,8 +13,9 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
+## DOMAIN species
+##
 <%
-from bauble.plugins.report import get_species_pertinent_to
 subfamiliad = {
     '': '',
 'Arethuseae': 'Epidendroideae',
@@ -203,7 +204,7 @@ subtribusd = {
 'Zygopetalum': 'Zygopetalinae',
 }
 %>Familia	Subfamilia	Tribu	Subtribu	Genero	Especie	Autor	CITES	Condición	Conservación	Cantidad	Habito
-% for v in get_species_pertinent_to(values):
+% for v in values:
 <%
     genus = v.genus.genus
     if genus.startswith('Zzz-'):

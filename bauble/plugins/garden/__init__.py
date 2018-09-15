@@ -33,6 +33,7 @@ import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
 from bauble.plugins.garden.accession import AccessionEditor, \
     Accession, AccessionInfoBox, AccessionNote, \
+    Verification, \
     acc_context_menu
 from bauble.plugins.garden.location import LocationEditor, \
     Location, LocationInfoBox, loc_context_menu
@@ -45,8 +46,8 @@ from bauble.plugins.garden.source import (
     Collection, collection_context_menu)
 from bauble.plugins.garden.institution import (
     Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
-from bauble.plugins.garden.exporttopocket import ExportToPocketTool
 from bauble.plugins.garden.picture_importer import PictureImporterTool
+from bauble.plugins.garden.pocket_server import PocketServerTool
 
 #from bauble.plugins.garden.propagation import *
 import bauble.search as search
@@ -60,7 +61,7 @@ import re
 class GardenPlugin(pluginmgr.Plugin):
 
     depends = ["PlantsPlugin"]
-    tools = [InstitutionTool, ExportToPocketTool, PictureImporterTool]
+    tools = [InstitutionTool, PictureImporterTool, PocketServerTool]
     commands = [InstitutionCommand]
     provides = {'Accession': Accession,
                 'AccessionNote': AccessionNote,
@@ -128,10 +129,17 @@ class GardenPlugin(pluginmgr.Plugin):
         SearchView.row_meta[Species].child = "accessions"
 
         if bauble.gui is not None:
-            bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
-            bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'))
-            bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
-            bauble.gui.add_to_insert_menu(create_contact, _('Contact'))
+            import os.path
+            from bauble import paths
+            base = os.path.join(paths.lib_dir(), "plugins", "garden")
+            from gi.repository import Gtk
+            submenu = bauble.gui.ui_manager.get_widget('/ui/MenuBar/insert_menu').get_submenu()
+            submenu.append(Gtk.SeparatorMenuItem())
+            bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'), "insert-new.png", base)
+            bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'), "insert-new.png", base)
+            bauble.gui.add_to_insert_menu(LocationEditor, _('Location'), "insert-new.png", base)
+            submenu.append(Gtk.SeparatorMenuItem())
+            bauble.gui.add_to_insert_menu(create_contact, _('Contact'), "contact.png", base)
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta

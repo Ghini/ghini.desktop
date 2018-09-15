@@ -70,7 +70,7 @@ package_data = {'': ['README.rst', 'CHANGES', 'LICENSE'],
 
 # ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
-                 '*.html', '*.csv', '*.svg', '*.ps']
+                 '*.html', '*.csv', '*.svg', '*.ps', '*.png']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
 
@@ -489,6 +489,7 @@ setuptools.setup(name="ghini.desktop",
                                    "fibra==0.0.20",
                                    "pyparsing==2.2.0",
                                    'python-dateutil==2.7.3'] + needs_sqlite,
+                 extras_require={'docs': ['sphinx==1.7.9']},
                  test_suite="nose.collector",
                  author="Mario Frasca",
                  author_email="mario@anche.no",

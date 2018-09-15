@@ -13,6 +13,8 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
+## DOMAIN plant
+##
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
@@ -87,7 +89,6 @@
 <body>
 <%
    from bauble.plugins.garden import Plant
-   from bauble.plugins.report import get_plants_pertinent_to
    import bauble.db as db
    session = db.Session()
    delimiter = ','
@@ -123,10 +124,8 @@
 
 	
 </%def>
-   % for v in values:
-       % for p in get_plants_pertinent_to(v, session):
-           ${make_label(p)}
-       % endfor
+   % for p in values:
+       ${make_label(p)}
    % endfor
 </body>
 

@@ -7,23 +7,19 @@ like GNU/Linux and MacOSX, as well as on Windows.
 .. admonition:: one-liner for hurried users.
    :class: note
 
-           Linux users just download and run `the installation script
-           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh>`_.
-           You may read the documentation later.
+      Linux users just download and run `the installation script
+      <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_.
 
-           Windows users, start downloading all external dependencies (`git
-           <Direct link to download git_>`_, `Python <Direct link to
-           download Python_>`_, `lxml <Direct link to download lxml_>`_,
-           `PyGTK <Direct link to download PyGTK_>`_, `psycopg2 <Direct link
-           to download psycopg2_>`_), read the instructions in the
-           meanwhile.
+      Windows users in a real hurry don't the instructions and use a recent `Windows installer
+      <https://github.com/Ghini/ghini.desktop/releases/>`_.  You do not miss any functional feature, but
+      you have less chances to contribute to development.
 
-           Mac users are never in a hurry, are they?
+      Mac users are never in a hurry, are they?
 
-Ghini is maintained by very few people, who focus on enhancing its
-functional parts, more than on writing fancy installers. Instead of several
-native installers we offer a single cross-platform installation procedure.
-This has a few big advantages which you will learn to appreciate as we go.
+      Please make sure you check the documentation at some later moment.
+           
+The installation and subsequent updates for ghini.desktop are based on a single cross-platform
+installation procedure.  This has a few big advantages which you will learn to appreciate as we go.
 
 The installation is based on running a script.
 
@@ -37,20 +33,20 @@ Following our installation procedure, you will end with Ghini running within
 a Python virtual environment, all Python dependencies installed locally, non
 conflicting with any other Python program you may have on your system.
 
-Dependencies that don't fit in a Python virtual environment are: Python,
-virtualenv, GTK+, and PyGTK. Their installation varies per platform.
+Dependencies that don't fit in a Python virtual environment are: Python, virtualenv, GTK+, and a couple
+of Gtk libraries. Their installation varies per platform.
 
-If you later choose to remove Ghini, you simply remove the virtual
-environment, which is a directory, with all of its content.
+If you later choose to remove Ghini, you simply remove the virtual environment, which is a directory,
+with all of its content, then decide whether to remove the globally installed dependencies.
 
 Installing on GNU/Linux
 --------------------------
 
 Open a shell terminal window, and follow the following instructions.
 
-#. Download the `devinstall.sh` script:
-
-   `devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh>`_
+#. Download the `devinstall.sh
+   <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.sh>`_ script.
+   Please do not follow the link, instead right-click on it, and choose *Save link as…*.
 
 #. Invoke the script from a terminal window, starting at the directory where
    you downloaded it, like this::
@@ -104,18 +100,18 @@ Open a shell terminal window, and follow the following instructions.
 
    #. You can also use the ``ghini`` script to switch to a different production
       line.  At the moment ``1.0`` is the stable one, but you can select
-      ``1.1`` if you want to help us with its development::
+      ``3.1`` if you want to help us with its development::
 
-        ~/bin/ghini -s 1.1
+        ~/bin/ghini -s 3.1
 
 .. admonition:: beginner's note
    :class: note
 
-           To run a script, first make sure you note down the name of the
-           directory to which you have downloaded the script, then you open
-           a terminal window and in that window you type `bash` followed by
-           a space and the complete name of the script including directory
-           name, and hit on the enter key.
+      To run a script, first make sure you note down the name of the
+      directory to which you have downloaded the script, then you open
+      a terminal window and in that window you type `bash` followed by
+      a space and the complete name of the script including directory
+      name, and hit on the enter key.
 
 .. admonition:: technical note
    :class: note
@@ -126,7 +122,7 @@ Open a shell terminal window, and follow the following instructions.
       virtual environment, then it will create a virtual environment named
       ``ghide``, use git to download the sources to a directory named
       ``~/Local/github/Ghini/ghini.desktop``, and connect this git checkout
-      to the ``ghini-1.0`` branch (this you can consider a production line),
+      to the ``ghini-3.1`` branch (this you can consider a production line),
       it then builds ghini, downloading all remaining dependencies in the
       virtual environment, and finally it creates the ``ghini`` startup script.
 
@@ -285,7 +281,7 @@ The installation steps on Windows:
 
 #. We're done with the dependecies, now we can download and run the batch file:
 
-   `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.bat>`_
+   `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/devinstall.bat>`_
 
    Please don't just follow the above link.  Instead: right click, save link as...
 
@@ -312,7 +308,7 @@ The installation steps on Windows:
 
    Running ``devinstall.bat`` will pull the ``ghini.desktop`` repository from
    github to your home directory, under ``Local\github\Ghini``, checkout the
-   ``ghini-1.0`` production line, create a virtual environment and install
+   ``ghini-3.1`` production line, create a virtual environment and install
    ghini into it.
 
    You can also run ``devinstall.bat`` passing it as argument the numerical
@@ -338,7 +334,7 @@ The installation steps on Windows:
 
 #. download the batch file, it will help you staying up-to-date:
 
-   `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/ghini-update.bat>`_
+   `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-3.1-dev/scripts/ghini-update.bat>`_
 
    If you are on a recent Ghini installation, each time you start the
    program, Ghini will check on the development site and alert you of any

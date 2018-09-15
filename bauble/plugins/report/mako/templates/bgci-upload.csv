@@ -13,10 +13,11 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 ##
+## DOMAIN species
+##
 <%
-from bauble.plugins.report import get_species_pertinent_to
 %>Generic Hybrid Symbol,Generic Epithet,Specific Hybrid Symbol,Specific Epithet,Infraspecific Rank,Infraspecific Epithet,Cultivar Epithet
-% for v in get_species_pertinent_to(values):
+% for v in values:
 <%
     genus = v.genus.genus
     if genus.startswith('Zzz-'):

@@ -87,11 +87,11 @@ class Cache:
             value = self.storage[key][1]
             on_hit(value)
         else:
+            value = getter()
             if len(self.storage) == self.size:
                 # remove the oldest entry
                 k = min(list(zip(list(self.storage.values()), list(self.storage.keys()))))[1]
                 del self.storage[k]
-            value = getter()
         import time
         self.storage[key] = time.time(), value
         return value
@@ -145,7 +145,7 @@ class ImageLoader(threading.Thread):
         if url.find(self.inline_picture_marker) != -1:
             self.reader_function = self.read_base64
             self.url = url
-        elif (url.startswith('http://') or url.startswith('https://')):
+        elif url[:url.find('/')] in ['http:', 'https:', 'file:']:
             self.reader_function = self.read_global_url
             self.url = url
         else:
@@ -170,9 +170,9 @@ class ImageLoader(threading.Thread):
                 image = Gtk.Image()
                 self.box.add(image)
             image.set_from_pixbuf(scaled_buf)
-        except GLib.GError as e:
-            logger.debug("picture %s caused GLib.GError %s" %
-                         (self.url, e))
+        except (GLib.GError, AttributeError) as e:
+            logger.debug("picture %s caused %s %s" %
+                         (self.url, type(e).__name__, e))
             text = _('picture file %s not found.') % self.url
             label = Gtk.Label()
             label.set_text(text)
@@ -192,7 +192,10 @@ class ImageLoader(threading.Thread):
         self.loader.connect("closed", self.loader_notified)
         self.cache.get(
             self.url, self.reader_function, on_hit=self.loader.write)
-        self.loader.close()
+        try:
+            self.loader.close()
+        except GLib.GError as e:
+            logger.debug('broken picture %s' % self.url)
 
     def read_base64(self):
         self.loader.connect("area-prepared", self.loader_notified)
@@ -215,10 +218,14 @@ class ImageLoader(threading.Thread):
     def read_local_url(self):
         self.loader.connect("area-prepared", self.loader_notified)
         pieces = []
-        with open(self.url, "rb") as f:
-            for piece in read_in_chunks(f, 4096):
-                self.loader.write(piece)
-                pieces.append(piece)
+        try:
+            with open(self.url, "rb") as f:
+                for piece in read_in_chunks(f, 4096):
+                    self.loader.write(piece)
+                    pieces.append(piece)
+        except FileNotFoundError as e:
+            logger.debug("picture %s caused FileNotFoundError %s" %
+                         (self.url, e))
         return b''.join(pieces)
 
 
@@ -665,7 +672,7 @@ def create_message_details_dialog(msg, details, type=Gtk.MessageType.INFO,
     text_view.set_editable(False)
     text_view.set_wrap_mode(Gtk.WrapMode.WORD)
     tb = Gtk.TextBuffer()
-    tb.set_text(details)
+    tb.set_text((details or '')[:4096])
     text_view.set_buffer(tb)
     sw = Gtk.ScrolledWindow()
     sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -1285,7 +1292,7 @@ class MessageBox(GenericMessageBox):
         self.details_label = Gtk.Label()
         viewport.add(self.details_label)
 
-        self.details = details
+        self.details = (details or '')[:4096]
         self.details_expander.add(sw)
 
         def on_expanded(*args):

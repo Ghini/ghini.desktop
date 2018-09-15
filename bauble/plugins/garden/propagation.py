@@ -449,7 +449,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
         from bauble.plugins.garden.plant import label_size_allocate
         label = Gtk.Label(label=propagation.get_summary())
-        label.set_wrap(True)
+        label.props.wrap = True
         label.set_alignment(0, 0)
         label.set_padding(0, 2)
         label.connect("size-allocate", label_size_allocate)

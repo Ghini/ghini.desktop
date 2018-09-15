@@ -51,15 +51,15 @@ cache:
   - msys2-i686-20180531.exe
 
 deploy:
-  release: 'v3.1.5' # :bump
+  release: 'v3.1.6' # :bump
   description: ''
-  provider: GitHub
-  auth_token:
-    secure: # see: https://www.appveyor.com/docs/how-to/git-push/#creating-github-personal-access-token
-  draft: false
-  prerelease: false
-  # on:
-  #   appveyor_repo_tag: true        # deploy on tag push only
+  - provider: GitHub
+    auth_token:
+       secure: # see: https://www.appveyor.com/docs/how-to/git-push/#creating-github-personal-access-token
+    draft: false
+    prerelease: false
+    # on:
+    #   appveyor_repo_tag: true        # deploy on tag push only
 
 #on_success:
 #  You can use this step to upload your artifacts to a public website.

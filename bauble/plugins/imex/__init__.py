@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015,2018 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -30,7 +30,6 @@ from bauble.plugins.imex.csv_ import CSVImportTool, CSVExportTool, \
     CSVExportCommandHandler, CSVImportCommandHandler
 from bauble.plugins.imex.iojson import JSONImportTool, JSONExportTool
 from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
-from .flat_export import FlatFileExportTool
 
 # TODO: it might be best to do something like the reporter plugin so
 # that this plugin provides a generic interface for importing and exporting
@@ -45,7 +44,7 @@ from .flat_export import FlatFileExportTool
 
 
 class ImexPlugin(pluginmgr.Plugin):
-    tools = [CSVImportTool, CSVExportTool, FlatFileExportTool,
+    tools = [CSVImportTool, CSVExportTool,
              JSONImportTool, JSONExportTool, XMLExportTool]
     commands = [CSVExportCommandHandler, CSVImportCommandHandler,
                 XMLExportCommandHandler]

@@ -40,8 +40,8 @@ production line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Branch names for Ghini stable (production) versions are of the form
-``ghini-x.y`` (eg: ghini-1.0); branch names where Ghini testing versions are
-published are of the form ``ghini-x.y-dev`` (eg: ghini-1.0-dev).
+``ghini-x.y`` (eg: ghini-3.1); branch names where Ghini testing versions are
+published are of the form ``ghini-x.y-dev`` (eg: ghini-3.1-dev).
 
 Development Workflow
 -------------------------------------------------------------
@@ -59,7 +59,7 @@ larger issues
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When facing a single larger issue, create a branch tag at the tip of a main
-development line (e.g.: ``ghini-1.0-dev``), and follow the workflow
+development line (e.g.: ``ghini-3.1-dev``), and follow the workflow
 described at
 
 https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
@@ -100,9 +100,9 @@ in several languages.
 component          repository                  branch
 ================== =========================== ==================
 Desktop 1.0        ghini.desktop               ghini-1.0-dev
-Desktop 1.1        ghini.desktop               ghini-1.1-dev
+Desktop 3.1        ghini.desktop               ghini-3.1-dev
 Documentation 1.0  ghini.desktop-docs.i18n     ghini-1.0-dev
-Documentation 1.1  ghini.desktop-docs.i18n     ghini-1.1-dev
+Documentation 3.1  ghini.desktop-docs.i18n     ghini-3.1-dev
 Web 1.2            ghini.web                   master
 Pocket             ghini.pocket                master
 ================== =========================== ==================
@@ -132,9 +132,9 @@ difficult once you know how to do that. First of all, add weblate as remote::
 Then make sure we are in the correct repository, on the correct branch,
 update the remote, merge with it::
 
-  git checkout ghini-1.0-dev
+  git checkout ghini-3.1-dev
   git remote update
-  git merge weblate-doc10/ghini-1.0-dev
+  git merge weblate-doc10/ghini-3.1-dev
 
 `Our documentation <https://readthedocs.org/projects/ghini/>`_ on
 readthedocs has an original English version, and several translations. We
@@ -171,6 +171,30 @@ script will:
 We could definitely write the above in a Makefile, or even better include it
 in ``/doc/Makefile``. Who knows, maybe we will do that.
 
+Producing the docs locally
+------------------------------------------------
+
+The above description is about how we help external sites produce our
+documentation so that it is online for all to see.  But what if you want to
+have the documentation locally, for example if you want to edit and review
+before pushing your commits to the cloud?
+
+In order to run sphinx locally, you need to install it **within** the same
+virtual environment as ghini, and to install it there, you need to have a
+sphinx version whose dependencies don not conflict with ghini.desktop's
+dependecies.
+
+What we do to keep this in order?
+
+We state this extra dependency in the ``setup.py`` file, as an
+``extras_require`` entry.  Create and activate the virtual environment, then
+run ``easy_install ghini.desktop[docs]``.  This gets you the sphinx version
+as declared in the ``setup.py`` file.
+
+If all you want is the html documentation built locally, run ``./setup.py
+install docs``.  For more options, enter the ``doc`` directory and run
+``make``.
+
 Which way do the translated strings reach our users?
 -------------------------------------------------------
 
@@ -192,13 +216,13 @@ process, based on the strings you see on Weblate.
 
 Before any of the above gets activated, the path followed by your
 translations is as you describe: Weblate pushes the strings to github,
-directly into the development line `ghini-1.0-dev`; I see them, if I
+directly into the development line `ghini-3.1-dev`; I see them, if I
 understand at least the structure of that language I review them, maybe I
 look them up in wikipedia or get them translated back to Italian, Spanish or
 English by some automatic translation service; sometimes I need to solve
 conflicts arising because of changed context, not too often fortunately;
-from time to time I publish the development line `ghini-1.0-dev` to the
-production line `ghini-1.0`, and this is the moment when the new
+from time to time I publish the development line `ghini-3.1-dev` to the
+production line `ghini-3.1`, and this is the moment when the new
 translations finally make it to the distributed software.
 
 users will notice a `new version available` warning and can decide to ignore
@@ -797,14 +821,14 @@ steps for a normal Windows :ref:`installation`.
 
 #. Clone ghini.desktop to wherever you want to keep it (replace 
    ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Local\github\Ghini\``) 
-   and checkout a production branch (``ghini-1.0`` is recommended as 
+   and checkout a production branch (``ghini-3.1`` is recommended as 
    used in the example).  To do this, open a command prompt and type these 
    commands::
 
       cd <path-to-keep-ghini>
       git clone https://github.com/Ghini/ghini.desktop.git
       cd ghini.desktop
-      git checkout ghini-1.0
+      git checkout ghini-3.1
 
 #. Install virtualenv, create a virtual environment and activate it.  With only 
    Python 2.7 on your system (where ``<path-to-venv>`` is the path to where you 
