@@ -332,7 +332,7 @@ class MakoFormatterPlugin(FormatterPlugin):
 
         session = db.Session()
         values = list(map(session.merge, objs))
-        report = template.render(values=values, **kwargs)
+        report = template.render(values=values, options=kwargs)
         session.close()
         # assume the template is the same file type as the output file
         head, ext = os.path.splitext(template_filename)
@@ -345,6 +345,7 @@ class MakoFormatterPlugin(FormatterPlugin):
             utils.message_dialog(_('Could not open the report with the '
                                    'default program. You can open the '
                                    'file manually at %s') % filename)
+        return report
 
 
 formatter_plugin = MakoFormatterPlugin
