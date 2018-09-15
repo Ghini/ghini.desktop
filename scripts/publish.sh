@@ -26,7 +26,7 @@ git push
 
 # publish on pypi
 #
-echo git checkout ghini-3.1 && python setup.py sdist --formats zip upload -r pypi
+python setup.py sdist --formats zip upload -r pypi
 
 # some day also produce a windows installable
 
