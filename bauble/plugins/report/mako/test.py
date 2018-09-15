@@ -3,6 +3,7 @@
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
 # Copyright 2017 Jardín Botánico de Quito
+# Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -31,6 +32,8 @@ from bauble.plugins.plants import Family, Genus, Species, \
     SpeciesDistribution, VernacularName, GeographicArea
 from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.report.mako import MakoFormatterPlugin
+from bauble.plugins.report import get_pertinent_objects
+from bauble import utils
 
 from bauble.plugins.report.mako import add_text, Code39, add_code39, add_qr
 
@@ -80,17 +83,29 @@ class MakoFormatterTests(BaubleTestCase):
         super().tearDown(*args)
 
     def test_format_all_templates_not_using_qr(self):
-        plants = self.session.query(Plant).all()
+        selection = self.session.query(Plant).all()
         td = os.path.join(os.path.dirname(__file__), 'templates')
-        for tn in MakoFormatterPlugin.templates:
+        for i, tn in enumerate(MakoFormatterPlugin.templates):
             if tn.find('qr') != -1:
                 continue
             filename = os.path.join(td, tn)
-            report = MakoFormatterPlugin.format(plants, template=filename)
-            self.assertEquals(type(report), str)
+            domain = MakoFormatterPlugin.get_iteration_domain(filename)
+            try:
+                cls = {
+                    'plant': Plant,
+                    'accession': Accession,
+                    'species': Species,
+                    'location': Location,
+                }[domain]
+                todo = sorted(get_pertinent_objects(cls, selection),
+                              key=utils.natsort_key)
+            except KeyError:
+                todo = selection
+            report = MakoFormatterPlugin.format(todo, template=filename)
+            self.assertEquals((i, filename, type(report)), (i, filename, bytes))
 
     def test_format_qr_postscript_templates(self):
-        plants = self.session.query(Plant).all()
+        selection = self.session.query(Plant).all()
         td = os.path.join(os.path.dirname(__file__), 'templates')
         for tn in MakoFormatterPlugin.templates:
             if tn.find('-qr.') == -1:
@@ -98,8 +113,17 @@ class MakoFormatterTests(BaubleTestCase):
             if not tn.endswith('.ps') or not tn.endswith('.eps'):
                 continue
             filename = os.path.join(td, tn)
-            report = MakoFormatterPlugin.format(plants, template=filename)
-            self.assertEquals(type(report), str)
+            domain = MakoFormatterPlugin.get_iteration_domain(filename)
+            cls = {
+                'plant': Plant,
+                'accession': Accession,
+                'species': Species,
+                'location': Location,
+            }[domain]
+            todo = sorted(get_pertinent_objects(cls, selection),
+                          key=utils.natsort_key)
+            report = MakoFormatterPlugin.format(todo, template=filename)
+            self.assertEquals((filename, type(report)), (filename, str))
 
     def test_format_qr_svg_templates(self):
         from nose import SkipTest
