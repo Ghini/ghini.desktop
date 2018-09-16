@@ -191,6 +191,8 @@ You activate server mode on |ghini.desktop| with :menuselection:`Tools-->Pocket 
 While in server mode, |ghini.desktop| is not available for other uses, and |ghini.pocket|
 clients will be able to register, request database snapshots, or send collected updates.
 
+.. image::  images/ghini-pocket-client.png
+
 |ghini.pocket| works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
 server mode, automatically and in the background.  Production of a snapshot is generally fast,
