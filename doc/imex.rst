@@ -186,10 +186,10 @@ awaits for requests from registered |ghini.pocket| clients.
 
 You activate server mode on |ghini.desktop| with :menuselection:`Tools-->Pocket Server..`.
 
+.. image:: images/pocket-server-starting.png
+
 While in server mode, |ghini.desktop| is not available for other uses, and |ghini.pocket|
 clients will be able to register, request database snapshots, or send collected updates.
-
-.. image:: images/pocket-server-starting.png
 
 |ghini.pocket| works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
