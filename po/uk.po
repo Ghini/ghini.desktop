@@ -9,17 +9,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-14 08:36-0500\n"
-"PO-Revision-Date: 2018-04-06 21:41+0000\n"
-"Last-Translator: Максим Якимчук <xpinovo@gmail.com>\n"
+"PO-Revision-Date: 2018-09-17 14:33+0000\n"
+"Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/ghini/"
 "desktop-10/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2.20\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.2-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:23+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -251,11 +251,11 @@ msgstr "<b>Групи рослин:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:42
 msgid "<b>Plant Groups</b>"
-msgstr ""
+msgstr "<b>Групи рослин</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:133
 msgid "<b>Plant Material:</b>"
-msgstr ""
+msgstr "<b>Рослинний матеріал:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1019
 msgid "<b>Plants:</b>"
@@ -343,7 +343,7 @@ msgstr "<b>Використовувати імена авторів</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:539
 msgid "<b>commit or rollback</b>"
-msgstr ""
+msgstr "<b>здійснити або відкат</b>"
 
 #: bauble/plugins/garden/loc_editor.glade:351
 msgid "<b>danger zone</b>"
@@ -351,7 +351,7 @@ msgstr "<b>небезпечна зона</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:470
 msgid "<b>data revision</b>"
-msgstr ""
+msgstr "<b>перегляд даних</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:987
 msgid "<b>in use</b>"
@@ -363,7 +363,7 @@ msgstr "<b>опції</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:352
 msgid "<b>parameter definition</b>"
-msgstr ""
+msgstr "<b>визначення параметра</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:974
 msgid "<b>total</b>"
@@ -535,6 +535,8 @@ msgid ""
 "An approximation of the garden size: the diameter of the smallest circle "
 "completely containing the garden location."
 msgstr ""
+"Наближення розміру саду: діаметр найменшого кола, що повністю містить місце "
+"розташування саду."
 
 #: bauble/plugins/garden/location.py:193
 msgid ""
@@ -546,7 +548,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:104
 msgid "Apply active tag"
-msgstr ""
+msgstr "Застосувати активний тег"
 
 #: bauble/plugins/garden/accession.py:1334
 msgid "Are you sure you want to copy this verification to the general taxon?"
@@ -750,7 +752,7 @@ msgstr "Змінити пароль"
 
 #: bauble/plugins/garden/plant_editor.glade:871
 msgid "Change history"
-msgstr "Журнал змін"
+msgstr "Історія змін"
 
 #: bauble/plugins/garden/plant.py:1260
 msgid "Changes"
@@ -1107,11 +1109,11 @@ msgstr "Опис"
 
 #: bauble/utils/__init__.py:714
 msgid "Details"
-msgstr "Подробиці"
+msgstr "Деталі"
 
 #: bauble/plugins/garden/institution.glade:537
 msgid "Diameter"
-msgstr ""
+msgstr "Діаметр"
 
 #: bauble/plugins/garden/plant.py:268
 msgid "Did not germinate"
@@ -1583,6 +1585,8 @@ msgstr "Незрілі"
 #: bauble/plugins/garden/accession.py:895
 msgid "Immediately create a plant at this location, using all plant material."
 msgstr ""
+"Негайно створіть рослину на цьому місці, використовуючи весь рослинний "
+"матеріал."
 
 #: bauble/plugins/garden/picture_importer.py:390
 #: bauble/plugins/imex/csv_.py:683 bauble/plugins/imex/iojson.py:323
@@ -1624,6 +1628,8 @@ msgid ""
 "In order to tag or untag an item you must first search for something and "
 "select one of the results."
 msgstr ""
+"Щоб позначити тег або скасувати його, потрібно спочатку знайти щось та "
+"вибрати один з результатів."
 
 #: bauble/plugins/garden/accession.py:413
 msgid "In vitro"
@@ -1943,7 +1949,8 @@ msgid ""
 "Not enough plants to split.  A plant should have at least a quantity of 2 "
 "before it can be divided"
 msgstr ""
-"Рослин для гілки недостатньо. Рослин має бути принаймні 2 щоб створити гілку"
+"Не вистачає рослин на гілку. Рослин повинно бути принаймні 2, перш ніж вони "
+"можуть бути розгалужені"
 
 #: bauble/plugins/garden/plant_editor.glade:962
 #: bauble/plugins/garden/prop_editor.glade:1538
@@ -1970,7 +1977,7 @@ msgstr "OK"
 
 #: bauble/plugins/garden/picture_importer.py:384
 msgid "Ok"
-msgstr ""
+msgstr "ОК"
 
 #: bauble/plugins/garden/plant.py:332
 msgid "Old Flowers"
@@ -2005,7 +2012,7 @@ msgstr "Дозволи"
 
 #: bauble/plugins/garden/picture_importer.py:391
 msgid "Picture Collection"
-msgstr ""
+msgstr "Збірка зображень"
 
 #: bauble/pictures_view.glade:10
 msgid "Picture Viewer"
@@ -2090,7 +2097,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:162
 msgid "Please make sure a tag is active."
-msgstr ""
+msgstr "Переконайтеся, що тег активний."
 
 #: bauble/__init__.py:234
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
@@ -2115,7 +2122,7 @@ msgstr "Будь ласка, виберіть шаблон."
 
 #: bauble/plugins/tag/__init__.py:158
 msgid "Please select something in the search results."
-msgstr ""
+msgstr "Будь ласка, виберіть щось у результатах пошуку."
 
 #: bauble/plugins/garden/institution.py:136
 msgid "Please specify an institution name for this database."
@@ -2131,7 +2138,7 @@ msgstr "Слабкий"
 
 #: bauble/connmgr.glade:554
 msgid "Port:"
-msgstr ""
+msgstr "Порт:"
 
 #: bauble/plugins/garden/propagation.py:296
 msgid "Powder"
@@ -2256,7 +2263,7 @@ msgstr "Зареєструватися"
 
 #: bauble/plugins/tag/__init__.py:106
 msgid "Remove active tag"
-msgstr ""
+msgstr "Видалити активний тег"
 
 #: bauble/plugins/garden/propagation.py:276
 #: bauble/plugins/garden/propagation.py:281
@@ -2505,7 +2512,7 @@ msgstr "Виберіть таблицю стилів"
 
 #: bauble/plugins/garden/picture_importer.py:381
 msgid "Select pictures source directory"
-msgstr ""
+msgstr "Виберіть зображення вихідного каталогу"
 
 #: bauble/utils/__init__.py:1334
 msgid "Show details"
@@ -2901,7 +2908,7 @@ msgstr "Код установи повинен бути унікальним с�
 
 #: bauble/plugins/garden/institution.py:216
 msgid "The latitude of the geographic centre of the garden."
-msgstr ""
+msgstr "Географічна широта центру саду."
 
 #: bauble/plugins/garden/plant.py:602
 msgid "The location of the planting in your collection."
@@ -2909,7 +2916,7 @@ msgstr "Розташування рослини у вашій колекції."
 
 #: bauble/plugins/garden/institution.py:217
 msgid "The longitude of the geographic centre of the garden."
-msgstr ""
+msgstr "Географічна довгота центру саду."
 
 #: bauble/plugins/garden/institution.py:215
 msgid "The mailing address of the institition."
@@ -2934,9 +2941,9 @@ msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or documented living material."
 msgstr ""
-"Назва запису визначається з систематики або компетентними особами "
-"використовуючи гербарій і/або бібліотеку і / або документально живий "
-"матеріал."
+"Назва запису визначається таксономістом або іншими компетентними особами, "
+"які використовують гербарій та/або бібліотеку та/або документовані живі "
+"матеріали."
 
 #: bauble/plugins/garden/accession.py:228
 msgid ""
@@ -3002,6 +3009,8 @@ msgid ""
 "The plugins contain a dependency loop. This means that two plugins (possibly "
 "indirectly) rely on each other"
 msgstr ""
+"Плагіни містять цикл залежності. Це означає, що два плагіни (можливо, "
+"опосередковано) залежать один від одного"
 
 #: bauble/plugins/garden/accession.py:235
 msgid ""
@@ -3114,7 +3123,6 @@ msgstr ""
 "Розмноження підготувало %s рослин.\n"
 "Їх вже можна приєднати.\n"
 "\n"
-"\n"
 "Ви впевнені, що хочете видалити це?"
 
 #: bauble/plugins/garden/propagation.py:498
@@ -3164,6 +3172,9 @@ msgid ""
 "Latest published version: %s\n"
 "Publication date: %s"
 msgstr ""
+"Ця версія встановлена на: %s\n"
+"Остання опублікована версія: %s\n"
+"Дата публікації: %s"
 
 #: bauble/db.py:40
 msgid ""
@@ -3548,7 +3559,7 @@ msgstr "_Вставка"
 
 #: bauble/ui.py:432
 msgid "_New"
-msgstr ""
+msgstr "_Новий"
 
 #: bauble/ui.py:434
 msgid "_Open"
@@ -3576,7 +3587,7 @@ msgstr "_parse_lat_lon() -- невірний формат: %s"
 
 #: bauble/plugins/garden/picture_importer.glade:423
 msgid "acc.nr."
-msgstr ""
+msgstr "acc.nr."
 
 #: bauble/plugins/garden/acc_editor.glade:2963
 msgid "accession code format"
@@ -3584,7 +3595,7 @@ msgstr "формат коду приєднання"
 
 #: bauble/plugins/garden/picture_importer.glade:230
 msgid "accession format"
-msgstr ""
+msgstr "формат приєднання"
 
 #: bauble/plugins/imex/select_export.glade:119
 msgid "accessions"
@@ -3613,7 +3624,7 @@ msgstr "назад до екрану запуску"
 
 #: bauble/plugins/garden/picture_importer.glade:438
 msgid "binomial"
-msgstr ""
+msgstr "бінарний"
 
 #: bauble/plugins/plants/taxonomy_check.glade:184
 msgid "browse"
@@ -3625,7 +3636,7 @@ msgstr "%(verifier)s"
 
 #: bauble/plugins/garden/plant.py:978
 msgid "cannot split a new plant"
-msgstr "не вдається гілка нової рослини"
+msgstr "не вдається розділити нову рослину"
 
 #: bauble/plugins/plants/stored_queries.glade:413
 msgid "click on query button and edit the associated values"
@@ -3670,15 +3681,15 @@ msgstr "ім'я бази даних"
 
 #: bauble/plugins/garden/picture_importer.glade:216
 msgid "default location"
-msgstr ""
+msgstr "розташування за замовчуванням"
 
 #: bauble/plugins/garden/picture_importer.glade:520
 msgid "details"
-msgstr ""
+msgstr "деталі"
 
 #: bauble/plugins/garden/picture_importer.glade:410
 msgid "edit"
-msgstr ""
+msgstr "редагувати"
 
 #: bauble/plugins/plants/infoboxes.glade:1772
 msgid "edit stored queries"
@@ -3718,7 +3729,7 @@ msgstr "f."
 
 #: bauble/plugins/garden/picture_importer.glade:398
 msgid "file name"
-msgstr ""
+msgstr "ім'я файлу"
 
 #: bauble/plugins/garden/plant_infobox.glade:6
 msgid "general_window"
@@ -3726,7 +3737,7 @@ msgstr "general_window"
 
 #: bauble/plugins/plants/__init__.py:392
 msgid "history"
-msgstr ""
+msgstr "історія"
 
 #: bauble/ui.py:319
 msgid "history size must be greater than zero and less than the history size"
@@ -3734,7 +3745,7 @@ msgstr "розмір історії повинен бути більше нул�
 
 #: bauble/plugins/garden/picture_importer.glade:509
 msgid "hit"
-msgstr ""
+msgstr "хіт"
 
 #: bauble/ui.py:767
 msgid "http://ghini.github.io"
@@ -3808,7 +3819,7 @@ msgstr "немає віджета з ім'ям %s"
 
 #: bauble/connmgr.py:128
 msgid "not available when offline"
-msgstr ""
+msgstr "недоступний у режимі офлайн"
 
 #: bauble/plugins/plants/species.py:424
 msgid "open the wikipedia page about this species"
@@ -3824,7 +3835,7 @@ msgstr "файл зображення %s не знайдено."
 
 #: bauble/plugins/garden/picture_importer.glade:323
 msgid "picture location"
-msgstr ""
+msgstr "місце розташування зображення"
 
 #: bauble/plugins/imex/select_export.glade:137
 msgid "plants"
@@ -3836,7 +3847,7 @@ msgstr "Будь ласка, підтвердіть злиття  %(1)s в %(2)s
 
 #: bauble/plugins/plants/__init__.py:393
 msgid "preferences"
-msgstr ""
+msgstr "преференція"
 
 #: bauble/plugins/plants/stored_queries.glade:458
 #: bauble/plugins/plants/taxonomy_check.glade:442
@@ -3862,7 +3873,7 @@ msgstr "створити запит списку рослин"
 
 #: bauble/plugins/garden/picture_importer.glade:202
 msgid "recurse"
-msgstr ""
+msgstr "повторити"
 
 #: bauble/plugins/garden/institution.glade:586
 msgid "save and close"
@@ -3922,11 +3933,11 @@ msgstr "таксон"
 
 #: bauble/plugins/plants/__init__.py:392
 msgid "the history in this database"
-msgstr ""
+msgstr "історія в цій базі даних"
 
 #: bauble/plugins/garden/picture_importer.glade:453
 msgid "thumbnail"
-msgstr ""
+msgstr "мініатюра"
 
 #: bauble/plugins/garden/prop_editor.glade:1475
 msgid "to"
