@@ -33,6 +33,7 @@ import datetime
 import os.path
 
 from bauble import paths
+from bauble import db
 from bauble import pluginmgr
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
@@ -123,12 +124,16 @@ class PocketServer(Thread):
 
             def put_change(self, client_id, log_lines, baseline):
                 user_name = self.imei_to_user_name.get(client_id, None)
-                from import_pocket_log import process_line
+                from .import_pocket_log import process_line
                 self.log.append(("put_change ›%s‹ ›%s‹" % (client_id, len(log_lines)), ))
+                session = db.Session()
                 db.current_user.override(user_name)
                 for line in log_lines:
-                    process_line(self.presenter.session, line, baseline)
+                    process_line(session, line, baseline)
                 db.current_user.override()
+                session.commit()
+                if self.presenter.autorefresh:
+                    self.presenter.on_new_snapshot_button_clicked()
                 return 0
 
             def put_picture(self, client_id, name, base64_content):
@@ -176,6 +181,7 @@ class PocketServerPresenter(GenericEditorPresenter):
     widget_to_field_map = {
         'last_snapshot_date_entry': 'last_snapshot_date',
         'code_entry': 'code',
+        'autorefresh_checkbutton': 'autorefresh',
         'ip_address_entry': 'ip_address',
         'port_entry': 'port',
         }
@@ -186,6 +192,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.ip_address = get_ip()
         self.last_snapshot_date = ''
         self.code = get_code()
+        self.autorefresh = False
         # invoke constructor
         super().__init__(model=self, view=view, refresh_view=True, do_commit=True,
                          committing_results=[-5, -4, -1])  # close, ×, ESC
