@@ -118,7 +118,7 @@
               </object>
               <packing>
                 <property name="left_attach">7</property>
-                <property name="top_attach">4</property>
+                <property name="top_attach">5</property>
                 <property name="width">2</property>
               </packing>
             </child>
@@ -141,7 +141,7 @@
               </object>
               <packing>
                 <property name="left_attach">7</property>
-                <property name="top_attach">2</property>
+                <property name="top_attach">3</property>
                 <property name="width">2</property>
                 <property name="height">2</property>
               </packing>
@@ -232,7 +232,7 @@
               </object>
               <packing>
                 <property name="left_attach">3</property>
-                <property name="top_attach">2</property>
+                <property name="top_attach">3</property>
                 <property name="width">4</property>
                 <property name="height">3</property>
               </packing>
@@ -255,7 +255,7 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">2</property>
+                <property name="top_attach">3</property>
                 <property name="width">3</property>
                 <property name="height">3</property>
               </packing>
@@ -274,6 +274,31 @@
                 <property name="top_attach">1</property>
                 <property name="width">4</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="autorefresh_checkbutton">
+                <property name="label" translatable="yes">Automatic refresh</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="receives_default">False</property>
+                <property name="tooltip_text" translatable="yes">Refresh automatically after each push from pocket clients.</property>
+                <property name="draw_indicator">True</property>
+                <signal name="toggled" handler="on_check_toggled" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">2</property>
+                <property name="width">6</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -418,7 +443,7 @@
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn">
-                            <property name="title" translatable="no">imei</property>
+                            <property name="title">imei</property>
                             <child>
                               <object class="GtkCellRendererText" id="imei_cell"/>
                               <attributes>
