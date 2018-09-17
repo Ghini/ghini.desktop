@@ -186,7 +186,7 @@ sections, aimed mainly at database managers and possibly software developers.
        - species: binomial, phonetic approximation
 
 
-..  admonition:: g2w: add geographic non-botanic data to ghini.web
+..  admonition:: g2w4t: add geographic non-botanic data to ghini.web
     :class: toggle
 
      - Write geographic information about non-botanic data (ie: point of
@@ -203,14 +203,6 @@ sections, aimed mainly at database managers and possibly software developers.
 
 
 ..  admonition:: w2t: importing locations and POIs from ghini.web to tour
-    :class: toggle
-
-       content of this flow:
-
-       - Garden (coords, name, zoom level)
-       - Points of Interest (coords, title, audio file, photo)
-
-..  admonition:: g2w4t: geographic information to ghini.web, for use by tour
     :class: toggle
 
        content of this flow:
