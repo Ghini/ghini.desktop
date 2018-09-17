@@ -78,6 +78,14 @@ class PocketServer(Thread):
         super().__init__()
 
         class API:
+            OK = 0
+            USER_NOT_REGISTERED = 1
+            WRONG_TYPE_IN_PARAMETERS = 2
+            INVALID_SECURITY_CODE = 3
+            FILE_EXISTS_ALREADY = 4
+            USER_ALREADY_REGISTERED = 16
+            GENERIC_ERROR = -1
+
             def __init__(self, presenter):
                 # different thread: we can read from and write to presenter
                 # and list stores, but only read graphic widgets.
@@ -90,7 +98,7 @@ class PocketServer(Thread):
                 self.log.append(("verify ›%s‹" % (client_id), ))
                 user_name = self.imei_to_user_name.get(client_id, None)
                 if user_name is None:
-                    return 1
+                    return self.USER_NOT_REGISTERED
                 else:
                     return user_name
 
@@ -98,29 +106,29 @@ class PocketServer(Thread):
                 self.presenter._dirty = True
                 self.log.append(("register ›%s‹ ›%s‹" % (client_id, security_code), ))
                 if not isinstance(client_id, str) or not isinstance(user_name, str):
-                    return 2
+                    return self.WRONG_TYPE_IN_PARAMETERS
                 elif security_code != self.presenter.code:
-                    return 3
+                    return self.INVALID_SECURITY_CODE
                 else:
                     if user_name == self.imei_to_user_name.get(client_id):
-                        return 16
+                        return self.USER_ALREADY_REGISTERED
                     self.clients.append((len(self.clients), client_id, user_name, ))
                     self.imei_to_user_name[client_id] = user_name
-                    return 0
+                    return self.OK
 
             def get_snapshot(self, client_id):
                 self.log.append(("get_snapshot ›%s‹ ›%s‹" % (client_id, self.presenter.pocket_fn), ))
                 if client_id not in set((i[1] for i in self.clients)):
-                    return 1
+                    return self.USER_NOT_REGISTERED
                 elif not isinstance(client_id, str):
-                    return 2
+                    return self.WRONG_TYPE_IN_PARAMETERS
                 import base64
                 try:
                     with open(self.presenter.pocket_fn, "rb") as pocket_file:
                         encoded_string = base64.b64encode(pocket_file.read())
                         return encoded_string.decode("utf-8") 
                 except:
-                    return -1
+                    return self.GENERIC_ERROR
 
             def put_change(self, client_id, log_lines, baseline):
                 user_name = self.imei_to_user_name.get(client_id, None)
@@ -134,14 +142,14 @@ class PocketServer(Thread):
                 session.commit()
                 if self.presenter.autorefresh:
                     self.presenter.on_new_snapshot_button_clicked()
-                return 0
+                return self.OK
 
             def put_picture(self, client_id, name, base64_content):
                 self.log.append(("put_picture ›%s‹ ›%s‹" % (client_id, name, ), ))
                 if client_id not in set((i[1] for i in self.clients)):
-                    return 1
+                    return self.USER_NOT_REGISTERED
                 elif not isinstance(client_id, str) or not isinstance(name, str) or not isinstance(base64_content, str):
-                    return 2
+                    return self.WRONG_TYPE_IN_PARAMETERS
                 from bauble import prefs
                 filename = os.path.join(prefs.prefs[prefs.picture_root_pref], name)
                 try:
@@ -150,11 +158,11 @@ class PocketServer(Thread):
                         content = base64.b64decode(base64_content)
                         picture_file.write(content)
                         picture_file.close()
-                        return 0
+                        return self.OK
                 except FileExistsError:
-                    return 4
+                    return self.FILE_EXISTS_ALREADY
                 except:
-                    return -1
+                    return self.GENERIC_ERROR
 
         self.ip = presenter.ip_address
         self.port = int(presenter.port)
