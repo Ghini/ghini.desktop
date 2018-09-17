@@ -138,32 +138,39 @@ data streams between components
 .. image:: images/ghini-streams-installed.png
    :align: left
 
-In the diagram showing the composition of the Ghini family, the alert reader
-noticed how different arrows representing different data flows, had
-different colours: some are deep green, some have a lighter tint, while the
-two streams connecting ghini.pocket to ghini.desktkop have a colour
-gradient, deep green at the pocket end, and lighter at the desktop end.
+In the diagram showing the composition of the Ghini family, the alert reader noticed how
+different arrows, corresponding to the different data flows, had different colours: some are
+deep green, some have a lighter tint, while the two streams connecting ghini.pocket and
+ghini.desktkop have a colour gradient, from light to deep green.
 
-The colour choice conveys a meaning: deeper green streams are constant flows
-of data, representing the core activity of a component, eg: the interaction
-between ghini.desktop and its database server, or your internet browser and
-ghini.web.
+.. image:: images/ghini-family-clean.png
+
+The colour choice for the arrows conveys a meaning: deeper green streams are constant flows
+of data, representing the core activity of a component, eg: the interaction between
+ghini.desktop and its database server, or your internet browser and ghini.web.
 
 Lighter green streams are import/export actions, initiated by the user at the
 command panel of ghini.desktop, or in the ghini.tour settings page.
 
-The interaction between ghini.pocket and ghini.desktop seen from the pocket
-end is an interaction with a data server, while from the point of view of
-the desktop application, it's a stream you initiate when needed and stop as
-soon as you are done using it.
+The interaction between ghini.pocket and ghini.desktop seen from the desktop, it is a stream you
+initiate when needed and stop as soon as you are done using it, for this reason it is light
+green at the desktop end.  From the point of view of ghini.pocket however, it is an interaction
+with a data server, and we make this visible by giving the arrows a deep green colour at the
+pocket end.
 
-This is the same graph, in which all import data streams have been given an
-identifier.
+This is again the same graph, but now all import data streams have been given an identifier, and
+where we added thin red lines ending in a thick dot, to indicate the control line from the
+controlling console to the controlled stream.
 
 .. image:: images/ghini-family-streams.png
 
-.. note:: The remainig expandable sections contain mostly technical information, aimed at
-          database managers and software developers.
+The interaction between ghini.pocket and ghini.desktop is one of the daily tasks of Ghini users,
+and has an integrated, hopefully user-friendly interface, at both the ghini.pocket and the
+ghini.desktop ends.  This is described in the next section.
+
+All import/export actions relating to ghini.web are still rather low level actions, so their
+description needs be of a rather technical type.  These are handled in the remainig expandable
+sections, aimed mainly at database managers and possibly software developers.
 
 ..  admonition:: d2w: send a selection of your garden data to ghini.web
     :class: toggle
@@ -211,17 +218,6 @@ identifier.
        - Garden (coords, name, zoom level)
        - Points of Interest (coords, title, audio file, photo)
 
-..  admonition:: d2p: copy a snapshot of the desktop database to ghini.pocket
-    :class: toggle
-
-       please refer to the below  :any:`pocket-desktop interaction` discussion.
-
-
-..  admonition:: p2d: import from the ghini.pocket log file and pictures into the central database
-    :class: toggle
-
-       please refer to the below  :any:`pocket-desktop interaction` discussion.
-
 .. _pocket-desktop interaction:
 
 Managing pocket/desktop interaction
@@ -235,7 +231,8 @@ from registered |ghini.pocket| clients.
 |ghini.desktop| server mode
 ----------------------------------------
 
-You activate server mode on |ghini.desktop| with :menuselection:`Tools-->Pocket Server..`.
+Select :menuselection:`Tools-->Pocket Server..` to activate server mode on |ghini.desktop|.
+This is the Pocket Server console:
 
 .. image:: images/pocket-server-starting.png
 
@@ -246,14 +243,20 @@ clients will be able to register, request database snapshots, or send collected 
 
 |ghini.pocket| works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
-server mode, automatically and in the background.  Production of a snapshot is generally fast,  
-and a typical Pocket Server session consists of: pushing updates from |ghini.pocket| clients,
-refreshing your snapshot on |ghini.desktop|, pulling the new snapshot to each of your clients.
+server mode, automatically and in the background.  A typical Pocket Server session consists of:
+validate your identity, push updates from |ghini.pocket| clients, refresh your snapshot on
+|ghini.desktop|, pull the new snapshot to each of your clients.
 
-|ghini.desktop| and |ghini.pocket| need to be connected to the same local network.  The server
-GUI includes an informative entry for the server IP address, this you obviously don't edit,
-and an entry for the port number, which defaults to GHINI/44464.  Make sure that every
-configuration on your clients matches the settings on the server.
+Production of a snapshot is generally fast, surely for collections below the ten thousand
+plants, so you may prefer to keep the automatic refresh option enabled: a refresh will be
+triggered after receiving data from pocket clients and ghini.desktop will compute it while it is
+still receiving pictures.  You will most likely not notice any delay.  With automatic refresh
+enabled, the sequence reduces to: validate your identity, push updates, pull the new snapshot.
+
+|ghini.desktop| and |ghini.pocket| need to be connected to the same (local) network.  The server
+GUI includes an informative entry for the server IP address, this you obviously don't edit, and
+an entry for the port number, which defaults to GHINI/44464.  Make sure that every configuration
+on your clients matches the settings on the server.
 
 .. image:: images/pocket-server-settings.png
 
@@ -266,9 +269,11 @@ need to use the same phone with a different user name, you must overrule the exi
 registration, and to do so, you need the security code as shown in the desktop server
 settings.
 
-Start the server on |ghini.desktop| and move your focus to your |ghini.pocket| client.  It is
-from the |ghini.pocket| clients that you handle the communication.  After accepting updates
-from your |ghini.pocket| clients, refresh the snapshot and update it on all your clients.
+Start the server on |ghini.desktop| by clicking on that thick push button, it will stay pushed
+and slowly spinning while the server is active.  Possibly enable automatic refresh, then move
+your attention focus to your |ghini.pocket| client.  It is from the |ghini.pocket| clients that
+you handle the communication.  After accepting updates from your |ghini.pocket| clients, refresh
+the snapshot and update it on all your clients.
 
 When done, stop the server, review the logs, close the Pocket Server window.
 
@@ -278,9 +283,9 @@ When done, stop the server, review the logs, close the Pocket Server window.
 |ghini.pocket| options menu has a |desktop| item.  Use it to activate the
 "desktop-client" window, which implements all interaction with the |ghini.desktop| server.
 
-The "desktop-client" window contains data fields you have to edit in order to gain access to
-the server, and buttons for server communication.  The communication buttons are not enabled
-unless you validate your identity.
+The "desktop-client" window contains data fields you have to edit in order to gain access to the
+server, and buttons for server communication.  The communication buttons are not enabled unless
+you validate (that is: register, or verify if already registered) your identity.
 
 .. image::  images/ghini-pocket-client.png
 
