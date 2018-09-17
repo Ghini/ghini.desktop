@@ -83,7 +83,7 @@ ghini.web
 
 ghini.web is a web server, written in nodejs.
 
-Its most visible part runs at http://gardens.ghini.me and shows as a
+Its most visible part runs at http://web.ghini.me and shows as a
 map of the world, where you browse gardens and search their published
 collection.
 
@@ -133,18 +133,24 @@ data streams between software components
 .. image:: images/ghini-streams-installed.png
    :align: left
 
-In the diagram showing the composition of the Ghini family, the alert
-reader noticed how different arrows representing different data
-flows, had different colours: some are deep green, some have a
-lighter tint.
+In the diagram showing the composition of the Ghini family, the alert reader
+noticed how different arrows representing different data flows, had
+different colours: some are deep green, some have a lighter tint, while the
+two streams connecting ghini.pocket to ghini.desktkop have a colour
+gradient, deep green at the pocket end, and lighter at the desktop end.
 
-       
-Deeper green streams are constant flows of data, representing the core
-activity of a component, eg: the interaction between ghini.desktop and its
-database server, or your internet browser and ghini.web.
+The colour choice conveys a meaning: deeper green streams are constant flows
+of data, representing the core activity of a component, eg: the interaction
+between ghini.desktop and its database server, or your internet browser and
+ghini.web.
 
 Lighter green streams are import/export actions, initiated by the user at the
 command panel of ghini.desktop, or in the ghini.tour settings page.
+
+The interaction between ghini.pocket and ghini.desktop seen from the pocket
+end is an interaction with a data server, while from the point of view of
+the desktop application, it's a stream you initiate when needed and stop as
+soon as you are done using it.
 
 This is the same graph, in which all import data streams have been given an
 identifier.
@@ -154,44 +160,13 @@ identifier.
 ..  admonition:: d2p: copy a snapshot of the desktop database to ghini.pocket
     :class: toggle
 
-       - export the desktop database to a pocket snapshot
-       - copy the snapshot to the handheld device
-
-       ghini.pocket integrates closely with ghini.desktop, and it's not a
-       tool for the casual nor the external user.  One task of your garden
-       database manager is to regularly copy an updated database snapshot to
-       your Android device.
-
-       We advise enabling USB debugging on the device.  In perspective, this will
-       allow ghini.desktop writing directily into the ghini.pocket device.
-
-       Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
-
-         adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
-
-       The above location is valid even if your phone does not have a memory card.
-
-       Other options include bluetooth, or whatever other way you normally use to
-       copy regular files into your Android device.
-
+       section needs rewrite.  it is now described in a different paragraph, part of imex.
 
 
 ..  admonition:: p2d: import from the ghini.pocket log file and pictures into the central database
     :class: toggle
 
-       even if we're still calling it “inventory log”, ghini.pocket's log
-       contains more than just inventory corrections.
-
-       - produce a log on the handheld device
-       - import the log in the desktop database
-
-       first of all, copy the collected information from ghini.pocket into your computer::
-
-         export DIR=/some/directory/on/your/computer
-         adb -d pull /sdcard/Android/data/me.ghini.pocket/files/searches.txt $DIR
-         adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
-
-       then use ghini.desktop to import this information into your database.
+       section needs rewrite.  it is now described in a different paragraph, part of imex.
 
 
 ..  admonition:: d2w: send a selection of your garden data to ghini.web
