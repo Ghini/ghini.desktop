@@ -185,6 +185,9 @@ sections, aimed mainly at database managers and possibly software developers.
        - plants: coords, identification, zoom level (for visibility)
        - species: binomial, phonetic approximation
 
+       There is a ``stream_d2w.py`` script for this, living in the ``scripts`` directory.  It
+       should really be integrated in ghini.desktop, some day.
+
 
 ..  admonition:: g2w4t: add geographic non-botanic data to ghini.web
     :class: toggle
