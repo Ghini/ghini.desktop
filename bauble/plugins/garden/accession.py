@@ -1252,7 +1252,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter().view.attach_completion(
                 ver_new_taxon_entry, sp_cell_data_func)
             if self.model.species:
-                ver_new_taxon_entry.props.text = self.model.species
+                ver_new_taxon_entry.props.text = utils.utf8(self.model.species)
             self.presenter().assign_completions_handler(
                 ver_new_taxon_entry, sp_get_completions, on_sp_select)
 
