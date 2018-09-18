@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-14 08:29-0500\n"
-"PO-Revision-Date: 2018-07-29 16:08+0000\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"PO-Revision-Date: 2018-09-19 17:23+0000\n"
+"Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
 "Language: nl\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.2-dev\n"
 "X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
 
 #: bauble/btypes.py:87
@@ -211,7 +211,7 @@ msgstr "<b>Habitus:</b>"
 #: bauble/plugins/report/xsl/gui.glade:149
 #: bauble/plugins/report/mako/gui.glade:67
 msgid "<b>Include data marked as private</b>"
-msgstr "<b>Inclusief data gemarkeerd als privaat</b>"
+msgstr "<b>Inclusief data gemarkeerd als privé</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:365
 msgid "<b>Intended Location 2:</b>"
@@ -1629,8 +1629,8 @@ msgid ""
 "In order to tag or untag an item you must first search for something and "
 "select one of the results."
 msgstr ""
-"Om een tag aan te brengen of te verwijderen moet U eerst iets zoeken en één "
-"van de resultaten selecteren."
+"Om een tag toe te voegen of te verwijderen dient U eerst te zoeken en één of "
+"meerdere resultaten te selecteren."
 
 #: bauble/plugins/garden/accession.py:413
 msgid "In vitro"
@@ -2082,6 +2082,25 @@ msgid ""
 "1. load the TNRS results file\n"
 "2. continue to 'next' screen"
 msgstr ""
+"Werk samen met de http://tnrs.iplantcollaborative.org webpagina.\n"
+"\n"
+"In dit scherm doet U het volgende:\n"
+"1. gebruik de 'copy' knop onderaan links om uw selectie naar het klembord te "
+"kopieëren\n"
+"2. gebruik de 'browse' knop om de tnrs webpagina te openen\n"
+"\n"
+"Op deze pagina doet U het volgende:\n"
+"1. kopieer de inhoud van het klembord in het text veld op de webpagina\n"
+"2. klik op submit list\n"
+"3. wacht tot uw request klaar is\n"
+"4. klik op download results\n"
+"5. wijzig de download format naar detailed\n"
+"6. noteer de naam van de file die wordt gedownload\n"
+"7. klik op OK\n"
+"\n"
+"Terug in dit scherm doet U het volgende:\n"
+"1. laad de TNRS resultaten file\n"
+"2. ga door naar 'volgende' scherm"
 
 #: bauble/plugins/tag/__init__.py:162
 msgid "Please make sure a tag is active."
@@ -2557,7 +2576,7 @@ msgstr "Soort editor"
 
 #: bauble/plugins/plants/infoboxes.glade:461
 msgid "Species Window"
-msgstr ""
+msgstr "Soorten Scherm"
 
 #: bauble/plugins/plants/species_editor.py:1084
 msgid "Species author"
@@ -3568,8 +3587,9 @@ msgid "_parse_lat_lon() -- incorrect format: %s"
 msgstr "_parse_lat_lon() -- incorrect format: %s"
 
 #: bauble/plugins/garden/picture_importer.glade:423
+#, fuzzy
 msgid "acc.nr."
-msgstr ""
+msgstr "acc.nr."
 
 #: bauble/plugins/garden/acc_editor.glade:2963
 msgid "accession code format"
@@ -3688,7 +3708,7 @@ msgstr "endemisch"
 
 #: bauble/bauble.glade:206
 msgid "enter here your query or command"
-msgstr ""
+msgstr "voer hier uw query of opdracht in"
 
 #: bauble/bauble.glade:225
 msgid "execute the query"
