@@ -17,6 +17,8 @@ You activate the Report Tools from the main menu: :menuselection:`Tools-->Report
 Template`, or `Quick CSV`.  Both Report Tools act on the current result in the results view, so you first
 select something, then start the Report Tool.
 
+.. image:: images/report-menu.png
+
 .. admonition::  Selecting the whole collection.
    :class: toggle
 
