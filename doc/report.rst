@@ -54,14 +54,15 @@ Expand the ``Details`` section to see some information about the selected format
 
 The formatter engine combines selection and formatter template to produce a report.  Each formatter template
 indicates the iteration domain, that is what kind of collection objects you focus on, in your report.  In
-the above example, we are reporting about individual plants.
+the above example, we are using Mako to report about individual plants, producing —per plant— a postscript
+label with a QR code.
 
 Expand the ``Options`` section to see what extra parameters your selected template may require or expect.
 
 .. image:: images/report-from-template-dialog-options.png
 
 In the above example, the plant-labelling formatter lets you override the selection, and produce a set of
-labels with a given format, and in a given range.
+labels in your preferred format, and in a given range.
 
 In general: choose the report you need, specify parameters if required, and produce the report.  Ghini will
 open the report in the associated application.
@@ -148,10 +149,11 @@ using the following command::
 Installing Apache FOP on Windows
 ................................
 
-You have two options for installing FOP on Windows. The easiest way is
-to download the prebuilt `ApacheFOP-0.95-1-setup.exe <http://code.google.com/p/apache-fop-installer/downloads/detail?name=ApacheFOP-0.95-1-setup.exe&can=2&q=#makechanges>`_ installer.
+You have two options for installing FOP on Windows. The easiest way is to download the prebuilt
+`ApacheFOP-0.95-1-setup.exe
+<http://code.google.com/p/apache-fop-installer/downloads/detail?name=ApacheFOP-0.95-1-setup.exe&can=2&q=#makechanges>`_
+installer.
 
-Alternatively you can download the `archive
-<http://www.apache.org/dist/xmlgraphics/fop/binaries/>`_.  After
-extracting the archive you must add the directory you extracted the
-archive to to your PATH environment variable.
+Alternatively you can download the `archive <http://www.apache.org/dist/xmlgraphics/fop/binaries/>`_.  After
+extracting the archive you must add the directory you extracted the archive to to your PATH environment
+variable.
