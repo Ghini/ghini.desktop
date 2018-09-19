@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-14 08:36-0500\n"
-"PO-Revision-Date: 2018-09-01 15:15+0000\n"
+"PO-Revision-Date: 2018-09-20 20:24+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "fr/>\n"
@@ -276,7 +276,7 @@ msgstr "<b>Quantité :</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:60
 msgid "<b>Renderer</b>"
-msgstr "<b>Contributeur</b>"
+msgstr "<b>Rendeur de gabarits</b>"
 
 #: bauble/plugins/plants/taxonomy_check.glade:644
 msgid "<b>Review log report</b>"
