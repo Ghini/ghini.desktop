@@ -849,13 +849,12 @@ class SearchView(pluginmgr.View):
         error_details_msg = None
         # stop whatever it might still be doing
         self.cancel_threads()
-        if False:
-            # create a new session for each search...
-            self.session.close()
-            self.session = db.Session()
-        else:
-            # reuse session, but undo all that has not been committed
+        try:
+            # if the connection is still open, rollback and reuse
             self.session.rollback()
+        except:
+            # otherwise create a new session
+            self.session = db.Session()
         bold = '<b>%s</b>'
         results = []
         try:
