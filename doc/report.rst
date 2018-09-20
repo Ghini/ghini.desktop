@@ -13,8 +13,8 @@ Ghini has two Report Tools, one based on templates, and a quick solution for fla
 ``Template`` based tool is as flexible as a programming language can be; the ``Quick CSV`` tool shares much
 of its user interface with the query builder.
 
-You activate the Report Tools from the main menu: :menuselection:`Tools-->Report`, then choose either `From
-Template`, or `Quick CSV`.  Both Report Tools act on the current result in the results view, so you first
+You activate the Report Tools from the main menu: :menuselection:`Tools-->Report`, then choose either ``From
+Template``, or ``Quick CSV``.  Both Report Tools act on the current result in the results view, so you first
 select something, then start the Report Tool.
 
 .. image:: images/report-menu.png
@@ -42,7 +42,7 @@ box (fields may be filled in differently):
 
 .. image:: images/report-from-template-dialog.png
 
-Ghini lets you ``activate`` available reports, and give them the name that makes most sense to you.  Click
+Ghini lets you **activate** available reports, and give them the name that makes most sense to you.  Click
 on ``Add``, choose a formatter template, and type the name by which you want to activate it.  Activated
 templates are static, once configured you are not expected to alter them.
 
@@ -135,7 +135,7 @@ Working with XSL Stylesheets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The XSL report formatter requires an XSL to PDF renderer to
-convert the data to a PDF file. Apache FOP is is a free and
+convert the data to a PDF file. Apache FOP is a free and
 open-source XSL->PDF renderer and is recommended.
 
 Installing Apache FOP on GNULinux
