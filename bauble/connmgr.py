@@ -32,7 +32,7 @@ import copy
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf

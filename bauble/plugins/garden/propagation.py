@@ -31,7 +31,7 @@ from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, Unicode
 from sqlalchemy.orm import backref, relation

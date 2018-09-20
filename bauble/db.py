@@ -25,7 +25,7 @@ gi.require_version('Gtk', '3.0')
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from sqlalchemy.orm import class_mapper
 

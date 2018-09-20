@@ -29,7 +29,7 @@ import traceback
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.INFO)
+logger.setLevel(logging.INFO)
 
 from gi.repository import Gtk, Gdk
 

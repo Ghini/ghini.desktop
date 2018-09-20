@@ -27,7 +27,7 @@ from gi.repository import GObject
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 import os
 import traceback

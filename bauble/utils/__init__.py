@@ -41,7 +41,7 @@ from gi.repository import GLib
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 import threading
 

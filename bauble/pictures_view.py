@@ -22,7 +22,7 @@ from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 import bauble.utils as utils
 
