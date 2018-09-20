@@ -63,9 +63,9 @@ def add_genera_callback(families):
     """
     session = db.Session()
     family = session.merge(families[0])
-    e = GenusEditor(model=Genus(family=family))
+    result = GenusEditor(model=Genus(family=family)).start()
     session.close()
-    return e.start() is not None
+    return result
 
 
 def remove_callback(families):

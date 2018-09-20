@@ -25,7 +25,8 @@ from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+
+logger.setLevel(logging.INFO)
 
 import os
 import traceback
@@ -107,9 +108,9 @@ def add_accession_callback(values):
     species = session.merge(values[0])
     if isinstance(species, VernacularName):
         species = species.species
-    e = AccessionEditor(model=Accession(species=species))
+    result = AccessionEditor(model=Accession(species=species)).start()
     session.close()
-    return e.start() is not None
+    return result
 
 
 edit_action = Action('species_edit', _('_Edit'),

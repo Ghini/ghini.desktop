@@ -34,7 +34,7 @@ import weakref
 import logging
 from functools import reduce
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from gi.repository import Gtk
 
@@ -167,9 +167,9 @@ def add_plants_callback(accessions):
     # get added to the accession
     session = db.Session()
     acc = session.merge(accessions[0])
-    e = PlantEditor(model=Plant(accession=acc))
+    result = PlantEditor(model=Plant(accession=acc)).start()
     session.close()
-    return e.start()
+    return result
 
 
 def remove_callback(accessions):

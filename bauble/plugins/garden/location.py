@@ -26,7 +26,7 @@ from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from sqlalchemy import Column, Unicode, UnicodeText
 from sqlalchemy.orm import relation, backref, validates
@@ -55,9 +55,9 @@ def add_plants_callback(locations):
     session = db.Session()
     loc = session.merge(locations[0])
     from bauble.plugins.garden.plant import Plant, PlantEditor
-    e = PlantEditor(model=Plant(location=loc))
+    result = PlantEditor(model=Plant(location=loc)).start
     session.close()
-    return e.start() is not None
+    return result
 
 
 def remove_callback(locations):
