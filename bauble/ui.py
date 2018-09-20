@@ -32,7 +32,7 @@ from gi.repository import GdkPixbuf
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 import bauble
 import bauble.db as db
@@ -121,7 +121,11 @@ def create_menu_item_with_image(label, icon_name=None, base_dir=None):
         tool = label
         label = tool.label
         icon_name = getattr(tool, 'icon_name', None)
-        base_dir = os.path.join(paths.lib_dir(), *(tool.__module__.split('.')[1:-1]))
+        path_to_module = tool.__module__.split('.')[1:]
+        logger.debug(str(path_to_module))
+        if path_to_module[-2] != 'plugins':
+            path_to_module = path_to_module[:-1]
+        base_dir = os.path.join(paths.lib_dir(), *path_to_module)
     logger.debug("create_menu_item_with_image %s %s %s" % (label, icon_name, base_dir))
     if base_dir is not None and icon_name is not None and icon_name.endswith(".png"):
         icon_name = os.path.join(base_dir, icon_name)
