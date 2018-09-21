@@ -163,13 +163,12 @@ def edit_callback(accessions):
 
 
 def add_plants_callback(accessions):
-    # create a temporary session so that the temporary plant doesn't
-    # get added to the accession
     session = db.Session()
     acc = session.merge(accessions[0])
-    result = PlantEditor(model=Plant(accession=acc)).start()
+    e = PlantEditor(model=Plant(accession=acc))
+    # session creates unbound object.  editor decides what to do with it.
     session.close()
-    return result
+    return e.start() is not None
 
 
 def remove_callback(accessions):

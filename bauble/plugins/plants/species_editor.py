@@ -1190,7 +1190,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
 
-class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
+class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -1265,7 +1265,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = SpeciesEditorMenuItem(
+            e = SpeciesEditor(
                 Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
@@ -1321,7 +1321,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
 
 
 def edit_species(model=None, parent_view=None, is_dependent_window=False):
-    kkk = SpeciesEditorMenuItem(model, parent_view, is_dependent_window)
+    kkk = SpeciesEditor(model, parent_view, is_dependent_window)
     kkk.start()
     result = kkk._committed
     del kkk

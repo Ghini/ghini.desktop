@@ -801,7 +801,7 @@ class SpeciesTests(PlantTestCase):
         self.session.commit()
         sp = Species(genus=g, epithet='sp')
         edit_species(model=sp)
-        assert utils.gc_objects_by_type('SpeciesEditorMenuItem') == [], \
+        assert utils.gc_objects_by_type('SpeciesEditor') == [], \
             'SpeciesEditor not deleted'
         assert utils.gc_objects_by_type('SpeciesEditorPresenter') == [], \
             'SpeciesEditorPresenter not deleted'

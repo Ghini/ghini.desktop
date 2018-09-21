@@ -42,7 +42,7 @@ from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.plugins.plants.species_editor import (
     SpeciesDistribution, SpeciesEditorPresenter, SpeciesEditorView,
-    SpeciesEditorMenuItem, edit_species)
+    SpeciesEditor, edit_species)
 from bauble.plugins.plants.species_model import (
     Species, SpeciesNote, VernacularName, SpeciesSynonym,
     DefaultVernacularName)
@@ -51,7 +51,7 @@ from bauble.view import PropertiesExpander, Action
 import bauble.view as view
 
 SpeciesDistribution  # will be imported by clients of this module
-SpeciesEditorPresenter, SpeciesEditorView, SpeciesEditorMenuItem, edit_species,
+SpeciesEditorPresenter, SpeciesEditorView, SpeciesEditor, edit_species,
 DefaultVernacularName
 SpeciesNote
 
@@ -108,9 +108,10 @@ def add_accession_callback(values):
     species = session.merge(values[0])
     if isinstance(species, VernacularName):
         species = species.species
-    result = AccessionEditor(model=Accession(species=species)).start()
+    e = AccessionEditor(model=Accession(species=species))
+    # session creates unbound object.  editor decides what to do with it.
     session.close()
-    return result
+    return e.start() is not None
 
 
 edit_action = Action('species_edit', _('_Edit'),
