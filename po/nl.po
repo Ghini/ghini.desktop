@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-09-19 17:23+0000\n"
+"PO-Revision-Date: 2018-09-22 20:24+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -298,7 +298,7 @@ msgstr "<b>Hoeveelheid:</b>"
 #: bauble/plugins/report/xsl/gui.glade:60
 #, fuzzy
 msgid "<b>Renderer</b>"
-msgstr "<b>Inzender</b>"
+msgstr "<b>Renderer</b>"
 
 #: bauble/plugins/plants/taxonomy_check.glade:644
 msgid "<b>Review log report</b>"
@@ -362,7 +362,7 @@ msgstr "<b>Gebruik auteur namen</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:539
 msgid "<b>commit or rollback</b>"
-msgstr ""
+msgstr "<b>toepassen of teruggaan</b>"
 
 #: bauble/plugins/garden/loc_editor.glade:351
 msgid "<b>danger zone</b>"
@@ -2203,7 +2203,7 @@ msgstr "Percentage geworteld"
 
 #: bauble/plugins/users/ui.glade:206
 msgid "Permissions"
-msgstr ""
+msgstr "Rechten"
 
 #: bauble/plugins/garden/picture_importer.py:391
 msgid "Picture Collection"
@@ -3625,11 +3625,11 @@ msgstr "Versie"
 #: bauble/plugins/garden/acc_editor.glade:2744
 #: bauble/plugins/garden/acc_editor.glade:2876
 msgid "Voucher"
-msgstr ""
+msgstr "Voucher"
 
 #: bauble/plugins/garden/acc_editor.glade:2770
 msgid "Voucher of Accession"
-msgstr ""
+msgstr "Voucher van Accessie"
 
 #: bauble/plugins/garden/acc_editor.glade:2902
 msgid "Voucher of parent material"
@@ -3638,7 +3638,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:2972
 #: bauble/plugins/garden/accession.py:2708
 msgid "Vouchers"
-msgstr ""
+msgstr "Vouchers"
 
 #: bauble/plugins/plants/species_model.py:219
 msgid "Vulnerable (VU)"
@@ -4201,7 +4201,7 @@ msgstr "query"
 
 #: bauble/plugins/plants/species_editor.py:266
 msgid "querying the plant list"
-msgstr ""
+msgstr "doorzoek \"the plant list\""
 
 #: bauble/plugins/garden/picture_importer.glade:202
 msgid "recurse"
