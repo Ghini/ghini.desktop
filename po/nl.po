@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-14 08:29-0500\n"
-"PO-Revision-Date: 2018-09-19 17:23+0000\n"
+"PO-Revision-Date: 2018-09-22 20:24+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
@@ -283,7 +283,7 @@ msgstr "<b>Hoeveelheid:</b>"
 #: bauble/plugins/report/xsl/gui.glade:60
 #, fuzzy
 msgid "<b>Renderer</b>"
-msgstr "<b>Inzender</b>"
+msgstr "<b>Renderer</b>"
 
 #: bauble/plugins/plants/taxonomy_check.glade:644
 msgid "<b>Review log report</b>"
@@ -343,7 +343,7 @@ msgstr "<b>Gebruik auteur namen</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:539
 msgid "<b>commit or rollback</b>"
-msgstr ""
+msgstr "<b>toepassen of teruggaan</b>"
 
 #: bauble/plugins/garden/loc_editor.glade:351
 msgid "<b>danger zone</b>"
@@ -1161,7 +1161,7 @@ msgstr "Wilt u uw wijzigingen opslaan?"
 
 #: bauble/search.py:916
 msgid "Domain Properties"
-msgstr ""
+msgstr "Domein eigenschappen"
 
 #: bauble/plugins/garden/propagation.py:291
 msgid "Double"
@@ -2011,7 +2011,7 @@ msgstr "Percentage geworteld"
 
 #: bauble/plugins/users/ui.glade:206
 msgid "Permissions"
-msgstr ""
+msgstr "Rechten"
 
 #: bauble/plugins/garden/picture_importer.py:391
 msgid "Picture Collection"
@@ -2200,7 +2200,7 @@ msgstr "Eigenschappen"
 
 #: bauble/search.py:910
 msgid "Property"
-msgstr ""
+msgstr "Eigenschap"
 
 #: bauble/plugins/garden/acc_editor.glade:1118
 #: bauble/plugins/garden/acc_editor.glade:1187
@@ -3344,11 +3344,11 @@ msgstr "Versie"
 #: bauble/plugins/garden/acc_editor.glade:2585
 #: bauble/plugins/garden/acc_editor.glade:2717
 msgid "Voucher"
-msgstr ""
+msgstr "Voucher"
 
 #: bauble/plugins/garden/acc_editor.glade:2611
 msgid "Voucher of Accession"
-msgstr ""
+msgstr "Voucher van Accessie"
 
 #: bauble/plugins/garden/acc_editor.glade:2743
 msgid "Voucher of parent material"
@@ -3357,7 +3357,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:2813
 #: bauble/plugins/garden/accession.py:2734
 msgid "Vouchers"
-msgstr ""
+msgstr "Vouchers"
 
 #: bauble/plugins/plants/species_model.py:210
 msgid "Vulnerable (VU)"
@@ -3876,7 +3876,7 @@ msgstr "query"
 
 #: bauble/plugins/plants/species_editor.py:254
 msgid "querying the plant list"
-msgstr ""
+msgstr "doorzoek \"the plant list\""
 
 #: bauble/plugins/garden/picture_importer.glade:202
 msgid "recurse"
