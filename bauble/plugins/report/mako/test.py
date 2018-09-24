@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2018 Mario Frasca <mario@anche.no>
 # Copyright 2017 Jardín Botánico de Quito
 # Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
 #
@@ -123,7 +123,7 @@ class MakoFormatterTests(BaubleTestCase):
             todo = sorted(get_pertinent_objects(cls, selection),
                           key=utils.natsort_key)
             report = MakoFormatterPlugin.format(todo, template=filename)
-            self.assertEquals((filename, type(report)), (filename, str))
+            self.assertEquals((filename, type(report)), (filename, bytes))
 
     def test_format_qr_svg_templates(self):
         from nose import SkipTest
@@ -136,9 +136,9 @@ class MakoFormatterTests(BaubleTestCase):
             if not tn.endswith('.svg'):
                 continue
             filename = os.path.join(td, tn)
-            report = MakoFormatterPlugin.format(plants, template=filename)
-            self.assertEquals(type(report), str)
-
+            options = dict((n, d) for (n, t, d, p) in  MakoFormatterPlugin.get_options(filename))
+            report = MakoFormatterPlugin.format(plants, template=filename, **options)
+            self.assertEquals((filename, type(report)), (filename, bytes))
 
 class SvgProductionTest(BaubleTestCase):
     def test_add_text_a(self):
