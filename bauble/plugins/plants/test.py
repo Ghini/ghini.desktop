@@ -1998,6 +1998,8 @@ class GlobalFunctionsTest(PlantTestCase):
 import bauble.search
 class BaubleSearchSearchTest(BaubleTestCase):
     def test_search_search_uses_Synonym_Search(self):
+        import bauble.plugins.garden.plant
+        bauble.search.logger.setLevel(logging.DEBUG)
         bauble.search.search("genus like %", self.session)
         self.assertTrue('SearchStrategy "genus like %"(SynonymSearch)' in 
                    self.handler.messages['bauble.search']['debug'])

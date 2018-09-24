@@ -21,6 +21,7 @@
 # Description: test for the Plant plugin
 #
 
+import logging
 from bauble.test import BaubleTestCase
 import requests
 
@@ -40,10 +41,12 @@ def requests_get(x, timeout=None):
 requests.get = requests_get
 
 from .ask_tpl import AskTPL, what_to_do_with_it
+import bauble.plugins.plants.ask_tpl
 
 class TestOne(BaubleTestCase):
 
     def test_simple_answer(self):
+        bauble.plugins.plants.ask_tpl.logger.setLevel(logging.INFO)
         self.handler.reset()
         binomial = 'Mangifera indica'
         AskTPL(binomial, what_to_do_with_it, timeout=2).run()
@@ -52,6 +55,7 @@ class TestOne(BaubleTestCase):
         self.assertEqual(infolog[0], 'Mangifera indica L. (Anacardiaceae)')
 
     def test_taxon_is_synonym(self):
+        bauble.plugins.plants.ask_tpl.logger.setLevel(logging.INFO)
         self.handler.reset()
         binomial = 'Iris florentina'
         AskTPL(binomial, what_to_do_with_it, timeout=2).run()
@@ -61,6 +65,7 @@ class TestOne(BaubleTestCase):
         self.assertEqual(infolog[1], 'Iris ×germanica L. (Iridaceae) - is its accepted form')
 
     def test_empty_answer(self):
+        bauble.plugins.plants.ask_tpl.logger.setLevel(logging.INFO)
         self.handler.reset()
         binomial = 'Manducaria italica'
         AskTPL(binomial, what_to_do_with_it, timeout=2).run()
@@ -69,6 +74,7 @@ class TestOne(BaubleTestCase):
         self.assertEqual(infolog[0], 'nothing matches')
 
     def test_do_not_run_same_query_twice(self):
+        bauble.plugins.plants.ask_tpl.logger.setLevel(logging.DEBUG)
         self.handler.reset()
         binomial = 'Iris florentina'
         obj = AskTPL(binomial, what_to_do_with_it, timeout=2)
@@ -79,6 +85,7 @@ class TestOne(BaubleTestCase):
         self.assertTrue('already requesting Iris florentina, ignoring repeated request' in set(debuglog))
 
     def test_do_not_run_two_requests_at_same_time(self):
+        bauble.plugins.plants.ask_tpl.logger.setLevel(logging.DEBUG)
         self.handler.reset()
         obj = AskTPL('Iris florentina', what_to_do_with_it, timeout=2)
         obj.start()

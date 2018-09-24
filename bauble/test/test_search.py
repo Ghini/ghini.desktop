@@ -1303,6 +1303,7 @@ class AggregatingFunctions(BaubleTestCase):
 
 class BaubleSearchSearchTest(BaubleTestCase):
     def test_search_search_uses_Mapper_Search(self):
+        search.logger.setLevel(logging.DEBUG)
         search.search("genus like %", self.session)
         self.assertTrue('SearchStrategy "genus like %"(MapperSearch)' in 
                    self.handler.messages['bauble.search']['debug'])

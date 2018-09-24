@@ -2111,6 +2111,8 @@ class PlantSearchTest(GardenTestCase):
 
     def test_searchbyplantcode_unquoted(self):
         mapper_search = search.get_strategy('PlantSearch')
+        import bauble.plugins.garden.plant
+        bauble.plugins.garden.plant.logger.setLevel(logging.DEBUG)
 
         results = mapper_search.search('1.1.1', self.session)
         self.assertEqual(len(results), 1)
@@ -2153,6 +2155,8 @@ class PlantSearchTest(GardenTestCase):
 
     def test_searchbyplantcode_invalid_values(self):
         mapper_search = search.get_strategy('PlantSearch')
+        import bauble.plugins.garden.plant
+        bauble.plugins.garden.plant.logger.setLevel(logging.DEBUG)
 
         results = mapper_search.search('1.11', self.session)
         self.assertEqual(len(results), 0)
@@ -2406,6 +2410,7 @@ class ContactPresenterTests(BaubleTestCase):
 import bauble.search
 class BaubleSearchSearchTest(BaubleTestCase):
     def test_search_search_uses_Plant_Search(self):
+        bauble.search.logger.setLevel(logging.DEBUG)
         bauble.search.search("genus like %", self.session)
         self.assertTrue('SearchStrategy "genus like %"(PlantSearch)' in
                    self.handler.messages['bauble.search']['debug'])
