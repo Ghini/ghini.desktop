@@ -104,11 +104,12 @@ in several languages.
 component          repository                  branch
 ================== =========================== ==================
 Desktop 1.0        ghini.desktop               ghini-1.0-dev
-Desktop 1.1        ghini.desktop               ghini-1.1-dev
+Desktop 3.1        ghini.desktop               ghini-3.1-dev
 Documentation 1.0  ghini.desktop-docs.i18n     ghini-1.0-dev
-Documentation 1.1  ghini.desktop-docs.i18n     ghini-1.1-dev
+Documentation 3.1  ghini.desktop-docs.i18n     ghini-3.1-dev
 Web 1.2            ghini.web                   master
 Pocket             ghini.pocket                master
+Tour               ghini.tour                  master
 ================== =========================== ==================
 
 To update the ``po`` files relative to the *software*, you set the working
@@ -174,6 +175,30 @@ script will:
 
 We could definitely write the above in a Makefile, or even better include it
 in ``/doc/Makefile``. Who knows, maybe we will do that.
+
+Producing the docs locally
+------------------------------------------------
+
+The above description is about how we help external sites produce our
+documentation so that it is online for all to see.  But what if you want to
+have the documentation locally, for example if you want to edit and review
+before pushing your commits to the cloud?
+
+In order to run sphinx locally, you need to install it **within** the same
+virtual environment as ghini, and to install it there, you need to have a
+sphinx version whose dependencies don not conflict with ghini.desktop's
+dependecies.
+
+What we do to keep this in order?
+
+We state this extra dependency in the ``setup.py`` file, as an
+``extras_require`` entry.  Create and activate the virtual environment, then
+run ``easy_install ghini.desktop[docs]``.  This gets you the sphinx version
+as declared in the ``setup.py`` file.
+
+If all you want is the html documentation built locally, run ``./setup.py
+install docs``.  For more options, enter the ``doc`` directory and run
+``make``.
 
 Which way do the translated strings reach our users?
 -------------------------------------------------------
