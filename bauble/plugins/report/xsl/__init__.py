@@ -211,9 +211,9 @@ class SpeciesABCDAdapter(ABCDAdapter):
                                    category_name=category_name,
                                    text=text))
 
-        # not abcd so only create when making labels
+        # not abcd so not in the namespace and only create when making labels
         if for_labels:
-            note_unit = etree.SubElement(unit, 'Note')
+            note_unit = etree.SubElement(unit, 'Notes')
             for note in notes_list:
                 etree.SubElement(
                     note_unit,
@@ -278,13 +278,6 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
 
     def extra_elements(self, unit):
         super(AccessionABCDAdapter, self).extra_elements(unit)
-        if self.for_labels:
-            if self.species.label_distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.label_distribution
-            elif self.species.distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.distribution_str()
 
         if self.accession.source and self.accession.source.collection:
             collection = self.accession.source.collection
@@ -372,13 +365,6 @@ class PlantABCDAdapter(AccessionABCDAdapter):
                     text=utils.xml_safe(self.plant.quantity))
         ABCDElement(bg_unit, 'LocationInGarden',
                     text=utils.xml_safe(str(self.plant.location)))
-        if self.for_labels:
-            if self.species.label_distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.label_distribution
-            elif self.species.distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.distribution_str()
         # TODO: AccessionStatus, AccessionMaterialtype,
         # ProvenanceCategory, AccessionLineage, DonorCategory,
         # PlantingDate, Propagation
