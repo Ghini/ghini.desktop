@@ -127,7 +127,7 @@ class MakoFormatterTests(BaubleTestCase):
 
     def test_format_qr_svg_templates(self):
         from nose import SkipTest
-        raise SkipTest("related to issue #363")
+        #raise SkipTest("related to issue #363")
         plants = self.session.query(Plant).all()
         td = os.path.join(os.path.dirname(__file__), 'templates')
         for tn in MakoFormatterPlugin.templates:
