@@ -37,7 +37,7 @@ deploy:
   description: ''
   provider: GitHub
   auth_token:
-    secure: m0gg+fMh1ot3TOipC0zQmOQNABEZUE5Xbkg6nR9Hl3kK05u/u0qcWkdJFIOHGeh3
+    secure: dSfgWRecEMom75nyACuQwayrmTXoWXmD5IofktTtEAfXqUp1Mm3RsDVTDKsNilDB
   draft: false
   prerelease: false
   # on:
