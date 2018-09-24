@@ -572,6 +572,17 @@ def create_message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsTyp
     return d
 
 
+def idle_message(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
+                 parent=None):
+    '''create and run message_dialog in GUI thread, once.
+    '''
+    def run_me():
+        d = create_message_dialog(msg, type, buttons, parent)
+        d.run()
+        d.destroy()
+    GObject.idle_add(run_me)
+
+
 def message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                    parent=None):
     '''Create and run a temporary MessageDialog.
