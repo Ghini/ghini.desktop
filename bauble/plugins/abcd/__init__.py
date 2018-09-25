@@ -389,6 +389,7 @@ class ABCDExporter(object):
 class ABCDExportTool(pluginmgr.Tool):
     category = _("Export")
     label = _("ABCD")
+    icon_name = "new-abcd.png"
 
     @classmethod
     def start(cls):

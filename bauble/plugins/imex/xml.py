@@ -142,6 +142,7 @@ class XMLExportCommandHandler(pluginmgr.CommandHandler):
 class XMLExportTool(pluginmgr.Tool):
     category = _("Export")
     label = _("XML")
+    icon_name = "new-xml.png"
 
     @classmethod
     def start(cls):
