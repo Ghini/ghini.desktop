@@ -538,6 +538,17 @@ class GUI(object):
         ui_filename = os.path.join(paths.lib_dir(), 'bauble.ui')
         self.ui_manager.add_ui_from_file(ui_filename)
 
+        help_bug_item = self.ui_manager.get_widget("/MenuBar/help_menu/help_bug")
+        try:
+            icon_name = os.path.join(paths.lib_dir(), 'images', 'menu-help-bug.png')
+            pb = GdkPixbuf.Pixbuf.new_from_file(icon_name)
+            (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+            pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+            image = Gtk.Image.new_from_pixbuf(pb)
+            help_bug_item.set_image(image)
+        except Exception as e:
+            logger.debug("can't set icon %s: %s(%s)" % (icon_name, type(e).__name__, e))
+
         # get menu bar from ui manager
         self.menubar = self.ui_manager.get_widget("/MenuBar")
 
