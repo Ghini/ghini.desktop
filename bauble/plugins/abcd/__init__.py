@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2016-2018 Ross Demuth <rossdemuth123@gmail.com>
 # Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
@@ -304,8 +305,8 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ABCDElement(taxon_identified, 'InformalNameString',
                         text=vernacular_name)
         if obj.get_IdentificationQualifier():
-            ABCDElement(scientific_name, 'IdentificationQualifier', 
-                        text=obj.get_IdentificationQualifier(), 
+            ABCDElement(scientific_name, 'IdentificationQualifier',
+                        text=obj.get_IdentificationQualifier(),
                         attrib={'insertionpoint': obj.get_IdentificationQualifierRank()})
         # add all the extra non standard elements
         obj.extra_elements(unit)
@@ -315,9 +316,21 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         # notes are last in the schema and extra_elements() shouldn't
         # add anything that comes past Notes, e.g. RecordURI,
         # EAnnotations, UnitExtension
-        notes = obj.get_Notes()
-        if notes:
-            ABCDElement(unit, 'Notes', text=notes)
+        notes_list = obj.get_Notes(unit)
+        notes_str = ''
+        if notes_list:
+            for note in notes_list:
+                for key, value in note.iteritems():
+                    note[key] = value.replace('|', '_')
+                # make a string of notes using | as seperator
+                notes_str += '%s = %s (%s : %s)|' % (
+                    note['category'],
+                    note['text'],
+                    note['user'],
+                    note['date'],
+                )
+            ABCDElement(unit, 'Notes', text=utils.xml_safe(str(notes_str)))
+
 
     if validate:
         check(validate_xml(datasets), 'ABCD data not valid')

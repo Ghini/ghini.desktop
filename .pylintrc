@@ -1,12 +1,17 @@
 # lint Python modules using external checkers.
-# 
+#
 # This is the main checker controling the other ones and the reports
 # generation. It is itself both a raw checker and an astng checker in order
 # to:
 # * handle message activation / deactivation at the module level
 # * handle some basic but necessary stats'data (number of classes, methods...)
-# 
+#
 [MASTER]
+
+# A comma-separated list of package or module names from where C extensions may
+# be loaded. Extensions are loading into the active Python interpreter and may
+# run arbitrary code
+extension-pkg-whitelist=lxml.etree
 
 # Specify a configuration file.
 #rcfile=

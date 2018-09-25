@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2018 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -136,3 +137,14 @@ class GlobalFuncs(TestCase):
 
     def test_safe_numeric_valid_not(self):
         self.assertEquals(utils.safe_numeric('123a.2'), 0)
+
+    def test_xml_safe_name(self):
+        self.assertEquals(utils.xml_safe_name('abc'), 'abc')
+        self.assertEquals(utils.xml_safe_name('a b c'), 'a_b_c')
+        self.assertEquals(utils.xml_safe_name('{[ab]<c>}'), 'abc')
+        self.assertEquals(utils.xml_safe_name(''), '_')
+        self.assertEquals(utils.xml_safe_name(' '), '_')
+        self.assertEquals(utils.xml_safe_name(u'\u2069\ud8ff'), '_')
+        self.assertEquals(utils.xml_safe_name('123'), '_123')
+        self.assertEquals(utils.xml_safe_name('<:>'), '_')
+        self.assertEquals(utils.xml_safe_name('<picture>'), 'picture')

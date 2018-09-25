@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2018 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -80,7 +81,7 @@ renderers_map = {'Apache FOP': (fop_cmd + ' -fo %(fo_filename)s '
                  # 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
                  # 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar
                  # ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'
-                 }
+                }
 default_renderer = 'Apache FOP'
 
 plant_source_type = _('Plant/Clone')
@@ -123,7 +124,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
         # ABCD data NOT valid ABCD but it does make it work for
         # creating reports without including the accession or plant
         # code
-        return ""
+        return utils.xml_safe(self.species.id)
 
     def get_DateLastEdited(self):
         return utils.xml_safe(self.species._last_updated.isoformat())
@@ -139,7 +140,10 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(str(self.species.genus))
 
     def get_FirstEpithet(self):
-        return utils.xml_safe(str(self.species.sp))
+        species = self.species.sp
+        if species is None:
+            return None
+        return utils.xml_safe(str(species))
 
     def get_AuthorTeam(self):
         author = self.species.sp_author
@@ -155,10 +159,27 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(str(self.species.infraspecific_rank))
 
     def get_InfraspecificEpithet(self):
-        return utils.xml_safe(str(self.species.infraspecific_epithet))
-    
+        infrasp = ''
+        infrasp1 = self.species.infrasp1
+        cultivar = self.species.cultivar_epithet
+        rank = self.species.infraspecific_rank
+        # if not a cultivar or normal infrspecific part return the unranked
+        # part.  A better solution would be to have a seperate field for
+        # additional (informal, descriptive...) parts
+        if all(part in (None, '') for part in (cultivar, rank)) and infrasp1:
+            infrasp = infrasp1
+        else:
+            infrasp = self.species.infraspecific_epithet
+
+        return utils.xml_safe(str(infrasp))
+
     def get_CultivarName(self):
-        return utils.xml_safe(str(self.species.cultivar_epithet))
+        cultivar = self.species.cultivar_epithet
+        if cultivar is None:
+            return 'cv.'
+        if cultivar:
+            return utils.xml_safe("'%s'" % cultivar)
+        return ''
 
     def get_HybridFlag(self):
         if self.species.hybrid is True:
@@ -173,16 +194,39 @@ class SpeciesABCDAdapter(ABCDAdapter):
         else:
             return utils.xml_safe(vernacular_name)
 
-    def get_Notes(self):
-        if not self.species.notes:
+    @staticmethod
+    def notes_in_list(notes, unit, for_labels):
+        if not notes:
             return None
-        notes = []
-        for note in self.species.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.utf8(notes)
+        notes_list = []
+        for note in notes:
+            date = utils.xml_safe(note.date.isoformat())
+            user = utils.xml_safe(note.user) if note.user else ''
+            # category being a tag name we prefer 'None' or '_' over ''
+            category = utils.xml_safe(note.category)
+            category_name = utils.xml_safe_name(note.category)
+            text = note.note
+            notes_list.append(dict(date=date,
+                                   user=user,
+                                   category=category,
+                                   category_name=category_name,
+                                   text=text))
+
+        # not abcd so not in the namespace and only create when making labels
+        if for_labels:
+            note_unit = etree.SubElement(unit, 'Notes')
+            for note in notes_list:
+                etree.SubElement(
+                    note_unit,
+                    note['category_name'],
+                    attrib={'User': note['user'],
+                            'Date': note['date']}
+                ).text = note['text']
+
+        return notes_list
+
+    def get_Notes(self, unit):
+        return self.notes_in_list(self.species.notes, unit, self.for_labels)
 
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
@@ -211,44 +255,30 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def get_FullScientificNameString(self, authors=True):
         s = self.accession.species_str(authors=authors, markup=False)
         return utils.xml_safe(s)
-    
+
     def get_IdentificationQualifier(self):
         idqual=self.accession.id_qual
         if idqual is None:
             return None
-        else:
-            return utils.xml_safe(idqual)
-        
+        if idqual in('forsan', 'near', 'incorrect'):
+            idqual = '(%s)' % idqual
+        return utils.xml_safe(idqual)
+
     def get_IdentificationQualifierRank(self):
         idqrank=self.accession.id_qual_rank
         if idqrank is None:
             return None
         else:
             return utils.xml_safe(idqrank)
-        
+
     def get_DateLastEdited(self):
         return utils.xml_safe(self.accession._last_updated.isoformat())
 
-    def get_Notes(self):
-        if not self.accession.notes:
-            return None
-        notes = []
-        for note in self.accession.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.xml_safe(notes)
+    def get_Notes(self, unit):
+        return self.notes_in_list(self.accession.notes, unit, self.for_labels)
 
     def extra_elements(self, unit):
         super(AccessionABCDAdapter, self).extra_elements(unit)
-        if self.for_labels:
-            if self.species.label_distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.label_distribution
-            elif self.species.distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.distribution_str()
 
         if self.accession.source and self.accession.source.collection:
             collection = self.accession.source.collection
@@ -327,16 +357,8 @@ class PlantABCDAdapter(AccessionABCDAdapter):
     def get_DateLastEdited(self):
         return utils.xml_safe(self.plant._last_updated.isoformat())
 
-    def get_Notes(self):
-        if not self.plant.notes:
-            return None
-        notes = []
-        for note in self.plant.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.xml_safe(str(notes))
+    def get_Notes(self, unit):
+        return self.notes_in_list(self.plant.notes, unit, self.for_labels)
 
     def extra_elements(self, unit):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
@@ -344,13 +366,6 @@ class PlantABCDAdapter(AccessionABCDAdapter):
                     text=utils.xml_safe(self.plant.quantity))
         ABCDElement(bg_unit, 'LocationInGarden',
                     text=utils.xml_safe(str(self.plant.location)))
-        if self.for_labels:
-            if self.species.label_distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.label_distribution
-            elif self.species.distribution:
-                etree.SubElement(unit, 'distribution').text = \
-                    self.species.distribution_str()
         # TODO: AccessionStatus, AccessionMaterialtype,
         # ProvenanceCategory, AccessionLineage, DonorCategory,
         # PlantingDate, Propagation
@@ -445,8 +460,16 @@ class XSLFormatterSettingsBox(SettingsBox):
         '''
         return a dict of settings from the settings box gui
         '''
+        stylesheet = self.stylesheet_chooser.get_filename()
+        additional = os.path.splitext(stylesheet)[0]
+        try:
+            os.listdir(additional)
+        except OSError:
+            additional = False
+
         return {
-            'stylesheet': self.stylesheet_chooser.get_filename(),
+            'stylesheet': stylesheet,
+            'additional': additional,
             'renderer': self.widgets.renderer_combo.get_active_text(),
             'source_type': self.widgets.source_type_combo.get_active_text(),
             'authors': self.widgets.author_check.get_active(),
@@ -528,6 +551,7 @@ class XSLFormatterPlugin(FormatterPlugin):
     def format(objs, **kwargs):
 #        debug('format(%s)' % kwargs)
         stylesheet = kwargs['stylesheet']
+        additional = kwargs['additional']
         authors = kwargs['authors']
         renderer = kwargs['renderer']
         source_type = kwargs['source_type']
@@ -617,6 +641,11 @@ class XSLFormatterPlugin(FormatterPlugin):
         filename = '%s.pdf' % filename
 
         # TODO: checkout pyexpect for spawning processes
+
+        if additional:
+            from distutils.dir_util import copy_tree
+            fo_dir = os.path.dirname(fo_filename)
+            copy_tree(additional, fo_dir)
 
         # run the report to produce the pdf file, the command has to be
         # on the path for this to work

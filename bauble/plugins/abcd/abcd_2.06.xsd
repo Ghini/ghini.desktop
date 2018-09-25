@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.tdwg.org/schemas/abcd/2.06" attributeFormDefault="unqualified" xmlns="http://www.tdwg.org/schemas/abcd/2.06">
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.tdwg.org/schemas/abcd/2.06" attributeFormDefault="unqualified" xmlns="http://www.tdwg.org/schemas/abcd/2.06" version="2.06">
 	<xs:element name="DataSets">
 		<xs:annotation>
 			<xs:documentation>TDWG root element: container for one or more DataSets.</xs:documentation>
@@ -23,17 +23,17 @@
 								</xs:annotation>
 								<xs:complexType>
 									<xs:sequence>
-										<xs:element maxOccurs="unbounded" type="MicroAgentP" name="TechnicalContact"></xs:element>
+										<xs:element maxOccurs="unbounded" type="MicroAgentP" name="TechnicalContact" />
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>
 							<xs:element name="ContentContacts">
 								<xs:annotation>
-									<xs:documentation>UDDI registry element ("AdministrativeContact")  for GBIF registry. Questions and feedback about data, or restrictions on use of the data should be directed to the adminstrative contact. This contact normally represents the agent acting as the original supplier or custodian of the dataset. If a content contact is given on the unit-level, that one should be used for end-user purposes. The element is unbounded to provide for alternative contacts (vacation etc.).</xs:documentation>
+									<xs:documentation>UDDI registry element ("AdministrativeContact") for GBIF registry. Questions and feedback about data, or restrictions on use of the data should be directed to the adminstrative contact. This contact normally represents the agent acting as the original supplier or custodian of the dataset. If a content contact is given on the unit-level, that one should be used for end-user purposes. The element is unbounded to provide for alternative contacts (vacation etc.).</xs:documentation>
 								</xs:annotation>
 								<xs:complexType>
 									<xs:sequence>
-										<xs:element maxOccurs="unbounded" type="MicroAgentP" name="ContentContact"></xs:element>
+										<xs:element maxOccurs="unbounded" type="MicroAgentP" name="ContentContact" />
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>
@@ -78,7 +78,7 @@
 	</xs:element>
 	<xs:complexType name="Gathering">
 		<xs:annotation>
-			<xs:documentation>Elements describing the event and  site of collecting or observing a unit.</xs:documentation>
+			<xs:documentation>Elements describing the event and site of collecting or observing a unit.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element type="String" name="Code" minOccurs="0">
@@ -120,8 +120,8 @@
 										</xs:annotation>
 									</xs:element>
 								</xs:sequence>
-								<xs:attribute use="optional" type="xs:boolean" name="primarycollector"></xs:attribute>
-								<xs:attribute use="optional" type="xs:int" name="sequence"></xs:attribute>
+								<xs:attribute use="optional" type="xs:boolean" name="primarycollector" />
+								<xs:attribute use="optional" type="xs:int" name="sequence" />
 							</xs:complexType>
 						</xs:element>
 						<xs:element type="StringL" name="GatheringAgentsText" minOccurs="0">
@@ -138,7 +138,7 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element maxOccurs="unbounded" type="StringL" name="Permit"></xs:element>
+						<xs:element maxOccurs="unbounded" type="StringL" name="Permit" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -163,7 +163,7 @@
 			</xs:element>
 			<xs:element type="String" name="PlatformName" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The 'platform' from which observations or collections were made,  e.g. the name of a research vessel or a remote operated vehicle.</xs:documentation>
+					<xs:documentation>The 'platform' from which observations or collections were made, e.g. the name of a research vessel or a remote operated vehicle.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="StringL" name="Method" minOccurs="0">
@@ -194,7 +194,7 @@
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="NamedArea">
-										<xs:attribute use="optional" type="xs:int" name="sequence"></xs:attribute>
+										<xs:attribute use="optional" type="xs:int" name="sequence" />
 									</xs:extension>
 								</xs:complexContent>
 							</xs:complexType>
@@ -222,7 +222,7 @@
 										</xs:annotation>
 									</xs:element>
 								</xs:sequence>
-								<xs:attribute default="false" type="xs:boolean" name="DerivedFlag"></xs:attribute>
+								<xs:attribute default="false" type="xs:boolean" name="DerivedFlag" />
 							</xs:complexType>
 						</xs:element>
 					</xs:sequence>
@@ -250,13 +250,13 @@
 			</xs:element>
 			<xs:element name="SiteCoordinateSets" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Container for multiple sets of  coordinates indicating the site of collection or observation.</xs:documentation>
+					<xs:documentation>Container for multiple sets of coordinates indicating the site of collection or observation.</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element maxOccurs="unbounded" name="SiteCoordinates" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>Attributes for Original data and for begin and end of sequence . Composite element to allow  recording multiple coordinates or same coordinate in different systems</xs:documentation>
+								<xs:documentation>Attributes for Original data and for begin and end of sequence . Composite element to allow recording multiple coordinates or same coordinate in different systems</xs:documentation>
 							</xs:annotation>
 							<xs:complexType>
 								<xs:sequence>
@@ -267,7 +267,7 @@
 									</xs:element>
 									<xs:element name="CoordinatesUTM" minOccurs="0">
 										<xs:annotation>
-											<xs:documentation></xs:documentation>
+											<xs:documentation />
 										</xs:annotation>
 										<xs:complexType>
 											<xs:sequence>
@@ -327,7 +327,7 @@
 												</xs:element>
 												<xs:element type="String" name="GridCellCode">
 													<xs:annotation>
-														<xs:documentation></xs:documentation>
+														<xs:documentation />
 													</xs:annotation>
 												</xs:element>
 												<xs:element type="String" name="GridQualifier" minOccurs="0">
@@ -369,15 +369,15 @@
 														<xs:documentation>Maps to Darwin Core 2: Coordinate Precision. An estimate of how tightly the collecting locality was specified; expressed as a distance in meters corresponding to a radius around the Lat/Long coordinates. Use NULL where precision is unknown, cannot be estimated or is not applicable.</xs:documentation>
 													</xs:annotation>
 												</xs:element>
-												<xs:element type="String" name="CoordinateErrorMethod" minOccurs="0"></xs:element>
-												<xs:element name="CoordinatesText" minOccurs="0"></xs:element>
+												<xs:element type="String" name="CoordinateErrorMethod" minOccurs="0" />
+												<xs:element name="CoordinatesText" minOccurs="0" />
 											</xs:sequence>
 										</xs:complexType>
 									</xs:element>
 								</xs:sequence>
-								<xs:attribute use="optional" type="xs:boolean" name="original"></xs:attribute>
-								<xs:attribute use="optional" type="xs:boolean" name="begin"></xs:attribute>
-								<xs:attribute use="optional" type="xs:boolean" name="end"></xs:attribute>
+								<xs:attribute use="optional" type="xs:boolean" name="original" />
+								<xs:attribute use="optional" type="xs:boolean" name="begin" />
+								<xs:attribute use="optional" type="xs:boolean" name="end" />
 							</xs:complexType>
 						</xs:element>
 					</xs:sequence>
@@ -395,7 +395,7 @@
 				<xs:complexType>
 					<xs:complexContent>
 						<xs:extension base="MeasurementOrFact">
-							<xs:attribute type="String" name="datum"></xs:attribute>
+							<xs:attribute type="String" name="datum" />
 						</xs:extension>
 					</xs:complexContent>
 				</xs:complexType>
@@ -407,7 +407,7 @@
 				<xs:complexType>
 					<xs:complexContent>
 						<xs:extension base="MeasurementOrFact">
-							<xs:attribute type="String" name="datum"></xs:attribute>
+							<xs:attribute type="String" name="datum" />
 						</xs:extension>
 					</xs:complexContent>
 				</xs:complexType>
@@ -418,7 +418,7 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element maxOccurs="unbounded" type="MeasurementOrFact" name="SiteMeasurementOrFact"></xs:element>
+						<xs:element maxOccurs="unbounded" type="MeasurementOrFact" name="SiteMeasurementOrFact" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -428,7 +428,7 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element maxOccurs="unbounded" type="MultiMediaObject" name="SiteImage"></xs:element>
+						<xs:element maxOccurs="unbounded" type="MultiMediaObject" name="SiteImage" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -439,7 +439,7 @@
 			</xs:element>
 			<xs:element name="Biotope" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>An container element for citing biotope type terms (e.g. classification terms) and measurements  (e.g. vegetation height, salinity, slope) related to the unit's gathering site</xs:documentation>
+					<xs:documentation>An container element for citing biotope type terms (e.g. classification terms) and measurements (e.g. vegetation height, salinity, slope) related to the unit's gathering site</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -534,7 +534,7 @@
 						</xs:element>
 						<xs:element type="xs:anyType" name="Extension" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>A placeholder for a temporary extension to include identification results not yet covered by the schema. This serves  to accommodate urgent inter-version additions to the unit-object schema.</xs:documentation>
+								<xs:documentation>A placeholder for a temporary extension to include identification results not yet covered by the schema. This serves to accommodate urgent inter-version additions to the unit-object schema.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:choice>
@@ -663,7 +663,7 @@
 			</xs:element>
 			<xs:element type="String" name="DataSource" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -731,7 +731,7 @@
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="Contact">
-										<xs:attribute type="xs:boolean" name="preferred"></xs:attribute>
+										<xs:attribute type="xs:boolean" name="preferred" />
 									</xs:extension>
 								</xs:complexContent>
 							</xs:complexType>
@@ -771,7 +771,7 @@
 						</xs:element>
 						<xs:element type="String" name="IdentificationHistory" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>This is a free text field for use when extracting data from datasources where the identification or verification history (or part of it)  is a free text field. In normal circumstances the history can be constructed by sorting identification events by date and reference to the preferred identification flag</xs:documentation>
+								<xs:documentation>This is a free text field for use when extracting data from datasources where the identification or verification history (or part of it) is a free text field. In normal circumstances the history can be constructed by sorting identification events by date and reference to the preferred identification flag</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -810,7 +810,7 @@
 									<xs:sequence>
 										<xs:element type="String" name="AcquisitionDate" minOccurs="0">
 											<xs:annotation>
-												<xs:documentation>Textual statement of the  date of acquisition of the specimen by the institution</xs:documentation>
+												<xs:documentation>Textual statement of the date of acquisition of the specimen by the institution</xs:documentation>
 											</xs:annotation>
 										</xs:element>
 										<xs:element type="StringL" name="AcquisitionSourceText" minOccurs="0">
@@ -891,7 +891,7 @@
 														</xs:annotation>
 													</xs:element>
 												</xs:sequence>
-												<xs:attribute use="optional" type="xs:int" name="sequence"></xs:attribute>
+												<xs:attribute use="optional" type="xs:int" name="sequence" />
 											</xs:complexType>
 										</xs:element>
 									</xs:sequence>
@@ -968,7 +968,7 @@
 														</xs:annotation>
 														<xs:complexType>
 															<xs:sequence>
-																<xs:element name="PreviousSourceInstitutionID"></xs:element>
+																<xs:element name="PreviousSourceInstitutionID" />
 																<xs:element type="String" name="PreviousSourceID">
 																	<xs:annotation>
 																		<xs:documentation>Name or code of collection previously holding this specimen.</xs:documentation>
@@ -995,13 +995,13 @@
 																	</xs:annotation>
 																</xs:element>
 															</xs:sequence>
-															<xs:attribute use="optional" type="xs:int" name="sequence"></xs:attribute>
+															<xs:attribute use="optional" type="xs:int" name="sequence" />
 														</xs:complexType>
 													</xs:element>
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
-										<xs:element name="PreviousUnitsText" minOccurs="0"></xs:element>
+										<xs:element name="PreviousUnitsText" minOccurs="0" />
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>
@@ -1135,7 +1135,7 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element maxOccurs="unbounded" type="MultiMediaObject" name="MultiMediaObject"></xs:element>
+						<xs:element maxOccurs="unbounded" type="MultiMediaObject" name="MultiMediaObject" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -1212,11 +1212,11 @@
 			</xs:element>
 			<xs:element name="NamedCollectionsOrSurveys" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Unit may belong to one or several collections or survey projects which have distinctive names and do not correspond to the SourceName. Note that this element refers to the name accepted by the specimen or data holding institution, this may or may not be different from the  project name given under Gathering.</xs:documentation>
+					<xs:documentation>Unit may belong to one or several collections or survey projects which have distinctive names and do not correspond to the SourceName. Note that this element refers to the name accepted by the specimen or data holding institution, this may or may not be different from the project name given under Gathering.</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element maxOccurs="unbounded" type="StringL" name="NamedCollectionOrSurvey"></xs:element>
+						<xs:element maxOccurs="unbounded" type="StringL" name="NamedCollectionOrSurvey" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -1260,7 +1260,7 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element maxOccurs="unbounded" type="Sequence" name="Sequence"></xs:element>
+						<xs:element maxOccurs="unbounded" type="Sequence" name="Sequence" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -1283,9 +1283,9 @@
 						<xs:element name="Annotation">
 							<xs:complexType>
 								<xs:sequence>
-									<xs:element type="StringL" name="AnnotationText"></xs:element>
-									<xs:element type="String" name="Annotator" minOccurs="0"></xs:element>
-									<xs:element type="String" name="AnnotationDate" minOccurs="0"></xs:element>
+									<xs:element type="StringL" name="AnnotationText" />
+									<xs:element type="String" name="Annotator" minOccurs="0" />
+									<xs:element type="String" name="AnnotationDate" minOccurs="0" />
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
@@ -1294,7 +1294,7 @@
 			</xs:element>
 			<xs:element type="xs:anyType" name="UnitExtension" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The extension is temporary and serves only to accommodate urgent inter-version additions to the unit-object schema [in future to the the various schemas/objects used in ABCD]. For example, if a specific community (e.g. culture collections) discover that there are elements missing in the current version of ABCD (as they did for 1.2), they communicate that to the group responsible for schema development, where it will be discussed if these elements are already accommodated in the schema, if not, if they can and should be generalized and where they should end up in the schema. IF the culture collection community needs to move rapidly (e.g. due to project pressures), they can add these elements to the  current version as an extension schema under a structure that follows SDD's CustomExtensions element (CustomExtensions-CustomExtension-Any ##other). In future modular versions of ABCD, such a structure should exist in the root of every object/schema.</xs:documentation>
+					<xs:documentation>The extension is temporary and serves only to accommodate urgent inter-version additions to the unit-object schema [in future to the the various schemas/objects used in ABCD]. For example, if a specific community (e.g. culture collections) discover that there are elements missing in the current version of ABCD (as they did for 1.2), they communicate that to the group responsible for schema development, where it will be discussed if these elements are already accommodated in the schema, if not, if they can and should be generalized and where they should end up in the schema. IF the culture collection community needs to move rapidly (e.g. due to project pressures), they can add these elements to the current version as an extension schema under a structure that follows SDD's CustomExtensions element (CustomExtensions-CustomExtension-Any ##other). In future modular versions of ABCD, such a structure should exist in the root of every object/schema.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -1361,8 +1361,8 @@
 			<xs:documentation xml:lang="en-us">normalized string required to contain at least 1 character (this removes the xml string anomaly, i. e. either element/attribute may be optional, but if they are required the content may not be an empty string)</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:normalizedString">
-			<xs:minLength fixed="false" value="1"></xs:minLength>
-			<xs:whiteSpace fixed="false" value="collapse"></xs:whiteSpace>
+			<xs:minLength fixed="false" value="1" />
+			<xs:whiteSpace fixed="false" value="collapse" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="String50">
@@ -1370,9 +1370,9 @@
 			<xs:documentation xml:lang="en-us">normalized string restricted to 1..50 character length to be used for abbreviations (the recommended length of abbreviations is usually much shorter, but 50 characters should be a</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:normalizedString">
-			<xs:minLength fixed="true" value="1"></xs:minLength>
-			<xs:maxLength fixed="true" value="50"></xs:maxLength>
-			<xs:whiteSpace fixed="false" value="collapse"></xs:whiteSpace>
+			<xs:minLength fixed="true" value="1" />
+			<xs:maxLength fixed="true" value="50" />
+			<xs:whiteSpace fixed="false" value="collapse" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="String255">
@@ -1380,9 +1380,9 @@
 			<xs:documentation xml:lang="en-us">normalized string restricted to 1..255 character length (i. e. required, may not be empty string)</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:normalizedString">
-			<xs:minLength fixed="true" value="1"></xs:minLength>
-			<xs:maxLength fixed="true" value="255"></xs:maxLength>
-			<xs:whiteSpace fixed="false" value="collapse"></xs:whiteSpace>
+			<xs:minLength fixed="true" value="1" />
+			<xs:maxLength fixed="true" value="255" />
+			<xs:whiteSpace fixed="false" value="collapse" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:annotation>
@@ -1394,7 +1394,7 @@
 		</xs:annotation>
 		<xs:simpleContent>
 			<xs:extension base="String">
-				<xs:attribute use="optional" type="xs:language" name="language"></xs:attribute>
+				<xs:attribute use="optional" type="xs:language" name="language" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -1404,7 +1404,7 @@
 		</xs:annotation>
 		<xs:simpleContent>
 			<xs:extension base="String">
-				<xs:attribute use="optional" type="xs:language" name="language"></xs:attribute>
+				<xs:attribute use="optional" type="xs:language" name="language" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -1414,7 +1414,7 @@
 		</xs:annotation>
 		<xs:simpleContent>
 			<xs:extension base="String">
-				<xs:attribute use="optional" type="xs:boolean" name="preferred"></xs:attribute>
+				<xs:attribute use="optional" type="xs:boolean" name="preferred" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -1424,7 +1424,7 @@
 		</xs:annotation>
 		<xs:simpleContent>
 			<xs:extension base="String255">
-				<xs:attribute use="optional" type="xs:boolean" name="preferred"></xs:attribute>
+				<xs:attribute use="optional" type="xs:boolean" name="preferred" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -1434,8 +1434,8 @@
 		</xs:annotation>
 		<xs:simpleContent>
 			<xs:extension base="String">
-				<xs:attribute use="optional" type="xs:language" name="language"></xs:attribute>
-				<xs:attribute use="optional" type="xs:boolean" name="preferred"></xs:attribute>
+				<xs:attribute use="optional" type="xs:language" name="language" />
+				<xs:attribute use="optional" type="xs:boolean" name="preferred" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -1445,8 +1445,8 @@
 		</xs:annotation>
 		<xs:simpleContent>
 			<xs:extension base="String255">
-				<xs:attribute use="optional" type="xs:language" name="language"></xs:attribute>
-				<xs:attribute use="optional" type="xs:boolean" name="preferred"></xs:attribute>
+				<xs:attribute use="optional" type="xs:language" name="language" />
+				<xs:attribute use="optional" type="xs:boolean" name="preferred" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -1456,7 +1456,7 @@
 		</xs:annotation>
 		<xs:simpleContent>
 			<xs:extension base="xs:anyURI">
-				<xs:attribute use="optional" type="xs:boolean" name="preferred"></xs:attribute>
+				<xs:attribute use="optional" type="xs:boolean" name="preferred" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -1468,7 +1468,7 @@
 			<xs:documentation xml:lang="en">The date and time expressed in a way conforming to a subset of ISO 8601</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
-			<xs:pattern value="\d\d\d\d(\-(0[1-9]|1[012])(\-((0[1-9])|1\d|2\d|3[01])(T(0\d|1\d|2[0-3])(:[0-5]\d){0,2})?)?)?|\-\-(0[1-9]|1[012])(\-(0[1-9]|1\d|2\d|3[01]))?|\-\-\-(0[1-9]|1\d|2\d|3[01])"></xs:pattern>
+			<xs:pattern value="\d\d\d\d(\-(0[1-9]|1[012])(\-((0[1-9])|1\d|2\d|3[01])(T(0\d|1\d|2[0-3])(:[0-5]\d){0,2})?)?)?|\-\-(0[1-9]|1[012])(\-(0[1-9]|1\d|2\d|3[01]))?|\-\-\-(0[1-9]|1\d|2\d|3[01])" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="DateTime">
@@ -1477,7 +1477,7 @@
 		</xs:annotation>
 		<xs:sequence>
 			<xs:annotation>
-				<xs:documentation></xs:documentation>
+				<xs:documentation />
 			</xs:annotation>
 			<xs:element type="String" name="DateText" minOccurs="0" id="datetext">
 				<xs:annotation>
@@ -1550,7 +1550,7 @@
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute use="required" type="xs:language" name="language"></xs:attribute>
+		<xs:attribute use="required" type="xs:language" name="language" />
 	</xs:complexType>
 	<xs:complexType name="IPRStatements">
 		<xs:annotation>
@@ -1565,7 +1565,7 @@
 					<xs:sequence>
 						<xs:element maxOccurs="unbounded" type="Statement" name="IPRDeclaration">
 							<xs:annotation>
-								<xs:documentation>Used where the IPR declaration cannot be parsed into the specific items or for forms of IPR declaration not yet covered  (e.g. database rights),</xs:documentation>
+								<xs:documentation>Used where the IPR declaration cannot be parsed into the specific items or for forms of IPR declaration not yet covered (e.g. database rights),</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -1677,7 +1677,7 @@
 			</xs:element>
 			<xs:element type="String" name="ProductURI" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Universal Resource Identifier  of an electronic source of multimedia object including HTML, Javascript or similar means deliver rendered output.</xs:documentation>
+					<xs:documentation>Universal Resource Identifier of an electronic source of multimedia object including HTML, Javascript or similar means deliver rendered output.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="StringL" name="Context" minOccurs="0">
@@ -1736,8 +1736,8 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element type="String" name="Profile_Name" minOccurs="0"></xs:element>
-						<xs:element type="xs:anyURI" name="Profile_Ref" minOccurs="0"></xs:element>
+						<xs:element type="String" name="Profile_Name" minOccurs="0" />
+						<xs:element type="xs:anyURI" name="Profile_Ref" minOccurs="0" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -1764,21 +1764,21 @@
 		<xs:annotation>
 			<xs:documentation>An abbreviated designation of an institution.</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:string"></xs:restriction>
+		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 	<xs:simpleType name="RecordBasisEnum">
 		<xs:annotation>
 			<xs:documentation>A standard designator for the nature of the object of the record.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:Name">
-			<xs:enumeration value="PreservedSpecimen"></xs:enumeration>
-			<xs:enumeration value="LivingSpecimen"></xs:enumeration>
-			<xs:enumeration value="FossileSpecimen"></xs:enumeration>
-			<xs:enumeration value="OtherSpecimen"></xs:enumeration>
-			<xs:enumeration value="HumanObservation"></xs:enumeration>
-			<xs:enumeration value="MachineObservation"></xs:enumeration>
-			<xs:enumeration value="DrawingOrPhotograph"></xs:enumeration>
-			<xs:enumeration value="MultimediaObject"></xs:enumeration>
+			<xs:enumeration value="PreservedSpecimen" />
+			<xs:enumeration value="LivingSpecimen" />
+			<xs:enumeration value="FossileSpecimen" />
+			<xs:enumeration value="OtherSpecimen" />
+			<xs:enumeration value="HumanObservation" />
+			<xs:enumeration value="MachineObservation" />
+			<xs:enumeration value="DrawingOrPhotograph" />
+			<xs:enumeration value="MultimediaObject" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="SexCodeEnum">
@@ -1786,11 +1786,11 @@
 			<xs:documentation>Sex of the organism (Male, Female, Unknown, Not applicable (e.g. for a fungus in a herbarium), MiXed.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:Name">
-			<xs:enumeration value="M"></xs:enumeration>
-			<xs:enumeration value="F"></xs:enumeration>
-			<xs:enumeration value="U"></xs:enumeration>
-			<xs:enumeration value="N"></xs:enumeration>
-			<xs:enumeration value="X"></xs:enumeration>
+			<xs:enumeration value="M" />
+			<xs:enumeration value="F" />
+			<xs:enumeration value="U" />
+			<xs:enumeration value="N" />
+			<xs:enumeration value="X" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="Reference">
@@ -1825,13 +1825,13 @@
 					<xs:documentation xml:lang="en-us">Person, person team, or role name (e. g., 'head of departement')</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element type="String255" name="Email" minOccurs="0"></xs:element>
+			<xs:element type="String255" name="Email" minOccurs="0" />
 			<xs:element type="String255" name="Phone" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en-us">(voice phone)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element type="String255" name="Address" minOccurs="0"></xs:element>
+			<xs:element type="String255" name="Address" minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="MicroAgentP">
@@ -1840,7 +1840,7 @@
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="MicroAgent">
-				<xs:attribute default="false" use="optional" type="xs:boolean" name="preferred"></xs:attribute>
+				<xs:attribute default="false" use="optional" type="xs:boolean" name="preferred" />
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -1967,11 +1967,12 @@
 			<xs:element maxOccurs="unbounded" name="Representation">
 				<xs:annotation>
 					<xs:documentation xml:lang="en-us">Language-specific label representation
-[ATTR: language]</xs:documentation>
+						[ATTR: language]
+					</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:complexContent>
-						<xs:extension base="LabelRepr"></xs:extension>
+						<xs:extension base="LabelRepr" />
 					</xs:complexContent>
 				</xs:complexType>
 			</xs:element>
@@ -1993,7 +1994,7 @@
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute use="required" type="xs:language" name="language"></xs:attribute>
+		<xs:attribute use="required" type="xs:language" name="language" />
 	</xs:complexType>
 	<xs:complexType name="PersonName">
 		<xs:annotation>
@@ -2015,7 +2016,7 @@
 					<xs:sequence>
 						<xs:element type="String255" name="InheritedName">
 							<xs:annotation>
-								<xs:documentation xml:lang="en-us">Family names, generational names, clan name, parents/grandparents personal names, etc. This (= last name in western cultures) may be compound ('Fischer von Waldheim', 'da Selva', 'Silvano Morales'). Depending on culture it is not necessarily the name of the parents nor common to the married couple and children, thus 'family name' should be avoided even though used in vCard.  (vCard:N.Family)</xs:documentation>
+								<xs:documentation xml:lang="en-us">Family names, generational names, clan name, parents/grandparents personal names, etc. This (= last name in western cultures) may be compound ('Fischer von Waldheim', 'da Selva', 'Silvano Morales'). Depending on culture it is not necessarily the name of the parents nor common to the married couple and children, thus 'family name' should be avoided even though used in vCard. (vCard:N.Family)</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element type="String255" name="Prefix" minOccurs="0">
@@ -2048,7 +2049,7 @@
 			<xs:documentation>Type of device reached by telephone number, e.g. voice, fax, voice/fax</xs:documentation>
 		</xs:annotation>
 		<xs:simpleContent>
-			<xs:extension base="xs:Name"></xs:extension>
+			<xs:extension base="xs:Name" />
 		</xs:simpleContent>
 	</xs:complexType>
 	<xs:complexType name="TelephoneNumber">
@@ -2061,20 +2062,20 @@
 					<xs:documentation>Full number in standard international format</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element type="TelephoneDevice" name="Device" minOccurs="0"></xs:element>
+			<xs:element type="TelephoneDevice" name="Device" minOccurs="0" />
 			<xs:element type="StringL" name="UsageNotes" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Free text for constraints on use e.g. "weekdays only" or "home number"</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute default="false" use="optional" type="xs:boolean" name="preferred"></xs:attribute>
+		<xs:attribute default="false" use="optional" type="xs:boolean" name="preferred" />
 	</xs:complexType>
 	<xs:simpleType name="Role">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">The role of an agent or contact.</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:string"></xs:restriction>
+		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 	<xs:complexType name="BotanicalGardenUnit">
 		<xs:annotation>
@@ -2108,7 +2109,7 @@
 			</xs:element>
 			<xs:element type="String" name="ProvenanceCategory" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>A code to indicate the provenance of the accession  [ITF-2].</xs:documentation>
+					<xs:documentation>A code to indicate the provenance of the accession [ITF-2].</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="String" name="PropagationHistoryCode" minOccurs="0">
@@ -2227,7 +2228,7 @@
 						</xs:element>
 						<xs:element type="StringL" name="Aerobicity" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation></xs:documentation>
+								<xs:documentation />
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="Temperature" minOccurs="0">
@@ -2240,9 +2241,9 @@
 										<xs:attribute name="TemperatureType">
 											<xs:simpleType>
 												<xs:restriction base="xs:NMTOKEN">
-													<xs:enumeration value="Celsius"></xs:enumeration>
-													<xs:enumeration value="Fahrenheit"></xs:enumeration>
-													<xs:enumeration value="Absolute"></xs:enumeration>
+													<xs:enumeration value="Celsius" />
+													<xs:enumeration value="Fahrenheit" />
+													<xs:enumeration value="Absolute" />
 												</xs:restriction>
 											</xs:simpleType>
 										</xs:attribute>
@@ -2274,12 +2275,12 @@
 			</xs:element>
 			<xs:element type="StringL" name="Applications" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="StringL" name="Hazard" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -2329,7 +2330,7 @@
 					<xs:documentation>The date the loan is prepared and/or sent [HISPID3]</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element type="xs:date" name="LoanReturnDate" minOccurs="0"></xs:element>
+			<xs:element type="xs:date" name="LoanReturnDate" minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="MycologicalUnit">
@@ -2343,7 +2344,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="String" name="MycologicalSexualStage" minOccurs="0">
-				<xs:annotation></xs:annotation>
+				<xs:annotation />
 			</xs:element>
 			<xs:element name="MycologicalLiveStages" minOccurs="0">
 				<xs:annotation>
@@ -2383,47 +2384,47 @@
 			</xs:element>
 			<xs:element type="BiologicalStatus" name="BiologicalStatus" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="StringL" name="AncestralData" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="CollectingAcquisitionSource" name="CollectingAcquisitionSource" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="String" name="OtherIdentification" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="FAOInstituteCode" name="LocationSafetyDuplicates" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="TypeGermplasmStorage" name="TypeGermplasmStorage" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="String" name="DecodedBreedingInstitute" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="String" name="DecodedDonorInstitute" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="String" name="DecodedLocationSafetyDuplicates" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation></xs:documentation>
+					<xs:documentation />
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="GatheringInstitutionCode" minOccurs="0">
@@ -2453,28 +2454,28 @@
 		<xs:annotation>
 			<xs:documentation>FAO Institute Code; the codes consist of the 3-letter ISO 3166 country code of the country where the institute is located plus a three-digit number.</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:string"></xs:restriction>
+		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 	<xs:simpleType name="BiologicalStatus">
 		<xs:annotation>
 			<xs:documentation>Code for the (propagation-)provenance of the unit.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:integer">
-			<xs:enumeration value="100"></xs:enumeration>
-			<xs:enumeration value="110"></xs:enumeration>
-			<xs:enumeration value="120"></xs:enumeration>
-			<xs:enumeration value="200"></xs:enumeration>
-			<xs:enumeration value="300"></xs:enumeration>
-			<xs:enumeration value="400"></xs:enumeration>
-			<xs:enumeration value="410"></xs:enumeration>
-			<xs:enumeration value="411"></xs:enumeration>
-			<xs:enumeration value="412"></xs:enumeration>
-			<xs:enumeration value="413"></xs:enumeration>
-			<xs:enumeration value="414"></xs:enumeration>
-			<xs:enumeration value="415"></xs:enumeration>
-			<xs:enumeration value="420"></xs:enumeration>
-			<xs:enumeration value="500"></xs:enumeration>
-			<xs:enumeration value="999"></xs:enumeration>
+			<xs:enumeration value="100" />
+			<xs:enumeration value="110" />
+			<xs:enumeration value="120" />
+			<xs:enumeration value="200" />
+			<xs:enumeration value="300" />
+			<xs:enumeration value="400" />
+			<xs:enumeration value="410" />
+			<xs:enumeration value="411" />
+			<xs:enumeration value="412" />
+			<xs:enumeration value="413" />
+			<xs:enumeration value="414" />
+			<xs:enumeration value="415" />
+			<xs:enumeration value="420" />
+			<xs:enumeration value="500" />
+			<xs:enumeration value="999" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="CollectingAcquisitionSource">
@@ -2482,28 +2483,28 @@
 			<xs:documentation>Code for the (location-) provenance of the unit.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:integer">
-			<xs:enumeration value="10"></xs:enumeration>
-			<xs:enumeration value="11"></xs:enumeration>
-			<xs:enumeration value="12"></xs:enumeration>
-			<xs:enumeration value="13"></xs:enumeration>
-			<xs:enumeration value="14"></xs:enumeration>
-			<xs:enumeration value="15"></xs:enumeration>
-			<xs:enumeration value="20"></xs:enumeration>
-			<xs:enumeration value="21"></xs:enumeration>
-			<xs:enumeration value="22"></xs:enumeration>
-			<xs:enumeration value="23"></xs:enumeration>
-			<xs:enumeration value="24"></xs:enumeration>
-			<xs:enumeration value="25"></xs:enumeration>
-			<xs:enumeration value="26"></xs:enumeration>
-			<xs:enumeration value="27"></xs:enumeration>
-			<xs:enumeration value="28"></xs:enumeration>
-			<xs:enumeration value="30"></xs:enumeration>
-			<xs:enumeration value="40"></xs:enumeration>
-			<xs:enumeration value="50"></xs:enumeration>
-			<xs:enumeration value="60"></xs:enumeration>
-			<xs:enumeration value="61"></xs:enumeration>
-			<xs:enumeration value="62"></xs:enumeration>
-			<xs:enumeration value="99"></xs:enumeration>
+			<xs:enumeration value="10" />
+			<xs:enumeration value="11" />
+			<xs:enumeration value="12" />
+			<xs:enumeration value="13" />
+			<xs:enumeration value="14" />
+			<xs:enumeration value="15" />
+			<xs:enumeration value="20" />
+			<xs:enumeration value="21" />
+			<xs:enumeration value="22" />
+			<xs:enumeration value="23" />
+			<xs:enumeration value="24" />
+			<xs:enumeration value="25" />
+			<xs:enumeration value="26" />
+			<xs:enumeration value="27" />
+			<xs:enumeration value="28" />
+			<xs:enumeration value="30" />
+			<xs:enumeration value="40" />
+			<xs:enumeration value="50" />
+			<xs:enumeration value="60" />
+			<xs:enumeration value="61" />
+			<xs:enumeration value="62" />
+			<xs:enumeration value="99" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="TypeGermplasmStorage">
@@ -2511,14 +2512,14 @@
 			<xs:documentation>Code for the type of storage of the unit in the collection.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:integer">
-			<xs:enumeration value="10"></xs:enumeration>
-			<xs:enumeration value="11"></xs:enumeration>
-			<xs:enumeration value="12"></xs:enumeration>
-			<xs:enumeration value="13"></xs:enumeration>
-			<xs:enumeration value="20"></xs:enumeration>
-			<xs:enumeration value="30"></xs:enumeration>
-			<xs:enumeration value="40"></xs:enumeration>
-			<xs:enumeration value="99"></xs:enumeration>
+			<xs:enumeration value="10" />
+			<xs:enumeration value="11" />
+			<xs:enumeration value="12" />
+			<xs:enumeration value="13" />
+			<xs:enumeration value="20" />
+			<xs:enumeration value="30" />
+			<xs:enumeration value="40" />
+			<xs:enumeration value="99" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="PalaeontologicalUnit">
@@ -2534,7 +2535,7 @@
 					<xs:sequence>
 						<xs:element type="StringL" name="Completeness" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation></xs:documentation>
+								<xs:documentation />
 							</xs:annotation>
 						</xs:element>
 						<xs:element type="StringL" name="Form" minOccurs="0">
@@ -2639,7 +2640,7 @@
 		</xs:annotation>
 		<xs:sequence>
 			<xs:annotation>
-				<xs:documentation></xs:documentation>
+				<xs:documentation />
 			</xs:annotation>
 			<xs:element type="StringL" name="Name" minOccurs="0" id="cou">
 				<xs:annotation>
@@ -2669,16 +2670,16 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="N"></xs:enumeration>
-						<xs:enumeration value="S"></xs:enumeration>
-						<xs:enumeration value="E"></xs:enumeration>
-						<xs:enumeration value="W"></xs:enumeration>
-						<xs:enumeration value="NE"></xs:enumeration>
-						<xs:enumeration value="SE"></xs:enumeration>
-						<xs:enumeration value="SW"></xs:enumeration>
-						<xs:enumeration value="NW"></xs:enumeration>
-						<xs:enumeration value="Open"></xs:enumeration>
-						<xs:enumeration value="Closed"></xs:enumeration>
+						<xs:enumeration value="N" />
+						<xs:enumeration value="S" />
+						<xs:enumeration value="E" />
+						<xs:enumeration value="W" />
+						<xs:enumeration value="NE" />
+						<xs:enumeration value="SE" />
+						<xs:enumeration value="SW" />
+						<xs:enumeration value="NW" />
+						<xs:enumeration value="Open" />
+						<xs:enumeration value="Closed" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -2815,7 +2816,7 @@
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="Lookup">
-				<xs:attribute type="xs:language" name="Language"></xs:attribute>
+				<xs:attribute type="xs:language" name="Language" />
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -2855,7 +2856,7 @@
 							</xs:annotation>
 							<xs:complexType>
 								<xs:sequence>
-									<xs:element maxOccurs="unbounded" type="StringL255" name="GeoEcologicalTerm"></xs:element>
+									<xs:element maxOccurs="unbounded" type="StringL255" name="GeoEcologicalTerm" />
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
@@ -2865,7 +2866,7 @@
 							</xs:annotation>
 							<xs:complexType>
 								<xs:sequence>
-									<xs:element maxOccurs="unbounded" type="StringL255" name="TaxonomicTerm"></xs:element>
+									<xs:element maxOccurs="unbounded" type="StringL255" name="TaxonomicTerm" />
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
@@ -2954,7 +2955,7 @@
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute use="required" type="xs:language" name="language"></xs:attribute>
+		<xs:attribute use="required" type="xs:language" name="language" />
 	</xs:complexType>
 	<xs:complexType name="RevisionData">
 		<xs:annotation>
@@ -3095,7 +3096,7 @@
 			</xs:element>
 			<xs:element type="RankAbbreviation" name="Rank" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The rank of the name where  needed to form it.</xs:documentation>
+					<xs:documentation>The rank of the name where needed to form it.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="HybridFlag" minOccurs="0">
@@ -3105,7 +3106,7 @@
 				<xs:complexType>
 					<xs:simpleContent>
 						<xs:extension base="HybridFlag">
-							<xs:attribute type="xs:int" name="insertionpoint"></xs:attribute>
+							<xs:attribute type="xs:int" name="insertionpoint" />
 						</xs:extension>
 					</xs:simpleContent>
 				</xs:complexType>
@@ -3213,42 +3214,42 @@
 					<xs:documentation>Name of the breed of an animal</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element type="String" name="NamedIndividual" minOccurs="0"></xs:element>
+			<xs:element type="String" name="NamedIndividual" minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:simpleType name="Epithet">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">A name element dependent on a genus or a species name under the bacteriological, botanical, and zoological code.</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:string"></xs:restriction>
+		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 	<xs:simpleType name="Monomial">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">A generic or higher taxon name (monomial) under the bacteriological, botanical, viral, and zoological code.</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:string"></xs:restriction>
+		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 	<xs:simpleType name="HybridFlag">
 		<xs:annotation>
 			<xs:documentation>A multiplication or plus sign designating a hybrid or draft chimaera in botany.</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:string"></xs:restriction>
+		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 	<xs:simpleType name="RankAbbreviation">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">The abbreviation of a taxonomic rank as used in (botanical) name strings.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:Name">
-			<xs:enumeration value="subgen."></xs:enumeration>
-			<xs:enumeration value="sect."></xs:enumeration>
-			<xs:enumeration value="subsp."></xs:enumeration>
-			<xs:enumeration value="var."></xs:enumeration>
-			<xs:enumeration value="subvar."></xs:enumeration>
-			<xs:enumeration value="forma"></xs:enumeration>
-			<xs:enumeration value="f."></xs:enumeration>
-			<xs:enumeration value="subforma"></xs:enumeration>
-			<xs:enumeration value="subf."></xs:enumeration>
-			<xs:enumeration value="f.spec."></xs:enumeration>
+			<xs:enumeration value="subgen." />
+			<xs:enumeration value="sect." />
+			<xs:enumeration value="subsp." />
+			<xs:enumeration value="var." />
+			<xs:enumeration value="subvar." />
+			<xs:enumeration value="forma" />
+			<xs:enumeration value="f." />
+			<xs:enumeration value="subforma" />
+			<xs:enumeration value="subf." />
+			<xs:enumeration value="f.spec." />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="HigherTaxonRankEnum">
@@ -3256,23 +3257,23 @@
 			<xs:documentation>A taxonomic rank designation above the rank of genus.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:Name">
-			<xs:enumeration value="regnum"></xs:enumeration>
-			<xs:enumeration value="subregnum"></xs:enumeration>
-			<xs:enumeration value="superphylum"></xs:enumeration>
-			<xs:enumeration value="phylum"></xs:enumeration>
-			<xs:enumeration value="subphylum"></xs:enumeration>
-			<xs:enumeration value="superclassis"></xs:enumeration>
-			<xs:enumeration value="classis"></xs:enumeration>
-			<xs:enumeration value="subclassis"></xs:enumeration>
-			<xs:enumeration value="superordo"></xs:enumeration>
-			<xs:enumeration value="ordo"></xs:enumeration>
-			<xs:enumeration value="subordo"></xs:enumeration>
-			<xs:enumeration value="superfamilia"></xs:enumeration>
-			<xs:enumeration value="familia"></xs:enumeration>
-			<xs:enumeration value="subfamilia"></xs:enumeration>
-			<xs:enumeration value="tribus"></xs:enumeration>
-			<xs:enumeration xml:lang="en" value="genusgroup"></xs:enumeration>
-			<xs:enumeration xml:lang="en" value="unranked"></xs:enumeration>
+			<xs:enumeration value="regnum" />
+			<xs:enumeration value="subregnum" />
+			<xs:enumeration value="superphylum" />
+			<xs:enumeration value="phylum" />
+			<xs:enumeration value="subphylum" />
+			<xs:enumeration value="superclassis" />
+			<xs:enumeration value="classis" />
+			<xs:enumeration value="subclassis" />
+			<xs:enumeration value="superordo" />
+			<xs:enumeration value="ordo" />
+			<xs:enumeration value="subordo" />
+			<xs:enumeration value="superfamilia" />
+			<xs:enumeration value="familia" />
+			<xs:enumeration value="subfamilia" />
+			<xs:enumeration value="tribus" />
+			<xs:enumeration xml:lang="en" value="genusgroup" />
+			<xs:enumeration xml:lang="en" value="unranked" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="ScientificName">
@@ -3333,9 +3334,9 @@
 									<xs:attribute name="insertionpoint">
 										<xs:simpleType>
 											<xs:restriction base="xs:int">
-												<xs:enumeration value="1"></xs:enumeration>
-												<xs:enumeration value="2"></xs:enumeration>
-												<xs:enumeration value="3"></xs:enumeration>
+												<xs:enumeration value="1" />
+												<xs:enumeration value="2" />
+												<xs:enumeration value="3" />
 											</xs:restriction>
 										</xs:simpleType>
 									</xs:attribute>
@@ -3357,8 +3358,8 @@
 			<xs:documentation>Taxon name used to further classify the identification result.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element type="Monomial" name="HigherTaxonName"></xs:element>
-			<xs:element type="HigherTaxonRankEnum" name="HigherTaxonRank" minOccurs="0"></xs:element>
+			<xs:element type="Monomial" name="HigherTaxonName" />
+			<xs:element type="HigherTaxonRankEnum" name="HigherTaxonRank" minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:simpleType name="CodeOfNomenclatureEnum">
@@ -3366,11 +3367,11 @@
 			<xs:documentation>An enumeration of the Codes of Nomenclature</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:Name">
-			<xs:enumeration value="Bacteriological"></xs:enumeration>
-			<xs:enumeration value="Botanical"></xs:enumeration>
-			<xs:enumeration value="Viral"></xs:enumeration>
-			<xs:enumeration value="Zoological"></xs:enumeration>
-			<xs:enumeration value="Cultivated"></xs:enumeration>
+			<xs:enumeration value="Bacteriological" />
+			<xs:enumeration value="Botanical" />
+			<xs:enumeration value="Viral" />
+			<xs:enumeration value="Zoological" />
+			<xs:enumeration value="Cultivated" />
 		</xs:restriction>
 	</xs:simpleType>
 </xs:schema>
