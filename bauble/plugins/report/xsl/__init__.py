@@ -444,7 +444,7 @@ class XSLFormatterPlugin(FormatterPlugin):
         transform = etree.XSLT(style_etree)
         result = transform(abcd_data)
         fo_outfile = open(fo_filename, 'wb')
-        fo_outfile.write(str(result))
+        fo_outfile.write(result)
         fo_outfile.close()
         dummy, filename = tempfile.mkstemp()
         filename = '%s.pdf' % filename

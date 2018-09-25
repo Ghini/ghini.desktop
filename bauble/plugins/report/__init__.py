@@ -605,7 +605,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         try:
             formatter.format(todo, **settings)
         except Exception as e:
-            utils.idle_message("%s(%s)" % (type(e).__name__, e), type=Gtk.MessageType.ERROR)
+            utils.idle_message("formatting %s objects of type %s\n%s(%s)\n%s" % (len(todo), type((todo+[None])[0]).__name__, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
                              
         session.close()
         GObject.idle_add(self.stop_progress)
