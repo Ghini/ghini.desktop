@@ -485,10 +485,7 @@ class GUI(object):
         accel_group = self.ui_manager.get_accel_group()
         self.window.add_accel_group(accel_group)
 
-        # TODO: get rid of new, open, and just have a connection
-        # menu item
-
-        # create and addaction group for menu actions
+        # create and add_actions for menu actions
         menu_actions = Gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, _("_File")),
                                   ("file_new", Gtk.STOCK_NEW, _("_New"),
@@ -531,9 +528,11 @@ class GUI(object):
         menu_actions.get_action('file_open').set_sensitive(False)
         self.ui_manager.insert_action_group(menu_actions, 0)
 
-        # TODO: The menubar was made available in Gtk.Builder in Gtk+
-        # 2.16 so whenever we decide 2.16 is the minimum version we
-        # should get rid of this .ui file
+        # TODO: as things stand, the menu is defined in two quite unrelated
+        # steps, here in the code we're defining what each action does and
+        # how it should show up, while in the bauble.ui file we're defining
+        # the structure.  Moreover, we're using deprecated classes and
+        # methods as of GTK3.1.
 
         # load ui
         ui_filename = os.path.join(paths.lib_dir(), 'bauble.ui')
