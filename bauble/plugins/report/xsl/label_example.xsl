@@ -84,7 +84,9 @@
                     </xsl:when>
                     <xsl:otherwise>
                       <!-- for nothotaxon hybrid with flag -->
-                      <xsl:value-of select=".//abcd:HybridFlag"/>
+                      <fo:inline font-style="normal">
+                        <xsl:value-of select=".//abcd:HybridFlag"/>
+                      </fo:inline>
                       <xsl:value-of select=".//abcd:FirstEpithet"/>
                     </xsl:otherwise>
                   </xsl:choose>
