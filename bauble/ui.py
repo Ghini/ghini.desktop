@@ -519,7 +519,7 @@ class GUI(object):
                                    _("Ghini development website"), None,
                                    None, self.on_help_menu_web_devel),
                                   ("help_web.wiki", Gtk.STOCK_EDIT,
-                                   _("Ghini wiki"), None,
+                                   _("Ghini news"), None,
                                    None, self.on_help_menu_web_wiki),
                                   ("help_web.forum", Gtk.STOCK_JUSTIFY_LEFT,
                                    _("Ghini forum"), None,
@@ -802,7 +802,7 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_web_wiki(self, widget, data=None):
-        desktop.open('http://github.com/Ghini/ghini.desktop/wiki',
+        desktop.open('http://ghini.github.io/',
                      dialog_on_error=True)
 
     def on_help_menu_web_forum(self, widget, data=None):
