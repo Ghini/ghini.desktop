@@ -1195,7 +1195,10 @@ class GenericEditorPresenter(object):
 
     def cancel_threads(self):
         for k in self.running_threads:
-            k.cancel()
+            try:
+                k.cancel()
+            except:
+                pass
         for k in self.running_threads:
             k.join()
         self.running_threads = []

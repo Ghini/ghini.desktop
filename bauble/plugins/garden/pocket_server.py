@@ -258,9 +258,8 @@ class PocketServerPresenter(GenericEditorPresenter):
         from threading import Thread
         from .exporttopocket import create_pocket, export_to_pocket
         create_pocket(self.pocket_fn)
-        thread = Thread(target=export_to_pocket,
-                        args=[self.pocket_fn, self.on_export_complete])
-        thread.start()
+        self.start_thread(Thread(target=export_to_pocket,
+                                 args=[self.pocket_fn, self.on_export_complete]))
         self.opacity = 0.0
         self.is_exporting = True
         GLib.timeout_add(50, self.flashing_creating)
