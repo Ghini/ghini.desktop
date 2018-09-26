@@ -393,6 +393,11 @@ dbengine.html#create-engine-url-arguments>`_
         gtk.gdk.threads_leave()
 
     gobject.idle_add(_post_loop)
+    logger.info('This version installed on: %s; '
+                'This version installed at: %s; '
+                'Latest published version: %s; '
+                'Publication date: %s' % 
+                (bauble.installation_date, __file__, bauble.release_version, bauble.release_date, ))
 
     gui.show()
     gtk.threads_enter()
