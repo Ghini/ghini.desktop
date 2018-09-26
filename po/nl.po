@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-09-22 20:24+0000\n"
+"PO-Revision-Date: 2018-09-27 20:23+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -333,6 +333,7 @@ msgid "<b>Species:</b>"
 msgstr "<b>Soort:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:29
+#, fuzzy
 msgid "<b>Stylesheet</b>"
 msgstr "<b>Stylesheet</b>"
 
@@ -370,7 +371,7 @@ msgstr "<b>Gevarenzone</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:470
 msgid "<b>data revision</b>"
-msgstr ""
+msgstr "<b>data revisie</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:956
 msgid "<b>in use</b>"
@@ -2261,7 +2262,7 @@ msgstr "Plantae"
 #: bauble/plugins/garden/__init__.py:132 bauble/plugins/garden/accession.py:443
 #: bauble/plugins/garden/plant.py:384
 msgid "Planting"
-msgstr ""
+msgstr "Plant"
 
 #: bauble/plugins/garden/plant_editor.glade:560
 msgid "Planting code"
@@ -2330,9 +2331,8 @@ msgstr ""
 "Gelieve de planten uit <b>%(location)s</b> te halen voor je het verwijderd."
 
 #: bauble/plugins/report/xsl/__init__.py:536
-#, fuzzy
 msgid "Please select a a renderer"
-msgstr "Gelieve een renderer te selecteren"
+msgstr "Selecteer een renderer"
 
 #: bauble/plugins/report/xsl/__init__.py:534
 msgid "Please select a stylesheet."
@@ -2960,6 +2960,8 @@ msgid ""
 "The ABCD file was created but failed to validate correctly against the ABCD "
 "standard."
 msgstr ""
+"De ABCD file is aangemaakt, maar is niet correct gevalideerd tegen de ABCD "
+"standaard."
 
 #: bauble/plugins/garden/accession.py:857
 msgid ""
@@ -2967,6 +2969,9 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
+"De ID Qualifier\n"
+"\n"
+"Mogelijke waarden: %s"
 
 #: bauble/plugins/users/__init__.py:504
 msgid "The Users editor is only valid on a PostgreSQL database"
@@ -3022,6 +3027,10 @@ msgid ""
 "created. This usually means that there was a problem when you created the "
 "database or the database you connected to wasn't created with Ghini."
 msgstr ""
+"De database waarmee U bent verbonden bent heeft geen timestamp voor wanneer "
+"het was aangemaakt. Dit betekent gewoonlijk dat er een probleem was bij het "
+"aanmaken van de database of dat de database waarmee U verbinding heeft niet "
+"is aangemaakt met Ghini."
 
 #: bauble/db.py:424
 msgid ""
@@ -3513,7 +3522,7 @@ msgstr "Type:"
 
 #: bauble/plugins/garden/plant.py:324
 msgid "Unable to Locate"
-msgstr ""
+msgstr "Kan niet gevonden worden"
 
 #: bauble/plugins/plants/itf2.py:162
 msgid "Uncertain which of the above applies."
@@ -3633,7 +3642,7 @@ msgstr "Voucher van Accessie"
 
 #: bauble/plugins/garden/acc_editor.glade:2902
 msgid "Voucher of parent material"
-msgstr ""
+msgstr "Voucher van ouderplant"
 
 #: bauble/plugins/garden/acc_editor.glade:2972
 #: bauble/plugins/garden/accession.py:2708
@@ -3712,6 +3721,10 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"U exporteert %(nplants)s objecten naar JSON format.  Het exporteren van "
+"zoveel objecten kan enige minuten duren.  \n"
+"\n"
+"<i>Wilt U doorgaan?</i>"
 
 #: bauble/plugins/abcd/__init__.py:350
 msgid ""
@@ -3720,6 +3733,10 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"U exporteert %(nplants)s planten naar het ABCD format.  Exporteren van "
+"zoveel planten kan enige minuten duren.  \n"
+"\n"
+"<i>Wilt U doorgaan?</i>"
 
 #: bauble/db.py:439
 msgid ""
@@ -3767,6 +3784,8 @@ msgstr ""
 msgid ""
 "You have configured empty_to_none=True but None is not in the values lists"
 msgstr ""
+"U heeft empty_to_none=True geconfigureerd, maar None staat niet in de "
+"waardenlijsten"
 
 #: bauble/plugins/plants/genus.py:783
 msgid ""
@@ -3894,7 +3913,7 @@ msgstr "accessies"
 
 #: bauble/bauble.glade:177
 msgid "activate query builder"
-msgstr ""
+msgstr "activeer de query bouwer"
 
 #: bauble/plugins/plants/itf2.py:63
 msgid "aggregate taxon"
@@ -3940,13 +3959,15 @@ msgstr ""
 
 #: bauble/plugins/plants/stored_queries.glade:413
 msgid "click on query button and edit the associated values"
-msgstr ""
+msgstr "klik op de queryknop en bewerk de bijbehorende waarden"
 
 #: bauble/plugins/plants/species_editor.py:203
 msgid ""
 "closest match is a synonym of something at infraspecific rank, which I "
 "cannot handle."
 msgstr ""
+"de dichtstbijzijnde match is een synoniem voor iets op infra-specifieke "
+"rang, die ik niet aankan."
 
 #: bauble/plugins/garden/propagation.py:304
 msgid "cm"
@@ -3972,7 +3993,7 @@ msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:442
 msgid "create if not in database"
-msgstr "aanmaken als niet in database"
+msgstr "aanmaken indien niet aanwezig in database"
 
 #: bauble/plugins/plants/itf2.py:129
 msgid "cultivated, found outside indigenous range"
@@ -3999,9 +4020,8 @@ msgid "details"
 msgstr "details"
 
 #: bauble/plugins/garden/picture_importer.glade:410
-#, fuzzy
 msgid "edit"
-msgstr "edit"
+msgstr "bewerken"
 
 #: bauble/plugins/plants/infoboxes.glade:1751
 msgid "edit stored queries"
@@ -4075,7 +4095,7 @@ msgstr "importeren %(tabel)s tabel van %(bestandsnaam)s"
 
 #: bauble/plugins/garden/propagation.py:305
 msgid "in"
-msgstr ""
+msgstr "inch"
 
 #: bauble/plugins/plants/species_model.py:237
 msgid "indigenous"
@@ -4174,7 +4194,7 @@ msgstr "planten"
 
 #: bauble/plugins/garden/location.py:296
 msgid "please confirm merging %(1)s into %(2)s"
-msgstr ""
+msgstr "bevestig dat %(1)s in %(2)s worden samengevoegd"
 
 #: bauble/plugins/plants/__init__.py:386
 msgid "preferences"
@@ -4257,15 +4277,15 @@ msgstr "synoniem van %s"
 
 #: bauble/plugins/tag/__init__.py:493
 msgid "tagging %(1)s objects of %(2)s different types"
-msgstr ""
+msgstr "tagging %(1)s objecten van %(2)s verschillende types"
 
 #: bauble/plugins/tag/__init__.py:487
 msgid "tagging %(1)s objects of type %(2)s"
-msgstr ""
+msgstr "tagging %(1)s objecten van type %(2)s"
 
 #: bauble/plugins/tag/__init__.py:491
 msgid "tagging nothing"
-msgstr ""
+msgstr "niets getagd"
 
 #: bauble/plugins/imex/select_export.glade:101
 msgid "taxa"
