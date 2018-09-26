@@ -414,6 +414,11 @@ dbengine.html#create-engine-url-arguments>`_
         Gdk.threads_leave()
 
     GObject.idle_add(_post_loop)
+    logger.info('This version installed on: %s; '
+                'This version installed at: %s; '
+                'Latest published version: %s; '
+                'Publication date: %s' % 
+                (bauble.installation_date, __file__, bauble.release_version, bauble.release_date, ))
 
     gui.show()
     Gdk.threads_enter()
