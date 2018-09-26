@@ -121,6 +121,8 @@ def add_text(x, y, s, size, align=0, italic=False, strokes=1, rotate=0):
 
 
 def add_code39(x, y, s, unit=1, height=10, align=0, colour='#0000ff'):
+    '''return svg code corresponding to barcode for string s
+    '''
     result_list = []
     cumulative_x = 0
     if not s:
@@ -222,6 +224,10 @@ class Code39:
 
     
 class add_qr_functor:
+    '''add a QR code, to either svg & ps output.
+
+    functor: function with persistent data
+    '''
     import pyqrcode
     def __init__(self):
         self.pattern = {
@@ -267,6 +273,65 @@ class add_qr_functor:
 
 add_qr = add_qr_functor()
     
+
+def insert_picture(left, bottom, width, height, image):
+    '''postscript string that corresponds to placing image in page
+
+    left, bottom specify position of bottom-left corner of picture.
+
+    width, height give dimension of picture on paper.  either width or
+    height may be None (not both), in which case proportions are kept.
+
+    image is a PIL.Image object, it needs be RBG (not indexed) and
+    transparency is ignored.
+
+    '''
+
+    import itertools
+    width0, height0 = image.size
+    if width is None:
+        width = height * (1.0 * width0 / height0)
+    if height is None:
+        height = width * (1.0 * height0 / width0)
+    result = ('gsave %(left)d %(bottom)d translate %(width)d %(height)d scale %(width0)d %(height0)d 8 [%(width0)d 0 0 -%(height0)d 0 %(height0)d] (%(text)s>) /ASCIIHexDecode filter false 3 colorimage grestore\n' % {
+        'left': left,
+        'bottom': bottom,
+        'width0': width0,
+        'height0': height0,
+        'width': width,
+        'height': height,
+        'text': ''.join([("%02x" % g) for g in itertools.chain.from_iterable(k[:3] for k in image.getdata())])})
+    return result
+
+
+def insert_jpeg_picture(left, bottom, width, height, filename):
+    '''postscript string that corresponds to placing JPEG image in page
+
+    left, bottom specify position of bottom-left corner of picture.
+
+    width, height give dimension of picture on paper.  either width or
+    height may be None (not both), in which case proportions are kept.
+
+    filename is a full path to a JPEG image.
+
+    '''
+    import PIL.Image
+    tmp = PIL.Image.open(filename)
+    width0, height0 = tmp.size
+    if width is None:
+        width = height * (1.0 * width0 / height0)
+    if height is None:
+        height = width * (1.0 * height0 / width0)
+    
+    content = open(filename, "rb").read()
+    return('gsave %(left)d %(bottom)d translate %(width)d %(height)d scale %(width0)d %(height0)d 8 [%(width0)d 0 0 -%(height0)d 0 %(height0)d] (%(text)s>) /ASCIIHexDecode filter 0 dict /DCTDecode filter false 3 colorimage grestore\n' % {
+        'left': left,
+        'bottom': bottom,
+        'width0': width0,
+        'height0': height0,
+        'width': width,
+        'height': height,
+        'text': ''.join(["%02x" % g for g in content])})
 
 
 class MakoFormatterPlugin(FormatterPlugin):
