@@ -306,7 +306,7 @@ else:
     <g id="s1-u00db"><use xlink:href="#s1-u0055"/><use xlink:href="#circum" transform="translate(4.5,-5)"/></g>
     <g id="s1-u00dc"><use xlink:href="#s1-u0055"/><use xlink:href="#dots" transform="translate(4.5,-5)"/></g>
   </defs>
-% if options['single_page'].lower() in ['false', '0']:
+% if options['single_page'] is False:
 <pageSet>
 <page>
 % endif
@@ -315,7 +315,7 @@ else:
     <% xpos = 0 %>\
     <% ypos += 1 %>\
   % endif
-  % if ypos == 18 and options['single_page'].lower() in ['false', '0']:
+  % if ypos == 18 and options['single_page'] is False:
     <% xpos = 0 %>\
     <% ypos = 0 %>\
     </page>
@@ -348,7 +348,7 @@ text, x, y = add_text(x_base, 12.5, et, 0.12, align=0, italic=True)
   </g>
 <% xpos += 1 %>\
 % endfor
-% if options['single_page'].lower() in ['false', '0']:
+% if options['single_page'] is False:
 </page>
 </pageSet>
 % endif

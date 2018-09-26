@@ -325,10 +325,15 @@ class MakoFormatterPlugin(FormatterPlugin):
         use_private = kwargs.get('private', True)
         if not template_filename:
             msg = _('Please select a template.')
-            utils.message_dialog(msg, Gtk.MessageType.WARNING)
+            utils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
-        template = Template(filename=template_filename,
-                            input_encoding='utf-8', output_encoding='utf-8')
+        try:
+            template = Template(filename=template_filename,
+                                input_encoding='utf-8', output_encoding='utf-8')
+        except RuntimeError as e:
+            import traceback
+            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (template_filename, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+            return False
 
         session = db.Session()
         values = list(map(session.merge, objs))
