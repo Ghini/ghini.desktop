@@ -81,7 +81,7 @@ CREATE TABLE "plant" (
     cn.commit()
 
 
-def export_to_pocket(filename, include_private=True):
+def export_to_pocket(filename, callback=None, include_private=True):
     from bauble.plugins.plants import Species
     from bauble import pb_set_fraction, pb_grab, pb_release
     gobject.idle_add(pb_grab)
@@ -145,6 +145,8 @@ def export_to_pocket(filename, include_private=True):
     cn.commit()
     session.close()
     gobject.idle_add(pb_release)
+    if callback is not None:
+        callback()
     return True
 
 
