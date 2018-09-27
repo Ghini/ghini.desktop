@@ -249,7 +249,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(kid)
 
             binomial = '%s %s' % (self.model.genus, self.model.epithet)
-            timeout = prefs.get('network_timeout')
+            timeout = prefs.get('network_timeout', 4)
             AskTPL(binomial, sp_species_TPL_callback, timeout=timeout, gui=True
                    ).start()
             b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
