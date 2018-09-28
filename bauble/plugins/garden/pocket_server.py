@@ -218,6 +218,7 @@ class PocketServerPresenter(GenericEditorPresenter):
 
     def cleanup(self):
         super(PocketServerPresenter, self).cleanup()
+        self.stop_spinner()
         self.cancel_threads()
         # remove self.pocket_fn
         os.unlink(self.pocket_fn)
@@ -236,9 +237,6 @@ class PocketServerPresenter(GenericEditorPresenter):
             self.clients_ls.append((i, key, elems[key]))
 
     def commit_changes(self):
-        self.write_clients_list()
-
-    def write_clients_list(self):
         query = (self.session.
                  query(meta.BaubleMeta).
                  filter_by(name='pocket-clients'))
@@ -256,11 +254,9 @@ class PocketServerPresenter(GenericEditorPresenter):
         text = self.view.widgets.creating_snapshot_label.get_text()
         self.view.widgets.last_snapshot_date_entry.set_text(text)
         self.view.widgets.new_snapshot_button.set_sensitive(False)
-        from threading import Thread
-        from bauble.plugins.garden.exporttopocket import create_pocket, export_to_pocket
+        from bauble.plugins.garden.exporttopocket import create_pocket, ExportToPocketThread
         create_pocket(self.pocket_fn)
-        self.start_thread(Thread(target=export_to_pocket,
-                                 args=[self.pocket_fn, self.on_export_complete]))
+        self.start_thread(ExportToPocketThread(self.pocket_fn, self.on_export_complete))
         self.opacity = 0.0
         self.is_exporting = True
         GLib.timeout_add(50, self.flashing_creating)
@@ -299,6 +295,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         GLib.timeout_add(50, self.rotate)
 
     def stop_spinner(self, *args):
+        self.view.widgets.server_toggle_button.set_active(False)
         self.keep_spinning = False
     
     def rotate(self, *args):
