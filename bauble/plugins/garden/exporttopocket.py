@@ -74,6 +74,10 @@ CREATE TABLE "plant" (
 );
 ''']
     import sqlite3
+    try:
+        os.unlink(filename)
+    except:
+        pass
     cn = sqlite3.connect(filename)
     cr = cn.cursor()
     for statement in create_sql:
@@ -84,15 +88,18 @@ CREATE TABLE "plant" (
 import threading
 
 class ExportToPocketThread(threading.Thread):
-    def __init__(self, filename, callback, include_private=True):
+    def __init__(self, filename, progressbar, callback, include_private=True):
         super(ExportToPocketThread, self).__init__(target=None, name=None)
         self.filename = filename
         self.callback = callback
+        self.progressbar = progressbar
         self.include_private = include_private
         self.keep_running = True
 
     def run(self):
         from bauble.plugins.plants import Species
+        gobject.idle_add(self.progressbar.show)
+        gobject.idle_add(self.progressbar.set_fraction, 0)
         session = db.Session()
         plant_query = (session.query(Plant)
                        .order_by(Plant.code)
@@ -122,6 +129,7 @@ class ExportToPocketThread(threading.Thread):
                         i.infraspecific_author or i.sp_author or ''))
             except Exception, e:
                 logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
+            gobject.idle_add(self.progressbar.set_fraction, 0.05 * count / len(species))
             count += 1
             if not self.keep_running:
                 break
@@ -138,6 +146,7 @@ class ExportToPocketThread(threading.Thread):
                            (i.id, i.code, i.species_id, source_name, i.date_accd))
             except Exception, e:
                 logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
+            gobject.idle_add(self.progressbar.set_fraction, 0.05 + 0.4 * count / len(accessions))
             count += 1
             if not self.keep_running:
                 break
@@ -150,11 +159,13 @@ class ExportToPocketThread(threading.Thread):
                            (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures), i.quantity))
             except Exception, e:
                 logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
+            gobject.idle_add(self.progressbar.set_fraction, 0.45 + 0.55 * count / len(plants))
             count += 1
             if not self.keep_running:
                 break
         cn.commit()
         session.close()
+        gobject.idle_add(self.progressbar.hide)
         if self.callback is not None:
             self.callback()
         return True

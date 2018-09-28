@@ -256,7 +256,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.view.widgets.new_snapshot_button.set_sensitive(False)
         from bauble.plugins.garden.exporttopocket import create_pocket, ExportToPocketThread
         create_pocket(self.pocket_fn)
-        self.start_thread(ExportToPocketThread(self.pocket_fn, self.on_export_complete))
+        self.start_thread(ExportToPocketThread(self.pocket_fn, self.view.widgets.progressbar, self.on_export_complete))
         self.opacity = 0.0
         self.is_exporting = True
         GLib.timeout_add(50, self.flashing_creating)
