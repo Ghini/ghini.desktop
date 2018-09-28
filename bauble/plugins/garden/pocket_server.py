@@ -226,6 +226,7 @@ class PocketServerPresenter(GenericEditorPresenter):
 
     def cleanup(self):
         super().cleanup()
+        self.stop_spinner()
         self.cancel_threads()
         # remove self.pocket_fn
         os.unlink(self.pocket_fn)
@@ -265,7 +266,6 @@ class PocketServerPresenter(GenericEditorPresenter):
         text = self.view.widgets.creating_snapshot_label.get_text()
         self.view.widgets.last_snapshot_date_entry.set_text(text)
         self.view.widgets.new_snapshot_button.set_sensitive(False)
-        from threading import Thread
         from .exporttopocket import create_pocket, ExportToPocketThread
         create_pocket(self.pocket_fn)
         self.view.widgets.progressbar.set_fraction(0)
@@ -312,6 +312,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         GLib.timeout_add(50, self.rotate)
 
     def stop_spinner(self, *args):
+        self.view.widgets.server_toggle_button.set_active(False)
         self.keep_spinning = False
     
     def rotate(self, *args):
@@ -344,8 +345,8 @@ class PocketServerTool(pluginmgr.Tool):
     icon_name = "server"
     # prepare fields
     port = 44464
-    last_snapshot_date = ''
     autorefresh = False
+    last_snapshot_date = ''
 
     @classmethod
     def start(cls):
