@@ -252,6 +252,10 @@ class PocketServerPresenter(GenericEditorPresenter):
             self.session.add(row)
         row.value = unicode(dict((i[1], i[2]) for i in self.clients_ls))
         self.session.commit()
+
+    def treeview_changed(self, widget, event, data=None):
+        adj = widget.get_vadjustment()
+        adj.set_value(adj.upper - adj.page_size)
         
     def on_activity_expander_activate(self, target, *args):
         self.view.widgets.activity_log.set_visible(not target.get_expanded())

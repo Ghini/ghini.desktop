@@ -198,6 +198,7 @@
                     <property name="can_focus">True</property>
                     <property name="model">log_ls</property>
                     <property name="headers_visible">False</property>
+                    <signal name="size-allocate" handler="treeview_changed" swapped="no"/>
                     <child>
                       <object class="GtkTreeViewColumn" id="oongoh9Z">
                         <child>
@@ -389,6 +390,7 @@
                         <property name="can_focus">True</property>
                         <property name="model">clients_ls</property>
                         <property name="headers_visible">False</property>
+                        <signal name="size-allocate" handler="treeview_changed" swapped="no"/>
                         <child>
                           <object class="GtkTreeViewColumn" id="In2Boosi">
                             <property name="title">imei</property>
