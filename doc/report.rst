@@ -1,12 +1,42 @@
 Generating reports
 ==================
 
-A database without exporting facilities is of little use. Ghini lets you
+A database without exporting facilities is of little use.  Ghini lets you
 export your data in table format (open them in your spreadsheet editor of
 choice), as labels (to be printed or engraved), as html pages or pdf or
 postscript documents.
 
-This page describes the two tools Ghini offers for these tasks.
+The Report Tool
+---------------------
+
+You activate the Report Tool from the main menu: :menuselection:`Tools-->Report`.  The Report Tools acts on
+a selection, so first select something, then start the Report Tool.
+
+.. admonition::  Report on the whole collection.
+   :class: toggle
+           
+      To produce a report on your whole plant collection, a shortcut would be from the home screen, to click
+      on the ``Families: in use`` cell.
+
+      If your focus is more on the garden location than on taxonomy and accessions, you would click on the
+      ``Locations: total`` cell.
+
+Reports are produced by a report engine, making use of a report template.  Ghini relies upon two different
+report engines (Mako & XSL), and offers several report templates, meant as usable examples.
+
+Choose the report you need, specify parameters if required, and produce the report.  Ghini will open the
+report in the associated application.
+
+Configuring report templates, that's a task for who installs and configures ghini at your institution.
+Basically, you create a template name, indicating the report engine and specifying the template.  Configured
+templates are static, once configured you are not expected to alter them.  Only the special ``**scratch**``
+template can be modified on the fly.
+
+The remainder of this page provides technical information and links regarding the formatter engines, and
+gives hints on writing report templates.  Writing templates comes very close to writing a computer program,
+and that's beyond the scope of this manual, but we have hints that will definitely be useful to the
+interested reader.
+
 
 Using the Mako Report Formatter
 -------------------------------

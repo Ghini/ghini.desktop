@@ -143,6 +143,19 @@ If you plan to associate pictures to plants, specify also the *pictures
 root* folder. The meaning of this is explained in further detail at
 :ref:`plant-pictures` in :ref:`editing-and-inserting-data`.
 
+..  admonition:: A sample SQLite database
+    :class: toggle
+
+       Indeed we have a sample database, from our pilot garden "El Cuchubo",
+       in Mompox, Colombia.  We have a zipped `sample database for
+       ghini-1.0 <http://www.ghini.me/cuchubo-1.0.zip>`_.
+
+       Download and unzip it to the location of your choice, then start
+       Ghini, create a connection named possibly ``cuchubo``, or ``sample``,
+       and edit the Connection Details.  Keep the connection type at the
+       default SQLite, but instead of using the default locations, make sure
+       that Filename points to your unpacked ``cuchubo.db`` file.
+
 .. _creating-a-new-database:
 
 Initialize a database

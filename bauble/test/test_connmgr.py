@@ -662,7 +662,9 @@ class OnDialogResponseTests(BaubleTestCase):
         # make sure pictures and thumbs folders respectively do and do not
         # already exist as folders.
         import tempfile
-        path = tempfile.mktemp()
+        fd, path = tempfile.mkstemp()
+        os.close(fd)
+        os.unlink(path)
         os.mkdir(path)
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
@@ -690,7 +692,9 @@ class OnDialogResponseTests(BaubleTestCase):
     def test_on_dialog_response_ok_creates_picture_folders_no_exist(self):
         # make sure thumbnails and pictures folder do not exist.
         import tempfile
-        path = tempfile.mktemp()
+        fd, path = tempfile.mkstemp()
+        os.close(fd)
+        os.unlink(path)
         # create view and presenter.
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})

@@ -665,9 +665,9 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             code_format = cls.code_format
         format = code_format.replace('%PD', Plant.get_delimiter())
         today = datetime.date.today()
-        format = today.strftime(format)
         if format.find('%{Y-1}') >= 0:
             format = format.replace('%{Y-1}', str(today.year - 1))
+        format = today.strftime(format)
         start = unicode(format.rstrip('#'))
         if start == format:
             # fixed value
@@ -1831,14 +1831,27 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('id_qual_rank', utils.utf8(col))
         self.view.connect('acc_id_qual_rank_combo', 'changed', on_changed)
 
-        # TODO: refresh_view() will fire signal handlers for any
-        # connected widgets and can be tricky with resetting values
-        # that already exist in the model.  Although this usually
-        # isn't a problem, it is sloppy.  We need a better way to update
-        # the widgets without firing signal handlers.
+        # refresh_view fires signal handlers for any connected widgets.
+        # the 'initializing' field tells our callbacks not to react.
+        # ComboBoxes need a model, to receive values.
+
+        from bauble.plugins.garden import init_location_comboentry
+        def on_loc_select(field_name, value):
+            if self.initializing:
+                return
+            self.set_model_attr(field_name, value)
+            refresh_create_plant_checkbutton_sensitivity()
+
+        from functools import partial
+        init_location_comboentry(
+            self, self.view.widgets.intended_loc_comboentry,
+            partial(on_loc_select, 'intended_location'), required=False)
+        init_location_comboentry(
+            self, self.view.widgets.intended2_loc_comboentry,
+            partial(on_loc_select, 'intended2_location'), required=False)
 
         # put model values in view before any handlers are connected
-        self.refresh_view()
+        self.refresh_view(initializing=True)
 
         # connect signals
         def sp_get_completions(text):
@@ -1962,21 +1975,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-
-        from bauble.plugins.garden import init_location_comboentry
-        def on_loc1_select(value):
-            self.set_model_attr('intended_location', value)
-            refresh_create_plant_checkbutton_sensitivity()
-
-        init_location_comboentry(
-            self, self.view.widgets.intended_loc_comboentry,
-            on_loc1_select, required=False)
-
-        def on_loc2_select(value):
-            self.set_model_attr('intended2_location', value)
-        init_location_comboentry(
-            self, self.view.widgets.intended2_loc_comboentry,
-            on_loc2_select, required=False)
 
         self.refresh_sensitivity()
         refresh_create_plant_checkbutton_sensitivity()
@@ -2284,10 +2282,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             and not self.voucher_presenter.problems
         self.view.set_accept_buttons_sensitive(sensitive)
 
-    def refresh_view(self):
+    def refresh_view(self, initializing=False):
+        '''get the values from the model and put them in the view
+
         '''
-        get the values from the model and put them in the view
-        '''
+        self.initializing = initializing
         date_format = prefs.prefs[prefs.date_format_pref]
         for widget, field in self.widget_to_field_map.iteritems():
             if field == 'species_id':

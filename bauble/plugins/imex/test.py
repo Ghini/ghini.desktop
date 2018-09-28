@@ -425,6 +425,7 @@ class JSONExportTests(BaubleTestCase):
         super(JSONExportTests, self).setUp()
         from tempfile import mkstemp
         handle, self.temp_path = mkstemp()
+        os.close(handle)
 
         data = ((Family, family_data),
                 (Genus, genus_data),
@@ -456,7 +457,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.filename = self.temp_path
         exporter.run()
         ## must still check content of generated file!
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 14)
         families = [i for i in result
                     if i['object'] == 'taxon' and i['rank'] == 'familia']
@@ -508,7 +510,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.view.selection = selection
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'familia')
         self.assertEquals(result[0]['epithet'], 'Orchidaceae')
@@ -524,7 +527,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'genus')
         self.assertEquals(result[0]['epithet'], 'Calopogon')
@@ -544,7 +548,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'species')
         self.assertEquals(result[0]['epithet'], 'tuberosus')
@@ -566,7 +571,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 2)
         self.assertEquals(result[0], {u'ht-epithet': u'Calopogon', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'epithet': u'tuberosus'})
         date_dict = result[1]['date']
@@ -588,7 +594,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 2)
         self.assertEquals(result[0], {u'ht-epithet': u'Calopogon', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'epithet': u'tuberosus'})
         self.assertEquals(result[1], {u'language': u'it', u'name': u'orchidea', u'object': u'vernacular_name', u'species': u'Calopogon tuberosus'})
@@ -613,7 +620,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = True
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'genus')
         self.assertEquals(result[0]['epithet'], 'Zygoglossum')
@@ -637,7 +645,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 3)
 
     def test_export_non_private_if_sbo_accessions(self):
@@ -647,7 +656,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 5)
 
     def test_export_private_if_sbo_accessions(self):
@@ -657,7 +667,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = True
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 6)
 
     def test_export_non_private_if_sbo_plants(self):
@@ -667,7 +678,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 6)
 
     def test_export_private_if_sbo_plants(self):
@@ -677,7 +689,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.include_private = True
         exporter.filename = self.temp_path
         exporter.run()
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         self.assertEquals(len(result), 8)
 
     def test_export_with_vernacular(self):
@@ -701,7 +714,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.run()
 
         ## check
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         vern_from_json = [i for i in result
                           if i['object'] == 'vernacular_name']
         self.assertEquals(len(vern_from_json), 1)
@@ -736,7 +750,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.run()
 
         ## check
-        result = json.load(open(self.temp_path))
+        with open(self.temp_path) as f:
+            result = json.load(f)
         print result
         contacts_from_json = [i for i in result
                               if i['object'] == 'contact']
@@ -757,6 +772,7 @@ class JSONImportTests(BaubleTestCase):
         super(JSONImportTests, self).setUp()
         from tempfile import mkstemp
         handle, self.temp_path = mkstemp()
+        os.close(handle)
 
         data = ((Familia, family_data),
                 (Genus, genus_data),

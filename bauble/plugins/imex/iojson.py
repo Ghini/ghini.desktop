@@ -286,7 +286,8 @@ class JSONImporter(editor.GenericEditorPresenter):
         JSONImporter.last_folder, bn = os.path.split(filename)
 
     def on_btnok_clicked(self, widget):
-        obj = json.load(open(self.filename))
+        with open(self.filename) as f:
+            obj = json.load(f)
         a = isinstance(obj, list) and obj or [obj]
         bauble.task.queue(self.run(a))
 

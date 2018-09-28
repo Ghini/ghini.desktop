@@ -79,11 +79,17 @@ class CacheTest(TestCase):
             return x
 
         cache = Cache(2)
+        from time import sleep
         cache.get(1, partial(getter, 1))
+        sleep(0.01)
         cache.get(2, partial(getter, 2))
+        sleep(0.01)
         cache.get(1, partial(getter, 1))
+        sleep(0.01)
         cache.get(3, partial(getter, 3))
+        sleep(0.01)
         cache.get(1, partial(getter, 1))
+        sleep(0.01)
         cache.get(4, partial(getter, 4))
         self.assertEquals(invoked, [1, 2, 3, 4])
         self.assertEquals(sorted(cache.storage.keys()), [1, 4])
@@ -97,12 +103,19 @@ class CacheTest(TestCase):
             return x
 
         cache = Cache(2)
+        from time import sleep
         cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        sleep(0.01)
         cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        sleep(0.01)
         cache.get(2, partial(getter, 2), on_hit=invoked.append)
+        sleep(0.01)
         cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        sleep(0.01)
         cache.get(3, partial(getter, 3), on_hit=invoked.append)
+        sleep(0.01)
         cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        sleep(0.01)
         cache.get(4, partial(getter, 4), on_hit=invoked.append)
         self.assertEquals(invoked, [1, 1, 1])
         self.assertEquals(sorted(cache.storage.keys()), [1, 4])

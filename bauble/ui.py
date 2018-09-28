@@ -457,7 +457,7 @@ class GUI(object):
                                    _("Ghini development website"), None,
                                    None, self.on_help_menu_web_devel),
                                   ("help_web.wiki", gtk.STOCK_EDIT,
-                                   _("Ghini wiki"), None,
+                                   _("Ghini news"), None,
                                    None, self.on_help_menu_web_wiki),
                                   ("help_web.forum", gtk.STOCK_JUSTIFY_LEFT,
                                    _("Ghini forum"), None,
@@ -735,7 +735,7 @@ class GUI(object):
             self.widgets.statusbar.pop(cid)
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://ghini.readthedocs.io/en/latest/',
+        desktop.open('http://ghini.readthedocs.io/en/ghini-1.0-dev/',
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):
@@ -751,7 +751,7 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_web_wiki(self, widget, data=None):
-        desktop.open('http://github.com/Ghini/ghini.desktop/wiki',
+        desktop.open('http://ghini.github.io/',
                      dialog_on_error=True)
 
     def on_help_menu_web_forum(self, widget, data=None):
