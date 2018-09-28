@@ -2482,6 +2482,7 @@ class TestExportToPocket(GardenTestCase):
         self.assertEqual(len(content), 2)
 
     def test_invokes_callback(self):
+        raise SkipTest('Not testing Glib.add_idle')
         GardenTestCase.setUp(self)
         import tempfile
         fd, filename = tempfile.mkstemp()
