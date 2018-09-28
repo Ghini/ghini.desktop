@@ -209,6 +209,9 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.read_clients_list()
         if model.autorefresh:
             self.on_new_snapshot_button_clicked()
+        else:
+            self.view.widgets.progressbar_placeholder.set_visible(True)
+            self.view.widgets.progressbar.set_visible(False)
 
     def cleanup(self):
         super().cleanup()
@@ -252,10 +255,12 @@ class PocketServerPresenter(GenericEditorPresenter):
         self.view.widgets.last_snapshot_date_entry.set_text(text)
         self.view.widgets.new_snapshot_button.set_sensitive(False)
         from threading import Thread
-        from .exporttopocket import create_pocket, export_to_pocket
+        from .exporttopocket import create_pocket, ExportToPocketThread
         create_pocket(self.pocket_fn)
-        self.start_thread(Thread(target=export_to_pocket,
-                                 args=[self.pocket_fn, self.on_export_complete]))
+        self.view.widgets.progressbar.set_fraction(0)
+        self.view.widgets.progressbar_placeholder.set_visible(False)
+        self.view.widgets.progressbar.set_visible(True)
+        self.start_thread(ExportToPocketThread(self.pocket_fn, self.view.widgets.progressbar, self.on_export_complete))
         self.opacity = 0.0
         self.is_exporting = True
         GLib.timeout_add(50, self.flashing_creating)
@@ -263,6 +268,8 @@ class PocketServerPresenter(GenericEditorPresenter):
     def on_export_complete(self):
         now = datetime.datetime.now().isoformat().split('.')[0]
         self.view.widgets.last_snapshot_date_entry.set_text(now)
+        self.view.widgets.progressbar.set_visible(False)
+        self.view.widgets.progressbar_placeholder.set_visible(True)
         self.is_exporting = False
         
     def on_remove_client_button_clicked(self, target, *args):

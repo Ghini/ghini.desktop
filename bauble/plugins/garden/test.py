@@ -2424,7 +2424,7 @@ class BaubleSearchSearchTest(BaubleTestCase):
                    self.handler.messages['bauble.search']['debug'])
 
 
-from bauble.plugins.garden.exporttopocket import create_pocket, export_to_pocket
+from bauble.plugins.garden.exporttopocket import create_pocket, ExportToPocketThread
 
 class TestExportToPocket(GardenTestCase):
 
@@ -2435,7 +2435,8 @@ class TestExportToPocket(GardenTestCase):
         os.close(fd)
         os.unlink(filename)
         create_pocket(filename)
-        export_to_pocket(filename, lambda: None)
+        t = ExportToPocketThread(filename)
+        t.run()
 
         import sqlite3
         cn = sqlite3.connect(filename)
@@ -2464,7 +2465,8 @@ class TestExportToPocket(GardenTestCase):
         os.close(fd)
         os.unlink(filename)
         create_pocket(filename)
-        export_to_pocket(filename, lambda: None)
+        t = ExportToPocketThread(filename)
+        t.run()
 
         import sqlite3
         cn = sqlite3.connect(filename)
@@ -2490,7 +2492,8 @@ class TestExportToPocket(GardenTestCase):
         def callback():
             self.invoked = True
         create_pocket(filename)
-        export_to_pocket(filename, callback)
+        t = ExportToPocketThread(filename, callback=callback)
+        t.run()
 
         self.assertEqual(self.invoked, True)
         
