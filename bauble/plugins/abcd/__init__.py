@@ -211,13 +211,10 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     import bauble.plugins.garden.institution as institution
     inst = institution.Institution()
     if not verify_institution(inst):
-        msg = _('Some or all of the information about your institution or '
-                'business is not complete. Please make sure that the '
-                'Name, Technical Contact, Email, Contact and Institution '
-                'Code fields are filled in.')
-        utils.message_dialog(msg)
-        institution.InstitutionEditor().start()
-        return create_abcd(decorated_objects, authors, validate)
+        raise ValueError(_('Some or all of the information about your institution or '
+                           'business is not complete. Please make sure that the '
+                           'Name, Technical Contact, Email, Contact and Institution '
+                           'Code fields are filled in.'))
 
     datasets = DataSets()
     ds = ABCDElement(datasets, 'DataSet')
@@ -392,6 +389,7 @@ class ABCDExporter(object):
 class ABCDExportTool(pluginmgr.Tool):
     category = _("Export")
     label = _("ABCD")
+    icon_name = "new-abcd.png"
 
     @classmethod
     def start(cls):

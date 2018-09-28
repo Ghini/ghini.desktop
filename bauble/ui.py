@@ -32,7 +32,7 @@ from gi.repository import GdkPixbuf
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 import bauble
 import bauble.db as db
@@ -121,7 +121,11 @@ def create_menu_item_with_image(label, icon_name=None, base_dir=None):
         tool = label
         label = tool.label
         icon_name = getattr(tool, 'icon_name', None)
-        base_dir = os.path.join(paths.lib_dir(), *(tool.__module__.split('.')[1:-1]))
+        path_to_module = tool.__module__.split('.')[1:]
+        logger.debug(str(path_to_module))
+        if path_to_module[-2] != 'plugins':
+            path_to_module = path_to_module[:-1]
+        base_dir = os.path.join(paths.lib_dir(), *path_to_module)
     logger.debug("create_menu_item_with_image %s %s %s" % (label, icon_name, base_dir))
     if base_dir is not None and icon_name is not None and icon_name.endswith(".png"):
         icon_name = os.path.join(base_dir, icon_name)
@@ -481,10 +485,7 @@ class GUI(object):
         accel_group = self.ui_manager.get_accel_group()
         self.window.add_accel_group(accel_group)
 
-        # TODO: get rid of new, open, and just have a connection
-        # menu item
-
-        # create and addaction group for menu actions
+        # create and add_actions for menu actions
         menu_actions = Gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, _("_File")),
                                   ("file_new", Gtk.STOCK_NEW, _("_New"),
@@ -515,7 +516,7 @@ class GUI(object):
                                    _("Ghini development website"), None,
                                    None, self.on_help_menu_web_devel),
                                   ("help_web.wiki", Gtk.STOCK_EDIT,
-                                   _("Ghini wiki"), None,
+                                   _("Ghini news"), None,
                                    None, self.on_help_menu_web_wiki),
                                   ("help_web.forum", Gtk.STOCK_JUSTIFY_LEFT,
                                    _("Ghini forum"), None,
@@ -527,13 +528,26 @@ class GUI(object):
         menu_actions.get_action('file_open').set_sensitive(False)
         self.ui_manager.insert_action_group(menu_actions, 0)
 
-        # TODO: The menubar was made available in Gtk.Builder in Gtk+
-        # 2.16 so whenever we decide 2.16 is the minimum version we
-        # should get rid of this .ui file
+        # TODO: as things stand, the menu is defined in two quite unrelated
+        # steps, here in the code we're defining what each action does and
+        # how it should show up, while in the bauble.ui file we're defining
+        # the structure.  Moreover, we're using deprecated classes and
+        # methods as of GTK3.1.
 
         # load ui
         ui_filename = os.path.join(paths.lib_dir(), 'bauble.ui')
         self.ui_manager.add_ui_from_file(ui_filename)
+
+        help_bug_item = self.ui_manager.get_widget("/MenuBar/help_menu/help_bug")
+        try:
+            icon_name = os.path.join(paths.lib_dir(), 'images', 'menu-help-bug.png')
+            pb = GdkPixbuf.Pixbuf.new_from_file(icon_name)
+            (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+            pb = pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+            image = Gtk.Image.new_from_pixbuf(pb)
+            help_bug_item.set_image(image)
+        except Exception as e:
+            logger.debug("can't set icon %s: %s(%s)" % (icon_name, type(e).__name__, e))
 
         # get menu bar from ui manager
         self.menubar = self.ui_manager.get_widget("/MenuBar")
@@ -798,7 +812,7 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_web_wiki(self, widget, data=None):
-        desktop.open('http://github.com/Ghini/ghini.desktop/wiki',
+        desktop.open('http://ghini.github.io/',
                      dialog_on_error=True)
 
     def on_help_menu_web_forum(self, widget, data=None):

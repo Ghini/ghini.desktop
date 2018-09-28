@@ -150,5 +150,5 @@ bump_file(os.path.join(root_of_clone(), '.appveyor.yml'), rx)
 # TODO: commit the changes
 print()
 print('git commit -m "bumping_to_%s" bauble/version.py doc/conf.py'
-      ' data/ghini.desktop packages/builddeb.sh'
+      ' data/ghini.desktop packages/builddeb.sh .appveyor.yml'
       ' scripts/installer.cfg scripts/build-multiuser.nsi' % version)

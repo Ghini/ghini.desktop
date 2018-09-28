@@ -25560,14 +25560,14 @@ page = 1
 xpos = 0
 ypos = 17
 
-if accession_format:
-    format = accession_format
+if options['accession_format']:
+    format = options['accession_format']
     start = format.rstrip('#')
     if start != format:
         digits = len(format) - len(start)
         format = start + '%%0%dd' % digits
-    first = int(accession_first)
-    enumeration = [(i - first, format % i, None) for i in range(first, int(accession_last) + 1)]
+    first = int(options['accession_first'])
+    enumeration = [(i - first, format % i, None) for i in range(first, int(options['accession_last']) + 1)]
 else:
     enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(values)]
 
@@ -25599,7 +25599,7 @@ grestore
 </%text>\
   % endif
 <%
-et = extra_text
+et = options['extra_text']
 if et:
   if accession and et.startswith('{') and et.endswith('}'):
     ets = accession

@@ -9,12 +9,15 @@ postscript documents.
 The Report Tools
 ---------------------
 
-Ghini has two Report Tools, one based on templates, which are more flexible than you you can imagine, and a
-quick solution for flat file production, sharing much of its user interface with the query builder.
+Ghini has two Report Tools, one based on templates, and a quick solution for flat file production.  The
+``Template`` based tool is as flexible as a programming language can be; the ``Quick CSV`` tool shares much
+of its user interface with the query builder.
 
-You activate the Report Tools from the main menu: :menuselection:`Tools-->Report`, then choose either `From
-Template`, or `Quick CSV`.  Both Report Tools act on the current result in the results view, so you first
+You activate the Report Tools from the main menu: :menuselection:`Tools-->Report`, then choose either ``From
+Template``, or ``Quick CSV``.  Both Report Tools act on the current result in the results view, so you first
 select something, then start the Report Tool.
+
+.. image:: images/report-menu.png
 
 .. admonition::  Selecting the whole collection.
    :class: toggle
@@ -28,22 +31,47 @@ select something, then start the Report Tool.
       If your focus is more on the garden location than on taxonomy and accessions, you would click on the
       ``Locations: total`` cell.
 
-      The `Quick CSV` report tool can act on the whole collection, regardless the content of the content of
+      The `Quick CSV` report tool can act on the whole collection, regardless the content of
       the results view.
 
 Template Based Reports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Reports are produced by a report engine.  Each report engine tranforms your selection into a report, by
-ways of report templates.  Ghini relies upon two different report engines (Mako & XSL), and offers several
-report templates, meant as usable examples.
+Activate the :menuselection:`Tools-->Report-->From Template` and you get the following dialog
+box (fields may be filled in differently):
 
-Choose the report you need, specify parameters if required, and produce the report.  Ghini will open the
-report in the associated application.
+.. image:: images/report-from-template-dialog.png
 
-Activating report templates, that's a task for who installs and configures ghini at your institution.
-Basically, you associate a name to a report template.  Selecting a report template implicitly selects the
-formatter engine.  Activated templates are static, once configured you are not expected to alter them.
+Ghini lets you **activate** available reports, and give them the name that makes most sense to you.  Click
+on ``Add``, choose a formatter template, and type the name by which you want to activate it.  Activated
+templates are static, once configured you are not expected to alter them.
+
+Choosing a formatter template implies a template language.  ghini.desktop supports two template languages:
+Mako and XSL.  There is only one formatting engine handling the Mako template language, while during
+installation you indicated which of the several XSL formatting engines you wanted to have, if any.
+
+Expand the ``Details`` section to see some information about the selected formatter template.
+
+.. image:: images/report-from-template-dialog-details.png
+
+The formatter engine combines selection and formatter template to produce a report.  Each formatter template
+indicates the iteration domain, that is what kind of collection objects you focus on, in your report.  In
+the above example, we are using Mako to report about individual plants, producing —per plant— a postscript
+label with a QR code.
+
+Expand the ``Options`` section to see what extra parameters your selected template may require or expect.
+
+.. image:: images/report-from-template-dialog-options.png
+
+In the above example, the plant-labelling formatter lets you override the selection, and produce a set of
+labels in your preferred format, and in a given range.
+
+In general: choose the report you need, specify parameters if required, and produce the report.  Ghini will
+open the report in the associated application.
+
+This is as far as generic information can go.  Formatter templates can be very specific, and deeply vary
+from each other, most of them are small pieces of software themselves.  Please check their instructions from
+your source.
 
 Template-less Reports (Quick CSV)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -107,7 +135,7 @@ Working with XSL Stylesheets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The XSL report formatter requires an XSL to PDF renderer to
-convert the data to a PDF file. Apache FOP is is a free and
+convert the data to a PDF file. Apache FOP is a free and
 open-source XSL->PDF renderer and is recommended.
 
 Installing Apache FOP on GNULinux
@@ -123,10 +151,11 @@ using the following command::
 Installing Apache FOP on Windows
 ................................
 
-You have two options for installing FOP on Windows. The easiest way is
-to download the prebuilt `ApacheFOP-0.95-1-setup.exe <http://code.google.com/p/apache-fop-installer/downloads/detail?name=ApacheFOP-0.95-1-setup.exe&can=2&q=#makechanges>`_ installer.
+You have two options for installing FOP on Windows. The easiest way is to download the prebuilt
+`ApacheFOP-0.95-1-setup.exe
+<http://code.google.com/p/apache-fop-installer/downloads/detail?name=ApacheFOP-0.95-1-setup.exe&can=2&q=#makechanges>`_
+installer.
 
-Alternatively you can download the `archive
-<http://www.apache.org/dist/xmlgraphics/fop/binaries/>`_.  After
-extracting the archive you must add the directory you extracted the
-archive to to your PATH environment variable.
+Alternatively you can download the `archive <http://www.apache.org/dist/xmlgraphics/fop/binaries/>`_.  After
+extracting the archive you must add the directory you extracted the archive to to your PATH environment
+variable.

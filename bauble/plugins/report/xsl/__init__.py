@@ -413,7 +413,7 @@ class XSLFormatterPlugin(FormatterPlugin):
             utils.message_dialog(_('Could not find the command "%(exe)s" to '
                                    'start the %(renderer_name)s '
                                    'renderer.') %
-                                  ({'exe': exe, 'renderer_name': renderer}),
+                                 ({'exe': exe, 'renderer_name': renderer}),
                                  Gtk.MessageType.ERROR)
             return False
 
@@ -432,8 +432,8 @@ class XSLFormatterPlugin(FormatterPlugin):
                     continue
                 adapted.append(AccessionABCDAdapter(obj, for_labels=True))
 
-        if len(adapted) == 0:
-            return True  # invoker must complain in our stead
+        if adapted == []:
+            return True
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
 
         logger.debug(etree.dump(abcd_data.getroot()))
@@ -443,8 +443,8 @@ class XSLFormatterPlugin(FormatterPlugin):
         style_etree = etree.parse(stylesheet)
         transform = etree.XSLT(style_etree)
         result = transform(abcd_data)
-        fo_outfile = open(fo_filename, 'w')
-        fo_outfile.write(str(result))
+        fo_outfile = open(fo_filename, 'wb')
+        fo_outfile.write(result)
         fo_outfile.close()
         dummy, filename = tempfile.mkstemp()
         filename = '%s.pdf' % filename

@@ -341,6 +341,7 @@ class JSONImportTool(pluginmgr.Tool):
 class JSONExportTool(pluginmgr.Tool):
     category = (_('Export'), "edit-redo")
     label = _('JSON')
+    icon_name = "new-json.png"
 
     @classmethod
     def start(cls):

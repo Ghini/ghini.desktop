@@ -34,7 +34,7 @@ import weakref
 import logging
 from functools import reduce
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from gi.repository import Gtk
 
@@ -163,13 +163,12 @@ def edit_callback(accessions):
 
 
 def add_plants_callback(accessions):
-    # create a temporary session so that the temporary plant doesn't
-    # get added to the accession
     session = db.Session()
     acc = session.merge(accessions[0])
     e = PlantEditor(model=Plant(accession=acc))
+    # session creates unbound object.  editor decides what to do with it.
     session.close()
-    return e.start()
+    return e.start() is not None
 
 
 def remove_callback(accessions):
@@ -991,7 +990,7 @@ class AccessionEditorView(editor.GenericEditorView):
     def species_match_func(completion, key, treeiter, data=None):
         species = completion.get_model()[treeiter][0]
         epg, eps = (species.str(remove_zws=True).lower() + ' ').split(' ')[:2]
-        key_epg, key_eps = (key.lower() + ' ').split(' ')[:2]
+        key_epg, key_eps = (key.replace('\u200b', '').lower() + ' ').split(' ')[:2]
         if not epg:
             epg = str(species.genus.epithet).lower()
         if (epg.startswith(key_epg) and eps.startswith(key_eps)):
@@ -1252,7 +1251,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter().view.attach_completion(
                 ver_new_taxon_entry, sp_cell_data_func)
             if self.model.species:
-                ver_new_taxon_entry.props.text = self.model.species
+                ver_new_taxon_entry.props.text = utils.utf8(self.model.species)
             self.presenter().assign_completions_handler(
                 ver_new_taxon_entry, sp_get_completions, on_sp_select)
 

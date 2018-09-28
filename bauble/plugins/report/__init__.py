@@ -265,6 +265,24 @@ class FormatterPlugin(pluginmgr.Plugin):
         return cls.get_iteration_domain(template) != ''
 
     @classmethod
+    def get_options(cls, template):
+        '''return template options list
+
+        an element in the options list is a 4-tuple of strings, describing a
+        field: (name, type, default, tooltip)
+
+        '''
+        try:
+            with open(template) as f:
+                option_lines = [m for m in [cls.option_pattern.match(i.strip())
+                                            for i in f.readlines()]
+                                if m is not None]
+        except IOError:
+            option_lines = []
+
+        return [i.groups() for i in option_lines]
+
+    @classmethod
     def get_iteration_domain(cls, template):
         '''return template iteration domain
 
@@ -442,15 +460,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 continue
             options_box.remove(child)
         # which options does the template accept? (can be None)
-        try:
-            with open(template) as f:
-                option_lines = [m for m in [plugin.option_pattern.match(i.strip())
-                                            for i in f.readlines()]
-                                if m is not None]
-        except IOError:
-            option_lines = []
-
-        option_fields = [i.groups() for i in option_lines]
+        option_fields = plugin.get_options(template)
         current_row = 1  # should not be hard coded
         # populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:
@@ -592,7 +602,11 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         from bauble import db
         session = db.Session()
         todo = [session.merge(i) for i in todo]
-        formatter.format(todo, **settings)
+        try:
+            formatter.format(todo, **settings)
+        except Exception as e:
+            utils.idle_message("formatting %s objects of type %s\n%s(%s)\n%s" % (len(todo), type((todo+[None])[0]).__name__, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+                             
         session.close()
         GObject.idle_add(self.stop_progress)
 

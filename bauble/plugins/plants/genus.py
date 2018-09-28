@@ -74,10 +74,11 @@ def edit_callback(genera):
 def add_species_callback(genera):
     session = db.Session()
     genus = session.merge(genera[0])
-    from bauble.plugins.plants.species_editor import edit_species
-    result = edit_species(model=Species(genus=genus)) is not None
+    from bauble.plugins.plants.species import Species, SpeciesEditor
+    e = SpeciesEditor(model=Species(genus=genus))
+    # session creates unbound object.  editor decides what to do with it.
     session.close()
-    return result
+    return e.start() is not None
 
 
 def remove_callback(genera):

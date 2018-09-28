@@ -30,9 +30,10 @@ import cgi
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
 import threading
@@ -849,13 +850,12 @@ class SearchView(pluginmgr.View):
         error_details_msg = None
         # stop whatever it might still be doing
         self.cancel_threads()
-        if False:
-            # create a new session for each search...
-            self.session.close()
-            self.session = db.Session()
-        else:
-            # reuse session, but undo all that has not been committed
+        try:
+            # if the connection is still open, rollback and reuse
             self.session.rollback()
+        except:
+            # otherwise create a new session
+            self.session = db.Session()
         bold = '<b>%s</b>'
         results = []
         try:
@@ -1196,7 +1196,8 @@ class SearchView(pluginmgr.View):
             action.enabled = (len(selected) > 1 and action.multiselect) or \
                 (len(selected) <= 1 and action.singleselect)
 
-        menu.popup(None, None, None, event.button, event.time)
+        #(parent_menu_shell, parent_menu_item, func, data, button, activate_time)
+        menu.popup(None, None, None, None, event.button, event.time)
         return True
 
     def update(self):

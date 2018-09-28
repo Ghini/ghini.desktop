@@ -25,7 +25,7 @@ import re
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 import bauble.utils.desktop as desktop
 

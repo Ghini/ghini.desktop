@@ -39,7 +39,7 @@ from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from functools import partial
 
@@ -55,7 +55,7 @@ from bauble.plugins.plants.genus import (
     genus_context_menu,
     )
 from bauble.plugins.plants.species import (
-    Species, SpeciesEditorMenuItem, SpeciesInfoBox, SpeciesNote,
+    Species, SpeciesEditor, SpeciesInfoBox, SpeciesNote,
     species_context_menu, add_accession_action,
     SynonymSearch, SpeciesDistribution,
     VernacularName, VernacularNameInfoBox,
@@ -375,7 +375,7 @@ class PlantsPlugin(pluginmgr.Plugin):
             base = os.path.join(paths.lib_dir(), "plugins", "plants")
             bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'), "wiki-family.png", base)
             bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'), "wiki-genus.png", base)
-            bauble.gui.add_to_insert_menu(SpeciesEditorMenuItem, _('Species'), "wiki-species.png", base)
+            bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'), "wiki-species.png", base)
 
         # suggest some useful defaults for stored queries
         import bauble.meta as meta

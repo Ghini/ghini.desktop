@@ -26,7 +26,7 @@ from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from sqlalchemy import or_, and_
 from sqlalchemy import Unicode

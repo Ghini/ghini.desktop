@@ -32,7 +32,7 @@ from gi.repository import Gdk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from sqlalchemy import (
     Column, Unicode, UnicodeText, Integer, String, ForeignKey)

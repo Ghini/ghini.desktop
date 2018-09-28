@@ -32,7 +32,7 @@ import weakref
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from gi.repository import GLib
 from gi.repository import Gtk
@@ -1195,7 +1195,10 @@ class GenericEditorPresenter(object):
 
     def cancel_threads(self):
         for k in self.running_threads:
-            k.cancel()
+            try:
+                k.cancel()
+            except:
+                pass
         for k in self.running_threads:
             k.join()
         self.running_threads = []

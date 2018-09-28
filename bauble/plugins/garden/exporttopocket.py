@@ -87,63 +87,91 @@ CREATE TABLE "plant" (
     cn.commit()
 
 
-def export_to_pocket(filename, callback, include_private=True):
-    from bauble.plugins.plants import Species
-    session = db.Session()
-    plant_query = (session.query(Plant)
-                   .order_by(Plant.code)
-                   .join(Accession)
-                   .order_by(Plant.id))
-    if include_private is False:
-        plant_query = (plant_query
-                       .filter(Accession.private == False))  # `is` does not work
-    plants = plant_query.all()
-    accessions = (session.query(Accession)
-                  .filter(Accession.id.in_([j.accession_id for j in plants]))
-                  .order_by(Accession.id).all())
-    species = (session.query(Species).
-               filter(Species.id.in_([j.species_id for j in accessions]))
-               .order_by(Species.id).all())
-    import sqlite3
-    cn = sqlite3.connect(filename)
-    cr = cn.cursor()
-    count = 1
-    for i in species:
-        try:
-            cr.execute('INSERT INTO "species" '
-                   '(_id, family, genus, epithet, "sub-rank", "sub-epithet", author) '
-                   'VALUES (?, ?, ?, ?, ?, ?, ?);',
-                   (i.id, i.genus.family.epithet, i.genus.epithet, i.epithet,
-                    i.infraspecific_rank, i.infraspecific_epithet,
-                    i.infraspecific_author or i.author or ''))
-        except Exception as e:
-            logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
-        count += 1
-    count = 1
-    for i in accessions:
-        try:
+import threading
+
+class ExportToPocketThread(threading.Thread):
+    def __init__(self, filename, progressbar=None, callback=None, include_private=True):
+        super(ExportToPocketThread, self).__init__(target=None, name=None)
+        self.filename = filename
+        self.callback = callback
+        self.progressbar = progressbar
+        self.include_private = include_private
+        self.keep_running = True
+
+    def run(self):
+        from bauble.plugins.plants import Species
+        session = db.Session()
+        plant_query = (session.query(Plant)
+                       .order_by(Plant.code)
+                       .join(Accession)
+                       .order_by(Plant.id))
+        if self.include_private is False:
+            # no private accessions: add a filter to only keep non-private
+            plant_query = (plant_query
+                           .filter(Accession.private == False))  # `is` does not work
+        plants = plant_query.all()
+        accessions = (session.query(Accession)
+                      .filter(Accession.id.in_([j.accession_id for j in plants]))
+                      .order_by(Accession.id).all())
+        species = (session.query(Species).
+                   filter(Species.id.in_([j.species_id for j in accessions]))
+                   .order_by(Species.id).all())
+        import sqlite3
+        cn = sqlite3.connect(self.filename)
+        cr = cn.cursor()
+        count = 1
+        for i in species:
             try:
-                source_name = i.source.source_detail.name or ''
-            except AttributeError:
-                source_name = ''
-            cr.execute('INSERT INTO "accession" '
-                       '(_id, code, species_id, source, start_date) '
-                       'VALUES (?, ?, ?, ?, ?);',
-                       (i.id, i.code, i.species_id, source_name, i.date_accd))
-        except Exception as e:
-            logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
-        count += 1
-    count = 1
-    for i in plants:
-        try:
-            cr.execute('INSERT INTO "plant" '
-                       '(_id, accession_id, code, location, end_date, n_of_pics, quantity) '
+                cr.execute('INSERT INTO "species" '
+                       '(_id, family, genus, epithet, "sub-rank", "sub-epithet", author) '
                        'VALUES (?, ?, ?, ?, ?, ?, ?);',
-                       (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures), i.quantity))
-        except Exception as e:
-            logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
-        count += 1
-    cn.commit()
-    session.close()
-    callback()
-    return True
+                       (i.id, i.genus.family.epithet, i.genus.epithet, i.epithet,
+                        i.infraspecific_rank, i.infraspecific_epithet,
+                        i.infraspecific_author or i.author or ''))
+            except Exception as e:
+                logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
+            count += 1
+            if self.progressbar:
+                GObject.idle_add(self.progressbar.set_fraction, 0.05 * count / len(species))
+            if not self.keep_running:
+                break
+        count = 1
+        for i in accessions:
+            try:
+                try:
+                    source_name = i.source.source_detail.name or ''
+                except AttributeError:
+                    source_name = ''
+                cr.execute('INSERT INTO "accession" '
+                           '(_id, code, species_id, source, start_date) '
+                           'VALUES (?, ?, ?, ?, ?);',
+                           (i.id, i.code, i.species_id, source_name, i.date_accd))
+            except Exception as e:
+                logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
+            count += 1
+            if self.progressbar:
+                GObject.idle_add(self.progressbar.set_fraction, 0.05 + 0.40 * count / len(accessions))
+            if not self.keep_running:
+                break
+        count = 1
+        for i in plants:
+            try:
+                cr.execute('INSERT INTO "plant" '
+                           '(_id, accession_id, code, location, end_date, n_of_pics, quantity) '
+                           'VALUES (?, ?, ?, ?, ?, ?, ?);',
+                           (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures), i.quantity))
+            except Exception as e:
+                logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
+            count += 1
+            if self.progressbar:
+                GObject.idle_add(self.progressbar.set_fraction, 0.45 + 0.55 * count / len(plants))
+            if not self.keep_running:
+                break
+        cn.commit()
+        session.close()
+        if self.callback:
+            GObject.idle_add(self.callback)
+        return True
+
+    def cancel(self):
+        self.keep_running = False

@@ -32,7 +32,7 @@ import copy
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
@@ -200,7 +200,7 @@ def check_and_notify_new_version(view):
         logger.info('HTTPError while checking for newer version')
     except Exception as e:
         logger.warning('unhandled %s(%s) while checking for newer version'
-                       % type(e), e)
+                       % (type(e).__name__, e))
 
 
 def make_absolute(path):

@@ -801,7 +801,7 @@ class SpeciesTests(PlantTestCase):
         self.session.commit()
         sp = Species(genus=g, epithet='sp')
         edit_species(model=sp)
-        assert utils.gc_objects_by_type('SpeciesEditorMenuItem') == [], \
+        assert utils.gc_objects_by_type('SpeciesEditor') == [], \
             'SpeciesEditor not deleted'
         assert utils.gc_objects_by_type('SpeciesEditorPresenter') == [], \
             'SpeciesEditorPresenter not deleted'
@@ -1998,6 +1998,8 @@ class GlobalFunctionsTest(PlantTestCase):
 import bauble.search
 class BaubleSearchSearchTest(BaubleTestCase):
     def test_search_search_uses_Synonym_Search(self):
+        import bauble.plugins.garden.plant
+        bauble.search.logger.setLevel(logging.DEBUG)
         bauble.search.search("genus like %", self.session)
         self.assertTrue('SearchStrategy "genus like %"(SynonymSearch)' in 
                    self.handler.messages['bauble.search']['debug'])

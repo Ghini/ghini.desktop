@@ -27,7 +27,7 @@ from gi.repository import GObject
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 import os
 import traceback
@@ -249,7 +249,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(kid)
 
             binomial = '%s %s' % (self.model.genus, self.model.epithet)
-            timeout = prefs.get('network_timeout')
+            timeout = prefs.get('network_timeout', 4)
             AskTPL(binomial, sp_species_TPL_callback, timeout=timeout, gui=True
                    ).start()
             b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
@@ -1190,7 +1190,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
 
-class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
+class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -1265,7 +1265,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = SpeciesEditorMenuItem(
+            e = SpeciesEditor(
                 Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
@@ -1321,7 +1321,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
 
 
 def edit_species(model=None, parent_view=None, is_dependent_window=False):
-    kkk = SpeciesEditorMenuItem(model, parent_view, is_dependent_window)
+    kkk = SpeciesEditor(model, parent_view, is_dependent_window)
     kkk.start()
     result = kkk._committed
     del kkk

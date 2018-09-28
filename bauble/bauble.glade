@@ -146,7 +146,6 @@
                 <property name="can_focus">True</property>
                 <child>
                   <object class="GtkButton" id="home_button">
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
@@ -167,7 +166,6 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="prev_view_button">
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
@@ -188,7 +186,6 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="query_button">
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
@@ -232,7 +229,6 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="go_button">
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>

@@ -735,6 +735,7 @@ class UsersEditor(editor.GenericEditorView):
 class UsersTool(pluginmgr.Tool):
     item_position = 5
     label = _("Users")
+    icon_name = 'gnome_system_users.png'
 
     @classmethod
     def start(self):

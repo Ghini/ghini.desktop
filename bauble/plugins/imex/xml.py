@@ -29,7 +29,7 @@ import traceback
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.INFO)
+logger.setLevel(logging.INFO)
 
 from gi.repository import Gtk, Gdk
 
@@ -142,6 +142,7 @@ class XMLExportCommandHandler(pluginmgr.CommandHandler):
 class XMLExportTool(pluginmgr.Tool):
     category = _("Export")
     label = _("XML")
+    icon_name = "new-xml.png"
 
     @classmethod
     def start(cls):

@@ -2111,6 +2111,8 @@ class PlantSearchTest(GardenTestCase):
 
     def test_searchbyplantcode_unquoted(self):
         mapper_search = search.get_strategy('PlantSearch')
+        import bauble.plugins.garden.plant
+        bauble.plugins.garden.plant.logger.setLevel(logging.DEBUG)
 
         results = mapper_search.search('1.1.1', self.session)
         self.assertEqual(len(results), 1)
@@ -2153,6 +2155,8 @@ class PlantSearchTest(GardenTestCase):
 
     def test_searchbyplantcode_invalid_values(self):
         mapper_search = search.get_strategy('PlantSearch')
+        import bauble.plugins.garden.plant
+        bauble.plugins.garden.plant.logger.setLevel(logging.DEBUG)
 
         results = mapper_search.search('1.11', self.session)
         self.assertEqual(len(results), 0)
@@ -2406,6 +2410,7 @@ class ContactPresenterTests(BaubleTestCase):
 import bauble.search
 class BaubleSearchSearchTest(BaubleTestCase):
     def test_search_search_uses_Plant_Search(self):
+        bauble.search.logger.setLevel(logging.DEBUG)
         bauble.search.search("genus like %", self.session)
         self.assertTrue('SearchStrategy "genus like %"(PlantSearch)' in
                    self.handler.messages['bauble.search']['debug'])
@@ -2419,7 +2424,7 @@ class BaubleSearchSearchTest(BaubleTestCase):
                    self.handler.messages['bauble.search']['debug'])
 
 
-from bauble.plugins.garden.exporttopocket import create_pocket, export_to_pocket
+from bauble.plugins.garden.exporttopocket import create_pocket, ExportToPocketThread
 
 class TestExportToPocket(GardenTestCase):
 
@@ -2430,7 +2435,8 @@ class TestExportToPocket(GardenTestCase):
         os.close(fd)
         os.unlink(filename)
         create_pocket(filename)
-        export_to_pocket(filename, lambda: None)
+        t = ExportToPocketThread(filename)
+        t.run()
 
         import sqlite3
         cn = sqlite3.connect(filename)
@@ -2459,7 +2465,8 @@ class TestExportToPocket(GardenTestCase):
         os.close(fd)
         os.unlink(filename)
         create_pocket(filename)
-        export_to_pocket(filename, lambda: None)
+        t = ExportToPocketThread(filename)
+        t.run()
 
         import sqlite3
         cn = sqlite3.connect(filename)
@@ -2475,6 +2482,7 @@ class TestExportToPocket(GardenTestCase):
         self.assertEqual(len(content), 2)
 
     def test_invokes_callback(self):
+        raise SkipTest('Not testing Glib.add_idle')
         GardenTestCase.setUp(self)
         import tempfile
         fd, filename = tempfile.mkstemp()
@@ -2485,7 +2493,8 @@ class TestExportToPocket(GardenTestCase):
         def callback():
             self.invoked = True
         create_pocket(filename)
-        export_to_pocket(filename, callback)
+        t = ExportToPocketThread(filename, callback=callback)
+        t.run()
 
         self.assertEqual(self.invoked, True)
         

@@ -58,12 +58,10 @@ def edit_callback(families):
 
 
 def add_genera_callback(families):
-    """
-    Family context menu callback
-    """
     session = db.Session()
     family = session.merge(families[0])
     e = GenusEditor(model=Genus(family=family))
+    # session creates unbound object.  editor decides what to do with it.
     session.close()
     return e.start() is not None
 
