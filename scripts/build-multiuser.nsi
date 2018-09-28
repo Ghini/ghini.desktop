@@ -58,7 +58,7 @@
 
 ; Global
 Name "ghini.desktop"
-!define VERSION "1.0.87" ; :bump
+!define VERSION "1.0.88" ; :bump
 !define SRC_DIR "..\ghini-runtime"
 !define PRODUCT_NAME "ghini.desktop"
 Outfile "..\dist\${PRODUCT_NAME}-${VERSION}-setup.exe"
