@@ -235,9 +235,6 @@ class PocketServerPresenter(GenericEditorPresenter):
             self.clients_ls.append((i, key, elems[key]))
 
     def commit_changes(self):
-        self.write_clients_list()
-
-    def write_clients_list(self):
         query = (self.session.
                  query(meta.BaubleMeta).
                  filter_by(name='pocket-clients'))
@@ -247,6 +244,10 @@ class PocketServerPresenter(GenericEditorPresenter):
             self.session.add(row)
         row.value = str(dict((i[1], i[2]) for i in self.clients_ls))
         self.session.commit()
+
+    def treeview_changed(self, widget, event, data=None):
+        adj = widget.get_vadjustment()
+        adj.set_value(adj.get_upper() - adj.get_page_size())
         
     def on_activity_expander_activate(self, target, *args):
         self.view.widgets.activity_log.set_visible(not target.get_expanded())

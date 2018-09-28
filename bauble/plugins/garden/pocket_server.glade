@@ -209,11 +209,12 @@
                 <property name="can_focus">True</property>
                 <property name="shadow_type">in</property>
                 <child>
-                  <object class="GtkTreeView">
+                  <object class="GtkTreeView" id="activity_log_tv">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="model">log_ls</property>
                     <property name="headers_visible">False</property>
+                    <signal name="size-allocate" handler="treeview_changed" swapped="no"/>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection" id="log_selection"/>
                     </child>
@@ -428,16 +429,17 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow">
+                  <object class="GtkScrolledWindow" id="clients_ls_sw">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="shadow_type">in</property>
                     <child>
-                      <object class="GtkTreeView">
+                      <object class="GtkTreeView" id="clients_ls_tv">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="model">clients_ls</property>
                         <property name="headers_visible">False</property>
+                        <signal name="size-allocate" handler="treeview_changed" swapped="no"/>
                         <child internal-child="selection">
                           <object class="GtkTreeSelection" id="client_selection"/>
                         </child>
