@@ -108,7 +108,7 @@ class PocketServer(Thread):
                 self.log.append(("register ›%s‹ ›%s‹" % (client_id, security_code), ))
                 if not isinstance(client_id, str) or not isinstance(user_name, str):
                     return self.WRONG_TYPE_IN_PARAMETERS
-                elif security_code != self.presenter.code:
+                elif security_code != self.presenter.model.code:
                     return self.INVALID_SECURITY_CODE
                 else:
                     if user_name == self.imei_to_user_name.get(client_id):
@@ -141,7 +141,7 @@ class PocketServer(Thread):
                     process_line(session, line, baseline)
                 db.current_user.override()
                 session.commit()
-                if self.presenter.autorefresh:
+                if self.presenter.model.autorefresh:
                     self.presenter.on_new_snapshot_button_clicked()
                 return self.OK
 
@@ -165,8 +165,8 @@ class PocketServer(Thread):
                 except:
                     return self.GENERIC_ERROR
 
-        self.ip = presenter.ip_address
-        self.port = int(presenter.port)
+        self.ip = presenter.model.ip_address
+        self.port = int(presenter.model.port)
         self.api = API(presenter)
 
     def run(self):
@@ -195,15 +195,9 @@ class PocketServerPresenter(GenericEditorPresenter):
         'port_entry': 'port',
         }
 
-    def __init__(self, view):
-        # prepare fields
-        self.port = 44464
-        self.ip_address = get_ip()
-        self.last_snapshot_date = ''
-        self.code = get_code()
-        self.autorefresh = False
+    def __init__(self, model, view):
         # invoke constructor
-        super(PocketServerPresenter, self).__init__(model=self, view=view, refresh_view=True, do_commit=True,
+        super(PocketServerPresenter, self).__init__(model=model, view=view, refresh_view=True, do_commit=True,
                          committing_results=[-5, -4, -1])  # close, ×, ESC
         # put list_store directly in presenter and grab list from database
         self.clients_ls = self.view.widgets.clients_ls
@@ -214,7 +208,8 @@ class PocketServerPresenter(GenericEditorPresenter):
         # other initialization
         self.stop_spinner()
         self.read_clients_list()
-        self.on_new_snapshot_button_clicked()
+        if model.autorefresh:
+            self.on_new_snapshot_button_clicked()
 
     def cleanup(self):
         super(PocketServerPresenter, self).cleanup()
@@ -275,9 +270,9 @@ class PocketServerPresenter(GenericEditorPresenter):
         self._dirty = True
 
     def on_refresh_code_button_clicked(self, target, *args):
-        self.code = get_code()
+        self.model.code = get_code()
         entry = self.view.widgets.code_entry
-        entry.set_text(self.code)
+        entry.set_text(self.model.code)
         
     def start_stop_server(self, target, *args):
         if target.get_active():
@@ -326,10 +321,16 @@ class PocketServerTool(pluginmgr.Tool):
     item_position = 32
     label = _('Pocket Server…')
     icon_name = "server"
+    # prepare fields
+    port = 44464
+    autorefresh = False
+    last_snapshot_date = ''
 
     @classmethod
     def start(cls):
         filename = os.path.join(paths.lib_dir(), "plugins", "garden", 'pocket_server.glade')
         view = GenericEditorView(filename, root_widget_name='pocket_server_dialog')
-        c = PocketServerPresenter(view)
+        cls.ip_address = get_ip()
+        cls.code = get_code()
+        c = PocketServerPresenter(cls, view)
         c.start()
