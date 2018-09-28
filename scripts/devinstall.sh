@@ -3,69 +3,72 @@
 #echo missing in vanilla ubuntu - to run 'pip install bauble'
 #echo libxslt1-dev python-all-dev gettext
 
-PROBLEMS=''
-if ! msgfmt --version >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS gettext"
-fi
-if ! python -c 'import gtk' >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS python-gtk2"
-fi
-if ! python -c 'import lxml' >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS python-lxml"
-fi
-if ! git help >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS git"
-fi
-if ! virtualenv --help >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS virtualenv"
-fi
-if ! xslt-config --help >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS libxslt1-dev"
-fi
-if ! pkg-config --help >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS pkg-config"
-fi
-if ! pkg-config --cflags jpeg --help >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS libjpeg-dev"
-fi
-if ! gcc --version >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS build-essential"
-fi
-PYTHONHCOUNT=$(find /usr/include/python* /usr/local/include/python* -name Python.h 2>/dev/null | wc -l)
-if [ "$PYTHONHCOUNT" = "0" ]; then
-    PROBLEMS="$PROBLEMS python-all-dev"
-fi
-
-# forget password, please.
-sudo -k
-
-if [ "$PROBLEMS" != "" ]; then
-    echo 'Guessing package names, if you get in a loop, please double check.'
-    echo 'You need to solve the following dependencies:'
-    echo '------------------------------------------------------------------'
-    echo $PROBLEMS
-    echo '------------------------------------------------------------------'
-    echo 'Then restart the devinstall.sh script'
-    if [ -x /usr/bin/apt-get ]; then
-        echo
-        echo 'you are on a debian-like system, I should know how to install'
-        echo $PROBLEMS
-        sudo apt-get -y install $PROBLEMS
-        echo 'please re-run devinstall.sh'
+while true
+do
+    MISSING=''
+    if ! msgfmt --version >/dev/null 2>&1; then
+        MISSING="$MISSING gettext"
     fi
-    exit 1
-fi
+    if ! python -c 'import gtk' >/dev/null 2>&1; then
+        MISSING="$MISSING python-gtk2"
+    fi
+    if ! python -c 'import lxml' >/dev/null 2>&1; then
+        MISSING="$MISSING python-lxml"
+    fi
+    if ! git help >/dev/null 2>&1; then
+        MISSING="$MISSING git"
+    fi
+    if ! virtualenv --help >/dev/null 2>&1; then
+        MISSING="$MISSING virtualenv"
+    fi
+    if ! xslt-config --help >/dev/null 2>&1; then
+        MISSING="$MISSING libxslt1-dev"
+    fi
+    if ! pkg-config --help >/dev/null 2>&1; then
+        MISSING="$MISSING pkg-config"
+    fi
+    if ! pkg-config --cflags jpeg --help >/dev/null 2>&1; then
+        MISSING="$MISSING libjpeg-dev"
+    fi
+    if ! gcc --version >/dev/null 2>&1; then
+        MISSING="$MISSING build-essential"
+    fi
+    PYTHONHCOUNT=$(find /usr/include/python* /usr/local/include/python* -name Python.h 2>/dev/null | wc -l)
+    if [ "$PYTHONHCOUNT" = "0" ]; then
+        MISSING="$MISSING python-all-dev"
+    fi
+
+    # forget password, please.
+    sudo -k
+
+    if [ "$MISSING" != "" ]; then
+        echo 'Guessing package names, if you get in a loop, please double check.'
+        echo 'You need to solve the following dependencies:'
+        echo '------------------------------------------------------------------'
+        echo $MISSING
+        echo '------------------------------------------------------------------'
+        echo 'Then restart the devinstall.sh script'
+        if [ -x /usr/bin/apt-get ]; then
+            echo
+            echo 'you are on a debian-like system, I should know how to install'
+            echo $PROBLEMS
+            sudo apt-get -y install $PROBLEMS
+            echo -n 'press <ENTER> to restart devinstall.sh, or Ctrl-C to stop'
+            read
+        fi
+    fi
+done
 
 if [ -d $HOME/Local/github/Ghini/ghini.desktop ]
 then
     echo "ghini checkout already in place"
-    cd $HOME/Local/github/Ghini/ghini.desktop
+    cd $HOME/Local/github/Ghini
 else
     mkdir -p $HOME/Local/github/Ghini >/dev/null 2>&1
     cd $HOME/Local/github/Ghini
     git clone https://github.com/Ghini/ghini.desktop
-    cd ghini.desktop
 fi
+cd ghini.desktop
 
 if [ $# -ne 0 ]
 then
