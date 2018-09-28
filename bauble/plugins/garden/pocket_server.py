@@ -84,6 +84,7 @@ class PocketServer(Thread):
             WRONG_TYPE_IN_PARAMETERS = 2
             INVALID_SECURITY_CODE = 3
             FILE_EXISTS_ALREADY = 4
+            PLEASE_TRY_LATER = 5
             USER_ALREADY_REGISTERED = 16
             GENERIC_ERROR = -1
 
@@ -119,7 +120,9 @@ class PocketServer(Thread):
 
             def get_snapshot(self, client_id):
                 self.log.append(("get_snapshot ›%s‹ ›%s‹" % (client_id, self.presenter.pocket_fn), ))
-                if client_id not in set((i[1] for i in self.clients)):
+                if self.presenter.is_exporting:
+                    return self.PLEASE_TRY_LATER
+                elif client_id not in set((i[1] for i in self.clients)):
                     return self.USER_NOT_REGISTERED
                 elif not isinstance(client_id, str):
                     return self.WRONG_TYPE_IN_PARAMETERS
@@ -135,6 +138,12 @@ class PocketServer(Thread):
                 user_name = self.imei_to_user_name.get(client_id, None)
                 from bauble.plugins.garden.import_pocket_log import process_line
                 self.log.append(("put_change ›%s‹ ›%s‹" % (client_id, len(log_lines)), ))
+                if self.presenter.is_exporting:
+                    return self.PLEASE_TRY_LATER
+                elif client_id not in set((i[1] for i in self.clients)):
+                    return self.USER_NOT_REGISTERED
+                elif not isinstance(client_id, str) or not isinstance(log_lines, list):
+                    return self.WRONG_TYPE_IN_PARAMETERS
                 session = db.Session()
                 db.current_user.override(user_name)
                 for line in log_lines:
@@ -147,7 +156,9 @@ class PocketServer(Thread):
 
             def put_picture(self, client_id, name, base64_content):
                 self.log.append(("put_picture ›%s‹ ›%s‹" % (client_id, name, ), ))
-                if client_id not in set((i[1] for i in self.clients)):
+                if self.presenter.is_exporting:
+                    return self.PLEASE_TRY_LATER
+                elif client_id not in set((i[1] for i in self.clients)):
                     return self.USER_NOT_REGISTERED
                 elif not isinstance(client_id, str) or not isinstance(name, str) or not isinstance(base64_content, str):
                     return self.WRONG_TYPE_IN_PARAMETERS
