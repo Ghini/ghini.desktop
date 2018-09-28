@@ -172,7 +172,7 @@ class ExportToPocketThread(threading.Thread):
         if self.progressbar:
             gobject.idle_add(self.progressbar.hide)
         if self.callback is not None:
-            self.callback()
+            gobject.idle_add(self.callback)
         return True
 
     def cancel(self):
