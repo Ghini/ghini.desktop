@@ -41,7 +41,10 @@ do
     # forget password, please.
     sudo -k
 
-    if [ "$MISSING" != "" ]; then
+    if [ "$MISSING" == "" ]
+    then
+        break;
+    else
         echo 'Guessing package names, if you get in a loop, please double check.'
         echo 'You need to solve the following dependencies:'
         echo '------------------------------------------------------------------'
@@ -51,8 +54,8 @@ do
         if [ -x /usr/bin/apt-get ]; then
             echo
             echo 'you are on a debian-like system, I should know how to install'
-            echo $PROBLEMS
-            sudo apt-get -y install $PROBLEMS
+            echo $MISSING
+            sudo apt-get -y install $MISSING
             echo -n 'press <ENTER> to restart devinstall.sh, or Ctrl-C to stop'
             read
         fi
@@ -72,17 +75,21 @@ cd ghini.desktop
 
 if [ $# -ne 0 ]
 then
-    git checkout ghini-$1
+    VERSION=$1
+    LINE=ghini-$1
 else
-    git checkout ghini-1.0
+    VERSION=1.0
+    LINE=ghini-1.0
 fi
 
+git checkout $LINE
+
 mkdir -p $HOME/.virtualenvs
-virtualenv $HOME/.virtualenvs/ghide --system-site-packages
-find $HOME/.virtualenvs/ghide -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
-mkdir -p $HOME/.virtualenvs/ghide/share
+virtualenv $HOME/.virtualenvs/$LINE --system-site-packages
+find $HOME/.virtualenvs/$LINE -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
+mkdir -p $HOME/.virtualenvs/$LINE/share
 mkdir -p $HOME/.ghini
-. $HOME/.virtualenvs/ghide/bin/activate
+. $HOME/.virtualenvs/$LINE/bin/activate
 
 if [ ! -z $PG ]
 then
@@ -103,7 +110,7 @@ cat <<EOF > $HOME/bin/ghini
 #!/bin/bash
 
 GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
-. \$HOME/.virtualenvs/ghide/bin/activate
+. \$HOME/.virtualenvs/$LINE/bin/activate
 
 while getopts us:mp f
 do
@@ -147,12 +154,12 @@ echo enter your password to make Ghini available to other users.
 
 sudo groupadd ghini 2>/dev/null 
 sudo usermod -a -G ghini $(whoami)
-chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide
-sudo chgrp -R ghini $HOME/.virtualenvs/ghide
+chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/$LINE
+sudo chgrp -R ghini $HOME/.virtualenvs/$LINE
 cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
 #!/bin/bash
-. $HOME/.virtualenvs/ghide/bin/activate
-$HOME/.virtualenvs/ghide/bin/ghini
+. $HOME/.virtualenvs/$LINE/bin/activate
+$HOME/.virtualenvs/$LINE/bin/ghini
 EOF
 sudo chmod +x /usr/local/bin/ghini
 
@@ -162,9 +169,9 @@ cat <<EOF | sudo tee /usr/local/share/applications/ghini.desktop > /dev/null
 [Desktop Entry]
 Type=Application
 Name=Ghini Desktop
-Version=1.0
+Version=$VERSION
 GenericName=Biodiversity Manager
-Icon=$HOME/.virtualenvs/ghide/share/icons/hicolor/scalable/apps/ghini.svg
+Icon=$HOME/.virtualenvs/$LINE/share/icons/hicolor/scalable/apps/ghini.svg
 TryExec=/usr/local/bin/ghini
 Exec=/usr/local/bin/ghini
 Terminal=false
