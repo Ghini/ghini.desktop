@@ -354,6 +354,7 @@ class PlantABCDAdapter(AccessionABCDAdapter):
 class XSLFormatterPlugin(FormatterPlugin):
 
     title = _('XSL')
+    extension = '.xsl'
     domain_pattern = re.compile(r"^\s*<!--\s*DOMAIN\s+([a-z_]*)\s*-->\s*$")
     option_pattern = re.compile(r"^\s*<!--\s*OPTION ([a-z_]*): \("
                                 "type: ([a-z_]*), "
@@ -390,8 +391,8 @@ class XSLFormatterPlugin(FormatterPlugin):
             if not os.path.exists(dst) and os.path.exists(src):
                 shutil.copy(src, dst)        
 
-    @staticmethod
-    def format(objs, **kwargs):
+    @classmethod
+    def format(cls, objs, **kwargs):
         logger.debug('format(%s)' % kwargs)
         stylesheet = kwargs['template']
         authors = kwargs.get('authors', False)
