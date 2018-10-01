@@ -54,7 +54,7 @@ class Jinja2FormatterPlugin(TemplateFormatterPlugin):
         try:
             from jinja2 import Environment, PackageLoader
             env = Environment(
-                loader=PackageLoader('bauble.plugins.report.jinja2', 'templates')
+                loader=PackageLoader('bauble.plugins.report', 'templates')
             )
             import os
             template = env.get_template(os.path.basename(template_filename))
