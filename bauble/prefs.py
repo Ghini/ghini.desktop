@@ -142,6 +142,10 @@ class _prefs(dict):
         if not os.path.exists(head):
             os.makedirs(head)
 
+        # also make sure the templates and resources directories exists
+        if not os.path.exists(os.path.join(head, 'res', 'templates')):
+            os.makedirs(os.path.join(head, 'res', 'templates'))
+
         self.config = RawConfigParser()
 
         # set the version if the file doesn't exist

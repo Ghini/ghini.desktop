@@ -215,9 +215,6 @@ dbengine.html#create-engine-url-arguments>`_
 
     :type uri: str
     """
-    # TODO: it would be nice to show a Tk dialog here saying we can't
-    # import Gtk...but then we would have to include all of the Tk libs in
-    # with the win32 batteries-included installer
     try:
         from gi.repository import Gtk
         from gi.repository import GObject

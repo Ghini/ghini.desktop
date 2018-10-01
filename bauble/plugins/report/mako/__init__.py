@@ -26,11 +26,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 import re
+import os
 
 from gi.repository import Gtk
 
 from bauble.plugins.report import TemplateFormatterPlugin
-import bauble.utils as utils
+from bauble import utils
+from bauble import paths
 
 
 class MakoFormatterPlugin(TemplateFormatterPlugin):
@@ -49,21 +51,32 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
                                 "tooltip: '(.*)'\)$")
 
     @classmethod
-    def get_template(cls, template_filename):
-        if not template_filename:
+    def get_template(cls, name):
+        if not name:
             msg = _('Please select a template.')
             utils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
+        from mako.template import Template
         try:
-            from mako.template import Template
-            template = Template(filename=template_filename,
+            fullpath = os.path.join(paths.user_dir(), 'res', 'templates', name)
+            template = Template(filename=fullpath,
                                 input_encoding='utf-8', output_encoding='utf-8')
+            return template
+        except FileNotFoundError:
+            template = None
         except RuntimeError as e:
             import traceback
-            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (template_filename, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
             return False
-
-        return template
-
+        try:
+            fullpath = os.path.join(paths.lib_dir(), 'plugins', 'report', 'templates', name)
+            template = Template(filename=fullpath,
+                                input_encoding='utf-8', output_encoding='utf-8')
+            return template
+        except RuntimeError as e:
+            import traceback
+            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+            return False
+        return False
 
 formatter_plugin = MakoFormatterPlugin

@@ -33,7 +33,8 @@ import re
 from gi.repository import Gtk
 
 from bauble.plugins.report import TemplateFormatterPlugin
-import bauble.utils as utils
+from bauble import utils
+from bauble import paths
 
 
 class Jinja2FormatterPlugin(TemplateFormatterPlugin):
@@ -52,11 +53,11 @@ class Jinja2FormatterPlugin(TemplateFormatterPlugin):
             utils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
         try:
-            from jinja2 import Environment, PackageLoader
+            from jinja2 import Environment, PackageLoader, ChoiceLoader, FileSystemLoader
             env = Environment(
-                loader=PackageLoader('bauble.plugins.report', 'templates')
+                loader=ChoiceLoader([FileSystemLoader(os.path.join(paths.user_dir(), 'res', 'templates')),
+                                     PackageLoader('bauble.plugins.report', 'templates')])
             )
-            import os
             template = env.get_template(os.path.basename(template_filename))
         except RuntimeError as e:
             import traceback

@@ -30,6 +30,7 @@ import traceback
 
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -57,8 +58,8 @@ from bauble.editor import (
 
 from .flat_export import FlatFileExportTool
 
-# name: formatter_class, formatter_kwargs
-config_list_pref = 'report.configs'
+# name: formatter_kwargs
+config_list_pref = 'report.options'
 
 # the default report generator to select on start
 default_config_pref = 'report.xsl'
@@ -259,13 +260,23 @@ class FormatterPlugin(pluginmgr.Plugin):
         raise NotImplementedError
 
     @classmethod
-    def can_handle(cls, template):
-        '''tell whether plugin can handle template
-        '''
-        return cls.get_iteration_domain(template) != ''
+    def get_template(cls, name):
+        result = type('Template', (object, ), {'filename': ''})()
+        for path in [os.path.join(paths.user_dir(), 'res', 'templates', name),
+                     os.path.join(paths.lib_dir(), 'plugins', 'report', 'templates', name)]:
+            if os.path.exists(path):
+                result.filename = path
+                break
+        return result
 
     @classmethod
-    def get_options(cls, template):
+    def can_handle(cls, name):
+        '''tell whether plugin can handle template
+        '''
+        return cls.get_iteration_domain(name) != ''
+
+    @classmethod
+    def get_options(cls, name):
         '''return template options list
 
         an element in the options list is a 4-tuple of strings, describing a
@@ -273,7 +284,9 @@ class FormatterPlugin(pluginmgr.Plugin):
 
         '''
         try:
-            with open(template) as f:
+            template = cls.get_template(name)
+            filename = template.filename
+            with open(filename) as f:
                 option_lines = [m for m in [cls.option_pattern.match(i.strip())
                                             for i in f.readlines()]
                                 if m is not None]
@@ -283,7 +296,7 @@ class FormatterPlugin(pluginmgr.Plugin):
         return [i.groups() for i in option_lines]
 
     @classmethod
-    def get_iteration_domain(cls, template):
+    def get_iteration_domain(cls, name):
         '''return template iteration domain
 
         a template that does not declare its iteration domain is not
@@ -291,7 +304,9 @@ class FormatterPlugin(pluginmgr.Plugin):
 
         '''
         try:
-            with open(template) as f:
+            template = cls.get_template(name)
+            filename = template.filename
+            with open(filename) as f:
                 domains = [m.group(1) for m in [cls.domain_pattern.match(line.strip())
                                                 for line in f.readlines()]
                            if m is not None]
@@ -300,8 +315,8 @@ class FormatterPlugin(pluginmgr.Plugin):
                 except IndexError as e:
                     logger.debug("template %s contains no DOMAIN declarations" % (template, ))
                     domain = ''
-        except:
-            logger.debug("template %s can't be read" % template)
+        except Exception as e:
+            logger.debug("template %s can't be read - %s(%s)" % (name, type(e).__name__, e))
             domain = ''
 
         return domain
@@ -320,38 +335,9 @@ class TemplateFormatterPlugin(FormatterPlugin):
     def install(cls, import_defaults=True):
         "create templates dir on plugin installation"
         logger.debug("installing %s plugin" % cls.title)
-        container_dir = os.path.join(paths.appdata_dir(), "templates")
+        container_dir = os.path.join(paths.appdata_dir(), 'res', "templates")
         if not os.path.exists(container_dir):
             os.mkdir(container_dir)
-        cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", cls.title.lower())
-        if not os.path.exists(cls.plugin_dir):
-            os.mkdir(cls.plugin_dir)
-        cls.templates = []
-        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", cls.title.lower(), 'templates')
-        for template in list(os.walk(src_dir))[0][2]:
-            if template.endswith('~'):
-                continue
-            if template.startswith('__'):
-                continue
-            cls.templates.append(template)
-
-    @classmethod
-    def init(cls):
-        """copy default template files to appdata_dir
-
-        we do this in the initialization instead of installation
-        because new version of plugin might provide new templates.
-
-        """
-        super().init()
-
-        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", cls.title.lower(), 'templates')
-        for template in cls.templates:
-            src = os.path.join(src_dir, template)
-            dst = os.path.join(cls.plugin_dir, template)
-            if not os.path.exists(dst) and os.path.exists(src):
-                import shutil
-                shutil.copy(src, dst)
 
     @classmethod
     def get_template(cls, filename):
@@ -359,9 +345,9 @@ class TemplateFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def format(cls, objs, **kwargs):
-        template_filename = kwargs['template']
+        template_name = kwargs['template']
         use_private = kwargs.get('private', True)
-        template = cls.get_template(template_filename)
+        template = cls.get_template(template_name)
 
         from bauble import db
         session = db.Session()
@@ -372,8 +358,7 @@ class TemplateFormatterPlugin(FormatterPlugin):
         # ›<name>.<dotless-extension><cls.extension>‹.  Get the dotless
         # extension from the template file name, produce output with that
         # extension.
-        import os
-        head, ext = os.path.splitext(template_filename[:-len(cls.extension)])
+        head, ext = os.path.splitext(template_name[:-len(cls.extension)])
         import tempfile
         fd, filename = tempfile.mkstemp(suffix=ext)
         os.write(fd, report)
@@ -412,14 +397,14 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         self.view.widget_set_value('names_combo', default)
         self.hard_coded_option = set(self.view.widgets.options_box.get_children())
 
-    def set_prefs_for(self, name, template, settings):
+    def set_prefs_for(self, name, settings):
         '''
         This will overwrite any other report settings with name
         '''
         activated_templates = prefs[config_list_pref]
         if activated_templates is None:
             activated_templates = {}
-        activated_templates[name] = template, settings
+        activated_templates[name] = settings
         prefs[config_list_pref] = activated_templates
 
     def on_new_button_clicked(self, *args):
@@ -449,7 +434,6 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         # action
         d.show_all()
         names = set(prefs[config_list_pref].keys())
-        templates = dict([(v[0], k) for (k, v) in prefs[config_list_pref].items()])
         while True:
             if d.run() != Gtk.ResponseType.ACCEPT:
                 break
@@ -459,10 +443,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 # ignore action on emtpy choice
                 continue
             elif name in names:
-                utils.message_dialog(_('%s already exists') % name)
-                continue
-            elif template in templates:
-                utils.message_dialog(_('Already activated as %s') % templates[template])
+                utils.message_dialog(_('name ›%s‹ is already in use') % name)
                 continue
             else:
                 for plugin in self.formatter_class_map.values():
@@ -472,7 +453,13 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                     utils.message_dialog(_('Not a template, or no valid formatter installed.'))
                     continue
 
-            self.set_prefs_for(name, template, {})
+            self.set_prefs_for(name, {})
+            # copy template to user data as name
+            src = template
+            dst = os.path.join(paths.user_dir(), 'res', 'templates', name)
+            import shutil
+            shutil.copy(src, dst)
+            # reflect changes in view
             self.populate_names_combo()
             self.view.widget_set_value('names_combo', name)
             break
@@ -483,7 +470,6 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         name = self.view.widget_get_value('names_combo')
         self.view.widgets.names_combo.set_active(-1)
         self.view.widgets.names_combo.get_child().set_text('')
-        self.view.widget_set_value('dirname_entry', '')
         self.view.widget_set_value('basename_entry', '')
         self.view.widget_set_value('formatter_entry', '')
         self.view.widget_set_value('domain_entry', '')
@@ -502,36 +488,32 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     def _names_combo_changed_idle(self, combo):
         name = self.view.widget_get_value('names_combo')
         try:
-            template, settings = prefs[config_list_pref][name]
+            settings = prefs[config_list_pref][name]
         except KeyError as e:
-            logger.debug(e)
+            logger.debug("%s-%s", (e, name))
             return
 
         self.view.widget_set_sensitive('ok_button', False)
-        self.view.widget_set_value('dirname_entry', '')
         self.view.widget_set_value('basename_entry', '')
         self.view.widget_set_value('formatter_entry', '')
         self.view.widget_set_value('domain_entry', '')
         for formatter, plugin in self.formatter_class_map.items():
-            domain = plugin.get_iteration_domain(template)
+            domain = plugin.get_iteration_domain(name)
             if domain != '':
                 if domain == 'raw':
                     model = bauble.gui.get_results_model()
                     top_left_content = model[0][0]
                     domain = '(%s)' % top_left_content.__class__.__name__.lower()
-                dirname = os.path.dirname(template)
-                basename = os.path.basename(template)
-                self.view.widget_set_value('dirname_entry', dirname)
-                self.view.widget_set_value('basename_entry', basename)
+                self.view.widget_set_value('basename_entry', name)
                 self.view.widget_set_value('formatter_entry', formatter)
                 self.view.widget_set_value('domain_entry', domain)
                 self.view.widget_set_sensitive('ok_button', True)
                 break
         else:
-            utils.message_dialog('this should NOT happen.\nan invalid template at this stage.')
+            utils.message_dialog('this should NOT happen.\n%s is an invalid template.' % name)
             return
 
-        self.set_prefs_for(name, template, settings)
+        self.set_prefs_for(name, settings)
 
         self.defaults = []
         options_box = self.view.widgets.options_box
@@ -541,7 +523,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 continue
             options_box.remove(child)
         # which options does the template accept? (can be None)
-        option_fields = plugin.get_options(template)
+        option_fields = plugin.get_options(name)
         current_row = 1  # should not be hard coded
         # populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:

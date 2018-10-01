@@ -365,31 +365,9 @@ class XSLFormatterPlugin(FormatterPlugin):
     def install(cls, import_defaults=True):
         "create templates dir on plugin installation"
         logger.debug("installing xsl plugin")
-        container_dir = os.path.join(paths.appdata_dir(), "templates")
+        container_dir = os.path.join(paths.appdata_dir(), 'res', "templates")
         if not os.path.exists(container_dir):
             os.mkdir(container_dir)
-        cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", "xsl")
-        if not os.path.exists(cls.plugin_dir):
-            os.mkdir(cls.plugin_dir)
-
-    @classmethod
-    def init(cls):
-        """copy default template files to appdata_dir
-
-        we do this in the initialization instead of installation
-        because new version of plugin might provide new templates.
-
-        """
-        super().init()
-
-        templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
-                     'plant_list_ex.xsl', 'small_labels.xsl']
-        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
-        for template in templates:
-            src = os.path.join(src_dir, template)
-            dst = os.path.join(cls.plugin_dir, template)
-            if not os.path.exists(dst) and os.path.exists(src):
-                shutil.copy(src, dst)        
 
     @classmethod
     def format(cls, objs, **kwargs):
