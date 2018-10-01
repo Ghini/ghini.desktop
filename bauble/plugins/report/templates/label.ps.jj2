@@ -1,0 +1,5 @@
+{# DOMAIN plant #}
+{% extends "base.ps.jj2" %}
+{% block body %}
+Index
+{% endblock %}

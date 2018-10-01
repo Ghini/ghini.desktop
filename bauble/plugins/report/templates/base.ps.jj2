@@ -1,0 +1,17 @@
+{# copyright statement
+#}
+%!PS-Adobe-3.0
+%%BoundingBox: (atend)
+%%Creator: (Ghini)
+%%For: (ghini)
+%%CreationDate: (2016-01-15 21:34:45 )
+%%Title: (Untitled1)
+%%LanguageLevel: 2
+%%DocumentData: Clean7Bit
+%%Pages: (atend)
+%%Orientation: (atend)
+%%PageOrder: Ascend
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset PSPrint-Prolog 1.0 0
+{% block body %}{% endblock %}

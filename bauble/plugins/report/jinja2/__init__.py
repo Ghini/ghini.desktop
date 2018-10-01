@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2008-2010 Brett Adams
-# Copyright 2012-2016 Mario Frasca <mario@anche.no>.
-# Copyright 2017 Jardín Botánico de Quito
+# Copyright 2018 Mario Frasca <mario@anche.no>.
+# Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -19,12 +18,16 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
-# report/mako/
+# report/jinja2/
 #
 
 import logging
 logger = logging.getLogger(__name__)
 
+import os
+import shutil
+import tempfile
+import math
 import re
 
 from gi.repository import Gtk
@@ -33,31 +36,28 @@ from bauble.plugins.report import TemplateFormatterPlugin
 import bauble.utils as utils
 
 
-class MakoFormatterPlugin(TemplateFormatterPlugin):
-    """
-    The MakoFormatterPlugin passes the values in the search
-    results directly to a Mako template.  It is up to the template
-    author to validate the type of the values and act accordingly if not.
-    """
+class Jinja2FormatterPlugin(TemplateFormatterPlugin):
 
-    title = 'Mako'
-    extension = '.mako'
-    domain_pattern = re.compile(r"^##\s*DOMAIN\s+([a-z_]*)\s*$")
-    option_pattern = re.compile("^## OPTION ([a-z_]*): \("
+    title = 'Jinja2'
+    extension = '.jj2'
+    domain_pattern = re.compile(r"^{#\s*DOMAIN\s+([a-z_]*)\s*#}$")
+    option_pattern = re.compile("^{#\s*OPTION ([a-z_]*): \("
                                 "type: ([a-z_]*), "
                                 "default: '(.*)', "
-                                "tooltip: '(.*)'\)$")
+                                "tooltip: '(.*)'\)\s*#}$")
 
-    @classmethod
-    def get_template(cls, template_filename):
+    def get_template(template_filename):
         if not template_filename:
             msg = _('Please select a template.')
             utils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
         try:
-            from mako.template import Template
-            template = Template(filename=template_filename,
-                                input_encoding='utf-8', output_encoding='utf-8')
+            from jinja2 import Environment, PackageLoader
+            env = Environment(
+                loader=PackageLoader('bauble.plugins.report.jinja2', 'templates')
+            )
+            import os
+            template = env.get_template(os.path.basename(template_filename))
         except RuntimeError as e:
             import traceback
             utils.idle_message("Reading template %s\n%s(%s)\n%s" % (template_filename, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
@@ -66,4 +66,4 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
         return template
 
 
-formatter_plugin = MakoFormatterPlugin
+formatter_plugin = Jinja2FormatterPlugin

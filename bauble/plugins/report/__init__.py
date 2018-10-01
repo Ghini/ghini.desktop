@@ -307,6 +307,87 @@ class FormatterPlugin(pluginmgr.Plugin):
         return domain
 
 
+class TemplateFormatterPlugin(FormatterPlugin):
+    """intermediate base for template-based textual formatters.
+
+    this is an abstract base class, used by Mako and Jinja2 formatter
+    plugins.  you must override the `get_template` method, and define the
+    four fields `title`, `extension`, `domain_pattern` and `option_pattern`.
+
+    """
+
+    @classmethod
+    def install(cls, import_defaults=True):
+        "create templates dir on plugin installation"
+        logger.debug("installing %s plugin" % cls.title)
+        container_dir = os.path.join(paths.appdata_dir(), "templates")
+        if not os.path.exists(container_dir):
+            os.mkdir(container_dir)
+        cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", cls.title.lower())
+        if not os.path.exists(cls.plugin_dir):
+            os.mkdir(cls.plugin_dir)
+        cls.templates = []
+        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", cls.title.lower(), 'templates')
+        for template in list(os.walk(src_dir))[0][2]:
+            if template.endswith('~'):
+                continue
+            if template.startswith('__'):
+                continue
+            cls.templates.append(template)
+
+    @classmethod
+    def init(cls):
+        """copy default template files to appdata_dir
+
+        we do this in the initialization instead of installation
+        because new version of plugin might provide new templates.
+
+        """
+        super().init()
+
+        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", cls.title.lower(), 'templates')
+        for template in cls.templates:
+            src = os.path.join(src_dir, template)
+            dst = os.path.join(cls.plugin_dir, template)
+            if not os.path.exists(dst) and os.path.exists(src):
+                import shutil
+                shutil.copy(src, dst)
+
+    @classmethod
+    def get_template(cls, filename):
+        raise NotImplementedError
+
+    @classmethod
+    def format(cls, objs, **kwargs):
+        template_filename = kwargs['template']
+        use_private = kwargs.get('private', True)
+        template = cls.get_template(template_filename)
+
+        from bauble import db
+        session = db.Session()
+        values = list(map(session.merge, objs))
+        report = template.render(values=values, options=kwargs)
+        session.close()
+        # Template name is guaranteed in the form
+        # ›<name>.<dotless-extension><cls.extension>‹.  Get the dotless
+        # extension from the template file name, produce output with that
+        # extension.
+        import os
+        head, ext = os.path.splitext(template_filename[:-len(cls.extension)])
+        import tempfile
+        fd, filename = tempfile.mkstemp(suffix=ext)
+        os.write(fd, report)
+        os.close(fd)
+        try:
+            desktop.open("file://%s" % filename)
+        except OSError:
+            from bauble import utils
+            utils.message_dialog(_('Could not open the report with the '
+                                   'default program. You can open the '
+                                   'file manually at %s') % filename)
+        return report
+
+
 class ReportToolDialogPresenter(GenericEditorPresenter):
     '''presenter, and at same time model.
 
@@ -674,5 +755,6 @@ else:
     def plugin():
         from bauble.plugins.report.xsl import XSLFormatterPlugin
         from bauble.plugins.report.mako import MakoFormatterPlugin
+        from bauble.plugins.report.jinja2 import Jinja2FormatterPlugin
         return [ReportToolPlugin, XSLFormatterPlugin,
-                MakoFormatterPlugin]
+                MakoFormatterPlugin, Jinja2FormatterPlugin]
