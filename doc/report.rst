@@ -42,13 +42,25 @@ box (fields may be filled in differently):
 
 .. image:: images/report-from-template-dialog.png
 
-Ghini lets you **activate** available reports, and give them the name that makes most sense to you.  Click
-on ``Add``, choose a formatter template, and type the name by which you want to activate it.  Activated
-templates are static, once configured you are not expected to alter them.
+You have already selected your objects in the main window, you now here select the report template you need,
+and press on Execute to produce your report.  Ghini will open the report in the corresponding application.
 
-Choosing a formatter template implies a template language.  ghini.desktop supports two template languages:
-Mako and XSL.  There is only one formatting engine handling the Mako template language, while during
-installation you indicated which of the several XSL formatting engines you wanted to have, if any.
+Ghini comes with a few sample package-templates, and it lets you **activate** your own user-templates.
+
+To activate your own template, click on ``Add``, choose the file that contains your template, and type the
+name by which you want to activate it.  Activated templates are static, once configured you are not expected
+to alter them.  Deactivating a template amounts to deleting it from your installation.  You cannot delete a
+package-template, but you can overrule one with your own.
+
+Package-templates are integral part of the installation.  User-templates are in your custom data, together
+with your ghini configuration, your sqlite databases and your plant pictures, if you let ghini keep them in
+the default location.  Package-templates will be overwritten if you update your installation, User-templates
+are persistent as long as you stay in the same production line (say, ghini-3.1).
+
+Choosing a formatter template implies a template language.  ghini.desktop supports three template languages:
+Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template language, and the
+same goes for Mako.  During installation you indicated which of the several XSL formatting engines you
+wanted to have, if any.
 
 Expand the ``Details`` section to see some information about the selected formatter template.
 
@@ -56,7 +68,7 @@ Expand the ``Details`` section to see some information about the selected format
 
 The formatter engine combines selection and formatter template to produce a report.  Each formatter template
 indicates the iteration domain, that is what kind of collection objects you focus on, in your report.  In
-the above example, we are using Mako to report about individual plants, producing —per plant— a postscript
+the above example, we are using Jinja2 to report about individual plants, producing —per plant— a postscript
 label with a QR code.
 
 Expand the ``Options`` section to see what extra parameters your selected template may require or expect.
@@ -69,14 +81,22 @@ labels in your preferred format, and in a given range.
 In general: choose the report you need, specify parameters if required, and produce the report.  Ghini will
 open the report in the associated application.
 
-This is as far as generic information can go.  Formatter templates can be very specific, and deeply vary
-from each other, most of them are small pieces of software themselves.  Please check their instructions from
-your source.
+This is as far as generic information can go.  Formatter templates can be very specific, and vary broadly
+from each other, most of them are small pieces of software themselves.
 
 Template-less Reports (Quick CSV)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Does such a simple tool need any documentation?  Use it, if you don't understand then please ask.
+Activate the :menuselection:`Tools-->Report-->Quick CSV` and you get the following dialog box:
+
+.. image:: images/report-quick-csv-dialog.png
+
+Start from the top and work your way to the bottom: decide whether you work on the selection or the whole
+collection, choose the iteration domain, select the properties to include in the report, drag and drop them
+in the list to get them in the correct order, choose the destination file, execute.  Ghini will open the
+report in your preferred spreadsheet program.
+
+Do you really need any further documentation?  If anything isn't clear then please ask.
 
 Technical information
 ----------------------------------
@@ -86,6 +106,15 @@ gives hints on writing report templates.  Writing templates comes very close to 
 and that's beyond the scope of this manual, but we have hints that will definitely be useful to the
 interested reader.
 
+
+Working with Jinja2 Templates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Jinja2 is a powerful and very well documented template language.  Please refer to their documentation for
+information regarding how to write templates.
+
+ghini.desktop creates an environment that enables you find all activated templates, without caring about
+their physical location on your computer.
 
 Working with Mako Templates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
