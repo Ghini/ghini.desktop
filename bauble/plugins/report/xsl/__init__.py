@@ -371,7 +371,8 @@ class XSLFormatterPlugin(FormatterPlugin):
     @classmethod
     def format(cls, objs, **kwargs):
         logger.debug('format(%s)' % kwargs)
-        stylesheet = kwargs['template']
+        name = kwargs['template']
+        stylesheet = cls.get_template(name).filename
         authors = kwargs.get('authors', False)
         renderer = kwargs.get('renderer', 'Apache FOP')
         source_type = kwargs.get('domain', 'plant').replace('(', '').replace(')', '')
@@ -439,16 +440,16 @@ class XSLFormatterPlugin(FormatterPlugin):
 
         logger.debug(filename)
         if not os.path.exists(filename):
-            butils.message_dialog(_('Error creating the PDF file. Please '
-                                   'ensure that your PDF formatter is '
-                                   'properly installed.'), Gtk.MessageType.ERROR)
+            butils.idle_message(_('Error creating the PDF file. Please '
+                                  'ensure that your PDF formatter is '
+                                  'properly installed.'), Gtk.MessageType.ERROR)
         else:
             try:
                 butils.desktop.open("file://%s" % filename)
             except OSError:
-                butils.message_dialog(_('Could not open the report with the '
-                                       'default program. You can open the '
-                                       'file manually at %s') % filename)
+                butils.idle_message(_('Could not open the report with the '
+                                      'default program. You can open the '
+                                      'file manually at %s') % filename)
 
 
 # expose the formatter
