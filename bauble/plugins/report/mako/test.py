@@ -35,7 +35,7 @@ from bauble.plugins.report.mako import MakoFormatterPlugin
 from bauble.plugins.report import get_pertinent_objects
 from bauble import utils
 
-from bauble.plugins.report.mako import add_text, Code39, add_code39, add_qr
+from bauble.plugins.report import add_text, Code39, add_code39, add_qr
 
 class MakoFormatterTests(BaubleTestCase):
 
@@ -84,8 +84,11 @@ class MakoFormatterTests(BaubleTestCase):
 
     def test_format_all_templates_not_using_qr(self):
         selection = self.session.query(Plant).all()
-        td = os.path.join(os.path.dirname(__file__), 'templates')
-        for i, tn in enumerate(MakoFormatterPlugin.templates):
+        # td is this module name, minus mako/test, plus templates
+        td = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
+        for i, tn in enumerate(os.listdir(td)):
+            if not tn.endswith('.mako'):
+                continue
             if tn.find('qr') != -1:
                 continue
             filename = os.path.join(td, tn)
@@ -106,11 +109,14 @@ class MakoFormatterTests(BaubleTestCase):
 
     def test_format_qr_postscript_templates(self):
         selection = self.session.query(Plant).all()
-        td = os.path.join(os.path.dirname(__file__), 'templates')
-        for tn in MakoFormatterPlugin.templates:
+        # td is this module name, minus mako/test, plus templates
+        td = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
+        for i, tn in enumerate(os.listdir(td)):
+            if not tn.endswith('.mako'):
+                continue
             if tn.find('-qr.') == -1:
                 continue
-            if not tn.endswith('.ps') or not tn.endswith('.eps'):
+            if not tn.endswith('.ps.mako') or not tn.endswith('.eps.mako'):
                 continue
             filename = os.path.join(td, tn)
             domain = MakoFormatterPlugin.get_iteration_domain(filename)
@@ -129,8 +135,11 @@ class MakoFormatterTests(BaubleTestCase):
         from nose import SkipTest
         #raise SkipTest("related to issue #363")
         plants = self.session.query(Plant).all()
-        td = os.path.join(os.path.dirname(__file__), 'templates')
-        for tn in MakoFormatterPlugin.templates:
+        # td is this module name, minus mako/test, plus templates
+        td = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
+        for i, tn in enumerate(os.listdir(td)):
+            if not tn.endswith('.mako'):
+                continue
             if tn.find('-qr.') == -1:
                 continue
             if not tn.endswith('.svg'):

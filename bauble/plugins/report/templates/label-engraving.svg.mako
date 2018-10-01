@@ -25,7 +25,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1360" height="1360" id="svg2">
 <%
-from bauble.plugins.report.mako import add_text, font
+from bauble.plugins.report import add_text, font
 
 page = 1
 xpos = ypos = 0

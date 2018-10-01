@@ -1,3 +1,32 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2015-2018 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
+# Copyright 2018 Tanager Botanical Garden
+#
+# This file is part of ghini.desktop.
+#
+# ghini.desktop is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ghini.desktop is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
+
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+import re
+import math
+
+
 font = {
     '\\u200b': 0,
     '!': 20, 'A': 36, 'a': 31, 'á': 31, 'Á': 38,
@@ -223,7 +252,7 @@ class add_qr_functor:
         if format == 'ps':
             result_list = ['gsave'] + result_list + ["grestore"]
         result = '\n'.join(result_list)
-        logging.debug("qr-svg: %s(%s)" % (type(result).__name__, result))
+        logger.debug("qr-svg: %s(%s)" % (type(result).__name__, result))
         return result
 
 add_qr = add_qr_functor()

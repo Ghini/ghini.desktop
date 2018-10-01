@@ -57,6 +57,7 @@ from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
 
 from .flat_export import FlatFileExportTool
+from .utils import add_text, Code39, add_code39, add_qr, font
 
 # name: formatter_kwargs
 config_list_pref = 'report.options'
@@ -365,6 +366,9 @@ class TemplateFormatterPlugin(FormatterPlugin):
         os.close(fd)
         try:
             desktop.open("file://%s" % filename)
+        except NameError:
+            # desktop not found: we're testing
+            pass
         except OSError:
             from bauble import utils
             utils.message_dialog(_('Could not open the report with the '

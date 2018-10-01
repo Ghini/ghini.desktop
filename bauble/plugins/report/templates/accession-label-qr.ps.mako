@@ -25555,7 +25555,7 @@ currentdict end
 /SCALE { 0.45 0.45 scale 21 35 translate } bind def
 </%text>
 <%
-from bauble.plugins.report.mako import add_qr
+from bauble.plugins.report import add_qr
 page = 1
 xpos = 0
 ypos = 17

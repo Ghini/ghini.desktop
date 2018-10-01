@@ -25556,7 +25556,7 @@ currentdict end
 </%text>
 <%
 from bauble.plugins.report import options
-from bauble.plugins.report.mako import add_qr
+from bauble.plugins.report import add_qr
 page = 1
 
 if options['accession_format']:
