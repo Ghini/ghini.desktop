@@ -70,7 +70,7 @@ package_data = {'': ['README.rst', 'CHANGES', 'LICENSE'],
 
 # ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
-                 '*.html', '*.csv', '*.svg', '*.ps', '*.png']
+                 '*.html', '*.csv', '*.svg', '*.ps', '*.png', '*.jj2', '*.mako']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
 
@@ -90,6 +90,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                            'sqlalchemy.dialects.postgresql']
     py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2',
                        'encodings', 'mako', 'mako.cache',
+                       'MarkupSafe', 'jinja2',
                        'pygments.styles.default', 'pyparsing']
     py2exe_includes += gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
@@ -484,6 +485,7 @@ setuptools.setup(name="ghini.desktop",
                                    "lxml",
                                    "pyqrcode==1.2.1",
                                    "mako==1.0.7",
+                                   "jinja2==2.10",
                                    "gdata==2.0.18",
                                    "requests",
                                    "fibra==0.0.20",
