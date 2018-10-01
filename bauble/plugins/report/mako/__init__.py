@@ -31,8 +31,8 @@ import os
 from gi.repository import Gtk
 
 from bauble.plugins.report import TemplateFormatterPlugin
-from bauble import utils
-from bauble import paths
+from bauble import utils as butils
+from bauble import paths as bpaths
 
 
 class MakoFormatterPlugin(TemplateFormatterPlugin):
@@ -54,11 +54,11 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
     def get_template(cls, name):
         if not name:
             msg = _('Please select a template.')
-            utils.idle_message(msg, Gtk.MessageType.WARNING)
+            butils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
         from mako.template import Template
         try:
-            fullpath = os.path.join(paths.user_dir(), 'res', 'templates', name)
+            fullpath = os.path.join(bpaths.user_dir(), 'res', 'templates', name)
             template = Template(filename=fullpath,
                                 input_encoding='utf-8', output_encoding='utf-8')
             return template
@@ -66,16 +66,16 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
             template = None
         except RuntimeError as e:
             import traceback
-            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+            butils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
             return False
         try:
-            fullpath = os.path.join(paths.lib_dir(), 'plugins', 'report', 'templates', name)
+            fullpath = os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates', name)
             template = Template(filename=fullpath,
                                 input_encoding='utf-8', output_encoding='utf-8')
             return template
         except RuntimeError as e:
             import traceback
-            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+            butils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
             return False
         return False
 

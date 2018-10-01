@@ -27,7 +27,7 @@ from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.types import Integer, Boolean, Float
 import bauble
-from bauble import utils
+from bauble import utils as butils
 from bauble.search import MapperSearch
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
@@ -277,7 +277,7 @@ class FlatFileExportTool(pluginmgr.Tool):
             msg = _("Exported file %(filename)s contains %(count)s rows.\n"
                     "\n"
                     "Do you want to open it, or can we stop?") % report
-            msg_dialog = utils.create_message_dialog(msg, buttons=Gtk.ButtonsType.NONE)
+            msg_dialog = butils.create_message_dialog(msg, buttons=Gtk.ButtonsType.NONE)
             msg_dialog.add_buttons(Gtk.STOCK_OPEN, 42,
                                    Gtk.STOCK_STOP, 40)
             msg_dialog.set_default_response(40)
@@ -286,10 +286,10 @@ class FlatFileExportTool(pluginmgr.Tool):
             if should_we_open == 42:
                 filename = report['filename']
                 try:
-                    utils.desktop.open('file://' + filename)
+                    butils.desktop.open('file://' + filename)
                 except OSError:
-                    utils.message_dialog(_('Could not open the report with the '
-                                           'default program. You can open the '
-                                           'file manually at %s') % filename)
+                    butils.message_dialog(_('Could not open the report with the '
+                                            'default program. You can open the '
+                                            'file manually at %s') % filename)
 
         qb.cleanup()

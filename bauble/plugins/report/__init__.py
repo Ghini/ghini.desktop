@@ -45,8 +45,8 @@ from sqlalchemy import union
 import bauble
 
 from bauble.error import BaubleError
-import bauble.utils as utils
-import bauble.paths as paths
+import bauble.utils as butils
+import bauble.paths as bpaths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
@@ -263,8 +263,8 @@ class FormatterPlugin(pluginmgr.Plugin):
     @classmethod
     def get_template(cls, name):
         result = type('Template', (object, ), {'filename': ''})()
-        for path in [os.path.join(paths.user_dir(), 'res', 'templates', name),
-                     os.path.join(paths.lib_dir(), 'plugins', 'report', 'templates', name)]:
+        for path in [os.path.join(bpaths.user_dir(), 'res', 'templates', name),
+                     os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates', name)]:
             if os.path.exists(path):
                 result.filename = path
                 break
@@ -336,7 +336,7 @@ class TemplateFormatterPlugin(FormatterPlugin):
     def install(cls, import_defaults=True):
         "create templates dir on plugin installation"
         logger.debug("installing %s plugin" % cls.title)
-        container_dir = os.path.join(paths.appdata_dir(), 'res', "templates")
+        container_dir = os.path.join(bpaths.appdata_dir(), 'res', "templates")
         if not os.path.exists(container_dir):
             os.mkdir(container_dir)
 
@@ -365,15 +365,11 @@ class TemplateFormatterPlugin(FormatterPlugin):
         os.write(fd, report)
         os.close(fd)
         try:
-            desktop.open("file://%s" % filename)
-        except NameError:
-            # desktop not found: we're testing
-            pass
+            butils.desktop.open("file://%s" % filename)
         except OSError:
-            from bauble import utils
-            utils.message_dialog(_('Could not open the report with the '
-                                   'default program. You can open the '
-                                   'file manually at %s') % filename)
+            butils.message_dialog(_('Could not open the report with the '
+                                    'default program. You can open the '
+                                    'file manually at %s') % filename)
         return report
 
 
@@ -447,20 +443,20 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 # ignore action on emtpy choice
                 continue
             elif name in names:
-                utils.message_dialog(_('name ›%s‹ is already in use') % name)
+                butils.message_dialog(_('name ›%s‹ is already in use') % name)
                 continue
             else:
                 for plugin in self.formatter_class_map.values():
                     if plugin.can_handle(template):
                         break
                 else:
-                    utils.message_dialog(_('Not a template, or no valid formatter installed.'))
+                    butils.message_dialog(_('Not a template, or no valid formatter installed.'))
                     continue
 
             self.set_prefs_for(name, {})
             # copy template to user data as name
             src = template
-            dst = os.path.join(paths.user_dir(), 'res', 'templates', name)
+            dst = os.path.join(bpaths.user_dir(), 'res', 'templates', name)
             import shutil
             shutil.copy(src, dst)
             # reflect changes in view
@@ -514,7 +510,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 self.view.widget_set_sensitive('ok_button', True)
                 break
         else:
-            utils.message_dialog('this should NOT happen.\n%s is an invalid template.' % name)
+            butils.message_dialog('this should NOT happen.\n%s is an invalid template.' % name)
             return
 
         self.set_prefs_for(name, settings)
@@ -578,14 +574,13 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         '''
         activated_templates = prefs[config_list_pref]
         self.view.widgets.names_ls.clear()
-        for name in list(activated_templates.keys()):
+        for name in sorted(list(activated_templates.keys())):
             self.view.widgets.names_ls.append((name, ))
 
     def save_formatter_settings(self):
         activated_templates = prefs[config_list_pref]
         name = self.view.widget_get_value('names_combo')
-        title, dummy = activated_templates[name]
-        activated_templates[name] = title, self.options
+        activated_templates[name] = self.options
         prefs[config_list_pref] = activated_templates
 
     def selection_to_domain(self, domain):
@@ -611,7 +606,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 'location': Location,
             }[domain]
             return sorted(get_pertinent_objects(cls, self.selection),
-                          key=utils.natsort_key)
+                          key=butils.natsort_key)
         except KeyError:
             return self.selection
 
@@ -634,8 +629,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             name = self.view.widget_get_value('names_combo')
             prefs[default_config_pref] = name
             self.save_formatter_settings()
-            template, settings = prefs[config_list_pref][name]
-            settings['template'] = template
+            settings = prefs[config_list_pref][name]
+            settings['template'] = name
             domain = self.view.widget_get_value('domain_entry')
             title = self.view.widget_get_value('formatter_entry')
             formatter = self.formatter_class_map[title]
@@ -655,7 +650,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                     'species': _('species'),
                     'location': _('locations'),
                 }[domain]
-                utils.message_dialog(_('There are no %s in the search results.\n'
+                butils.message_dialog(_('There are no %s in the search results.\n'
                                        'Please try another search.') % translated_name)
 
         self.view.disconnect_all()
@@ -672,7 +667,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         try:
             formatter.format(todo, **settings)
         except Exception as e:
-            utils.idle_message("formatting %s objects of type %s\n%s(%s)\n%s" % (len(todo), type((todo+[None])[0]).__name__, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+            butils.idle_message("formatting %s objects of type %s\n%s(%s)\n%s" % (len(todo), type((todo+[None])[0]).__name__, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
                              
         session.close()
         GObject.idle_add(self.stop_progress)
@@ -702,7 +697,7 @@ class ReportTool(pluginmgr.Tool):
         bauble.gui.set_busy(True)
         ok = False
         try:
-            filename = os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade')
+            filename = os.path.join(bpaths.lib_dir(), "plugins", "report", 'report.glade')
             view = GenericEditorView(filename, root_widget_name='report_dialog')
             presenter = ReportToolDialogPresenter(view)
             presenter.start()
@@ -713,12 +708,12 @@ class ReportTool(pluginmgr.Tool):
             if hasattr(self, 'view') and hasattr(self.view, 'dialog'):
                 parent = self.view.get_window()
 
-            utils.message_details_dialog("AssertionError(%s)" % e, traceback.format_exc(),
+            butils.message_details_dialog("AssertionError(%s)" % e, traceback.format_exc(),
                                          Gtk.MessageType.ERROR, parent=parent)
         except Exception as e:
             logger.debug(traceback.format_exc())
-            utils.message_details_dialog(_('Formatting Error\n\n'
-                                           '%s(%s)') % (type(e).__name__, utils.utf8(e)),
+            butils.message_details_dialog(_('Formatting Error\n\n'
+                                           '%s(%s)') % (type(e).__name__, butils.utf8(e)),
                                          traceback.format_exc(),
                                          Gtk.MessageType.ERROR)
         bauble.gui.set_busy(False)
@@ -735,7 +730,7 @@ try:
     import lxml.etree as etree
     import lxml._elementpath  # put this here so py2exe picks it up
 except ImportError:
-    utils.message_dialog('The <i>lxml</i> package is required for the '
+    butils.message_dialog('The <i>lxml</i> package is required for the '
                          'Report plugin')
 else:
     def plugin():

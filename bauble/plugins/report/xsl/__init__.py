@@ -43,15 +43,14 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.orm import object_session
 
 import bauble.db as db
-import bauble.paths as paths
 from bauble.plugins.plants.species import Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
 from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import FormatterPlugin
 import bauble.prefs as prefs
-import bauble.utils as utils
-import bauble.utils.desktop as desktop
+import bauble.utils as butils
+import bauble.paths as bpaths
 
 
 if sys.platform == "win32":
@@ -120,43 +119,43 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return ""
 
     def get_DateLastEdited(self):
-        return utils.xml_safe(self.species._last_updated.isoformat())
+        return butils.xml_safe(self.species._last_updated.isoformat())
 
     def get_family(self):
-        return utils.xml_safe(self.species.genus.family)
+        return butils.xml_safe(self.species.genus.family)
 
     def get_FullScientificNameString(self, authors=True):
         s = self.species.str(authors=authors, markup=False)
-        return utils.xml_safe(s)
+        return butils.xml_safe(s)
 
     def get_GenusOrMonomial(self):
-        return utils.xml_safe(str(self.species.genus))
+        return butils.xml_safe(str(self.species.genus))
 
     def get_FirstEpithet(self):
-        return utils.xml_safe(str(self.species.sp))
+        return butils.xml_safe(str(self.species.sp))
 
     def get_AuthorTeam(self):
         author = self.species.author
         if author is None:
             return None
         else:
-            return utils.xml_safe(author)
+            return butils.xml_safe(author)
 
     def get_InfraspecificAuthor(self):
-        return utils.xml_safe(str(self.species.infraspecific_author))
+        return butils.xml_safe(str(self.species.infraspecific_author))
 
     def get_InfraspecificRank(self):
-        return utils.xml_safe(str(self.species.infraspecific_rank))
+        return butils.xml_safe(str(self.species.infraspecific_rank))
 
     def get_InfraspecificEpithet(self):
-        return utils.xml_safe(str(self.species.infraspecific_epithet))
+        return butils.xml_safe(str(self.species.infraspecific_epithet))
     
     def get_CultivarName(self):
-        return utils.xml_safe(str(self.species.cultivar_epithet))
+        return butils.xml_safe(str(self.species.cultivar_epithet))
 
     def get_HybridFlag(self):
         if self.species.hybrid is True:
-            return utils.xml_safe(str(self.species.hybrid_char))
+            return butils.xml_safe(str(self.species.hybrid_char))
         else:
             return None
 
@@ -165,18 +164,18 @@ class SpeciesABCDAdapter(ABCDAdapter):
         if vernacular_name is None:
             return None
         else:
-            return utils.xml_safe(vernacular_name)
+            return butils.xml_safe(vernacular_name)
 
     def get_Notes(self):
         if not self.species.notes:
             return None
         notes = []
         for note in self.species.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.utf8(notes)
+            notes.append(dict(date=butils.xml_safe(note.date.isoformat()),
+                              user=butils.xml_safe(note.user),
+                              category=butils.xml_safe(note.category),
+                              note=butils.xml_safe(note.note)))
+        return butils.utf8(notes)
 
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
@@ -200,39 +199,39 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         self.accession = accession
 
     def get_UnitID(self):
-        return utils.xml_safe(str(self.accession))
+        return butils.xml_safe(str(self.accession))
 
     def get_FullScientificNameString(self, authors=True):
         s = self.accession.species_str(authors=authors, markup=False)
-        return utils.xml_safe(s)
+        return butils.xml_safe(s)
     
     def get_IdentificationQualifier(self):
         idqual=self.accession.id_qual
         if idqual is None:
             return None
         else:
-            return utils.xml_safe(idqual)
+            return butils.xml_safe(idqual)
         
     def get_IdentificationQualifierRank(self):
         idqrank=self.accession.id_qual_rank
         if idqrank is None:
             return None
         else:
-            return utils.xml_safe(idqrank)
+            return butils.xml_safe(idqrank)
         
     def get_DateLastEdited(self):
-        return utils.xml_safe(self.accession._last_updated.isoformat())
+        return butils.xml_safe(self.accession._last_updated.isoformat())
 
     def get_Notes(self):
         if not self.accession.notes:
             return None
         notes = []
         for note in self.accession.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.xml_safe(notes)
+            notes.append(dict(date=butils.xml_safe(note.date.isoformat()),
+                              user=butils.xml_safe(note.user),
+                              category=butils.xml_safe(note.category),
+                              note=butils.xml_safe(note.note)))
+        return butils.xml_safe(notes)
 
     def extra_elements(self, unit):
         super().extra_elements(unit)
@@ -246,7 +245,7 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
 
         if self.accession.source and self.accession.source.collection:
             collection = self.accession.source.collection
-            utf8 = utils.xml_safe
+            utf8 = butils.xml_safe
             gathering = ABCDElement(unit, 'Gathering')
 
             if collection.collectors_code:
@@ -257,7 +256,7 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
             if collection.date:
                 date_time = ABCDElement(gathering, 'DateTime')
                 ABCDElement(date_time, 'DateText',
-                            utils.xml_safe(collection.date.isoformat()))
+                            butils.xml_safe(collection.date.isoformat()))
 
             if collection.collector:
                 agents = ABCDElement(gathering, 'Agents')
@@ -316,28 +315,28 @@ class PlantABCDAdapter(AccessionABCDAdapter):
         self.plant = plant
 
     def get_UnitID(self):
-        return utils.xml_safe(str(self.plant))
+        return butils.xml_safe(str(self.plant))
 
     def get_DateLastEdited(self):
-        return utils.xml_safe(self.plant._last_updated.isoformat())
+        return butils.xml_safe(self.plant._last_updated.isoformat())
 
     def get_Notes(self):
         if not self.plant.notes:
             return None
         notes = []
         for note in self.plant.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.xml_safe(str(notes))
+            notes.append(dict(date=butils.xml_safe(note.date.isoformat()),
+                              user=butils.xml_safe(note.user),
+                              category=butils.xml_safe(note.category),
+                              note=butils.xml_safe(note.note)))
+        return butils.xml_safe(str(notes))
 
     def extra_elements(self, unit):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
         ABCDElement(bg_unit, 'AccessionSpecimenNumbers',
-                    text=utils.xml_safe(self.plant.quantity))
+                    text=butils.xml_safe(self.plant.quantity))
         ABCDElement(bg_unit, 'LocationInGarden',
-                    text=utils.xml_safe(str(self.plant.location)))
+                    text=butils.xml_safe(str(self.plant.location)))
         if self.for_labels:
             if self.species.label_distribution:
                 etree.SubElement(unit, 'distribution').text = \
@@ -365,7 +364,7 @@ class XSLFormatterPlugin(FormatterPlugin):
     def install(cls, import_defaults=True):
         "create templates dir on plugin installation"
         logger.debug("installing xsl plugin")
-        container_dir = os.path.join(paths.appdata_dir(), 'res', "templates")
+        container_dir = os.path.join(bpaths.appdata_dir(), 'res', "templates")
         if not os.path.exists(container_dir):
             os.mkdir(container_dir)
 
@@ -383,13 +382,13 @@ class XSLFormatterPlugin(FormatterPlugin):
         elif not renderer:
             error_msg = _('Please select a a renderer')
         if error_msg is not None:
-            utils.message_dialog(error_msg, Gtk.MessageType.WARNING)
+            butils.message_dialog(error_msg, Gtk.MessageType.WARNING)
             return False
 
         fo_cmd = renderers_map[renderer]
         exe = fo_cmd.split(' ')[0]
         if not on_path(exe):
-            utils.message_dialog(_('Could not find the command "%(exe)s" to '
+            butils.message_dialog(_('Could not find the command "%(exe)s" to '
                                    'start the %(renderer_name)s '
                                    'renderer.') %
                                  ({'exe': exe, 'renderer_name': renderer}),
@@ -440,14 +439,14 @@ class XSLFormatterPlugin(FormatterPlugin):
 
         logger.debug(filename)
         if not os.path.exists(filename):
-            utils.message_dialog(_('Error creating the PDF file. Please '
+            butils.message_dialog(_('Error creating the PDF file. Please '
                                    'ensure that your PDF formatter is '
                                    'properly installed.'), Gtk.MessageType.ERROR)
         else:
             try:
-                desktop.open("file://%s" % filename)
+                butils.desktop.open("file://%s" % filename)
             except OSError:
-                utils.message_dialog(_('Could not open the report with the '
+                butils.message_dialog(_('Could not open the report with the '
                                        'default program. You can open the '
                                        'file manually at %s') % filename)
 
@@ -456,7 +455,7 @@ class XSLFormatterPlugin(FormatterPlugin):
 try:
     import lxml.etree as etree
 except ImportError:
-    utils.message_dialog('The <i>lxml</i> package is required for the '
+    butils.message_dialog('The <i>lxml</i> package is required for the '
                          'XSL report plugin')
 else:
     formatter_plugin = XSLFormatterPlugin
