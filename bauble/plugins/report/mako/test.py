@@ -38,7 +38,8 @@ from bauble.plugins.report.mako import MakoFormatterPlugin
 from bauble.plugins.report import get_pertinent_objects
 from bauble import utils
 
-from bauble.plugins.report import add_text, Code39, add_code39, add_qr
+from bauble.plugins.report import PS, SVG
+from bauble.plugins.report.utils import Code39
 
 class MakoFormatterTests(BaubleTestCase):
 
@@ -97,7 +98,7 @@ class MakoFormatterTests(BaubleTestCase):
             filename = os.path.join(td, tn)
             domain = MakoFormatterPlugin.get_iteration_domain(filename)
             if domain == '':
-                logger.debug("no domain is a base template")
+                self.assertTrue(tn.startswith('base.'))
                 continue
             try:
                 cls = {
@@ -158,7 +159,7 @@ class MakoFormatterTests(BaubleTestCase):
 
 class SvgProductionTest(BaubleTestCase):
     def test_add_text_a(self):
-        g, x, y = add_text(0, 0, 'a', 2)
+        g, x, y = SVG.add_text(0, 0, 'a', 2)
         self.assertEqual(y, 0)
         self.assertEqual(x, 31)
         self.assertEqual(g, '<g transform="translate(0, 0)scale(2)">\n'
@@ -166,7 +167,7 @@ class SvgProductionTest(BaubleTestCase):
                           '</g>')
 
     def test_add_text_tildes(self):
-        g, x, y = add_text(0, 0, 'áà', 2)
+        g, x, y = SVG.add_text(0, 0, 'áà', 2)
         self.assertEqual(y, 0)
         self.assertEqual(x, 62)
         self.assertEqual(g, '<g transform="translate(0, 0)scale(2)">\n'
@@ -175,7 +176,7 @@ class SvgProductionTest(BaubleTestCase):
                           '</g>')
 
     def test_add_text_align_right(self):
-        g, x, y = add_text(0, 0, 'áà', 2, align=1)
+        g, x, y = SVG.add_text(0, 0, 'áà', 2, align=1)
         self.assertEqual(y, 0)
         self.assertEqual(x, 0)
         self.assertEqual(g, '<g transform="translate(-62.0, 0.0)scale(2)">\n'
@@ -184,7 +185,7 @@ class SvgProductionTest(BaubleTestCase):
                           '</g>')
 
     def test_add_text_align_right(self):
-        g, x, y = add_text(0, 0, 'áà', 2, align=0.5)
+        g, x, y = SVG.add_text(0, 0, 'áà', 2, align=0.5)
         self.assertEqual(y, 0)
         self.assertEqual(x, 31.0)
         self.assertEqual(g, '<g transform="translate(-31.0, 0.0)scale(2)">\n'
@@ -193,67 +194,67 @@ class SvgProductionTest(BaubleTestCase):
                           '</g>')
 
     def test_add_text_a_rotated_endpoint(self):
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=0)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=0)
         self.assertAlmostEqual(y, 0)
         self.assertAlmostEqual(x, 31)
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=90)
         self.assertAlmostEqual(y, 31)
         self.assertAlmostEqual(x, 0)
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=-90)
         self.assertAlmostEqual(y, -31)
         self.assertAlmostEqual(x, 0)
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=180)
         self.assertAlmostEqual(y, 0)
         self.assertAlmostEqual(x, -31)
 
     def test_add_text_a_rotated_aligned_endpoint(self):
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=0)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=0)
         self.assertAlmostEqual(y, 0)
         self.assertAlmostEqual(x, 15.5)
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=90)
         self.assertAlmostEqual(y, 15.5)
         self.assertAlmostEqual(x, 0)
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
         self.assertAlmostEqual(y, -15.5)
         self.assertAlmostEqual(x, 0)
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=180)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=180)
         self.assertAlmostEqual(y, 0)
         self.assertAlmostEqual(x, -15.5)
 
     def test_add_text_a_rotated_glyph(self):
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=0)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=0)
         self.assertEqual(g, '<g transform="translate(0, 0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=90)
         self.assertEqual(g, '<g transform="translate(0, 0)scale(2)rotate(90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=-90)
         self.assertEqual(g, '<g transform="translate(0, 0)scale(2)rotate(-90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0, rotate=180)
         self.assertEqual(g, '<g transform="translate(0, 0)scale(2)rotate(180)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 
     def test_add_text_a_rotated_aligned_glyph(self):
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=0)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=0)
         self.assertEqual(g, '<g transform="translate(-15.5, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=90)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
         self.assertEqual(g, '<g transform="translate(0.0, -15.5)scale(2)rotate(90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
         self.assertEqual(g, '<g transform="translate(0.0, 15.5)scale(2)rotate(-90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
-        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=180)
+        g, x, y = SVG.add_text(0, 0, 'a', 2, align=0.5, rotate=180)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
         self.assertEqual(g, '<g transform="translate(15.5, 0.0)scale(2)rotate(180)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
@@ -315,31 +316,31 @@ class Code39Tests(BaubleTestCase):
         self.assertEqual(g,'<path transform="translate(5,8)" d="M 0,0 0,5 M 1,5 1,0 M 2,0 2,5 M 6,5 6,0 M 8,0 8,5 M 10,5 10,0 M 11,0 11,5 M 12,5 12,0 M 14,0 14,5" style="stroke:#0000ff;stroke-width:1"/>')
 
     def test_code39_text(self):
-        g, x, y = add_code39(0, 0, '010810', unit=1, height=7)
+        g, x, y = SVG.add_code39(0, 0, '010810', unit=1, height=7)
         self.assertEqual(y, 0)
         self.assertEqual(x, 127)
         self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(48,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(64,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(80,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(96,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(112,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
 
     def test_code39_text_centre(self):
-        g, x, y = add_code39(0, 0, '0', unit=1, height=7, align=0.5)
+        g, x, y = SVG.add_code39(0, 0, '0', unit=1, height=7, align=0.5)
         self.assertEqual(y, 0)
         self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(-23.5,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
         self.assertEqual(x, 23.5)
 
     def test_code39_text_left(self):
-        g, x, y = add_code39(0, 0, '0', unit=1, height=7, align=0)
+        g, x, y = SVG.add_code39(0, 0, '0', unit=1, height=7, align=0)
         self.assertEqual(y, 0)
         self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
         self.assertEqual(x, 47)
 
     def test_code39_text_right(self):
-        g, x, y = add_code39(0, 0, '0', unit=1, height=7, align=1)
+        g, x, y = SVG.add_code39(0, 0, '0', unit=1, height=7, align=1)
         self.assertEqual(y, 0)
         self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(-47,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
         self.assertEqual(x, 0)
 
     def test_code39_shortblack(self):
-        g, x, y = add_code39(0, 0, 'M+/-%', unit=1, height=7, align=0)
+        g, x, y = SVG.add_code39(0, 0, 'M+/-%', unit=1, height=7, align=0)
         self.assertEqual(y, 0)
         self.assertEqual(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 5,0 5,7 M 6,7 6,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(48,0)" d="M 0,0 0,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(64,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 8,7 8,0 M 9,0 9,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(80,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(96,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
         self.assertEqual(x, 111)
@@ -348,13 +349,13 @@ class Code39Tests(BaubleTestCase):
 class QRCodeTests(BaubleTestCase):
     path = '<path stroke="#000" class="pyqrline" d="M0 0.5h7m1 0h3m1 0h1m1 0h7m-21 1h1m5 0h1m2 0h2m3 0h1m5 0h1m-21 1h1m1 0h3m1 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-21 1h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1m-21 1h1m1 0h3m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-21 1h1m5 0h1m2 0h1m1 0h1m2 0h1m5 0h1m-21 1h7m1 0h1m1 0h1m1 0h1m1 0h7m-12 1h1m2 0h1m-11 1h1m1 0h3m1 0h2m3 0h1m3 0h1m2 0h1m-18 1h2m2 0h2m3 0h1m1 0h2m3 0h2m-21 1h5m1 0h1m1 0h1m3 0h4m1 0h4m-21 1h4m1 0h1m2 0h2m1 0h2m2 0h2m2 0h1m-20 1h2m3 0h2m1 0h3m4 0h1m1 0h1m1 0h2m-13 1h1m1 0h3m4 0h1m2 0h1m-21 1h7m2 0h2m5 0h2m1 0h2m-21 1h1m5 0h1m1 0h3m1 0h1m1 0h1m4 0h1m-20 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m1 0h2m-21 1h1m1 0h3m1 0h1m2 0h1m4 0h2m3 0h1m-20 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h1m1 0h1m-21 1h1m5 0h1m2 0h3m1 0h5m1 0h1m-20 1h7m3 0h1m2 0h3m2 0h3"/>'
     def test_can_get_qr_as_string(self):
-        g = add_qr(0, 0, 'test')
+        g = SVG.add_qr(0, 0, 'test')
         parts = g.split('\n')
         self.assertEqual(len(parts), 1)
         self.assertEqual(parts[0], self.path)
 
     def test_can_get_qr_as_string_translated(self):
-        g = add_qr(30, 10, 'test')
+        g = SVG.add_qr(30, 10, 'test')
         parts = g.split('\n')
         self.assertEqual(len(parts), 3)
         self.assertEqual(parts[0], '<g transform="translate(30,10)">')
@@ -362,19 +363,19 @@ class QRCodeTests(BaubleTestCase):
         self.assertEqual(parts[2], '</g>')
 
     def test_can_get_qr_as_string_translated_framed(self):
-        g = add_qr(30, 10, 'http://ghini.readthedocs.io/en/ghini-3.1-dev/', side=30)
+        g = SVG.add_qr(30, 10, 'http://ghini.readthedocs.io/en/ghini-3.1-dev/', side=30)
         parts = g.split('\n')
         self.assertEqual(len(parts), 3)
         self.assertTrue(parts[0].startswith('<g transform="translate(30,10)scale(0.731707317073'))
         self.assertEqual(parts[2], '</g>')
 
-        g = add_qr(30, 10, '2014.0018.2', side=30)
+        g = SVG.add_qr(30, 10, '2014.0018.2', side=30)
         parts = g.split('\n')
         self.assertEqual(len(parts), 3)
         self.assertEqual(parts[0], '<g transform="translate(30,10)scale(1.2)">')
         self.assertEqual(parts[2], '</g>')
 
-        g = add_qr(30, 10, '2014.0018', side=30)
+        g = SVG.add_qr(30, 10, '2014.0018', side=30)
         parts = g.split('\n')
         self.assertEqual(len(parts), 3)
         self.assertTrue(parts[0].startswith('<g transform="translate(30,10)scale(1.4285714'))

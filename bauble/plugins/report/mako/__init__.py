@@ -56,15 +56,19 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
             msg = _('Please select a template.')
             butils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
-        path, name = os.path.split(name)
+        paths = [os.path.join(bpaths.user_dir(), 'res', 'templates'),
+                 os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'), ]
+        orig, (path, name) = name, os.path.split(name)
+        if path:
+            paths.insert(0, path)
         from mako.lookup import TemplateLookup
-        lookup = TemplateLookup([os.path.join(bpaths.user_dir(), 'res', 'templates'),
-                                 os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'),
-                                 path], input_encoding='utf-8', output_encoding='utf-8')
+        lookup = TemplateLookup(paths, input_encoding='utf-8', output_encoding='utf-8')
         try:
+            print(orig)
             template = lookup.get_template(name)
+            print(template.filename)
             return template
-        except RuntimeError as e:
+        except Exception as e:
             import traceback
             butils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
             return False

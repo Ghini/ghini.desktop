@@ -27,7 +27,7 @@
 <%inherit file="base.ps.mako"/>
 /SCALE { 0.45 0.45 scale 0 30 translate } bind def
 <%
-from bauble.plugins.report import add_qr
+from bauble.plugins.report import PS
 page = 1
 
 if options['accession_format']:
@@ -89,12 +89,12 @@ newpath 0 100 moveto 0 -8 rlineto stroke
 newpath 320 0 moveto -8 0 rlineto stroke
 newpath 320 0 moveto 0 8 rlineto stroke
 1 setlinewidth
-${add_qr(230, 10, plant_code, side=80.0, format='ps')}
+${PS.add_qr(230, 10, plant_code, side=80.0)}
 (VerdanaFID313HGSet2) cvn findfont 40 40 matrix scale makefont setfont
-${add_text(8, 53, plant_code, 'sans', 2.6, align=0, maxwidth=212)}
+${PS.add_text(8, 53, plant_code, 'sans', 2.6, align=0, maxwidth=212)}
 (Verdana-ItalicFID315HGSet2) cvn findfont 20 20 matrix scale makefont setfont
-${add_text(8, 28, genus_epithet, 'sans', 1.3)}
-${add_text(8, 8, species_epithet, 'sans', 1.3)}
+${PS.add_text(8, 28, genus_epithet, 'sans', 1.3)}
+${PS.add_text(8, 8, species_epithet, 'sans', 1.3)}
 grestore
 grestore
 <%text filter="h">

@@ -25,7 +25,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1360" height="1360" id="svg2">
 <%
-from bauble.plugins.report import add_text, font
+from bauble.plugins.report import SVG
 
 page = 1
 xpos = ypos = 0
@@ -310,8 +310,8 @@ xpos = ypos = 0
     <path d="m 35,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
     <path d="m 650,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
 <% x_base = 40 %>\
-<% text_genus, x, y = add_text(x_base, 90, v.genus.epithet + ' ', 2, italic=True, strokes=2) %>\
-<% text_species, x, y = add_text(x, y, v.epithet, 2, italic=(v.epithet != u'sp'), strokes=2) %>\
+<% text_genus, x, y = SVG.add_text(x_base, 90, v.genus.epithet + ' ', 2, italic=True, strokes=2) %>\
+<% text_species, x, y = SVG.add_text(x, y, v.epithet, 2, italic=(v.epithet != u'sp'), strokes=2) %>\
     % if (x-x_base) > 600:
       <g transform="translate(${x_base},0)scale(${600.0/(x-x_base)},1)translate(-${x_base},0)">${text_genus}${text_species}</g>
     % else:
@@ -319,20 +319,20 @@ xpos = ypos = 0
       ${text_species}
     % endif
     % if v.infraspecific_rank:
-<% text_rank, x, y = add_text(x_base, 150, v.infraspecific_rank, 2, italic=False, strokes=2) %>\
-<% text_epithet, x, y = add_text(x, y, v.infraspecific_epithet, 2, italic=True, strokes=2) %>\
+<% text_rank, x, y = SVG.add_text(x_base, 150, v.infraspecific_rank, 2, italic=False, strokes=2) %>\
+<% text_epithet, x, y = SVG.add_text(x, y, v.infraspecific_epithet, 2, italic=True, strokes=2) %>\
       <g transform="translate(${x_base},0)scale(${min(1,600.0/(x-x_base))},1)translate(-${x_base},0)">${text_rank}${text_epithet}</g>
     % elif v.author:
-      <% text, x, y = add_text(min(x, 600+x_base), 140, v.author, 1.25, italic=False, align=1) %>\
+      <% text, x, y = SVG.add_text(min(x, 600+x_base), 140, v.author, 1.25, italic=False, align=1) %>\
       ${text}
     % endif
-<% text, x, y = add_text(40, 245, v.genus.family.family, 1.25) %>\
+<% text, x, y = SVG.add_text(40, 245, v.genus.family.family, 1.25) %>\
     ${text}
 <% distribution = v.label_distribution or v.distribution_str() %>\
-<% text, x, y = add_text(640, 300, distribution, 1.25, align=1) %>\
+<% text, x, y = SVG.add_text(640, 300, distribution, 1.25, align=1) %>\
     ${text}
 <% name = v.default_vernacular_name and v.default_vernacular_name.name or '' %>\
-<% text, x, y = add_text(40, y, name, 1.25) %>\
+<% text, x, y = SVG.add_text(40, y, name, 1.25) %>\
     ${text}
   </g>
 <% xpos += 1 %>\

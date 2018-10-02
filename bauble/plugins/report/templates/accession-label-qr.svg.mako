@@ -31,7 +31,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="744" height="1052" id="svg2">
 <%
-from bauble.plugins.report import add_text, font, add_code39, add_qr
+from bauble.plugins.report import SVG
 
 page = 1
 xpos = ypos = 0
@@ -324,7 +324,7 @@ else:
   <g transform="scale(3.543)translate(7,14)translate(${xpos*49},${ypos*15})">
     <path d="M 0,0 49,0 49,15 0,15 z" style="fill:none;stroke:#ff0000;stroke-width:0.1" />
 <% unit = 2.65 / len(full_code + '!!') %>\
-<% text, x, y = add_text(33, 7.5, full_code, 0.20, align=1, strokes=2) %>\
+<% text, x, y = SVG.add_text(33, 7.5, full_code, 0.20, align=1, strokes=2) %>\
     ${text}
 % if options['extra_text']:
 <%
@@ -335,7 +335,7 @@ if accession and et.startswith('{') and et.endswith('}'):
         ets = getattr(ets, step)
     et = str(ets)
 x_base = 1
-text, x, y = add_text(x_base, 12.5, et, 0.12, align=0, italic=True)
+text, x, y = SVG.add_text(x_base, 12.5, et, 0.12, align=0, italic=True)
 %>\
  % if (x-x_base) > 32:
    <g transform="translate(${x_base},0)scale(${32.0/(x-x_base)},1)translate(-${x_base},0)">${text}</g>
@@ -343,7 +343,7 @@ text, x, y = add_text(x_base, 12.5, et, 0.12, align=0, italic=True)
    <g transform="translate(${33 - x},0)">${text}</g>
  % endif
 % endif
-<% text = add_qr(35, 1, full_code, side=13) %>\
+<% text = SVG.add_qr(35, 1, full_code, side=13) %>\
     ${text}
   </g>
 <% xpos += 1 %>\

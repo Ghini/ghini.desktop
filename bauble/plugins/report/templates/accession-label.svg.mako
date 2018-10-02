@@ -31,7 +31,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="744" height="1052" id="svg2">
 <%
-from bauble.plugins.report import add_text, font, add_code39
+from bauble.plugins.report import SVG
 
 page = 1
 xpos = ypos = 0
@@ -330,13 +330,13 @@ else:
     <path d="M 0,0 49,0 49,15 0,15 z" style="fill:none;stroke:#ff0000;stroke-width:0.1" />
 <% unit = 2.65 / len(full_code + '!!') %>\
 <% x = options['extra_text'] and 30 or 31.6 %>\
-<% text, x, y = add_text(x, 8.5, full_code, 0.27, align=0.7, strokes=2) %>\
+<% text, x, y = SVG.add_text(x, 8.5, full_code, 0.27, align=0.7, strokes=2) %>\
     ${text}
 % if options['extra_text']:
-<% text, _, y = add_text(x + 4, 5.75, options['extra_text'], 0.12, align=0.5, rotate=-90) %>\
+<% text, _, y = SVG.add_text(x + 4, 5.75, options['extra_text'], 0.12, align=0.5, rotate=-90) %>\
     ${text}
 % endif
-<% text, x, y = add_code39(24.5, 10, full_code, unit=unit, height=4, align=0.5, colour=options['colour']) %>\
+<% text, x, y = SVG.add_code39(24.5, 10, full_code, unit=unit, height=4, align=0.5, colour=options['colour']) %>\
     ${text}
   </g>
 <% xpos += 1 %>\

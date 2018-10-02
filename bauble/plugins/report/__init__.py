@@ -57,7 +57,7 @@ from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
 
 from .flat_export import FlatFileExportTool
-from .utils import add_text, Code39, add_code39, add_qr, font
+from .utils import PS, SVG
 
 # name: formatter_kwargs
 config_list_pref = 'report.options'
