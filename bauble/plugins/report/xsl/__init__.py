@@ -415,28 +415,23 @@ class XSLFormatterPlugin(FormatterPlugin):
             return True
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
 
-        logger.debug(etree.dump(abcd_data.getroot()))
-
         # create xsl fo file
         dummy, fo_filename = tempfile.mkstemp()
-        style_etree = etree.parse(stylesheet)
-        transform = etree.XSLT(style_etree)
+        transform = etree.XSLT(etree.parse(stylesheet))
         result = transform(abcd_data)
-        fo_outfile = open(fo_filename, 'wb')
-        fo_outfile.write(result)
-        fo_outfile.close()
+        with open(fo_filename, 'wb') as fo_outfile:
+            fo_outfile.write(result)
         dummy, filename = tempfile.mkstemp()
         filename = '%s.pdf' % filename
-
-        # TODO: checkout pyexpect for spawning processes
 
         # run the report to produce the pdf file, the command has to be
         # on the path for this to work
         fo_cmd = fo_cmd % ({'fo_filename': fo_filename,
                             'out_filename': filename})
         logger.debug(fo_cmd)
-        # TODO: use popen to get output
-        os.system(fo_cmd)
+
+        from subprocess import call
+        call(fo_cmd, shell=True)
 
         logger.debug(filename)
         if not os.path.exists(filename):
