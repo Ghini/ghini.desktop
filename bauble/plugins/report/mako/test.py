@@ -20,6 +20,9 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+logger = logging.getLogger(__name__)
+
 import os
 
 # TURN OFF desktop.open for this module so that the test doesn't open
@@ -82,7 +85,7 @@ class MakoFormatterTests(BaubleTestCase):
     def tearDown(self, *args):
         super().tearDown(*args)
 
-    def test_format_all_templates_not_using_qr(self):
+    def test_format_all_mako_templates_not_using_qr(self):
         selection = self.session.query(Plant).all()
         # td is this module name, minus mako/test, plus templates
         td = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
@@ -93,6 +96,9 @@ class MakoFormatterTests(BaubleTestCase):
                 continue
             filename = os.path.join(td, tn)
             domain = MakoFormatterPlugin.get_iteration_domain(filename)
+            if domain == '':
+                logger.debug("no domain is a base template")
+                continue
             try:
                 cls = {
                     'plant': Plant,
@@ -104,6 +110,7 @@ class MakoFormatterTests(BaubleTestCase):
                               key=utils.natsort_key)
             except KeyError:
                 todo = selection
+            logger.debug('formatting ›%s‹' % filename)
             report = MakoFormatterPlugin.format(todo, template=filename)
             self.assertEquals((i, filename, type(report)), (i, filename, bytes))
 
