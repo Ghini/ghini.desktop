@@ -27,7 +27,6 @@
 <%inherit file="base.ps.mako"/>
 /SCALE { 0.45 0.45 scale 0 30 translate } bind def
 <%
-from bauble.plugins.report import options
 from bauble.plugins.report import add_qr
 page = 1
 
