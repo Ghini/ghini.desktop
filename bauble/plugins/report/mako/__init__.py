@@ -56,9 +56,11 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
             msg = _('Please select a template.')
             butils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
+        path, name = os.path.split(name)
         from mako.lookup import TemplateLookup
         lookup = TemplateLookup([os.path.join(bpaths.user_dir(), 'res', 'templates'),
-                                 os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates')])
+                                 os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'),
+                                 path], input_encoding='utf-8', output_encoding='utf-8')
         try:
             template = lookup.get_template(name)
             return template
