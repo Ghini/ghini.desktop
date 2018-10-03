@@ -777,3 +777,42 @@ def class_of_object(o):
         from bauble import pluginmgr
         cls = pluginmgr.provided.get(name)
     return cls
+
+
+class current_user_functor:
+    """implement the current_user function, and allow overriding.
+
+    invoke the current_user object as a function.
+    invoke current_user.override(user_name) to set user name.
+    invoke current_user.override() to reset.
+    """
+    def __init__(self):
+        self.override_value = None
+
+    def override(self, value=None):
+        self.override_value = value
+
+    def __call__(self):
+        '''return current user name: from database, or system
+        '''
+        if self.override_value:
+            return self.override_value
+        try:
+            if engine.name.startswith('postgresql'):
+                r = engine.execute('select current_user;')
+                user = r.fetchone()[0]
+                r.close()
+            elif engine.name.startswith('mysql'):
+                r = engine.execute('select current_user();')
+                user = r.fetchone()[0]
+                r.close()
+            else:
+                raise TypeError()
+        except:
+            logger.debug("retrieving user name from system")
+            user = (os.getenv('USER') or os.getenv('USERNAME') or
+                    os.getenv('LOGNAME') or os.getenv('LNAME'))
+
+        return user
+
+current_user = current_user_functor()
