@@ -45,17 +45,17 @@ box (fields may be filled in differently):
 You have already selected your objects in the main window, you now here select the report template you need,
 and press on Execute to produce your report.  Ghini will open the report in the corresponding application.
 
-Ghini comes with a few sample package-templates, and it lets you **activate** your own user-templates.
+Ghini comes with a few sample package-templates, and it lets you install your own user-templates.
 
-To activate your own template, click on ``Add``, choose the file that contains your template, and type the
-name by which you want to activate it.  Activated templates are static, once configured you are not expected
-to alter them.  Deactivating a template amounts to deleting it from your installation.  You cannot delete a
-package-template, but you can overrule one with your own.
+To install a template, click on ``Add``, choose the file that contains your template, and type the name by
+which you want to install it.  ghini.desktop will copy it to your ghini user directory.  Installed templates
+are static, once configured you are not expected to alter them.  You can delete installed user templates, or
+you can overrule a package-template by installing your own template using a package-template name.
 
 Package-templates are integral part of the installation.  User-templates are in your custom data, together
-with your ghini configuration, your sqlite databases and your plant pictures, if you let ghini keep them in
-the default location.  Package-templates will be overwritten if you update your installation, User-templates
-are persistent as long as you stay in the same production line (say, ghini-3.1).
+with your ghini configuration, which is the default location for your sqlite databases and your plant
+pictures.  Package-templates will be overwritten if you update your installation, User-templates are
+persistent as long as you stay in the same production line (say, ghini-3.1).
 
 Choosing a formatter template implies a template language.  ghini.desktop supports three template languages:
 Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template language, and the
@@ -107,57 +107,80 @@ and that's beyond the scope of this manual, but we have hints that will definite
 interested reader.
 
 
-Working with Jinja2 Templates
+Working with Templates Languages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Jinja2 is a powerful and very well documented template language.  Please refer to their documentation for
-information regarding how to write templates.
+Common information
+................................................
 
-ghini.desktop creates an environment that enables you find all activated templates, without caring about
-their physical location on your computer.
-
-Working with Mako Templates
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The Mako report formatter uses the Mako template language for
-generating reports. More information about Mako and its language can
-be found at `makotemplates.org <http://www.makotemplates.org>`_.
-
-The Mako templating system should already be installed on your
-computer if Ghini is installed.
-
-Creating reports with Mako is similar in the way that you would create
+Creating reports with Mako and Jinja2 is similar in the way that you would create
 a web page from a template.  It is much simpler than the XSL
 Formatter(see below) and should be relatively easy to create template
 for anyone with a little but of programming experience.
 
-The template generator will use the same file extension as the
-template which should indicate the type of output the template with
-create.  For example, to generate an HTML page from your template you
-should name the template something like `report.html`.  If the template
-will generate a comma separated value file you should name the
-template `report.csv`.
+The template generator will use the same file extension as the template, stripping the optional but advised
+``.mako`` / ``.jj2`` trailing part.  The template name should indicate the type of output produced by the
+template.  For example, to generate an HTML page from your template you would name the template something
+like ``report.html.mako`` if using Mako, or ``report.html.jj2`` if using Jinja2.  Similarly, you would name
+a template ``report.csv.mako`` if it generates a comma separated value file.
+
+You can also choose not to use the optional ``.mako`` / ``.jj2`` trailing part, but then it's your task to
+remember that it is a template and which language it uses.
 
 A template must declare its iteration domain, that is, on which type of objects it reports.  The iteration
-domain is declared in a Mako comment line, something like this::
+domain is declared in a comment line, something like this (for Mako)::
 
      ## DOMAIN <name>
 
-Where ``<name>`` is one of ``Species``, ``Accession``, ``Plant``, ``Location``, or ``raw``.
+or this (for Jinja2)::
 
-When activating a template, ghini first of all builds a raw list, containing all top-level objects in
-current result.
+     {# DOMAIN <name> #}
 
-If the declared iteration domain is ``raw``, ghini will pass the raw list to the template.
+Here ``<name>`` is one of ``Species``, ``Accession``, ``Plant``, ``Location``, or ``raw``.
 
-If the declared iteration domain is a ghini class, ghini will then build a list of all objects the
-iteration domain, associated to the raw list.
+The role of the DOMAIN declaration is to instruct ghini about the data to handle to the template, when
+rendering it: when rendering a template, ghini starts by building a raw list, containing all top-level
+objects in current result.  If the declared iteration domain is ``raw``, ghini will pass the raw list to the
+template.  If the declared iteration domain is a ghini class, ghini will then build a list of all objects in
+the iteration domain, associated to the raw list.
 
-In either case, these objects are available to the Mako template as elements of the list ``values``.
+In either case, these objects are available to the template as elements of the list ``values``.
 
 A template working with the ``raw`` list needs more programming logic to do what the user expects, but a
-well-thought set of such mako templates can reduce the amount of template names that your users need to
-handle.
+well-thought set of such templates can reduce the amount of template names that your users need to handle.
+
+A template may require extra options, that can the user will define at run time.  These are described in
+comment lines, liek this (for Mako)::
+
+  missing docs
+  
+or this (for Jinja2)::
+
+  missing docs
+
+Working with Jinja2
+..........................
+
+Jinja2 is a mainstream, powerful and well documented template language.  Please refer to their documentation
+for information regarding how to write templates.
+
+Please refer to the ``tortuosa.ps.jj2`` example to see how to write a template that inherits from a base
+templates, how to define a template domain, please note that base templates should not define a domain.  The
+``tortuosa.ps.jj2`` example also shows how to import pictures, and how to use the PS and SVG namespaces,
+which are by default included in the environment accessible from your Jinja2 templates.
+
+Working with Mako
+......................................
+
+The Mako report formatter uses the Mako template language for generating reports.  The Mako templating
+system is included in all ghini.desktop installation.
+
+Mako is less mainstream than Jinja2, it is arguably less good documented, but it is at least as powerful, if
+not more.  If you don't manage to create something with Jinja2, please try Mako.  If you don't understand
+how Mako works, please try Jinja2 documentation, they are very similar so most concepts apply to both.
+
+More information about Mako and its language can be found at `makotemplates.org
+<http://www.makotemplates.org>`_.
 
 
 Working with XSL Stylesheets
