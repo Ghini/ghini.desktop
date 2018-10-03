@@ -1,0 +1,53 @@
+{# -*- coding: utf-8 -*-
+##
+## Copyright 2012-2018 Mario Frasca <mario@anche.no>.
+##
+## This file is part of ghini.desktop.
+##
+## ghini.desktop is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## ghini.desktop is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
+#}
+{# DOMAIN species #}
+{% extends "base.ps.jj2" %}
+{% block body %}
+{% from bauble.plugins.report import PS %}
+/ghini { {{ 'tortuosa.jpg'|insert_picture(22,172,90,120) }} } def
+{% for p, v in enumerate(values) %}
+%%Page: {{ p }} {{ p }}
+%%PageOrientation: Portrait
+%%PageBoundingBox: 18 18 180 300
+%%BeginPageSetup
+%
+%%EndPageSetup
+ghini
+gsave
+[0.24 0 0 -0.24 18 300] concat
+gsave
+(VerdanaFID313HGSet2) cvn findfont 60 -60 matrix scale makefont setfont
+{{ v.default_vernacular_name.name|add_text(60, 1060, 'sans', 1.0) }}
+{{ f.genus.family.epithet|add_text(250, 360, 'sans', 4, stretch=2.4, maxwidth=390) }}
+(Verdana-ItalicFID315HGSet2) cvn findfont 120 -120 matrix scale makefont setfont
+{{ v.genus.epithet|add_text(40, 830, 'sans', 8.2, stretch=1.2, maxwidth=590) }}
+{{ v.epithet|add_text(40, 950, 'sans', 8.2, stretch=1.2, maxwidth=590) }}
+(VerdanaFID313HGSet2) cvn findfont 70 -70 matrix scale makefont setfont
+{{ v.author|add_text(620, 1040, 'sans', 5, True, maxwidth=560) }}
+grestore
+showpage
+%%PageTrailer
+{% endfor %}
+%%Trailer
+%%BoundingBox: 0 0 340 198
+%%Orientation: Landscape
+%%Pages: {{ p }}
+%%EOF
+{% endblock %}
