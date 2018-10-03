@@ -48,5 +48,5 @@ git push
 echo '******************************************************'
 echo 'consider the following debian and pypi publishing steps'
 echo
-echo dput mentors $(ls /tmp/ghini.desktop_${PUBLISHING}-*_*.changes | tail -n 1)
-echo git checkout $LINE && python setup.py sdist --formats zip upload -r pypi
+echo 'dput mentors $(ls /tmp/ghini.desktop_${PUBLISHING}-*_*.changes | tail -n 1)'
+echo 'git checkout $LINE && python setup.py sdist --formats zip upload -r pypi'

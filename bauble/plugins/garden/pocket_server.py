@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 import gtk as Gtk
 import glib as GLib
@@ -40,6 +41,8 @@ from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
 from bauble import meta
 
+class FileExistsError(Exception):
+    pass
 
 def get_ip():
     '''get the ip address relative to default route
@@ -165,7 +168,9 @@ class PocketServer(Thread):
                 from bauble import prefs
                 filename = os.path.join(prefs.prefs[prefs.picture_root_pref], name)
                 try:
-                    with open(filename, "xb") as picture_file:
+                    if os.path.exists(filename):
+                        raise FileExistsError
+                    with open(filename, "wb") as picture_file:
                         import base64
                         content = base64.b64decode(base64_content)
                         picture_file.write(content)
@@ -219,6 +224,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         # other initialization
         self.stop_spinner()
         self.read_clients_list()
+        self.is_exporting = False
         if model.autorefresh:
             self.on_new_snapshot_button_clicked()
 

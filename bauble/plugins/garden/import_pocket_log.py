@@ -25,6 +25,7 @@
 
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 import os.path
 
@@ -85,7 +86,7 @@ def process_inventory_line(session, baseline, timestamp, parameters):
 
 
 def process_pending_edit_line(session, baseline, timestamp, parameters):
-    full_plant_code, scientific_name, quantity, coordinates, pictures = parameters[:5], parameters[5:]
+    (full_plant_code, scientific_name, quantity, coordinates), pictures = parameters[:4], parameters[4:]
     if not full_plant_code:
         # what should we do…
         return

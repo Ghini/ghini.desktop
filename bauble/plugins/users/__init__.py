@@ -461,10 +461,7 @@ def set_privilege(role, privilege):
 def current_user():
     """Return the name of the current user.
     """
-    r = db.engine.execute('select current_user;')
-    user = r.fetchone()[0]
-    r.close()
-    return user
+    return db.current_user()
 
 
 def set_password(password, user=None):
