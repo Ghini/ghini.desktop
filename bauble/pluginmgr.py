@@ -200,7 +200,7 @@ def init(force=False):
                     '<i>Would you like to install them now?</i>') % \
                 ', '.join([p.__class__.__name__ for p in not_installed])
             if force or utils.yes_no_dialog(msg):
-                install([p for p in not_installed])
+                install([p for p in not_installed], import_defaults=False)
 
         # sort plugins in the registry by their dependencies
         not_registered = []
