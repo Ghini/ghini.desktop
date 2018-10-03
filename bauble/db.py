@@ -121,7 +121,7 @@ class HistoryExtension(orm.MapperExtension):
             if engine.name.startswith('sqlite'):
                 raise TypeError("this engine know nothing of users")
             import bauble.plugins.users as users
-            user = users.current_user()
+            user = current_user()
         except:
             if 'USER' in os.environ and os.environ['USER']:
                 user = os.environ['USER']
