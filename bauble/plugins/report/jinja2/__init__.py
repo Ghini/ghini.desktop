@@ -32,7 +32,7 @@ import re
 
 from gi.repository import Gtk
 
-from bauble.plugins.report import TemplateFormatterPlugin
+from bauble.plugins.report import TemplateFormatterPlugin, PS, SVG
 from bauble import utils
 from bauble import paths
 
@@ -41,11 +41,11 @@ class Jinja2FormatterPlugin(TemplateFormatterPlugin):
 
     title = 'Jinja2'
     extension = '.jj2'
-    domain_pattern = re.compile(r"^{#\s*DOMAIN\s+([a-z_]*)\s*#}$")
-    option_pattern = re.compile("^{#\s*OPTION ([a-z_]*): \("
-                                "type: ([a-z_]*), "
-                                "default: '(.*)', "
-                                "tooltip: '(.*)'\)\s*#}$")
+    domain_pattern = re.compile(r"^\{#\s*DOMAIN\s+([a-z_]*)\s*#\}$")
+    option_pattern = re.compile(r"^{#\s*OPTION ([a-z_]*): \("
+                                r"type: ([a-z_]*), "
+                                r"default: '(.*)', "
+                                r"tooltip: '(.*)'\)\s*#}$")
 
     def get_template(name):
         if not name:
@@ -60,6 +60,9 @@ class Jinja2FormatterPlugin(TemplateFormatterPlugin):
                                      FileSystemLoader(os.path.join(paths.user_dir(), 'res', 'templates')),
                                      PackageLoader('bauble.plugins.report', 'templates')])
             )
+            env.globals['PS'] = PS
+            env.globals['SVG'] = SVG
+            env.globals['enumerate'] = enumerate
             template = env.get_template(name)
         except RuntimeError as e:
             import traceback

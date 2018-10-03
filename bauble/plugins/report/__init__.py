@@ -362,6 +362,8 @@ class TemplateFormatterPlugin(FormatterPlugin):
         head, ext = os.path.splitext(template_name[:-len(cls.extension)])
         import tempfile
         fd, filename = tempfile.mkstemp(suffix=ext)
+        if isinstance(report, str):
+            report = report.encode('utf8')
         os.write(fd, report)
         os.close(fd)
         try:
