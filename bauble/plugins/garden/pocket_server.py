@@ -219,6 +219,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         # other initialization
         self.stop_spinner()
         self.read_clients_list()
+        self.is_exporting = False
         if model.autorefresh:
             self.on_new_snapshot_button_clicked()
 
