@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-14 08:29-0500\n"
-"PO-Revision-Date: 2018-09-27 20:23+0000\n"
+"PO-Revision-Date: 2018-10-03 15:24+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
@@ -849,7 +849,7 @@ msgstr "Contact (Donor) Editor"
 
 #: bauble/plugins/garden/institution.glade:158
 msgid "Contact name"
-msgstr "Contactnaam"
+msgstr "Contactpersoon"
 
 #: bauble/plugins/garden/prop_editor.glade:513
 #: bauble/plugins/garden/prop_editor.glade:984
@@ -976,7 +976,7 @@ msgstr ""
 
 #: bauble/plugins/tag/tag.glade:67
 msgid "Count and link"
-msgstr ""
+msgstr "Aantal regels"
 
 #: bauble/plugins/garden/prop_editor.glade:619
 #: bauble/plugins/garden/propagation.py:199
@@ -3926,7 +3926,7 @@ msgstr "start TNRS zoekopdracht"
 
 #: bauble/plugins/plants/infoboxes.glade:1398
 msgid "stored queries"
-msgstr "bewaarde queries"
+msgstr "opgeslagen queries"
 
 #: bauble/plugins/plants/species_model.py:68
 msgid "subf."
