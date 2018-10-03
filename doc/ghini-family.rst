@@ -254,7 +254,9 @@ enabled, the sequence reduces to: validate your identity, push updates, pull the
 |ghini.desktop| and |ghini.pocket| need to be connected to the same (local) network.  The server
 GUI includes an informative entry for the server IP address, this you obviously don't edit, and
 an entry for the port number, which defaults to GHINI/44464.  Make sure that every configuration
-on your clients matches the settings on the server.
+on your clients matches the settings on the server, i.e.: please copy your Server IP address, as
+shown by |ghini.desktop|, to all your |ghini.pocket| clients, and make sure that your clients
+are talking to the port on which the server will be listening.
 
 .. image:: images/pocket-server-settings.png
 
@@ -267,11 +269,11 @@ need to use the same phone with a different user name, you must overrule the exi
 registration, and to do so, you need the security code as shown in the desktop server
 settings.
 
-Start the server on |ghini.desktop| by clicking on that thick push button, it will stay pushed
-and slowly spinning while the server is active.  Possibly enable automatic refresh, then move
-your attention focus to your |ghini.pocket| client.  It is from the |ghini.pocket| clients that
-you handle the communication.  After accepting updates from your |ghini.pocket| clients, refresh
-the snapshot and update it on all your clients.
+Start the server on |ghini.desktop| by clicking on that thick square push button: it will stay
+pushed and slowly spinning while the server is active.  Possibly enable automatic refresh, then
+move your attention focus to your |ghini.pocket| client.  It is from the |ghini.pocket| clients
+that you handle the communication.  After accepting updates from your |ghini.pocket| clients,
+refresh the snapshot and update it on all your clients.
 
 When done, stop the server, review the logs, close the Pocket Server window.
 
