@@ -49,6 +49,7 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
                                 "type: ([a-z_]*), "
                                 "default: '(.*)', "
                                 "tooltip: '(.*)'\)$")
+    paths = []
 
     @classmethod
     def get_template(cls, name):
@@ -56,17 +57,15 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
             msg = _('Please select a template.')
             butils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
-        paths = [os.path.join(bpaths.user_dir(), 'res', 'templates'),
-                 os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'), ]
-        orig, (path, name) = name, os.path.split(name)
+        cls.paths = [os.path.join(bpaths.user_dir(), 'res', 'templates'),
+                     os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'), ]
+        path, name = os.path.split(name)
         if path:
-            paths.insert(0, path)
+            cls.paths.insert(0, path)
         from mako.lookup import TemplateLookup
-        lookup = TemplateLookup(paths, input_encoding='utf-8', output_encoding='utf-8')
+        lookup = TemplateLookup(cls.paths, input_encoding='utf-8', output_encoding='utf-8')
         try:
-            print(orig)
             template = lookup.get_template(name)
-            print(template.filename)
             return template
         except Exception as e:
             import traceback

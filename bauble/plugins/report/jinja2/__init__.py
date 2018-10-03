@@ -47,21 +47,23 @@ class Jinja2FormatterPlugin(TemplateFormatterPlugin):
                                 "default: '(.*)', "
                                 "tooltip: '(.*)'\)\s*#}$")
 
-    def get_template(template_filename):
-        if not template_filename:
+    def get_template(name):
+        if not name:
             msg = _('Please select a template.')
             utils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
         try:
+            path, name = os.path.split(name)
             from jinja2 import Environment, PackageLoader, ChoiceLoader, FileSystemLoader
             env = Environment(
-                loader=ChoiceLoader([FileSystemLoader(os.path.join(paths.user_dir(), 'res', 'templates')),
+                loader=ChoiceLoader([FileSystemLoader(path),
+                                     FileSystemLoader(os.path.join(paths.user_dir(), 'res', 'templates')),
                                      PackageLoader('bauble.plugins.report', 'templates')])
             )
-            template = env.get_template(os.path.basename(template_filename))
+            template = env.get_template(name)
         except RuntimeError as e:
             import traceback
-            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (template_filename, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
+            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
             return False
 
         return template

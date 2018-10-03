@@ -236,6 +236,9 @@ clients will be able to register, request database snapshots, or send collected 
 
 .. image::  images/ghini-pocket-client.png
 
+The above is how |ghini.pocket| looks on my virtual phone, and 192.168.43.226 is the IP address
+of my laptop in my local network.  YMMV.
+
 |ghini.pocket| works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
 server mode, automatically and in the background.  A typical Pocket Server session consists of:

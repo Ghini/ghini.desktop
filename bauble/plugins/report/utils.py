@@ -25,6 +25,7 @@ logger.setLevel(logging.DEBUG)
 
 import re
 import math
+import os.path
 
 
 class SVG:
@@ -339,7 +340,8 @@ class PS:
     }
 
     @classmethod
-    def add_text(cls, x, y, s, style, size, align=0, maxwidth=None):
+    def add_text(cls, x, y, s, style='sans', size=12, align=0, stretch=1, maxwidth=None):
+        import sys
         s = (s or '').replace(u'\u200b', '')
         glyphs = ['<']
         widths = ['[']
@@ -348,28 +350,103 @@ class PS:
         for i in s or []:
             glyph_def = cls.font[style].get(i, qmark)
             glyphs.append(glyph_def[0])
-            w = (0.28 * glyph_def[1]) * size + 0.5
+            w = round((0.28 * glyph_def[1]) * size + 0.5, 1)
             totalwidth += w
-            widths.append(str(w))
+            widths.append("%0.1f" % w)
         glyphs.append('>')
         widths.append(']')
-        result = []
-        squeeze = False
         if maxwidth is not None and totalwidth > maxwidth:
-            squeeze = True
-            result = ['gsave']
+            hfactor = 1.0 * maxwidth / totalwidth
+            totalwidth = maxwidth
+        else:
+            hfactor = 1
         x -= totalwidth * align
-        result.append("%s %s moveto" % (x, y))
-        if squeeze:
-            result.append('%s 1 scale' % (1.0 * maxwidth / totalwidth))
-        result.append("%s\n%s\nxshow" % (''.join(glyphs), ' '.join(widths)))
-        if squeeze:
-            result.append('grestore')
+        result = ["%0.1f %0.1f moveto" % (x, y, ),
+                  ''.join(glyphs),
+                  ' '.join(widths),
+                  "xshow"]
+        if hfactor != 1 or stretch != 1:
+            result.insert(1, "gsave")
+            result.insert(2, "%0.3f %0.1f scale" % (hfactor, stretch, ))
+            result.append("grestore")
+
         return '\n'.join(result)
 
     @classmethod
     def add_qr(cls, x, y, text, scale=1, side=None):
         return add_qr(x, y, text, scale, side, format='ps')
+
+    @classmethod
+    def insert_picture(cls, left, bottom, width, height, name):
+        '''postscript string that corresponds to placing image in page
+
+        left, bottom specify position of bottom-left corner of picture.
+
+        width, height give dimension of picture on paper.  either width or
+        height may be None (not both), in which case proportions are kept.
+
+        image is a filename, which we open here.
+
+        PIL.Image object, it needs be RBG or grey-scale (not indexed) and
+        transparency, if present, is converted to levels of white.
+
+        '''
+        import PIL.Image
+        image = PIL.Image.open(os.path.join(get_caller_template_location(), name))
+        import itertools
+        width0, height0 = image.size
+        if width is None:
+            width = height * (1.0 * width0 / height0)
+        if height is None:
+            height = width * (1.0 * height0 / width0)
+        channels = len(image.mode.strip('A'))
+        try:
+            chain = list(itertools.chain.from_iterable(k[:channels] for k in image.getdata()))
+        except:
+            chain = image.getdata()
+        result = ('gsave %(left)d %(bottom)d translate %(width)d %(height)d scale %(width0)d %(height0)d 8 [%(width0)d 0 0 -%(height0)d 0 %(height0)d] (%(text)s>) /ASCIIHexDecode filter false %(channels)s colorimage grestore\n' % {
+            'left': left,
+            'bottom': bottom,
+            'width0': width0,
+            'height0': height0,
+            'width': width,
+            'height': height,
+            'channels': channels,
+            'text': ''.join([("%02x" % g) for g in chain])})
+        return result
+
+    @classmethod
+    def insert_jpeg_picture(cls, left, bottom, width, height, name):
+        '''postscript string that corresponds to placing JPEG image in page
+
+        left, bottom specify position of bottom-left corner of picture.
+
+        width, height give dimension of picture on paper.  either width or
+        height may be None (not both), in which case proportions are kept.
+
+        filename is a full path to a JPEG image.
+
+        '''
+        import PIL.Image
+        filename = os.path.join(get_caller_template_location(), name)
+        image = PIL.Image.open(filename)
+        width0, height0 = image.size
+        channels = len(image.mode.strip('A'))
+        if width is None:
+            width = height * (1.0 * width0 / height0)
+        if height is None:
+            height = width * (1.0 * height0 / width0)
+
+        content = open(filename, "rb").read()
+        return('gsave %(left)d %(bottom)d translate %(width)d %(height)d scale %(width0)d %(height0)d 8 [%(width0)d 0 0 -%(height0)d 0 %(height0)d] (%(text)s>) /ASCIIHexDecode filter 0 dict /DCTDecode filter false %(channels)s colorimage grestore\n' % {
+            'left': left,
+            'bottom': bottom,
+            'width0': width0,
+            'height0': height0,
+            'width': width,
+            'height': height,
+            'channels': channels,
+            'text': ''.join(["%02x" % g for g in content])})
 
 
 class Code39:
@@ -505,61 +582,23 @@ class add_qr_functor:
 add_qr = add_qr_functor()
     
 
-def insert_picture(left, bottom, width, height, image):
-    '''postscript string that corresponds to placing image in page
+def get_caller_template_location():
+    '''return location of caller template
 
-    left, bottom specify position of bottom-left corner of picture.
-
-    width, height give dimension of picture on paper.  either width or
-    height may be None (not both), in which case proportions are kept.
-
-    image is a PIL.Image object, it needs be RBG (not indexed) and
-    transparency is ignored.
+    invoked from a function during template rendering, returns the location
+    of the template being rendered.  currently limited to mako.
 
     '''
-
-    import itertools
-    width0, height0 = image.size
-    if width is None:
-        width = height * (1.0 * width0 / height0)
-    if height is None:
-        height = width * (1.0 * height0 / width0)
-    result = ('gsave %(left)d %(bottom)d translate %(width)d %(height)d scale %(width0)d %(height0)d 8 [%(width0)d 0 0 -%(height0)d 0 %(height0)d] (%(text)s>) /ASCIIHexDecode filter false 3 colorimage grestore\n' % {
-        'left': left,
-        'bottom': bottom,
-        'width0': width0,
-        'height0': height0,
-        'width': width,
-        'height': height,
-        'text': ''.join([("%02x" % g) for g in itertools.chain.from_iterable(k[:3] for k in image.getdata())])})
-    return result
-
-
-def insert_jpeg_picture(left, bottom, width, height, filename):
-    '''postscript string that corresponds to placing JPEG image in page
-
-    left, bottom specify position of bottom-left corner of picture.
-
-    width, height give dimension of picture on paper.  either width or
-    height may be None (not both), in which case proportions are kept.
-
-    filename is a full path to a JPEG image.
-
-    '''
-    import PIL.Image
-    tmp = PIL.Image.open(filename)
-    width0, height0 = tmp.size
-    if width is None:
-        width = height * (1.0 * width0 / height0)
-    if height is None:
-        height = width * (1.0 * height0 / width0)
-    
-    content = open(filename, "rb").read()
-    return('gsave %(left)d %(bottom)d translate %(width)d %(height)d scale %(width0)d %(height0)d 8 [%(width0)d 0 0 -%(height0)d 0 %(height0)d] (%(text)s>) /ASCIIHexDecode filter 0 dict /DCTDecode filter false 3 colorimage grestore\n' % {
-        'left': left,
-        'bottom': bottom,
-        'width0': width0,
-        'height0': height0,
-        'width': width,
-        'height': height,
-        'text': ''.join(["%02x" % g for g in content])})
+    try:
+        import mako.template
+        import sys
+        import os.path
+        here = sys._getframe()
+        while here.f_code.co_name != 'render_body':
+            here = here.f_back
+        template_name = here.f_code.co_filename
+        info = mako.template._get_module_info(template_name)
+        return os.path.dirname(info.template_filename)
+    except Exception as e:
+        logger.debug("%s(%s)" % (type(e).__name__, e))
+        return ''

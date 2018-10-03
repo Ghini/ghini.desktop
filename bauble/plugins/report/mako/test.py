@@ -31,6 +31,7 @@ import bauble.utils.desktop as desktop
 desktop.open = lambda x: x
 
 from bauble.test import BaubleTestCase
+from unittest import TestCase
 from bauble.plugins.plants import Family, Genus, Species, \
     SpeciesDistribution, VernacularName, GeographicArea
 from bauble.plugins.garden import Accession, Plant, Location
@@ -157,7 +158,51 @@ class MakoFormatterTests(BaubleTestCase):
             report = MakoFormatterPlugin.format(plants, template=filename, **options)
             self.assertEquals((filename, type(report)), (filename, bytes))
 
-class SvgProductionTest(BaubleTestCase):
+
+class PostscriptProductionTest(TestCase):
+    def test_add_text_a(self):
+        g = PS.add_text(0, 0, 'a')
+        self.assertEqual(g, '0.0 0.0 moveto\n'
+                         '<41>\n'
+                         '[ 101.3 ]\n'
+                         'xshow')
+
+    def test_add_text_a_stretched(self):
+        g = PS.add_text(0, 0, 'a', stretch=2.1)
+        self.assertEqual(g, '0.0 0.0 moveto\n'
+                         'gsave\n'
+                         '1.000 2.1 scale\n'
+                         '<41>\n'
+                         '[ 101.3 ]\n'
+                         'xshow\n'
+                         'grestore')
+
+    def test_add_text_a_compressed(self):
+        g = PS.add_text(0, 0, 'abcdefghi', maxwidth=700)
+        self.assertEqual(g, '0.0 0.0 moveto\n'
+                         'gsave\n'
+                         '0.863 1.0 scale\n'
+                         '<414243444546474849>\n'
+                         '[ 101.3 104.7 87.9 104.7 101.3 61.0 104.7 104.7 40.8 ]\n'
+                         'xshow\n'
+                         'grestore')
+
+    def test_add_text_centred(self):
+        g = PS.add_text(200, 0, 'a', align=0.5)
+        self.assertEqual(g, '149.3 0.0 moveto\n'
+                         '<41>\n'
+                         '[ 101.3 ]\n'
+                         'xshow')
+
+    def test_add_text_right_aligned(self):
+        g = PS.add_text(200, 0, 'a', align=1)
+        self.assertEqual(g, '98.7 0.0 moveto\n'
+                         '<41>\n'
+                         '[ 101.3 ]\n'
+                         'xshow')
+
+
+class SvgProductionTest(TestCase):
     def test_add_text_a(self):
         g, x, y = SVG.add_text(0, 0, 'a', 2)
         self.assertEqual(y, 0)
