@@ -185,9 +185,12 @@ class ImageLoader(threading.Thread):
         gobject.idle_add(self.callback)
 
     def run(self):
-        self.loader.connect("closed", self.loader_notified)
-        self.cache.get(
-            self.url, self.reader_function, on_hit=self.loader.write)
+        try:
+            self.cache.get(
+                self.url, self.reader_function, on_hit=self.loader.write)
+            self.loader.connect("closed", self.loader_notified)
+        except Exception, e:
+            logger.debug("%s(%s) while loading image" % (type(e).__name__, e))
         self.loader.close()
 
     def read_base64(self):

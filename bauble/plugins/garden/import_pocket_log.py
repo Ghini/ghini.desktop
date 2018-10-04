@@ -22,6 +22,7 @@
 #
 # Data from the ghini.pocket log is written to the session, inconditionally.
 #
+from __future__ import unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
