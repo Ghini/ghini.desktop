@@ -47,15 +47,18 @@ and press on Execute to produce your report.  Ghini will open the report in the 
 
 Ghini comes with a few sample package-templates, and it lets you install your own user-templates.
 
-To install a template, click on ``Add``, choose the file that contains your template, and type the name by
-which you want to install it.  ghini.desktop will copy it to your ghini user directory.  Installed templates
-are static, once configured you are not expected to alter them.  You can delete installed user templates, or
-you can overrule a package-template by installing your own template using a package-template name.
+Package-templates are integral part of the installation and are overwritten every time you update your
+installation.  User-templates are in your custom data, together with your ghini configuration, which is the
+default location for your sqlite databases and your plant pictures.  User-templates are persistent as long
+as you stay in the same production line (say, ghini-3.1).
 
-Package-templates are integral part of the installation.  User-templates are in your custom data, together
-with your ghini configuration, which is the default location for your sqlite databases and your plant
-pictures.  Package-templates will be overwritten if you update your installation, User-templates are
-persistent as long as you stay in the same production line (say, ghini-3.1).
+To install a new template as a user-template, click on ``Add``, choose the file that contains your template,
+and type the name by which you want to install it.  ghini.desktop will copy it to your ghini user directory.
+Installed templates are static, once configured you are not expected to alter them.  You can delete
+installed user templates, or you can overrule a package-template by installing your own template using an
+already taken package-template name.
+
+----------------------------------------
 
 Choosing a formatter template implies a template language.  ghini.desktop supports three template languages:
 Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template language, and the
@@ -113,16 +116,17 @@ Working with Templates Languages
 Common information
 ................................................
 
-Creating reports with Mako and Jinja2 is similar in the way that you would create
-a web page from a template.  It is much simpler than the XSL
-Formatter(see below) and should be relatively easy to create template
-for anyone with a little but of programming experience.
+Creating reports with Mako and Jinja2 is similar in the way that you would create a web page from a
+template.  Both Mako and Jinja2 are mostly used for dynamic creation of static web pages.  This is much
+simpler than the XSL Formatter(see below) and should be relatively easy to create template for anyone with a
+little but of programming experience.
 
-The template generator will use the same file extension as the template, stripping the optional but advised
-``.mako`` / ``.jj2`` trailing part.  The template name should indicate the type of output produced by the
-template.  For example, to generate an HTML page from your template you would name the template something
-like ``report.html.mako`` if using Mako, or ``report.html.jj2`` if using Jinja2.  Similarly, you would name
-a template ``report.csv.mako`` if it generates a comma separated value file.
+Ghini instructs the template generator to use the same file extension as the template, stripping the
+optional but advised ``.mako`` / ``.jj2`` trailing part.  The template name should indicate the type of
+output produced by the template, the trailing ``.mako`` / ``.jj2`` prevents you from mistaking a template
+for an output file.  For example, to generate an HTML page from your template you would name the template
+something like ``report.html.mako`` if using Mako, or ``report.html.jj2`` if using Jinja2.  Similarly, you
+would name a template ``report.csv.mako`` if it generates a comma separated value file.
 
 You can also choose not to use the optional ``.mako`` / ``.jj2`` trailing part, but then it's your task to
 remember that it is a template and which language it uses.
