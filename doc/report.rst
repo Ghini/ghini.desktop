@@ -1,3 +1,6 @@
+.. |ghini.pocket| replace:: :py:mod:`ghini.pocket`
+.. |ghini.desktop| replace:: :py:mod:`ghini.desktop`
+
 Generating reports
 ==================
 
@@ -43,7 +46,7 @@ box (fields may be filled in differently):
 .. image:: images/report-from-template-dialog.png
 
 You have already selected your objects in the main window, you now here select the report template you need,
-and press on Execute to produce your report.  Ghini will open the report in the corresponding application.
+and press on ``Execute`` to produce your report.  Ghini will open the report in the corresponding application.
 
 Ghini comes with a few sample package-templates, and it lets you install your own user-templates.
 
@@ -53,17 +56,17 @@ default location for your sqlite databases and your plant pictures.  User-templa
 as you stay in the same production line (say, ghini-3.1).
 
 To install a new template as a user-template, click on ``Add``, choose the file that contains your template,
-and type the name by which you want to install it.  ghini.desktop will copy it to your ghini user directory.
+and type the name by which you want to install it.  |ghini.desktop| will copy it to your ghini user directory.
 Installed templates are static, once configured you are not expected to alter them.  You can delete
-installed user templates, or you can overrule a package-template by installing your own template using an
-already taken package-template name.
+installed user templates (select it, then click on ``Remove``), or you can overrule a package-template by
+installing your own template using an already taken package-template name.
 
 ----------------------------------------
 
-Choosing a formatter template implies a template language.  ghini.desktop supports three template languages:
-Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template language, and the
-same goes for Mako.  During installation you indicated which of the several XSL formatting engines you
-wanted to have, if any.
+Choosing a formatter template implies the choice of a template language.  |ghini.desktop| supports three
+template languages: Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template
+language, and the same goes for Mako.  During installation you indicated which of the several XSL formatting
+engines you wanted to have, if any.
 
 Expand the ``Details`` section to see some information about the selected formatter template.
 
@@ -154,37 +157,54 @@ A template working with the ``raw`` list needs more programming logic to do what
 well-thought set of such templates can reduce the amount of template names that your users need to handle.
 
 A template may require extra options, that can the user will define at run time.  These are described in
-comment lines, liek this (for Mako)::
+comment lines, like in this Mako example::
 
-  missing docs
+  ## OPTION accession_first: (type: integer, default: '', tooltip: 'start of range.')
   
-or this (for Jinja2)::
+The Jinja2 equivalent of the above is::
 
-  missing docs
+  {# OPTION accession_first: (type: integer, default: '', tooltip: 'start of range.') #}
+
+As you can see from the example, an option has a name and the three compulsory fields ``type``, ``default``,
+``tooltip``.  ``type`` must be the python name of a type, valid at runtime, and initializable from the
+default value, and from the text inserted by the user at runtime.  Built-in examples would be ``str``,
+``int``, ``float``, ``bool``.  If the user provided value is invalid for the type, or if the user provides
+no value, the ``default`` value will be used.  ``tooltip`` is shown when the user places the mouse cursor
+over the text, without clicking.
+
 
 Working with Jinja2
 ..........................
 
-Jinja2 is a mainstream, powerful and well documented template language.  Please refer to their documentation
-for information regarding how to write templates.
+Jinja2 is a mainstream, powerful and well documented template language.  Please refer to `Jinja2 online
+documentation <http://jinja.pocoo.org/>`_ for information regarding how to write templates.
 
-Please refer to the ``tortuosa.ps.jj2`` example to see how to write a template that inherits from a base
-templates, how to define a template domain, please note that base templates should not define a domain.  The
-``tortuosa.ps.jj2`` example also shows how to import pictures, and how to use the PS and SVG namespaces,
-which are by default included in the environment accessible from your Jinja2 templates.
+A good and comprehensive example for Jinja2 within |ghini.desktop| is the ``tortuosa.ps.jj2`` template.  It
+shows how to write a template that inherits from a base template, how to define a template domain, how to
+import pictures, and how to use the ``PS`` and ``SVG`` namespaces and the ``enumerate`` function, which are
+all included by default to the environment accessible from your Jinja2 templates.
+
+
 
 Working with Mako
 ......................................
 
 The Mako report formatter uses the Mako template language for generating reports.  The Mako templating
-system is included in all ghini.desktop installation.
+system is included in all |ghini.desktop| installation.
 
-Mako is less mainstream than Jinja2, it is arguably less good documented, but it is at least as powerful, if
-not more.  If you don't manage to create something with Jinja2, please try Mako.  If you don't understand
-how Mako works, please try Jinja2 documentation, they are very similar so most concepts apply to both.
+Mako is less mainstream than Jinja2, and arguably less good documented, but also quite more flexible than
+Jinja2.  They are very similar to each other so most concepts apply to both.  If you're doing something
+rather simple, start with Jinja2.  If you stumble against Jinja2 limitations, try Mako.  If you don't
+understand how Mako works, spend a couple of hours on Jinja2 documentation, then go back to Mako.
 
 More information about Mako and its language can be found at `makotemplates.org
 <http://www.makotemplates.org>`_.
+
+A very comprehensive example for Mako within |ghini.desktop| is the ``accession-label-qr.ps.mako`` example.
+It shows how to write a template that inherits from a base templates, how to define a template domain.  The
+``accession-label-qr.ps.mako`` example also shows how to import pictures, how to import functions from the
+available Python environment, and how to use the ``PS`` and ``SVG`` namespaces, included by default to the
+environment accessible from your Mako templates.
 
 
 Working with XSL Stylesheets
