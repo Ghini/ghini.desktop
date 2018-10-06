@@ -46,27 +46,30 @@ box (fields may be filled in differently):
 .. image:: images/report-from-template-dialog.png
 
 You have already selected your objects in the main window, you now here select the report template you need,
-and press on ``Execute`` to produce your report.  Ghini will open the report in the corresponding application.
+and press on ``Execute`` to produce your report.  Ghini will open the report in the corresponding
+application, if installed and enabled..
 
 Ghini comes with a few sample package-templates, and it lets you install your own user-templates.
 
-Package-templates are integral part of the installation and are overwritten every time you update your
-installation.  User-templates are in your custom data, together with your ghini configuration, which is the
-default location for your sqlite databases and your plant pictures.  User-templates are persistent as long
-as you stay in the same production line (say, ghini-3.1).
+.. admonition::  package-templates vs. user-templates
+   :class: toggle
 
-To install a new template as a user-template, click on ``Add``, choose the file that contains your template,
-and type the name by which you want to install it.  |ghini.desktop| will copy it to your ghini user directory.
-Installed templates are static, once configured you are not expected to alter them.  You can delete
-installed user templates (select it, then click on ``Remove``), or you can overrule a package-template by
-installing your own template using an already taken package-template name.
+      Package-templates are integral part of the installation and are overwritten every time you update your
+      installation.  User-templates are in your custom data, together with your ghini configuration, which
+      is the default location for your sqlite databases and your plant pictures.  User-templates are
+      persistent as long as you stay in the same production line (say, ghini-3.1).
 
-----------------------------------------
+      To install a new template as a user-template, click on ``Add``, choose the file that contains your
+      template, and type the name by which you want to install it.  |ghini.desktop| will copy it to your
+      ghini user directory.  Installed templates are static, once configured you are not expected to alter
+      them.  You can delete installed user templates (select it, then click on ``Remove``), or you can
+      overrule a package-template by installing your own template using an already taken package-template
+      name.
 
-Choosing a formatter template implies the choice of a template language.  |ghini.desktop| supports three
-template languages: Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template
-language, and the same goes for Mako.  During installation you indicated which of the several XSL formatting
-engines you wanted to have, if any.
+Choosing a template implies the choice of a template language.  |ghini.desktop| supports three template
+languages: Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template language,
+and the same goes for Mako.  During installation you indicated which of the several XSL formatting engines
+you wanted to have, if any.
 
 Expand the ``Details`` section to see some information about the selected formatter template.
 
