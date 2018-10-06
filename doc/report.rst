@@ -75,10 +75,10 @@ Expand the ``Details`` section to see some information about the selected format
 
 .. image:: images/report-from-template-dialog-details.png
 
-The formatter engine combines selection and formatter template to produce a report.  Each formatter template
-indicates the iteration domain, that is what kind of collection objects you focus on, in your report.  In
-the above example, we are using Jinja2 to report about individual plants, producing —per plant— a postscript
-label with a QR code.
+The formatter engine combines selection and template to produce a report.  Each formatter template indicates
+the iteration domain, that is what kind of collection objects you focus on, in your report.  In the above
+example, we are using Jinja2 to report about individual plants, producing —per plant— a postscript label
+with a QR code.
 
 Expand the ``Options`` section to see what extra parameters your selected template may require or expect.
 
@@ -124,31 +124,32 @@ Common information
 
 Creating reports with Mako and Jinja2 is similar in the way that you would create a web page from a
 template.  Both Mako and Jinja2 are mostly used for dynamic creation of static web pages.  This is much
-simpler than the XSL Formatter(see below) and should be relatively easy to create template for anyone with a
-little but of programming experience.
+simpler than the XSL Formatter (see below) and should be relatively easy to create template for anyone with
+a little but of programming experience.
 
-Ghini instructs the template generator to use the same file extension as the template, stripping the
-optional but advised ``.mako`` / ``.jj2`` trailing part.  The template name should indicate the type of
-output produced by the template, the trailing ``.mako`` / ``.jj2`` prevents you from mistaking a template
-for an output file.  For example, to generate an HTML page from your template you would name the template
-something like ``report.html.mako`` if using Mako, or ``report.html.jj2`` if using Jinja2.  Similarly, you
-would name a template ``report.csv.mako`` if it generates a comma separated value file.
+Ghini instructs the template generator to use the same file extension as the template, stripping the advised
+but optional ``.mako`` / ``.jj2`` trailing part.  The template extension indicates the type of output
+produced by the template, the trailing ``.mako`` / ``.jj2`` prevents you from mistaking a template for an
+output file.  For example, to generate an HTML page from your template you would name the template something
+like ``report.html.mako`` if using Mako, or ``report.html.jj2`` if using Jinja2.  Similarly, you would name
+a template ``report.csv.mako`` if it generates a comma separated value file.
 
 You can also choose not to use the optional ``.mako`` / ``.jj2`` trailing part, but then it's your task to
 remember that it is a template and which language it uses.
 
 A template must declare its iteration domain, that is, on which type of objects it reports.  The iteration
-domain is declared in a comment line, something like this (for Mako)::
+domain is declared in a comment line, something like this (for Mako):
 
-     ## DOMAIN <name>
+    ``## DOMAIN <name>``
 
-or this (for Jinja2)::
+or this (for Jinja2):
 
-     {# DOMAIN <name> #}
+     ``{# DOMAIN <name> #}``
 
-Here ``<name>`` is one of ``Species``, ``Accession``, ``Plant``, ``Location``, or ``raw``.
+Here ``<name>`` is one of ``Species``, ``Accession``, ``Plant``, ``Location``, or ``raw``.  The keyword
+``DOMAIN`` needs be all upper case, but the declaration is further case insensitive.
 
-The role of the DOMAIN declaration is to instruct ghini about the data to handle to the template, when
+The role of the ``DOMAIN`` declaration is to instruct ghini about the data to handle to the template, when
 rendering it: when rendering a template, ghini starts by building a raw list, containing all top-level
 objects in current result.  If the declared iteration domain is ``raw``, ghini will pass the raw list to the
 template.  If the declared iteration domain is a ghini class, ghini will then build a list of all objects in
@@ -156,17 +157,17 @@ the iteration domain, associated to the raw list.
 
 In either case, these objects are available to the template as elements of the list ``values``.
 
-A template working with the ``raw`` list needs more programming logic to do what the user expects, but a
-well-thought set of such templates can reduce the amount of template names that your users need to handle.
+A template declaring ``DOMAIN raw`` needs more programming logic.  On the other hand, a small, well-thought
+set of such templates can reduce the amount of template names that your users need to handle.
 
 A template may require extra options, that can the user will define at run time.  These are described in
-comment lines, like in this Mako example::
+comment lines, like in this Mako example:
 
-  ## OPTION accession_first: (type: integer, default: '', tooltip: 'start of range.')
+  ``## OPTION accession_first: (type: integer, default: '', tooltip: 'start of range.')``
   
-The Jinja2 equivalent of the above is::
+The Jinja2 equivalent of the above is:
 
-  {# OPTION accession_first: (type: integer, default: '', tooltip: 'start of range.') #}
+  ``{# OPTION accession_first: (type: integer, default: '', tooltip: 'start of range.') #}``
 
 As you can see from the example, an option has a name and the three compulsory fields ``type``, ``default``,
 ``tooltip``.  ``type`` must be the python name of a type, valid at runtime, and initializable from the
@@ -213,8 +214,16 @@ environment accessible from your Mako templates.
 Working with XSL Stylesheets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. admonition:: Not up-to-date, help required.
+   :class: toggle
+
+      The current maintainer was never hired to work at this part of the software, and he leaves this
+      feature as he found it, both code and user documentation, trying not to break it.  Please contribute,
+      with text, screenshots, examples, if you know how to produce reports with XSL.  The below notes date
+      back to the old Bauble 1.0.11 docs.  And, oh well, you may state that they say close to nothing.
+
 The XSL report formatter requires an XSL to PDF renderer to
-convert the data to a PDF file. Apache FOP is a free and
+convert the data to a PDF file.  Apache FOP is a free and
 open-source XSL->PDF renderer and is recommended.
 
 Installing Apache FOP on GNULinux
