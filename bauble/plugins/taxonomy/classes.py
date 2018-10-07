@@ -42,6 +42,7 @@ class Rank(db.Base):
 class Taxon(db.Base, db.WithNotes):
     __tablename__ = 'taxon'
     rank_id = Column(ForeignKey('rank.id'), nullable=False)
+    rank = relationship('Rank', backref=backref('taxa'))
     ## the Taxon.rank property is defined as backref in Rank.taxa
     epithet = Column(Unicode(48))
     author = Column(UnicodeText())
@@ -50,8 +51,41 @@ class Taxon(db.Base, db.WithNotes):
     parent_id = Column(Integer, ForeignKey('taxon.id'), nullable=False)
     accepted_id = Column(Integer, ForeignKey('taxon.id'), nullable=True)
 
-Taxon.children = relationship(Taxon, foreign_keys=Taxon.parent_id)
-Taxon.synonyms = relationship(Taxon, foreign_keys=Taxon.accepted_id)
+    def __getattr__(self, name, values=None):
+        if name.startswith('_sa'):  # it's a SA field, don't even try to look it up
+            raise AttributeError(name)
+        if values is None:
+            from sqlalchemy.orm.session import object_session
+            from bauble.utils import get_distinct_values
+            values = get_distinct_values(Rank.defines, object_session(self))
+        if name not in values:
+            raise AttributeError(name)
+        print(self.epithet, self.parent)
+        if name == self.rank.defines:
+            if name == 'binomial':
+                return self.parent.genus + ' ' + self.epithet
+            else:
+                return self.epithet
+        if self.parent is not self and self.parent is not None:
+            return self.parent.__getattr__(name, values)
+        else:
+            raise AttributeError(name)
+
+    def show(self):
+        def convert(item):
+            if item.startswith('.'):
+                field = item[1:]
+                return getattr(self, field)
+            else:
+                return item
+        format = self.rank.shows_as.replace('[', '').replace(']', '')
+        parts = format.split()
+        values = [convert(item) for item in parts]
+        print(values)
+        return " ".join(values)
+
+Taxon.children = relationship(Taxon, backref=backref('parent', remote_side=[Taxon.id]), foreign_keys=[Taxon.parent_id])
+Taxon.synonyms = relationship(Taxon, backref=backref('accepted', remote_side=[Taxon.id]), foreign_keys=[Taxon.accepted_id])
 
 def compute_serializable_fields(cls, session, keys):
     result = {'taxon': None}
@@ -63,8 +97,4 @@ def compute_serializable_fields(cls, session, keys):
     return result
 
 TaxonNote = db.make_note_class('Taxon', compute_serializable_fields)
-
-Rank.taxa = relation('Taxon', cascade='all, delete-orphan',
-                     order_by=[Taxon.epithet],
-                     backref=backref('rank', uselist=False))
 
