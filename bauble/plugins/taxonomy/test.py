@@ -37,14 +37,15 @@ def initialize_ranks_and_taxa(self):
         ('species', 40, '[.genus .epithet]', 'binomial'),
         ('subspecies', 45, '.binomial subsp. .epithet', ''),
         ('varietas', 50, '.binomial var. .epithet', ''),
-        ('forma', 55, '.binomial f. .epithet', ''), ]
+        ('forma', 55, '.binomial f. .epithet', ''),
+        ('cultivar', 70, ".complete '.epithet'", ''), ]
     for name, depth, shows_as, defines in ranks:
         p = Rank(name=name, depth=depth, shows_as=shows_as, defines=defines)
         self.session.add(p)
     self.session.commit()
     (self.regnum, self.ordo, self.familia, self.subfamilia, self.tribus,
      self.subtribus, self.genus, self.subgenus, self.sectio, self.subsectio,
-     self.species, self.subspecies, self.varietas, self.forma
+     self.species, self.subspecies, self.varietas, self.forma, self.cultivar
     ) = self.session.query(Rank).order_by(Rank.depth).all()
     # rank, id, epithet, parent_id, accepted_id
     taxa = [
@@ -156,4 +157,21 @@ class TestingRepresentation(BaubleTestCase):
         cylindrica = Taxon(rank=self.varietas, parent=pepo, epithet='cylindrica')
         self.session.add_all([cucurbitales, cucurbitaceae, cucurbita, pepo, cylindrica])
         self.assertEquals(cylindrica.show(), 'Cucurbita pepo var. cylindrica')
+        
+    def test_shows_cultivar(self):
+        cucurbitales = Taxon(rank=self.ordo, parent=self.plantae, epithet='Cucurbitales')
+        cucurbitaceae = Taxon(rank=self.familia, parent=cucurbitales, epithet='Cucurbitaceae')
+        cucurbita = Taxon(rank=self.genus, parent=cucurbitaceae, epithet='Cucurbita')
+        pepo = Taxon(rank=self.species, parent=cucurbita, epithet='pepo')
+        cylindrica = Taxon(rank=self.varietas, parent=pepo, epithet='cylindrica')
+        self.session.add_all([cucurbitales, cucurbitaceae, cucurbita, pepo, cylindrica])
+
+        cv = Taxon(rank=self.cultivar, parent=cylindrica, epithet='Lekker Bek')
+        self.assertEquals(cv.show(), "Cucurbita pepo var. cylindrica 'Lekker Bek'")
+        cv = Taxon(rank=self.cultivar, parent=pepo, epithet='Lekker Bek')
+        self.assertEquals(cv.show(), "Cucurbita pepo 'Lekker Bek'")
+        cv = Taxon(rank=self.cultivar, parent=cucurbita, epithet='Lekker Bek')
+        self.assertEquals(cv.show(), "Cucurbita sp. 'Lekker Bek'")
+        cv = Taxon(rank=self.cultivar, parent=self.plantae, epithet='Lekker Bek')
+        self.assertEquals(cv.show(), "Plantae sp. 'Lekker Bek'")
         

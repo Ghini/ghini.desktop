@@ -59,30 +59,30 @@ class Taxon(db.Base, db.WithNotes):
             from bauble.utils import get_distinct_values
             values = get_distinct_values(Rank.defines, object_session(self))
         if name not in values:
-            raise AttributeError(name)
+            super().__getattr__(self)
         print(self.epithet, self.parent)
         if name == self.rank.defines:
             if name == 'binomial':
                 return self.parent.genus + ' ' + self.epithet
             else:
                 return self.epithet
-        if self.parent is not self and self.parent is not None:
+        if self.parent is not self:
             return self.parent.__getattr__(name, values)
         else:
             raise AttributeError(name)
 
     def show(self):
-        def convert(item):
-            if item.startswith('.'):
-                field = item[1:]
-                return getattr(self, field)
-            else:
-                return item
-        format = self.rank.shows_as.replace('[', '').replace(']', '')
-        parts = format.split()
-        values = [convert(item) for item in parts]
-        print(values)
-        return " ".join(values)
+        def convert(match):
+            item = match.group(0)
+            field = item[1:]
+            return getattr(self, field)
+        import re
+        return re.sub(r'\.[\w]+', convert, self.rank.shows_as.replace(']', '').replace('[', ''))
+
+    @property
+    def complete(self):
+        return self.parent.show()
+
 
 Taxon.children = relationship(Taxon, backref=backref('parent', remote_side=[Taxon.id]), foreign_keys=[Taxon.parent_id])
 Taxon.synonyms = relationship(Taxon, backref=backref('accepted', remote_side=[Taxon.id]), foreign_keys=[Taxon.accepted_id])
@@ -97,4 +97,3 @@ def compute_serializable_fields(cls, session, keys):
     return result
 
 TaxonNote = db.make_note_class('Taxon', compute_serializable_fields)
-
