@@ -87,8 +87,8 @@ then
     VERSION=$1
     LINE=ghini-$1
 else
-    VERSION=3.1
-    LINE=ghini-3.1
+    VERSION=3.2
+    LINE=ghini-3.2
 fi
 
 git checkout $LINE
