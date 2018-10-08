@@ -138,11 +138,13 @@ class TestingRepresentation(BaubleTestCase):
         annona = self.session.query(Taxon).filter_by(id=14).first()
         self.assertEquals(annona.epithet, 'Annona')
 
-    def test_shows_as_genus(self):
-        annona = self.session.query(Taxon).filter_by(epithet='Annona').first()
-        self.assertEquals(annona.show(), 'Annona sp.')
-        tilioideae = self.session.query(Taxon).filter_by(epithet='Tilioideae').first()
-        self.assertEquals(tilioideae.show(), 'Tilioideae sp.')
+    def test_shows_as_genus_or_above(self):
+        tax = self.session.query(Taxon).filter_by(epithet='Annona').first()
+        self.assertEquals(tax.show(), 'Annona sp.')
+        tax = self.session.query(Taxon).filter_by(epithet='Tilioideae').first()
+        self.assertEquals(tax.show(), 'Tilioideae sp.')
+        tax = self.session.query(Taxon).filter_by(epithet='Tiliaceae').first()
+        self.assertEquals(tax.show(), 'Tiliaceae sp.')
         
     def test_shows_as_species(self):
         annona = self.session.query(Taxon).filter_by(epithet='Annona').first()
@@ -179,9 +181,12 @@ class TestingRepresentation(BaubleTestCase):
     def test_shows_speciem_novam(self):
         cucurbitales = Taxon(rank=self.ordo, parent=self.plantae, epithet='Cucurbitales')
         cucurbitaceae = Taxon(rank=self.familia, parent=cucurbitales, epithet='Cucurbitaceae')
-        sp_nov = Taxon(rank=self.sp_nov, parent=cucurbitaceae, epithet='IGC1033')
-        self.assertEquals(sp_nov.show(), 'Cucurbitaceae sp. nov. (IGC1033)')
+        cucurbita = Taxon(rank=self.genus, parent=cucurbitaceae, epithet='Cucurbita')
+        sp_nov = Taxon(rank=self.sp_nov, parent=cucurbita, epithet='IGC1033')
+        self.assertEquals(sp_nov.show(), 'Cucurbita sp. nov. (IGC1033)')
+        sp_nov = Taxon(rank=self.sp_nov, parent=cucurbitaceae, epithet='IGC1034')
+        self.assertEquals(sp_nov.show(), 'Cucurbitaceae sp. nov. (IGC1034)')
         cv = Taxon(rank=self.cultivar, parent=sp_nov, epithet='Lekker Bek')
-        self.assertEquals(cv.show(), "Cucurbitaceae sp. nov. (IGC1033) 'Lekker Bek'")
-        sp_nov = Taxon(rank=self.sp_nov, parent=self.plantae, epithet='IGC1033')
-        self.assertEquals(sp_nov.show(), 'Plantae sp. nov. (IGC1033)')
+        self.assertEquals(cv.show(), "Cucurbitaceae sp. nov. (IGC1034) 'Lekker Bek'")
+        sp_nov = Taxon(rank=self.sp_nov, parent=self.plantae, epithet='IGC1035')
+        self.assertEquals(sp_nov.show(), 'Plantae sp. nov. (IGC1035)')
