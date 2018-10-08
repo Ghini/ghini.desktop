@@ -38,14 +38,15 @@ def initialize_ranks_and_taxa(self):
         ('subspecies', 45, '.binomial subsp. .epithet', ''),
         ('varietas', 50, '.binomial var. .epithet', ''),
         ('forma', 55, '.binomial f. .epithet', ''),
-        ('cultivar', 70, ".complete '.epithet'", ''), ]
+        ('sp_nov', 70, '.complete nov. (.epithet)', ''),
+        ('cultivar', 99, ".complete '.epithet'", ''), ]
     for name, depth, shows_as, defines in ranks:
         p = Rank(name=name, depth=depth, shows_as=shows_as, defines=defines)
         self.session.add(p)
     self.session.commit()
     (self.regnum, self.ordo, self.familia, self.subfamilia, self.tribus,
      self.subtribus, self.genus, self.subgenus, self.sectio, self.subsectio,
-     self.species, self.subspecies, self.varietas, self.forma, self.cultivar
+     self.species, self.subspecies, self.varietas, self.forma, self.sp_nov, self.cultivar
     ) = self.session.query(Rank).order_by(Rank.depth).all()
     # rank, id, epithet, parent_id, accepted_id
     taxa = [
@@ -174,4 +175,13 @@ class TestingRepresentation(BaubleTestCase):
         self.assertEquals(cv.show(), "Cucurbita sp. 'Lekker Bek'")
         cv = Taxon(rank=self.cultivar, parent=self.plantae, epithet='Lekker Bek')
         self.assertEquals(cv.show(), "Plantae sp. 'Lekker Bek'")
-        
+
+    def test_shows_speciem_novam(self):
+        cucurbitales = Taxon(rank=self.ordo, parent=self.plantae, epithet='Cucurbitales')
+        cucurbitaceae = Taxon(rank=self.familia, parent=cucurbitales, epithet='Cucurbitaceae')
+        sp_nov = Taxon(rank=self.sp_nov, parent=cucurbitaceae, epithet='IGC1033')
+        self.assertEquals(sp_nov.show(), 'Cucurbitaceae sp. nov. (IGC1033)')
+        cv = Taxon(rank=self.cultivar, parent=sp_nov, epithet='Lekker Bek')
+        self.assertEquals(cv.show(), "Cucurbitaceae sp. nov. (IGC1033) 'Lekker Bek'")
+        sp_nov = Taxon(rank=self.sp_nov, parent=self.plantae, epithet='IGC1033')
+        self.assertEquals(sp_nov.show(), 'Plantae sp. nov. (IGC1033)')

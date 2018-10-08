@@ -13,4 +13,5 @@ id,name,depth,shows_as,defines
 11,"subspecies",45,".binomial subsp. .epithet",""
 12,"varietas",50,".binomial var. .epithet",""
 13,"forma",55,".binomial f. .epithet",""
-14,"cultivar",70,".complete '.epithet'",""
+14,"sp_nov",70,".complete nov. (.epithet)",""
+15,"cultivar",99,".complete '.epithet'",""
