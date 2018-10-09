@@ -35,8 +35,8 @@ class Rank(db.Base):
     __tablename__ = 'rank'
     name = Column(Unicode(12), nullable=False)
     depth = Column(Float, nullable=False)
-    shows_as = Column(Unicode(48), nullable=False)
-    defines = Column(Unicode(12))
+    shows_as = Column(Unicode(48), nullable=False, default='')
+    defines = Column(Unicode(12), nullable=False, default='')
 
 
 class Taxon(db.Base, db.WithNotes):

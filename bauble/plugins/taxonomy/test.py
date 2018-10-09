@@ -190,3 +190,15 @@ class TestingRepresentation(BaubleTestCase):
         self.assertEquals(cv.show(), "Cucurbitaceae sp. nov. (IGC1034) 'Lekker Bek'")
         sp_nov = Taxon(rank=self.sp_nov, parent=self.plantae, epithet='IGC1035')
         self.assertEquals(sp_nov.show(), 'Plantae sp. nov. (IGC1035)')
+
+
+class TestDefaultData(BaubleTestCase):
+    def setUp(self):
+        from . import TaxonomyPlugin
+        super().setUp()
+        TaxonomyPlugin.install(import_defaults=True)
+        
+    def test_have_imported(self):
+        beschorneria = self.session.query(Taxon).filter_by(epithet='Beschorneria').first()
+        self.assertNotEquals(beschorneria, None)
+        self.assertEquals(beschorneria.epithet, 'Beschorneria')

@@ -18,8 +18,16 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 from .classes import Taxon, Rank
 from bauble import pluginmgr
+from bauble import paths
+from bauble import db
+
+import os.path
 
 
 class TaxonomyPlugin(pluginmgr.Plugin):
@@ -41,8 +49,9 @@ class TaxonomyPlugin(pluginmgr.Plugin):
             return
         path = os.path.join(paths.lib_dir(), "plugins", "taxonomy", "default")
         filenames = [os.path.join(path, f) for f in (
-            'rank.txt', 'taxon.txt', 'geographic_area.txt', )]
+            'rank.txt', 'taxon.txt', )]
 
+        logger.debug('TaxonomyPlugin about to import %s' % (filenames, ))
         from bauble.plugins.imex.csv_ import CSVImporter
         csv = CSVImporter()
         csv.start(filenames, metadata=db.metadata, force=True)
