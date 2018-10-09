@@ -25,13 +25,13 @@
 # with the system csv module
 #
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 import os
 import csv
 import traceback
-
-import logging
-logger = logging.getLogger(__name__)
 
 from gi.repository import Gtk
 
@@ -182,6 +182,8 @@ class CSVImporter(Importer):
         foreign_key column and child is usually the column that the
         foreign key points to, e.g ('parent_id', 'id')
         """
+
+        logger.debug('about to toposort file %s according to key pairs %s' % (filename, key_pairs))
         f = open(filename, 'r')
         reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                quoting=QUOTE_STYLE)
@@ -195,8 +197,8 @@ class CSVImporter(Importer):
         fields = reader.reader.fieldnames
         del reader
 
-        # create pairs from the values in the lines where pair[0]
-        # should come before pair[1] when the lines are sorted
+        # each pair in pairs is such that bychild[pair[0]] should come
+        # before bychild[pair[1]] in the resulting sorted file
         pairs = []
         for line in list(bychild.values()):
             for parent, child in key_pairs:
@@ -205,6 +207,11 @@ class CSVImporter(Importer):
 
         # sort the keys and flatten the lines back into a list
         sorted_keys = utils.topological_sort(list(bychild.keys()), pairs)
+        if sorted_keys is None:
+            # there was a loop, let's return the original file and hope for
+            # the best
+            return filename
+        logger.debug(sorted_keys)
         sorted_lines = []
         for key in sorted_keys:
             sorted_lines.append(bychild[key])
@@ -359,7 +366,6 @@ class CSVImporter(Importer):
                 # hasn't been committed
                 if table in depends or not table.exists():
                     logger.info('%s does not exist. creating.' % table.name)
-                    logger.debug('%s does not exist. creating.' % table.name)
                     create_table(table)
                 elif table.name not in created_tables and table not in depends:
                     # we get here if the table wasn't previously
@@ -407,12 +413,13 @@ class CSVImporter(Importer):
                     if isinstance(column.default, ColumnDefault):
                         defaults[column.name] = column.default.execute()
                 column_names = list(table.c.keys())
+                logger.debug('column to import: %s' % (column_names, ))
 
                 # check if there are any foreign keys to on the table
                 # that refer to itself, if so create a new file with
                 # the lines sorted in order of dependency so that we
                 # don't get errors about importing values into a
-                # foreign_key that don't reference and existin row
+                # foreign_key that don't reference an existing row
                 self_keys = [f for f in table.foreign_keys if f.column.table == table]
                 if self_keys:
                     key_pairs = [(x.parent.name, x.column.name) for x in self_keys]
@@ -438,12 +445,15 @@ class CSVImporter(Importer):
                 isempty = lambda v: v in ('', None)
 
                 f = open(filename, "r")
+                logger.debug("%s, %s", filename, f)
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
+                logger.debug(reader)
                 # NOTE: we shouldn't get this far if the file doesn't
                 # have any rows to import but if so there is a chance
                 # that this loop could cause problems
                 for line in reader:
+                    logger.debug('reading line: %s' % (line, ))
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
@@ -480,7 +490,7 @@ class CSVImporter(Importer):
                 if self.__error or self.__cancel:
                     break
 
-                # insert the remainder that were less than update every
+                # insert the remainder, fewer than 'update_every'
                 do_insert()
 
                 # we have commit after create after each table is imported
