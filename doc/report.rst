@@ -192,6 +192,12 @@ Options are available to the template, collected in the dictionary ``options``.
 |ghini.desktop| provides several Postscript and SVG production functions, in the two namespaces ``PS`` and
 ``SVG``, respectively.
 
+The SVG namespace defines the ``add_text``, ``add_QR`` and ``add_code39`` functions.  The PS namespace
+defines the ``add_text``, ``add_QR``, and ``add_image`` functions.  Please refer to sources and examples for
+their usage.  There is nothing preventing us from defining an ``add_code39`` function also in the PS
+namespace, while defining the ``add_image`` for the SVG namespace is more of a challenge, because of the
+raster/vectorial incompatibility.
+
 
 Working with Jinja2
 ..........................
