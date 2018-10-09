@@ -24,29 +24,28 @@ from bauble.test import BaubleTestCase
 
 def initialize_ranks_and_taxa(self):
     ranks = [
-        ('regnum', 0, '[.epithet] sp.', 'regnum'),
-        ('ordo', 8, '[.epithet] sp.', 'ordo'),
-        ('familia', 10, '[.epithet] sp.', 'familia'),
-        ('subfamilia', 14, '[.epithet] sp.', 'subfamilia'),
-        ('tribus', 16, '.epithet sp.', ''),
-        ('subtribus', 18, '.epithet sp.', ''),
-        ('genus', 20, '[.epithet] sp.', 'genus'),
-        ('subgenus', 25, '.genus subg. .epithet sp.', ''),
-        ('sectio', 30, '.genus sec. .epithet sp.', ''),
-        ('subsectio', 35, '.genus subsec. .epithet sp.', ''),
-        ('species', 40, '[.genus .epithet]', 'binomial'),
-        ('subspecies', 45, '.binomial subsp. .epithet', ''),
-        ('varietas', 50, '.binomial var. .epithet', ''),
-        ('forma', 55, '.binomial f. .epithet', ''),
-        ('sp_nov', 70, '.complete nov. (.epithet)', ''),
-        ('cultivar', 99, ".complete '.epithet'", ''), ]
-    for name, depth, shows_as, defines in ranks:
-        p = Rank(name=name, depth=depth, shows_as=shows_as, defines=defines)
+        ('regnum', '', 0, '[.name] sp.', 'regnum'),
+        ('ordo', 'Ordo', 8, '[.name] sp.', 'ordo'),
+        ('familia', 'Fam.', 10, '[.name] sp.', 'familia'),
+        ('subfamilia', 'Subfam.', 14, '[.name] sp.', 'subfamilia'),
+        ('tribus', 'Tr.', 16, '.name sp.', ''),
+        ('subtribus', 'Subtr.', 18, '.name sp.', ''),
+        ('genus', 'Gen.', 20, '[.name] sp.', 'genus'),
+        ('subgenus', 'subg.', 25, '.genus subg. .name sp.', ''),
+        ('sectio', 'sec.', 30, '.genus sec. .name sp.', ''),
+        ('subsectio', 'subsec.', 35, '.genus subsec. .name sp.', ''),
+        ('species', 'sp.', 40, '[.ranked_name .name]', 'binomial'),
+        ('subspecies', 'subsp.', 45, '.binomial subsp. .name', ''),
+        ('varietas', 'var.', 50, '.binomial var. .name', ''),
+        ('forma', 'f.', 55, '.binomial f. .name', ''),
+        ('cultivar', 'cv', 99, ".complete '.name'", ''), ]
+    for name, short, depth, shows_as, defines in ranks:
+        p = Rank(name=name, short=short, depth=depth, shows_as=shows_as, defines=defines)
         self.session.add(p)
     self.session.commit()
     (self.regnum, self.ordo, self.familia, self.subfamilia, self.tribus,
      self.subtribus, self.genus, self.subgenus, self.sectio, self.subsectio,
-     self.species, self.subspecies, self.varietas, self.forma, self.sp_nov, self.cultivar
+     self.species, self.subspecies, self.varietas, self.forma, self.cultivar
     ) = self.session.query(Rank).order_by(Rank.depth).all()
     # rank, id, epithet, parent_id, accepted_id
     taxa = [
@@ -75,7 +74,7 @@ def initialize_ranks_and_taxa(self):
 
 class CreateRanks(BaubleTestCase):
     def test_can_create_a_rank(self):
-        p = Rank(name='Ordo', depth=8, shows_as='[.epithet] sp', defines='ordo')
+        p = Rank(name='Ordo', depth=8, shows_as='[.name] sp', defines='ordo')
         self.session.add(p)
         self.session.commit()
 
@@ -85,19 +84,19 @@ class CreateRanks(BaubleTestCase):
 
     def test_can_create_rank_structure(self):
         ranks = [
-            ('ordo', 8, '[.epithet] sp.', 'ordo'),
-            ('familia', 10, '[.epithet] sp.', 'familia'),
-            ('subfamilia', 14, '[.epithet] sp.', 'subfamilia'),
-            ('tribus', 16, '.epithet sp.', ''),
-            ('subtribus', 18, '.epithet sp.', ''),
-            ('genus', 20, '[.epithet] sp.', 'genus'),
-            ('subgenus', 25, '.genus subg. .epithet sp.', ''),
-            ('sectio', 30, '.genus sec. .epithet sp.', ''),
-            ('subsectio', 35, '.genus subsec. .epithet sp.', ''),
-            ('species', 40, '[.genus .epithet]', 'binomial'),
-            ('subspecies', 45, '.binomial subsp. .epithet', ''),
-            ('varietas', 50, '.binomial var. .epithet', ''),
-            ('forma', 55, '.binomial f. .epithet', ''), ]
+            ('ordo', 8, '[.name] sp.', 'ordo'),
+            ('familia', 10, '[.name] sp.', 'familia'),
+            ('subfamilia', 14, '[.name] sp.', 'subfamilia'),
+            ('tribus', 16, '.name sp.', ''),
+            ('subtribus', 18, '.name sp.', ''),
+            ('genus', 20, '[.name] sp.', 'genus'),
+            ('subgenus', 25, '.genus subg. .name sp.', ''),
+            ('sectio', 30, '.genus sec. .name sp.', ''),
+            ('subsectio', 35, '.genus subsec. .name sp.', ''),
+            ('species', 40, '[.genus .name]', 'binomial'),
+            ('subspecies', 45, '.binomial subsp. .name', ''),
+            ('varietas', 50, '.binomial var. .name', ''),
+            ('forma', 55, '.binomial f. .name', ''), ]
         for name, depth, shows_as, defines in ranks:
             p = Rank(name=name, depth=depth, shows_as=shows_as, defines=defines)
             self.session.add(p)
@@ -138,7 +137,7 @@ class TestingRepresentation(BaubleTestCase):
         annona = self.session.query(Taxon).filter_by(id=14).first()
         self.assertEquals(annona.epithet, 'Annona')
 
-    def test_shows_as_genus_or_above(self):
+    def test1_shows_as_genus_or_above(self):
         tax = self.session.query(Taxon).filter_by(epithet='Annona').first()
         self.assertEquals(tax.show(), 'Annona sp.')
         tax = self.session.query(Taxon).filter_by(epithet='Tilioideae').first()
@@ -146,13 +145,13 @@ class TestingRepresentation(BaubleTestCase):
         tax = self.session.query(Taxon).filter_by(epithet='Tiliaceae').first()
         self.assertEquals(tax.show(), 'Tiliaceae sp.')
         
-    def test_shows_as_species(self):
+    def test2_shows_as_species(self):
         annona = self.session.query(Taxon).filter_by(epithet='Annona').first()
         guanabana = Taxon(rank=self.species, parent=annona, epithet='muricata')
         self.session.add(guanabana)
         self.assertEquals(guanabana.show(), 'Annona muricata')
 
-    def test_shows_as_subspecies(self):
+    def test3_shows_as_subspecies(self):
         cucurbitales = Taxon(rank=self.ordo, parent=self.plantae, epithet='Cucurbitales')
         cucurbitaceae = Taxon(rank=self.familia, parent=cucurbitales, epithet='Cucurbitaceae')
         cucurbita = Taxon(rank=self.genus, parent=cucurbitaceae, epithet='Cucurbita')
@@ -161,7 +160,7 @@ class TestingRepresentation(BaubleTestCase):
         self.session.add_all([cucurbitales, cucurbitaceae, cucurbita, pepo, cylindrica])
         self.assertEquals(cylindrica.show(), 'Cucurbita pepo var. cylindrica')
         
-    def test_shows_cultivar(self):
+    def test4_shows_cultivar(self):
         cucurbitales = Taxon(rank=self.ordo, parent=self.plantae, epithet='Cucurbitales')
         cucurbitaceae = Taxon(rank=self.familia, parent=cucurbitales, epithet='Cucurbitaceae')
         cucurbita = Taxon(rank=self.genus, parent=cucurbitaceae, epithet='Cucurbita')
@@ -178,18 +177,28 @@ class TestingRepresentation(BaubleTestCase):
         cv = Taxon(rank=self.cultivar, parent=self.plantae, epithet='Lekker Bek')
         self.assertEquals(cv.show(), "Plantae sp. 'Lekker Bek'")
 
-    def test_shows_speciem_novam(self):
+    def test5_shows_speciem_novam(self):
         cucurbitales = Taxon(rank=self.ordo, parent=self.plantae, epithet='Cucurbitales')
         cucurbitaceae = Taxon(rank=self.familia, parent=cucurbitales, epithet='Cucurbitaceae')
         cucurbita = Taxon(rank=self.genus, parent=cucurbitaceae, epithet='Cucurbita')
-        sp_nov = Taxon(rank=self.sp_nov, parent=cucurbita, epithet='IGC1033')
-        self.assertEquals(sp_nov.show(), 'Cucurbita sp. nov. (IGC1033)')
-        sp_nov = Taxon(rank=self.sp_nov, parent=cucurbitaceae, epithet='IGC1034')
-        self.assertEquals(sp_nov.show(), 'Cucurbitaceae sp. nov. (IGC1034)')
+        sp_nov = Taxon(rank=self.species, parent=cucurbita, nov_code='IGC1033')
+        self.assertEquals(sp_nov.show(), 'Cucurbita sp. (IGC1033)')
+        sp_nov = Taxon(rank=self.species, parent=cucurbitaceae, nov_code='IGC1034')
+        self.assertEquals(sp_nov.show(), 'Cucurbitaceae sp. (IGC1034)')
         cv = Taxon(rank=self.cultivar, parent=sp_nov, epithet='Lekker Bek')
-        self.assertEquals(cv.show(), "Cucurbitaceae sp. nov. (IGC1034) 'Lekker Bek'")
-        sp_nov = Taxon(rank=self.sp_nov, parent=self.plantae, epithet='IGC1035')
-        self.assertEquals(sp_nov.show(), 'Plantae sp. nov. (IGC1035)')
+        self.assertEquals(cv.show(), "Cucurbitaceae sp. (IGC1034) 'Lekker Bek'")
+        sp_nov = Taxon(rank=self.species, parent=self.plantae, nov_code='IGC1035')
+        self.assertEquals(sp_nov.show(), 'Plantae sp. (IGC1035)')
+
+    def test6_shows_australian_new(self):
+        asterales = Taxon(rank=self.ordo, parent=self.plantae, epithet='Asterales')
+        asteraceae = Taxon(rank=self.familia, parent=asterales, epithet='Asteraceae')
+        gen_nov = Taxon(rank=self.genus, parent=asteraceae, nov_code='Aq520454')
+        sp_nov = Taxon(rank=self.species, parent=gen_nov, nov_code='D.A.Halford Q811', nov_name='Shute Harbour')
+        cv = Taxon(rank=self.cultivar, parent=sp_nov, epithet='Due di Denari')
+        self.assertEquals(sp_nov.show(), 'Gen. (Aq520454) sp. Shute Harbour (D.A.Halford Q811)')
+        self.assertEquals(gen_nov.show(), 'Gen. (Aq520454) sp.')
+        self.assertEquals(cv.show(), "Gen. (Aq520454) sp. Shute Harbour (D.A.Halford Q811) 'Due di Denari'")
 
 
 class TestDefaultData(BaubleTestCase):
@@ -198,7 +207,16 @@ class TestDefaultData(BaubleTestCase):
         super().setUp()
         TaxonomyPlugin.install(import_defaults=True)
         
-    def test_have_imported(self):
+    def test_imported_taxa(self):
+        objs = self.session.query(Taxon).all()
+        self.assertEquals(len(objs), 203)
         beschorneria = self.session.query(Taxon).filter_by(epithet='Beschorneria').first()
         self.assertNotEquals(beschorneria, None)
         self.assertEquals(beschorneria.epithet, 'Beschorneria')
+
+    def test_imported_ranks(self):
+        obj = self.session.query(Rank).filter_by(id=4).first()
+        self.assertNotEquals(obj, None)
+        self.assertEquals(obj.name, 'ordo')
+        objs = self.session.query(Rank).all()
+        self.assertEquals(len(objs), 17)

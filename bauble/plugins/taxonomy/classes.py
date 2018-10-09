@@ -34,6 +34,7 @@ from bauble import db
 class Rank(db.Base):
     __tablename__ = 'rank'
     name = Column(Unicode(12), nullable=False)
+    short = Column(Unicode(12))
     depth = Column(Float, nullable=False)
     shows_as = Column(Unicode(48), nullable=False, default='')
     defines = Column(Unicode(12), nullable=False, default='')
@@ -47,6 +48,8 @@ class Taxon(db.Base, db.WithNotes):
     epithet = Column(Unicode(48))
     author = Column(UnicodeText())
     year = Column(Integer)
+    nov_code = Column(Unicode(48), default='')
+    nov_name = Column(Unicode(48), default='')
 
     parent_id = Column(Integer, ForeignKey('taxon.id'), nullable=False)
     accepted_id = Column(Integer, ForeignKey('taxon.id'), nullable=True)
@@ -58,19 +61,37 @@ class Taxon(db.Base, db.WithNotes):
             from sqlalchemy.orm.session import object_session
             from bauble.utils import get_distinct_values
             values = get_distinct_values(Rank.defines, object_session(self))
+        if name == 'ranked_name' and self.rank.name==self.rank.defines:
+            return self.name
         if name not in values:
             super().__getattr__(self)
         print(self.epithet, self.parent)
         if name == self.rank.defines:
             if name == 'binomial':
-                return self.parent.genus + ' ' + self.epithet
+                return self.parent.genus + ' ' + self.name
             else:
-                return self.epithet
+                return self.name
         if self.parent is not self:
             return self.parent.__getattr__(name, values)
         else:
             raise AttributeError(name)
 
+    @property
+    def name(self):
+        if self.nov_code and self.nov_name:
+            return "%s %s (%s)" % (self.rank.short, self.nov_name, self.nov_code)
+        elif self.nov_code:
+            return "%s (%s)" % (self.rank.short, self.nov_code)
+        else:
+            return self.epithet
+
+    @property
+    def ranked_name(self):
+        if self.rank.name == self.rank.defines:
+            return self.name
+        else:
+            return self.parent.ranked_name
+        
     def show(self):
         def convert(match):
             item = match.group(0)
