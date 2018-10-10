@@ -13,6 +13,10 @@
       <column type="gchararray"/>
       <!-- column-name plugin_title -->
       <column type="gchararray"/>
+      <!-- column-name is_package_template -->
+      <column type="gboolean"/>
+      <!-- column-name extension -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkImage" id="open_image">
@@ -313,7 +317,8 @@
                       <object class="GtkCheckButton" id="is_package_template">
                         <property name="label" translatable="yes">is package template</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">False</property>
                         <property name="receives_default">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
