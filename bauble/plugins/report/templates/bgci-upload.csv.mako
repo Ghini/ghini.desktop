@@ -23,7 +23,7 @@
     if genus.startswith('Zzz-'):
         genus = ''
     species_epithet = v.sp
-    if species_epithet.startswith('sp'):
+    if (species_epithet or '').startswith('sp'):
         species_epithet = ''
     hybrid_marker = ''
     if '×' in v.sp:

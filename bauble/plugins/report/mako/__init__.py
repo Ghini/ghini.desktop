@@ -63,8 +63,8 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
         if path:
             cls.paths.insert(0, path)
         from mako.lookup import TemplateLookup
-        lookup = TemplateLookup(cls.paths, input_encoding='utf-8', output_encoding='utf-8')
         try:
+            lookup = TemplateLookup(cls.paths, input_encoding='utf-8', output_encoding='utf-8')
             template = lookup.get_template(name)
             return template
         except Exception as e:
