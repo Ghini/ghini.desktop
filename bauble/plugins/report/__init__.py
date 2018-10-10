@@ -415,32 +415,28 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         template_options[name] = settings
         prefs[config_list_pref] = template_options
 
+    def thaw_templates(self, *args):
+        template_options = prefs[config_list_pref] or {}
+        for key in template_options:
+            try:
+                del template_options[key]['__is_frozen__']
+            except:
+                pass
+        prefs[config_list_pref] = template_options
+        self.start_thread(Thread(target=self.populate_names_combo))
+
     def on_new_button_clicked(self, *args):
-        d = Gtk.Dialog(_("Activate Formatter Template"), self.view.get_window(),
-                       Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                       buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                                Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-        d.vbox.set_spacing(10)
-        d.set_default_response(Gtk.ResponseType.ACCEPT)
+        filename = os.path.join(bpaths.lib_dir(), "plugins", "report", 'report.glade')
+        view = GenericEditorView(filename, root_widget_name='choose_dialog')
+        presenter = GenericEditorPresenter(model=self, view=view)
+        signaller = view.widgets.choose_thaw
+        handler_id = signaller.connect('clicked', self.thaw_templates)
 
-        # label
-        text = _('Choose template file to activate as user-template')
-        label = Gtk.Label()
-        label.set_markup(text)
-        label.set_xalign(0)
-        d.vbox.pack_start(label, True, True, 0)
-
-        # file_chooser_widget
-        chooser = Gtk.FileChooserWidget(0)
-        d.vbox.pack_start(chooser, True, True, 0)
-
-        # action
-        d.show_all()
         names = set([i[0] + i[3] for i in self.view.widgets.names_ls])
         while True:
-            if d.run() != Gtk.ResponseType.ACCEPT:
+            if view.get_window().run() != Gtk.ResponseType.ACCEPT:
                 break
-            template = chooser.get_filename()
+            template = view.widgets.choose_browse.get_filename()
             name = os.path.basename(template)
             if template is None:
                 # ignore action on emtpy choice
@@ -464,7 +460,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             # reflect changes in view
             self.add_name_to_combo_and_select_it(name, plugin, is_package_template=False)
             break
-        d.destroy()
+        signaller.disconnect(handler_id)
+        view.cleanup()
         
     def on_remove_button_clicked(self, *args):
         '''remove user-template, or mark package-template as hidden
