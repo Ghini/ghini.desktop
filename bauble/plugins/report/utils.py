@@ -464,7 +464,6 @@ class Code39:
            '4': 'b b   bbb b bbb',
            'X': 'b   b bbb b bbb',
            '0': 'b b   bbb bbb b',
-           '.': 'bbb   b b bbb b',
            '1': 'bbb b   b b bbb',
            '3': 'bbb bbb   b b b',
            '2': 'b bbb   b b bbb',
