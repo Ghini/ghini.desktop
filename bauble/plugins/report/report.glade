@@ -11,6 +11,8 @@
     <columns>
       <!-- column-name name -->
       <column type="gchararray"/>
+      <!-- column-name plugin_title -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkImage" id="open_image">

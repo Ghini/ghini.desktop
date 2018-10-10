@@ -136,15 +136,14 @@ Creating reports with Mako and Jinja2 technically equivalent to creatint a web p
 Mako and Jinja2 are indeed mostly used for dynamic creation of static web pages.  This should be easy to do,
 for anyone with a little programming experience.
 
-Ghini instructs the template generator to use the same file extension as the template, stripping the advised
-but optional ``.mako`` / ``.jj2`` trailing part.  The template extension indicates the type of output
-produced by the template, the trailing ``.mako`` / ``.jj2`` prevents you from mistaking a template for an
-output file.  For example, to generate an HTML page from your template you would name the template something
-like ``report.html.mako`` if using Mako, or ``report.html.jj2`` if using Jinja2.  Similarly, you would name
-a template ``report.csv.mako`` if it generates a comma separated value file.
+Ghini instructs the template generator to use the same file extension as the template, stripping the
+trailing ``.mako`` / ``.jj2`` part.  The remaining template extension indicates the type of output produced
+by the template.  The trailing ``.mako`` / ``.jj2`` helps ghini decide which template generator to use, and
+prevents you from mistaking a template for an output file.
 
-You can also choose not to use the optional ``.mako`` / ``.jj2`` trailing part, but then it's your task to
-remember that it is a template and which language it uses.
+For example, to generate an HTML page from a Mako template, you would name the template something like
+``report.html.mako``.  Similarly, you would name a template ``report.csv.jj2`` if it uses Jinja2 to generate
+a comma separated value file.
 
 A template must declare its iteration domain, that is, on which type of objects it reports.  The iteration
 domain is declared in a comment line, something like this (for Mako):

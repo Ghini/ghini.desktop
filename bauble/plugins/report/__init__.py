@@ -70,20 +70,16 @@ formatter_settings_expanded_pref = 'report.settings.expanded'
 def get_plant_query(obj, session):
     """
     """
-    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
-    # so that if we want to union() the statements together later it
-    # will work properly
-    q = session.query(Plant).order_by(None)
+    # .order_by(None) is needed for the later union() to work properly
+    q = session.query(Plant)
     if isinstance(obj, Family):
-        return q.join('accession', 'species', 'genus', 'family').\
-            filter_by(id=obj.id)
+        return q.join('accession', 'species', 'genus', 'family').filter_by(id=obj.id)
     elif isinstance(obj, Genus):
         return q.join('accession', 'species', 'genus').filter_by(id=obj.id)
     elif isinstance(obj, Species):
         return q.join('accession', 'species').filter_by(id=obj.id)
     elif isinstance(obj, VernacularName):
-        return q.join('accession', 'species', 'vernacular_names').\
-            filter_by(id=obj.id)
+        return q.join('accession', 'species', 'vernacular_names').filter_by(id=obj.id)
     elif isinstance(obj, Plant):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, Accession):
@@ -91,8 +87,7 @@ def get_plant_query(obj, session):
     elif isinstance(obj, Location):
         return q.filter_by(location_id=obj.id)
     elif isinstance(obj, Contact):
-        return q.join('accession', 'source', 'source_detail').\
-                filter_by(id=obj.id)
+        return q.join('accession', 'source', 'source_detail').filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         plants = get_pertinent_objects(Plant, obj.objects)
         return q.filter(Plant.id.in_([p.id for p in plants]))
@@ -103,17 +98,15 @@ def get_plant_query(obj, session):
 def get_accession_query(obj, session):
     """
     """
-    q = session.query(Accession).order_by(None)
+    q = session.query(Accession)
     if isinstance(obj, Family):
-        return q.join('species', 'genus', 'family').\
-            filter_by(id=obj.id)
+        return q.join('species', 'genus', 'family').filter_by(id=obj.id)
     elif isinstance(obj, Genus):
         return q.join('species', 'genus').filter_by(id=obj.id)
     elif isinstance(obj, Species):
         return q.join('species').filter_by(id=obj.id)
     elif isinstance(obj, VernacularName):
-        return q.join('species', 'vernacular_names').\
-            filter_by(id=obj.id)
+        return q.join('species', 'vernacular_names').filter_by(id=obj.id)
     elif isinstance(obj, Plant):
         return q.join('plants').filter_by(id=obj.id)
     elif isinstance(obj, Accession):
@@ -133,27 +126,23 @@ def get_accession_query(obj, session):
 def get_species_query(obj, session):
     """
     """
-    q = session.query(Species).order_by(None)
+    q = session.query(Species)
     if isinstance(obj, Family):
-        return q.join('genus', 'family').\
-            filter_by(id=obj.id)
+        return q.join('genus', 'family').filter_by(id=obj.id)
     elif isinstance(obj, Genus):
         return q.join('genus').filter_by(id=obj.id)
     elif isinstance(obj, Species):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, VernacularName):
-        return q.join('vernacular_names').\
-            filter_by(id=obj.id)
+        return q.join('vernacular_names').filter_by(id=obj.id)
     elif isinstance(obj, Plant):
         return q.join('accessions', 'plants').filter_by(id=obj.id)
     elif isinstance(obj, Accession):
         return q.join('accessions').filter_by(id=obj.id)
     elif isinstance(obj, Location):
-        return q.join('accessions', 'plants', 'location').\
-            filter_by(id=obj.id)
+        return q.join('accessions', 'plants', 'location').filter_by(id=obj.id)
     elif isinstance(obj, Contact):
-        return q.join('accessions', 'source', 'source_detail').\
-                filter_by(id=obj.id)
+        return q.join('accessions', 'source', 'source_detail').filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         acc = get_pertinent_objects(Species, obj.objects)
         return q.filter(Species.id.in_([a.id for a in acc]))
@@ -165,7 +154,7 @@ def get_species_query(obj, session):
 def get_location_query(obj, session):
     """
     """
-    q = session.query(Location).order_by(None)
+    q = session.query(Location)
     if isinstance(obj, Location):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, Plant):
@@ -186,7 +175,7 @@ def get_location_query(obj, session):
             filter_by(id=obj.id)
     elif isinstance(obj, Contact):
         return q.join('plants', 'accession', 'source', 'source_detail').\
-                filter_by(id=obj.id)
+            filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         locs = get_pertinent_objects(Location, obj.objects)
         return q.filter(Location.id.in_([l.id for l in locs]))
@@ -262,8 +251,17 @@ class FormatterPlugin(pluginmgr.Plugin):
 
     @classmethod
     def get_template(cls, name):
+        '''return Template object corresponding to name within Plugin
+
+        In principle, a Template object is what is going to perform the
+        rendering, unless the Plugin overrides the behaviour.
+
+        The contract with a minimum Template object is that its .filename
+        field points to the original file name.
+
+        '''
         result = type('Template', (object, ), {'filename': ''})()
-        for path in [os.path.join(bpaths.user_dir(), 'res', 'templates', name),
+        for path in [os.path.join(bpaths.user_dir(), 'templates', name),
                      os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates', name)]:
             if os.path.exists(path):
                 result.filename = path
@@ -274,7 +272,14 @@ class FormatterPlugin(pluginmgr.Plugin):
     def can_handle(cls, name):
         '''tell whether plugin can handle template
         '''
-        return cls.get_iteration_domain(name) != ''
+        try:
+            if name.endswith(cls.extension):
+                return cls.get_iteration_domain(name) != ''
+            else:
+                return False
+        except Exception as e:
+            logger.debug("%s can't handle template %s - %s(%s)" % (cls.title, name, type(e).__name__, e))
+            return False
 
     @classmethod
     def get_options(cls, name):
@@ -291,7 +296,7 @@ class FormatterPlugin(pluginmgr.Plugin):
                 option_lines = [m for m in [cls.option_pattern.match(i.strip())
                                             for i in f.readlines()]
                                 if m is not None]
-        except IOError:
+        except:
             option_lines = []
 
         return [i.groups() for i in option_lines]
@@ -314,7 +319,7 @@ class FormatterPlugin(pluginmgr.Plugin):
                 try:
                     domain = domains[0]
                 except IndexError as e:
-                    logger.debug("template %s contains no DOMAIN declarations" % (template, ))
+                    logger.debug("template %s(%s) contains no %s DOMAIN declaration" % (template, filename, cls.title, ))
                     domain = ''
         except Exception as e:
             logger.debug("template %s can't be read - %s(%s)" % (name, type(e).__name__, e))
@@ -336,7 +341,7 @@ class TemplateFormatterPlugin(FormatterPlugin):
     def install(cls, import_defaults=True):
         "create templates dir on plugin installation"
         logger.debug("installing %s plugin" % cls.title)
-        container_dir = os.path.join(bpaths.appdata_dir(), 'res', "templates")
+        container_dir = os.path.join(bpaths.appdata_dir(), 'templates')
         if not os.path.exists(container_dir):
             os.mkdir(container_dir)
 
@@ -384,11 +389,11 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     '''
 
     # to be populated by template plugins
-    formatter_class_map = {}  # title->class map
+    formatter_class_map = {}  # title->class
 
     def __init__(self, view):
         super().__init__(model=self, view=view, refresh_view=False)
-        self.populate_names_combo()
+        self.start_thread(Thread(target=self.populate_names_combo))
 
         self.view.widget_set_sensitive('ok_button', False)
 
@@ -397,17 +402,17 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         combo = self.view.widgets.names_combo
         default = prefs[default_config_pref]
         self.view.widget_set_value('names_combo', default)
-        self.hard_coded_option = set(self.view.widgets.options_box.get_children())
+        # hard_coded_options are part of the glade interface, we do not
+        # remove them when selecting a different template.
+        self.hard_coded_options = set(self.view.widgets.options_box.get_children())
 
     def set_prefs_for(self, name, settings):
         '''
         This will overwrite any other report settings with name
         '''
-        activated_templates = prefs[config_list_pref]
-        if activated_templates is None:
-            activated_templates = {}
-        activated_templates[name] = settings
-        prefs[config_list_pref] = activated_templates
+        template_options = prefs[config_list_pref] or {}
+        template_options[name] = settings
+        prefs[config_list_pref] = template_options
 
     def on_new_button_clicked(self, *args):
         d = Gtk.Dialog(_("Activate Formatter Template"), self.view.get_window(),
@@ -424,24 +429,19 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         label.set_xalign(0)
         d.vbox.pack_start(label, True, True, 0)
 
-        # entry
-        entry = Gtk.Entry()
-        entry.set_activates_default(True)
-        d.vbox.pack_start(entry, True, True, 0)
-
         # file_chooser_widget
         chooser = Gtk.FileChooserWidget(0)
         d.vbox.pack_start(chooser, True, True, 0)
 
         # action
         d.show_all()
-        names = set(prefs[config_list_pref].keys())
+        names = set([i[0] for i in self.view.widgets.names_ls])
         while True:
             if d.run() != Gtk.ResponseType.ACCEPT:
                 break
-            name = entry.get_text()
             template = chooser.get_filename()
-            if name == '' or template is None:
+            name = os.path.basename(template)
+            if template is None:
                 # ignore action on emtpy choice
                 continue
             elif name in names:
@@ -458,61 +458,55 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             self.set_prefs_for(name, {})
             # copy template to user data as name
             src = template
-            dst = os.path.join(bpaths.user_dir(), 'res', 'templates', name)
+            dst = os.path.join(bpaths.user_dir(), 'templates', name)
             import shutil
             shutil.copy(src, dst)
             # reflect changes in view
-            self.populate_names_combo()
-            self.view.widget_set_value('names_combo', name)
+            self.add_name_to_combo_and_select_it(name, plugin)
             break
         d.destroy()
-
+        
     def on_remove_button_clicked(self, *args):
-        activated_templates = prefs[config_list_pref]
-        name = self.view.widget_get_value('names_combo')
-        self.view.widgets.names_combo.set_active(-1)
-        self.view.widgets.names_combo.get_child().set_text('')
-        self.view.widget_set_value('basename_entry', '')
-        self.view.widget_set_value('formatter_entry', '')
-        self.view.widget_set_value('domain_entry', '')
-        activated_templates.pop(name)
-        prefs[config_list_pref] = activated_templates
-        self.populate_names_combo()
+        '''remove user-template, or mark package-template as hidden
+
+        we have no "hidden" template flag yet.
+        '''
+        butils.message_dialog('this is not implemented yet.')
+        pass
 
     def on_names_combo_changed(self, combo, *args):
         self.options = {}
         name = self.view.widget_get_value('names_combo')
-        activated_templates = prefs[config_list_pref]
         self.view.widget_set_sensitive('details_box', (name or '') != '')
         prefs[default_config_pref] = name  # set the default to the new name
         GObject.idle_add(self._names_combo_changed_idle, combo)
 
     def _names_combo_changed_idle(self, combo):
         name = self.view.widget_get_value('names_combo')
-        try:
-            settings = prefs[config_list_pref][name]
-        except KeyError as e:
-            logger.debug("%s-%s", (e, name))
-            return
+        settings = prefs[config_list_pref].get(name, {})
 
         self.view.widget_set_sensitive('ok_button', False)
         self.view.widget_set_value('basename_entry', '')
         self.view.widget_set_value('formatter_entry', '')
         self.view.widget_set_value('domain_entry', '')
-        for formatter, plugin in self.formatter_class_map.items():
+
+        try:
+            row = self.view.widgets.names_combo.get_active()
+            title = self.view.widgets.names_ls[row][1]
+            plugin = self.formatter_class_map[title]
             domain = plugin.get_iteration_domain(name)
-            if domain != '':
-                if domain == 'raw':
-                    model = bauble.gui.get_results_model()
-                    top_left_content = model[0][0]
-                    domain = '(%s)' % top_left_content.__class__.__name__.lower()
-                self.view.widget_set_value('basename_entry', name)
-                self.view.widget_set_value('formatter_entry', formatter)
-                self.view.widget_set_value('domain_entry', domain)
-                self.view.widget_set_sensitive('ok_button', True)
-                break
-        else:
-            butils.message_dialog('this should NOT happen.\n%s is an invalid template.' % name)
+            if domain == '':
+                raise IndexError(name)
+            if domain == 'raw':
+                model = bauble.gui.get_results_model()
+                top_left_content = model[0][0]
+                domain = '(%s)' % top_left_content.__class__.__name__.lower()
+            self.view.widget_set_value('basename_entry', name)
+            self.view.widget_set_value('formatter_entry', title)
+            self.view.widget_set_value('domain_entry', domain)
+            self.view.widget_set_sensitive('ok_button', True)
+        except Exception as e:
+            butils.message_dialog('Template %s raised %s(%s).' % (name, type(e).__name__, e))
             return
 
         self.set_prefs_for(name, settings)
@@ -521,7 +515,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         options_box = self.view.widgets.options_box
         # empty the options box
         for child in options_box.get_children():
-            if child in self.hard_coded_option:
+            if child in self.hard_coded_options:
                 continue
             options_box.remove(child)
         # which options does the template accept? (can be None)
@@ -570,20 +564,53 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
     def set_bool_option(self, widget, fname):
             self.options[fname] = widget.get_active()
 
-    def populate_names_combo(self):
-        '''copy configuration names from prefs into names_ls
+    def add_name_to_combo_and_select_it(self, name, plugin):
+        '''the names tells it all
+
+        scan through the names_ls, first column:1, holding the plugin.title,
+        then column:0 holding the template name, and they are both in
+        alphabetical order.
 
         '''
-        activated_templates = prefs[config_list_pref]
+
+        names_ls = self.view.widgets.names_ls
+        for n, row in enumerate(names_ls):
+            if row[1] < plugin.title:
+                continue
+            if row[0] < name:
+                continue
+            break
+        names_ls.insert(n, (name[:-len(plugin.extension)], plugin.title,))
+        GObject.idle_add(self.view.widget_set_value, 'names_combo', name)
+
+    def populate_names_combo(self):
+        '''populate names_ls from package- and user-templates
+
+        please note: prefs[config_list_pref] are just user defined settings.
+        if a template can be found, it is considered active and should be
+        shown in the combo.
+
+        '''
+        paths = [os.path.join(bpaths.user_dir(), 'templates'),
+                 os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'), ]
         self.view.widgets.names_ls.clear()
-        for name in sorted(list(activated_templates.keys())):
-            self.view.widgets.names_ls.append((name, ))
+        for title in sorted(self.formatter_class_map):  # sort templates by plugin
+            plugin = self.formatter_class_map[title]
+            logger.debug("scanning %s templates for %s" % (title, plugin))
+            for path in paths:
+                logger.debug("scanning path %s" % (path, ))
+                for candidate in sorted(os.listdir(path)):  # then by name
+                    if plugin.can_handle(candidate):
+                        logger.debug('%s accepts %s' % (title, candidate, ))
+                        self.view.widgets.names_ls.append((candidate, title, ))
+                    else:
+                        logger.debug('%s refuses %s' % (title, candidate, ))
 
     def save_formatter_settings(self):
-        activated_templates = prefs[config_list_pref]
+        template_options = prefs[config_list_pref]
         name = self.view.widget_get_value('names_combo')
-        activated_templates[name] = self.options
-        prefs[config_list_pref] = activated_templates
+        template_options[name] = self.options
+        prefs[config_list_pref] = template_options
 
     def selection_to_domain(self, domain):
         '''convert the selection to the corresponding domain
@@ -631,7 +658,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             name = self.view.widget_get_value('names_combo')
             prefs[default_config_pref] = name
             self.save_formatter_settings()
-            settings = prefs[config_list_pref][name]
+            settings = prefs[config_list_pref].get(name, {})
             settings['template'] = name
             domain = self.view.widget_get_value('domain_entry')
             title = self.view.widget_get_value('formatter_entry')

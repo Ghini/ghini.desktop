@@ -586,7 +586,7 @@ def get_caller_template_location():
     '''return location of caller template
 
     invoked from a function during template rendering, returns the location
-    of the template being rendered.  currently limited to mako.
+    of the template being rendered.
 
     '''
     try:
