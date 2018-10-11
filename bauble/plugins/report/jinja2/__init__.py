@@ -57,7 +57,7 @@ class Jinja2FormatterPlugin(TemplateFormatterPlugin):
             from jinja2 import Environment, PackageLoader, ChoiceLoader, FileSystemLoader
             env = Environment(
                 loader=ChoiceLoader([FileSystemLoader(path),
-                                     FileSystemLoader(os.path.join(paths.user_dir(), 'res', 'templates')),
+                                     FileSystemLoader(os.path.join(paths.user_dir(), 'templates')),
                                      PackageLoader('bauble.plugins.report', 'templates')])
             )
             env.globals['PS'] = PS
