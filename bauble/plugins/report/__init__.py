@@ -434,7 +434,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
         names = set([i[0] + i[3] for i in self.view.widgets.names_ls])
         while True:
-            if view.get_window().run() != Gtk.ResponseType.ACCEPT:
+            if view.get_window().run() != Gtk.ResponseType.OK:
                 break
             template = view.widgets.choose_browse.get_filename()
             name = os.path.basename(template)
@@ -470,7 +470,15 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         # mark as hidden
         self.options['__is_frozen__'] = True
         self.save_formatter_settings()
-        row = self.view.widgets.names_combo.get_active()
+
+        # remove the file if it's a user template
+        index = self.view.widgets.names_combo.get_active()
+        name, title, is_package, extension = self.view.widgets.names_ls[index]
+        if not is_package:
+            plugin = self.formatter_class_map[title]
+            fullpath = plugin.get_template(name).filename
+            os.unlink(fullpath)
+
         # then remove entry and set new position.  new position is next
         # item, unless we deleted the last, then it is the previous, unless
         # list became empty then it is cleared.
@@ -616,26 +624,28 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         names = set()
         paths = [os.path.join(bpaths.user_dir(), 'templates'),
                  os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'), ]
+        # list of files which might be templates, and sorted by basename,
+        # placing first user templates.
+        basenames_fullnames = sorted([(b, i, os.path.join(p, b))
+                                      for (i, p) in enumerate(paths) for b in os.listdir(p)])
         self.view.widgets.names_ls.clear()
         for title in sorted(self.formatter_class_map):  # sort templates by plugin
             plugin = self.formatter_class_map[title]
             logger.debug("scanning %s templates for %s" % (title, plugin))
-            for index, path in enumerate(paths):
-                logger.debug("scanning path %s" % (path, ))
-                for candidate in sorted(os.listdir(path)):  # then by name
-                    name = candidate[:-len(plugin.extension)]
-                    if options.get(name, {}).get('__is_frozen__'):
-                        continue
-                    if candidate in names:
-                        # user template overrides homonymous package template
-                        continue
-                    if plugin.can_handle(candidate):
-                        logger.debug('%s accepts %s-template %s' % (
-                            title, index==1 and 'package' or 'user', candidate, ))
-                        self.view.widgets.names_ls.append((name, title, index==1, plugin.extension))
-                        names.add(candidate)
-                    else:
-                        logger.debug('%s refuses %s' % (title, candidate, ))
+            for candidate, index, path in basenames_fullnames:  # then by name
+                name = candidate[:-len(plugin.extension)]
+                if options.get(name, {}).get('__is_frozen__'):
+                    continue
+                if candidate in names:
+                    # user template overrides homonymous package template
+                    continue
+                if plugin.can_handle(candidate):
+                    logger.debug('%s accepts %s-template %s' % (
+                        title, index==1 and 'package' or 'user', candidate, ))
+                    self.view.widgets.names_ls.append((name, title, index==1, plugin.extension))
+                    names.add(candidate)
+                else:
+                    logger.debug('%s refuses %s' % (title, candidate, ))
         GObject.idle_add(self.view.widget_set_sensitive, 'names_combo', True)
 
     def save_formatter_settings(self):
