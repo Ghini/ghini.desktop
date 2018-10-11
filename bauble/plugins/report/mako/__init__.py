@@ -57,7 +57,7 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
             msg = _('Please select a template.')
             butils.idle_message(msg, Gtk.MessageType.WARNING)
             return False
-        cls.paths = [os.path.join(bpaths.user_dir(), 'res', 'templates'),
+        cls.paths = [os.path.join(bpaths.user_dir(), 'templates'),
                      os.path.join(bpaths.lib_dir(), 'plugins', 'report', 'templates'), ]
         path, name = os.path.split(name)
         if path:

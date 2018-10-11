@@ -467,17 +467,20 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         '''remove user-template, or mark package-template as hidden
 
         '''
-        # mark as hidden
-        self.options['__is_frozen__'] = True
-        self.save_formatter_settings()
-
         # remove the file if it's a user template
         index = self.view.widgets.names_combo.get_active()
         name, title, is_package, extension = self.view.widgets.names_ls[index]
         if not is_package:
             plugin = self.formatter_class_map[title]
-            fullpath = plugin.get_template(name).filename
-            os.unlink(fullpath)
+            fullpath = plugin.get_template(name + extension).filename
+            try:
+                os.unlink(fullpath)
+            except Exception as e:
+                logger.debug("%s(%s)" % (type(e).__name__, e))
+
+        # also mark any corresponding package template as hidden
+        self.options['__is_frozen__'] = True
+        self.save_formatter_settings()
 
         # then remove entry and set new position.  new position is next
         # item, unless we deleted the last, then it is the previous, unless
