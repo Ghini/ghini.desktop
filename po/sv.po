@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-14 08:36-0500\n"
+"POT-Creation-Date: 2018-10-11 17:29-0500\n"
 "PO-Revision-Date: 2017-11-16 02:10+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -27,7 +27,7 @@ msgstr ""
 "X-Poedit-SearchPath-3: bauble/plugins/plants\n"
 "X-Poedit-SearchPath-4: bauble/plugins/garden\n"
 
-#: bauble/btypes.py:87
+#: bauble/btypes.py:89
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
 msgstr "\"%(value)s\" finns inte i Enum.values: %(all_values)s"
 
@@ -66,11 +66,11 @@ msgstr ""
 "b>\n"
 "\n"
 
-#: bauble/plugins/garden/accession.py:2566
+#: bauble/plugins/garden/accession.py:2565
 msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s i %(location)s"
 
-#: bauble/editor.py:1996
+#: bauble/editor.py:1999
 msgid "%(user)s on %(date)s"
 msgstr "%(user)s den %(date)s"
 
@@ -90,7 +90,7 @@ msgid ""
 "Do you want to accept it?"
 msgstr ""
 
-#: bauble/pluginmgr.py:628
+#: bauble/pluginmgr.py:627
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
 msgstr "%s.plugin är inte en instans av pluginmgr.Plugin"
 
@@ -102,11 +102,11 @@ msgstr "(\"%(group)s\")"
 msgid "** Error: %s"
 msgstr "** Fel: %s"
 
-#: bauble/__init__.py:231
+#: bauble/__init__.py:221
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Fel: Det gick inte att importera gtk och/eller gobject"
 
-#: bauble/__init__.py:296
+#: bauble/__init__.py:286
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Fell: Ghini måste köras i en fönsterlägesmiljö."
 
@@ -397,11 +397,11 @@ msgstr ""
 msgid "<empty>"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1350
+#: bauble/plugins/garden/plant.py:1353
 msgid "<i>Split as %(plant)s</i>"
 msgstr "<i>Uppdelat som %(plant)s</i>"
 
-#: bauble/plugins/garden/plant.py:1333
+#: bauble/plugins/garden/plant.py:1336
 msgid "<i>Split from %(plant)s</i>"
 msgstr "<i>Uppdelat från %(plant)s</i>"
 
@@ -522,7 +522,7 @@ msgstr "Administratör"
 msgid "Air layer"
 msgstr "Luftlager"
 
-#: bauble/plugins/garden/plant.py:1237
+#: bauble/plugins/garden/plant.py:1240
 msgid "Alive"
 msgstr "Lever"
 
@@ -552,11 +552,11 @@ msgstr ""
 msgid "Are you sure you want to copy this verification to the general taxon?"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:317
+#: bauble/plugins/tag/__init__.py:343
 msgid "Are you sure you want to delete the tag \"%s\"?"
 msgstr "Är du säker på att du vill ta bort taggen \"%s\"?"
 
-#: bauble/plugins/garden/accession.py:2364 bauble/plugins/garden/plant.py:1089
+#: bauble/plugins/garden/accession.py:2363 bauble/plugins/garden/plant.py:1092
 #: bauble/plugins/plants/genus.py:773
 msgid "Are you sure you want to lose your changes?"
 msgstr "Är du säker på att du vill förlora alla dina ändringar?"
@@ -567,7 +567,7 @@ msgid ""
 "this propagation trial?"
 msgstr ""
 
-#: bauble/connmgr.py:387
+#: bauble/connmgr.py:403
 msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
@@ -592,7 +592,7 @@ msgstr ""
 "<i>Obs: Det här kommer inte att ta bort släktet från databasen.</i>"
 
 #: bauble/plugins/garden/location.py:70 bauble/plugins/garden/source.py:769
-#: bauble/plugins/tag/__init__.py:204
+#: bauble/plugins/tag/__init__.py:230
 msgid "Are you sure you want to remove %s?"
 msgstr "Är du säker på att du vill ta bort %s?"
 
@@ -630,7 +630,7 @@ msgstr "Är du säker på att du vill ta bort trivialnamnet <b>%s</b>?"
 msgid "Are you sure you want to remove this verification?"
 msgstr "Är du säker på att du vill ta bort denna verifikation?"
 
-#: bauble/plugins/users/__init__.py:587
+#: bauble/plugins/users/__init__.py:584
 msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
 "\n"
@@ -654,6 +654,10 @@ msgstr "Auktor"
 
 #: bauble/plugins/plants/taxonomy_check.glade:339
 msgid "Authorship"
+msgstr ""
+
+#: bauble/plugins/garden/pocket_server.glade:157
+msgid "Automatic refresh"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:767
@@ -751,7 +755,7 @@ msgstr "Byt lösenord"
 msgid "Change history"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1260
+#: bauble/plugins/garden/plant.py:1263
 msgid "Changes"
 msgstr "Ändringar"
 
@@ -759,18 +763,14 @@ msgstr "Ändringar"
 msgid "Choose a file to export to..."
 msgstr "Välj en fil att exportera till…"
 
-#: bauble/plugins/garden/exporttopocket.py:157
-msgid "Choose a file to export to…"
-msgstr ""
-
-#: bauble/connmgr.py:281 bauble/connmgr.py:291 bauble/connmgr.py:301
-#: bauble/editor.py:2098 bauble/editor.py:2105
+#: bauble/connmgr.py:287 bauble/connmgr.py:298 bauble/connmgr.py:309
+#: bauble/editor.py:2101 bauble/editor.py:2108
 #: bauble/plugins/imex/iojson.py:197 bauble/plugins/imex/iojson.py:280
 #: bauble/plugins/plants/taxonomy_check.py:279
 msgid "Choose a file…"
 msgstr "Välj en fil…"
 
-#: bauble/search.py:1090
+#: bauble/search.py:1091
 msgid "Choose a property…"
 msgstr ""
 
@@ -821,7 +821,7 @@ msgstr "Insamlare"
 msgid "Collector:"
 msgstr ""
 
-#: bauble/plugins/imex/csv_.py:684 bauble/plugins/imex/csv_.py:702
+#: bauble/plugins/imex/csv_.py:691 bauble/plugins/imex/csv_.py:709
 msgid "Comma Separated Value"
 msgstr "Kommateckenavgränsade värden (CSV)"
 
@@ -875,14 +875,14 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/tag/__init__.py:135
+#: bauble/plugins/tag/__init__.py:160
 msgid "Could not create the tags menus"
 msgstr "Det gick inte att skapa taggmenyerna"
 
 #: bauble/plugins/garden/accession.py:196 bauble/plugins/garden/location.py:80
 #: bauble/plugins/garden/plant.py:100 bauble/plugins/garden/source.py:778
 #: bauble/plugins/plants/family.py:96 bauble/plugins/plants/genus.py:107
-#: bauble/plugins/plants/species.py:97 bauble/plugins/tag/__init__.py:213
+#: bauble/plugins/plants/species.py:97 bauble/plugins/tag/__init__.py:239
 msgid ""
 "Could not delete.\n"
 "\n"
@@ -900,7 +900,7 @@ msgstr ""
 "Det gick inte att hitta kommandot \"%(exe)s\" för att starta renderaren "
 "%(renderer_name)s."
 
-#: bauble/pluginmgr.py:591
+#: bauble/pluginmgr.py:590
 msgid ""
 "Could not import the %(module)s module.\n"
 "\n"
@@ -936,7 +936,7 @@ msgstr ""
 "Okänd skrivbordsmiljö: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:350
+#: bauble/__init__.py:340
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -946,7 +946,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/report/mako/__init__.py:433
+#: bauble/plugins/report/mako/__init__.py:439
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -991,6 +991,10 @@ msgstr "Skapa en ny plats."
 msgid "Create a new propagation record for this plant."
 msgstr "Skapa en ny förökningspost för denna växt."
 
+#: bauble/plugins/garden/pocket_server.glade:229
+msgid "Creating snapshot"
+msgstr ""
+
 #: bauble/plugins/plants/species_model.py:208
 msgid "Critically Endangered (CR)"
 msgstr ""
@@ -1011,7 +1015,7 @@ msgstr "Odlad inhemsk"
 msgid "Current change"
 msgstr ""
 
-#: bauble/connmgr.py:579
+#: bauble/connmgr.py:599
 msgid ""
 "Current connection does not specify the fields:\n"
 "%s\n"
@@ -1031,7 +1035,7 @@ msgstr "Sticklinglängd"
 msgid "Cutting type"
 msgstr "Sticklingtyp"
 
-#: bauble/connmgr.py:577
+#: bauble/connmgr.py:597
 msgid "DBMS host name"
 msgstr ""
 
@@ -1090,7 +1094,7 @@ msgid "Dates"
 msgstr "Datum"
 
 #: bauble/plugins/garden/plant.py:253 bauble/plugins/garden/plant.py:326
-#: bauble/plugins/garden/plant.py:1239
+#: bauble/plugins/garden/plant.py:1242
 msgid "Dead"
 msgstr "Död"
 
@@ -1104,7 +1108,7 @@ msgstr "Borttagen, dödsår okänt"
 msgid "Description"
 msgstr "Beskrivning"
 
-#: bauble/utils/__init__.py:714
+#: bauble/utils/__init__.py:717
 msgid "Details"
 msgstr "Information"
 
@@ -1141,15 +1145,15 @@ msgstr ""
 msgid "Division"
 msgstr "Delning"
 
-#: bauble/connmgr.py:456
+#: bauble/connmgr.py:472
 msgid "Do you want to save %s?"
 msgstr "Vill du spara %s?"
 
-#: bauble/connmgr.py:400 bauble/connmgr.py:462
+#: bauble/connmgr.py:416 bauble/connmgr.py:478
 msgid "Do you want to save your changes to %s ?"
 msgstr "Vill du spara dina ändringar till %s?"
 
-#: bauble/connmgr.py:354
+#: bauble/connmgr.py:370
 msgid "Do you want to save your changes?"
 msgstr "Vill du spara dina ändringar?"
 
@@ -1194,7 +1198,7 @@ msgstr "E-post"
 msgid "Endangered (EN)"
 msgstr ""
 
-#: bauble/connmgr.py:406
+#: bauble/connmgr.py:422
 msgid "Enter a connection name"
 msgstr "Ange ett anslutningsnamn"
 
@@ -1202,11 +1206,11 @@ msgstr "Ange ett anslutningsnamn"
 msgid "Enter a name for the new formatter"
 msgstr "Ange ett namn för den nya formateringen"
 
-#: bauble/plugins/users/__init__.py:572
+#: bauble/plugins/users/__init__.py:569
 msgid "Enter a user name"
 msgstr "Ange ett användarnamn"
 
-#: bauble/connmgr.py:489
+#: bauble/connmgr.py:509
 msgid "Enter your password"
 msgstr "Ange ditt lösenord"
 
@@ -1226,8 +1230,8 @@ msgstr ""
 msgid "Epithet"
 msgstr "Epitet"
 
-#: bauble/plugins/garden/accession.py:2379
-#: bauble/plugins/garden/location.py:394 bauble/plugins/garden/plant.py:1099
+#: bauble/plugins/garden/accession.py:2378
+#: bauble/plugins/garden/location.py:394 bauble/plugins/garden/plant.py:1102
 #: bauble/plugins/garden/propagation.py:1121
 #: bauble/plugins/plants/family.py:632 bauble/plugins/plants/genus.py:780
 #: bauble/plugins/plants/species_editor.py:1243
@@ -1270,7 +1274,7 @@ msgstr "Fel i söksträng i kolumn %s"
 msgid "Error: Could not set the sequence for column: %s"
 msgstr "Fel: Det gick inte att ange sekvensen för kolumnen: %s"
 
-#: bauble/pluginmgr.py:259
+#: bauble/pluginmgr.py:258
 msgid ""
 "Error: Couldn't initialize %(entry_name)s\n"
 "\n"
@@ -1288,9 +1292,8 @@ msgstr "Utmärkt"
 msgid "Expedition"
 msgstr "Expedition"
 
-#: bauble/plugins/abcd/__init__.py:391
-#: bauble/plugins/garden/exporttopocket.py:152 bauble/plugins/imex/csv_.py:701
-#: bauble/plugins/imex/iojson.py:343 bauble/plugins/imex/xml.py:143
+#: bauble/plugins/abcd/__init__.py:391 bauble/plugins/imex/csv_.py:708
+#: bauble/plugins/imex/iojson.py:344 bauble/plugins/imex/xml.py:143
 msgid "Export"
 msgstr "Exportera"
 
@@ -1299,7 +1302,7 @@ msgstr "Exportera"
 msgid "Export To JSON"
 msgstr "Exportera till JSON"
 
-#: bauble/plugins/imex/csv_.py:608
+#: bauble/plugins/imex/csv_.py:606
 msgid ""
 "Export file <b>%(filename)s</b> for <b>%(table)s</b> table already exists.\n"
 "\n"
@@ -1399,11 +1402,11 @@ msgstr "Genbank"
 #: bauble/plugins/garden/plant_editor.glade:888
 #: bauble/plugins/garden/acc_editor.glade:1206
 #: bauble/plugins/plants/genus_editor.glade:284
-#: bauble/plugins/garden/accession.py:2514
-#: bauble/plugins/garden/location.py:458 bauble/plugins/garden/plant.py:1195
+#: bauble/plugins/garden/accession.py:2513
+#: bauble/plugins/garden/location.py:458 bauble/plugins/garden/plant.py:1198
 #: bauble/plugins/garden/source.py:857 bauble/plugins/plants/family.py:701
 #: bauble/plugins/plants/genus.py:853 bauble/plugins/plants/species.py:286
-#: bauble/plugins/plants/species.py:449 bauble/plugins/tag/__init__.py:698
+#: bauble/plugins/plants/species.py:449 bauble/plugins/tag/__init__.py:724
 msgid "General"
 msgstr "Allmänt"
 
@@ -1451,7 +1454,7 @@ msgstr ""
 msgid "Ghini development website"
 msgstr "Ghini utveckling webbplats"
 
-#: bauble/connmgr.py:561
+#: bauble/connmgr.py:581
 msgid ""
 "Ghini does not have permission to read the database file:\n"
 "\n"
@@ -1461,7 +1464,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:553
+#: bauble/connmgr.py:573
 msgid ""
 "Ghini does not have permission to read the directory:\n"
 "\n"
@@ -1471,7 +1474,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:565
+#: bauble/connmgr.py:585
 msgid ""
 "Ghini does not have permission to write to the database file:\n"
 "\n"
@@ -1481,7 +1484,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:557
+#: bauble/connmgr.py:577
 msgid ""
 "Ghini does not have permission to write to the directory:\n"
 "\n"
@@ -1497,9 +1500,8 @@ msgid "Ghini forum"
 msgstr "Ghini forum"
 
 #: bauble/ui.py:460
-#, fuzzy
-msgid "Ghini wiki"
-msgstr "Ghini wiki"
+msgid "Ghini news"
+msgstr ""
 
 #: bauble/plugins/garden/plant.py:270
 msgid "Given away (specify person)"
@@ -1587,7 +1589,7 @@ msgid "Immediately create a plant at this location, using all plant material."
 msgstr ""
 
 #: bauble/plugins/garden/picture_importer.py:390
-#: bauble/plugins/imex/csv_.py:683 bauble/plugins/imex/iojson.py:323
+#: bauble/plugins/imex/csv_.py:690 bauble/plugins/imex/iojson.py:324
 msgid "Import"
 msgstr "Importera"
 
@@ -1615,7 +1617,7 @@ msgstr ""
 "\n"
 "Vill du fortsätta?"
 
-#: bauble/plugins/tag/__init__.py:676
+#: bauble/plugins/tag/__init__.py:702
 msgid ""
 "In order to tag an item you must first search for something and select one "
 "of the results."
@@ -1623,7 +1625,7 @@ msgstr ""
 "För att kunna tagga ett objekt, så måste du först söka efter något och välja "
 "ett av resultaten."
 
-#: bauble/plugins/tag/__init__.py:153
+#: bauble/plugins/tag/__init__.py:178
 msgid ""
 "In order to tag or untag an item you must first search for something and "
 "select one of the results."
@@ -1684,7 +1686,7 @@ msgstr ""
 msgid "Internodal"
 msgstr "Internod"
 
-#: bauble/plugins/imex/csv_.py:692
+#: bauble/plugins/imex/csv_.py:699
 msgid ""
 "It is possible that importing data into this database could destroy or "
 "corrupt your existing data.\n"
@@ -1700,13 +1702,17 @@ msgstr ""
 msgid "Item(s)"
 msgstr ""
 
-#: bauble/plugins/imex/iojson.py:324 bauble/plugins/imex/iojson.py:344
+#: bauble/plugins/imex/iojson.py:325 bauble/plugins/imex/iojson.py:345
 msgid "JSON"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:707
 msgid "Label distribution"
 msgstr "Utbredningstext på etikett"
+
+#: bauble/plugins/garden/pocket_server.glade:72
+msgid "Last snapshot"
+msgstr ""
 
 #: bauble/view.py:185
 #, fuzzy
@@ -1897,11 +1903,11 @@ msgstr "Nästa"
 msgid "No"
 msgstr "Nej"
 
-#: bauble/__init__.py:185
+#: bauble/__init__.py:175
 msgid "No command handler for %s"
 msgstr "Det finns ingen kommandohanterare för %s"
 
-#: bauble/__init__.py:183
+#: bauble/__init__.py:173
 msgid "No default handler registered"
 msgstr "Ingen standardhanterare har registrerats"
 
@@ -1961,7 +1967,7 @@ msgstr ""
 msgid "Notes"
 msgstr "Anteckningar"
 
-#: bauble/plugins/tag/__init__.py:681
+#: bauble/plugins/tag/__init__.py:707
 msgid "Nothing selected"
 msgstr "Inget är valt"
 
@@ -2021,7 +2027,7 @@ msgstr ""
 msgid "Pictures"
 msgstr ""
 
-#: bauble/connmgr.py:592
+#: bauble/connmgr.py:612
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
@@ -2029,7 +2035,7 @@ msgstr ""
 msgid "Pictures root:"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:933
+#: bauble/plugins/garden/plant.py:936
 msgid "Plant Editor"
 msgstr ""
 
@@ -2052,7 +2058,7 @@ msgstr "Växt"
 msgid "Planting code"
 msgstr "Växtkod"
 
-#: bauble/connmgr.py:543
+#: bauble/connmgr.py:563
 msgid "Please choose a name for this connection"
 msgstr "Välj ett namn på denna anslutning"
 
@@ -2078,11 +2084,11 @@ msgid ""
 "2. continue to 'next' screen"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:162
+#: bauble/plugins/tag/__init__.py:187
 msgid "Please make sure a tag is active."
 msgstr ""
 
-#: bauble/__init__.py:234
+#: bauble/__init__.py:224
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
 msgstr "Säkerställ att GTK_ROOT\\bin är i din PATH."
 
@@ -2100,11 +2106,11 @@ msgstr "Välj en renderare"
 msgid "Please select a stylesheet."
 msgstr "Välj en formatmall."
 
-#: bauble/plugins/report/mako/__init__.py:404
+#: bauble/plugins/report/mako/__init__.py:410
 msgid "Please select a template."
 msgstr "Välj en mall."
 
-#: bauble/plugins/tag/__init__.py:158
+#: bauble/plugins/tag/__init__.py:183
 msgid "Please select something in the search results."
 msgstr ""
 
@@ -2114,6 +2120,10 @@ msgstr ""
 
 #: bauble/bauble.glade:537
 msgid "Plugins"
+msgstr ""
+
+#: bauble/plugins/garden/pocket_server.py:343
+msgid "Pocket Server…"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:322
@@ -2162,7 +2172,7 @@ msgid "Propagation of Source Material"
 msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:939
-#: bauble/plugins/garden/plant.py:1381
+#: bauble/plugins/garden/plant.py:1384
 msgid "Propagations"
 msgstr "Förökningar"
 
@@ -2245,6 +2255,14 @@ msgstr ""
 msgid "Register"
 msgstr ""
 
+#: bauble/plugins/garden/pocket_server.glade:304
+msgid "Registered clients"
+msgstr ""
+
+#: bauble/plugins/garden/pocket_server.glade:315
+msgid "Registration code"
+msgstr ""
+
 #: bauble/plugins/tag/__init__.py:106
 msgid "Remove active tag"
 msgstr ""
@@ -2278,6 +2296,10 @@ msgstr ""
 #: bauble/view.py:840
 msgid "Retrieving %s search results…"
 msgstr "Hämtar %s sökresultat…"
+
+#: bauble/plugins/garden/pocket_server.glade:142
+msgid "Review"
+msgstr ""
 
 #: bauble/plugins/garden/accession.py:443
 msgid "Rhizome"
@@ -2498,7 +2520,19 @@ msgstr "Välj en formatmall"
 msgid "Select pictures source directory"
 msgstr ""
 
-#: bauble/utils/__init__.py:1334
+#: bauble/plugins/garden/pocket_server.glade:92
+msgid "Server activity"
+msgstr ""
+
+#: bauble/plugins/garden/pocket_server.glade:328
+msgid "Server address"
+msgstr ""
+
+#: bauble/plugins/garden/pocket_server.glade:488
+msgid "Settings"
+msgstr "Inställningar"
+
+#: bauble/utils/__init__.py:1337
 msgid "Show details"
 msgstr "Visa information"
 
@@ -2526,7 +2560,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2408
 #: bauble/plugins/garden/acc_editor.glade:2458
-#: bauble/plugins/garden/accession.py:2618
+#: bauble/plugins/garden/accession.py:2617
 msgid "Source"
 msgstr "Källa"
 
@@ -2586,11 +2620,11 @@ msgstr "Vetenskapliga synonymer"
 msgid "Split"
 msgstr "Uppdel"
 
-#: bauble/plugins/garden/plant.py:1162
+#: bauble/plugins/garden/plant.py:1165
 msgid "Split Mode"
 msgstr "Uppdelnings Läge"
 
-#: bauble/plugins/garden/plant.py:1165
+#: bauble/plugins/garden/plant.py:1168
 msgid ""
 "Splitting from %(plant_code)s.  The quantity will be subtracted from "
 "%(plant_code)s"
@@ -2648,7 +2682,7 @@ msgid "Tagged type"
 msgstr ""
 
 #: bauble/plugins/tag/tag.glade:241 bauble/plugins/tag/tag.glade:430
-#: bauble/plugins/tag/__init__.py:67 bauble/plugins/tag/__init__.py:775
+#: bauble/plugins/tag/__init__.py:67 bauble/plugins/tag/__init__.py:801
 msgid "Tags"
 msgstr "Taggar"
 
@@ -2668,7 +2702,7 @@ msgstr "Teknisk kontakt"
 msgid "Telephone"
 msgstr "Telefon"
 
-#: bauble/pluginmgr.py:247
+#: bauble/pluginmgr.py:246
 msgid ""
 "The %(plugin_name)s plugin is listed in the registry but isn't wasn't found "
 "in the plugin directory"
@@ -2713,7 +2747,7 @@ msgstr ""
 "\n"
 "Möjliga värden: %s"
 
-#: bauble/plugins/users/__init__.py:504
+#: bauble/plugins/users/__init__.py:501
 msgid "The Users editor is only valid on a PostgreSQL database"
 msgstr "Användarredigeraren kan endast användas med en PostgreSQL-databas"
 
@@ -2827,7 +2861,7 @@ msgstr ""
 msgid "The fax number of the institution."
 msgstr "Institutionens faxnummer."
 
-#: bauble/pluginmgr.py:216
+#: bauble/pluginmgr.py:215
 msgid ""
 "The following plugins are in the registry but could not be loaded:\n"
 "\n"
@@ -2837,7 +2871,7 @@ msgstr ""
 "\n"
 "%(plugins)s"
 
-#: bauble/pluginmgr.py:197
+#: bauble/pluginmgr.py:196
 msgid ""
 "The following plugins were not found in the plugin registry:\n"
 "\n"
@@ -2961,11 +2995,11 @@ msgstr ""
 msgid "The part of the taxon name that the id qualifier refers to."
 msgstr "Den del av taxonnamnet som ID-attributet hänvisar till."
 
-#: bauble/plugins/users/__init__.py:649
+#: bauble/plugins/users/__init__.py:646
 msgid "The password for user <b>%s</b> has not been changed."
 msgstr "Lösenordet för användaren <b>%s</b> har inte ändrats."
 
-#: bauble/plugins/users/__init__.py:655
+#: bauble/plugins/users/__init__.py:652
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
@@ -2981,7 +3015,7 @@ msgstr ""
 "Växtkoden måste vara en unik kod för accessionen. Du kan även skapa "
 "intervall, t.ex. 1,2,7 eller 1-3, för att skapa flera växter."
 
-#: bauble/pluginmgr.py:232
+#: bauble/pluginmgr.py:231
 msgid ""
 "The plugins contain a dependency loop. This can happen if two plugins "
 "directly or indirectly rely on each other"
@@ -2989,7 +3023,7 @@ msgstr ""
 "Insticksmodulerna innehåller en objektsberoende loop. Det här kan hända om "
 "två insticksmoduler direkt eller indirekt är beroende av varandra"
 
-#: bauble/pluginmgr.py:318
+#: bauble/pluginmgr.py:317
 msgid ""
 "The plugins contain a dependency loop. This means that two plugins (possibly "
 "indirectly) rely on each other"
@@ -3003,7 +3037,7 @@ msgstr ""
 "Posten är en del av en typsamling eller har förökats ur material m.h.a. "
 "asexuella metoder."
 
-#: bauble/plugins/garden/accession.py:1876
+#: bauble/plugins/garden/accession.py:1889
 msgid ""
 "The species <b>%(synonym)s</b> is a synonym of <b>%(species)s</b>.\n"
 "\n"
@@ -3086,7 +3120,7 @@ msgid ""
 "Are you sure you want to insert it again?"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:775
+#: bauble/plugins/garden/plant.py:777
 msgid ""
 "This plant is marked with quantity zero. \n"
 "In practice, it is not any more part of the collection. \n"
@@ -3149,7 +3183,7 @@ msgstr ""
 "version %s. Var vänlig hämta och installera en nyare version av SQLAlchemy "
 "från http://www.sqlalchemy.org eller kontakta din systemadministratör."
 
-#: bauble/connmgr.py:596
+#: bauble/connmgr.py:616
 msgid "Thumbnails name occupied by non directory."
 msgstr ""
 
@@ -3166,7 +3200,7 @@ msgstr "Skott"
 msgid "Tissue Culture"
 msgstr "Vävnadskultur"
 
-#: bauble/utils/__init__.py:864
+#: bauble/utils/__init__.py:867
 msgid "Today's date"
 msgstr "Dagens datum"
 
@@ -3214,8 +3248,8 @@ msgstr "Okänd"
 msgid "Unknown Error."
 msgstr "Okänt fel."
 
-#: bauble/plugins/garden/accession.py:2384
-#: bauble/plugins/garden/location.py:400 bauble/plugins/garden/plant.py:1104
+#: bauble/plugins/garden/accession.py:2383
+#: bauble/plugins/garden/location.py:400 bauble/plugins/garden/plant.py:1107
 #: bauble/plugins/garden/propagation.py:1127
 #: bauble/plugins/plants/family.py:637 bauble/plugins/plants/genus.py:785
 #: bauble/plugins/plants/species_editor.py:1249
@@ -3255,8 +3289,8 @@ msgstr "Användare"
 msgid "User:"
 msgstr "Användare:"
 
-#: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:527
-#: bauble/plugins/users/__init__.py:741
+#: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:524
+#: bauble/plugins/users/__init__.py:738
 msgid "Users"
 msgstr "Användare"
 
@@ -3277,7 +3311,7 @@ msgid "Vegetative spreading"
 msgstr "Vegetativ spridning"
 
 #: bauble/plugins/garden/acc_editor.glade:2535
-#: bauble/plugins/garden/accession.py:2718
+#: bauble/plugins/garden/accession.py:2717
 msgid "Verifications"
 msgstr "Verifikationer"
 
@@ -3309,7 +3343,7 @@ msgid "Voucher of parent material"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2813
-#: bauble/plugins/garden/accession.py:2734
+#: bauble/plugins/garden/accession.py:2733
 msgid "Vouchers"
 msgstr "Allegat"
 
@@ -3341,7 +3375,7 @@ msgstr "Dog under vintern"
 msgid "Would you like the cancel the current tasks?"
 msgstr "Vill du avbryta de aktuella aktiviteterna?"
 
-#: bauble/__init__.py:377
+#: bauble/__init__.py:367
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
@@ -3424,7 +3458,7 @@ msgstr ""
 msgid "You cannot remove an accession with plants."
 msgstr ""
 
-#: bauble/plugins/users/__init__.py:512
+#: bauble/plugins/users/__init__.py:509
 msgid "You do not have privileges to change other user privileges"
 msgstr "Du har inte behörighet att ändra andra användares behörigheter"
 
@@ -3455,7 +3489,7 @@ msgid ""
 "can add species."
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:2418
+#: bauble/plugins/garden/accession.py:2417
 msgid ""
 "You must first add or import at least one species into the database before "
 "you can add accessions."
@@ -3492,7 +3526,7 @@ msgstr "_Klipp ut"
 #: bauble/plugins/garden/plant.py:117 bauble/plugins/garden/source.py:74
 #: bauble/plugins/garden/source.py:790 bauble/plugins/plants/family.py:110
 #: bauble/plugins/plants/genus.py:119 bauble/plugins/plants/species.py:120
-#: bauble/plugins/tag/__init__.py:225
+#: bauble/plugins/tag/__init__.py:251
 msgid "_Delete"
 msgstr "_Ta bort"
 
@@ -3500,7 +3534,7 @@ msgstr "_Ta bort"
 #: bauble/plugins/garden/plant.py:109 bauble/plugins/garden/source.py:67
 #: bauble/plugins/garden/source.py:786 bauble/plugins/plants/family.py:104
 #: bauble/plugins/plants/genus.py:113 bauble/plugins/plants/species.py:114
-#: bauble/plugins/tag/__init__.py:222 bauble/ui.py:438
+#: bauble/plugins/tag/__init__.py:248 bauble/ui.py:438
 msgid "_Edit"
 msgstr "R_edigera"
 
@@ -3593,7 +3627,7 @@ msgstr ""
 msgid "by %(verifier)s"
 msgstr "av %(verifier)s"
 
-#: bauble/plugins/garden/plant.py:978
+#: bauble/plugins/garden/plant.py:981
 msgid "cannot split a new plant"
 msgstr "kan inte dela up en ny växt"
 
@@ -3632,7 +3666,7 @@ msgstr ""
 msgid "cv."
 msgstr "cv."
 
-#: bauble/connmgr.py:574
+#: bauble/connmgr.py:594
 msgid "database name"
 msgstr ""
 
@@ -3745,7 +3779,7 @@ msgstr ""
 msgid "mm"
 msgstr "mm"
 
-#: bauble/plugins/garden/accession.py:2446
+#: bauble/plugins/garden/accession.py:2445
 msgid "model must have both latitude and longitude or neither"
 msgstr ""
 "modellen måste inbegripa både latitud och longitud eller ingen av dessa"
@@ -3767,11 +3801,11 @@ msgstr ""
 msgid "next"
 msgstr ""
 
-#: bauble/utils/__init__.py:314 bauble/utils/__init__.py:327
+#: bauble/utils/__init__.py:317 bauble/utils/__init__.py:330
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
-#: bauble/editor.py:1550
+#: bauble/editor.py:1553
 msgid "no widget with name %s"
 msgstr "det finns ingen gränssnittskomponent med namnet %s"
 
@@ -3787,7 +3821,7 @@ msgstr ""
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:2088 bauble/utils/__init__.py:172
+#: bauble/editor.py:2091 bauble/utils/__init__.py:172
 msgid "picture file %s not found."
 msgstr ""
 
@@ -3802,6 +3836,14 @@ msgstr "växter"
 
 #: bauble/plugins/garden/location.py:280
 msgid "please confirm merging %(1)s into %(2)s"
+msgstr ""
+
+#: bauble/plugins/garden/pocket_server.glade:61
+msgid "pocket/desktop XML-RPC Server"
+msgstr ""
+
+#: bauble/plugins/garden/pocket_server.glade:341
+msgid "port"
 msgstr ""
 
 #: bauble/plugins/plants/__init__.py:393
@@ -3874,15 +3916,15 @@ msgstr "subvar."
 msgid "synonym of %s"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:493
+#: bauble/plugins/tag/__init__.py:519
 msgid "tagging %(1)s objects of %(2)s different types"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:487
+#: bauble/plugins/tag/__init__.py:513
 msgid "tagging %(1)s objects of type %(2)s"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:491
+#: bauble/plugins/tag/__init__.py:517
 msgid "tagging nothing"
 msgstr ""
 
@@ -3901,10 +3943,6 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1475
 msgid "to"
 msgstr "till"
-
-#: bauble/plugins/garden/exporttopocket.py:153
-msgid "to ghini.pocket"
-msgstr ""
 
 #: bauble/plugins/plants/stored_queries.glade:109
 msgid "tooltip"
@@ -3934,7 +3972,7 @@ msgstr ""
 msgid "used in"
 msgstr ""
 
-#: bauble/connmgr.py:571
+#: bauble/plugins/garden/pocket_server.glade:407 bauble/connmgr.py:591
 msgid "user name"
 msgstr ""
 
@@ -3961,6 +3999,10 @@ msgstr "°C"
 #: bauble/plugins/garden/propagation.py:299
 msgid "°F"
 msgstr "°F"
+
+#: bauble/plugins/garden/pocket_server.glade:129
+msgid "⤡"
+msgstr ""
 
 #~ msgid "# of seedlings: %s"
 #~ msgstr "Antal fröplantor: %s"
@@ -4231,6 +4273,10 @@ msgstr "°F"
 #~ msgid "Ghini - Picasa Settings"
 #~ msgstr "Ghini - Inställningar för Picasa"
 
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Ghini wiki"
+
 #~ msgid "Hormone treatment: %s"
 #~ msgstr "Hormonbehandling: %s"
 
@@ -4342,9 +4388,6 @@ msgstr "°F"
 
 #~ msgid "Select a source"
 #~ msgstr "Välj en källa"
-
-#~ msgid "Settings"
-#~ msgstr "Inställningar"
 
 #~ msgid "Source Details"
 #~ msgstr "Källinformation"
