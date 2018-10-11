@@ -60,15 +60,18 @@ Ghini comes with a few sample package-templates, and it lets you install your ow
       same production line (say, ghini-3.1).
 
       To install a new template as a user-template, click on ``Add``, choose the file that contains your
-      template, and type the name by which you want to install it.  |ghini.desktop| will copy it to your
-      ghini user directory.  Installed templates are static, once configured you are not expected to alter
-      them.  You can delete installed user templates (select it, then click on ``Remove``), or you can
-      overrule a package-template by installing your own template using an already taken package-template
-      name.
+      template, confirm.  |ghini.desktop| will copy it to your ghini user directory.
 
-      If you want to alter a package-template, and you want to make sure you keep your changes across
-      updates, you would install it as a user-template.  This will prevent future updates from overwriting
-      it.
+      You can delete installed user-templates, or disable package-templates: select the template name in the
+      pull down list, click on ``Remove``.  Removing a user-templates deletes its file from your custom user
+      data.  Removing a package-template only disables it for the current user.  You can enable all disabled
+      package-templates by opening the ``Add`` dialog box, and clicking on the ``Reset package-templates``
+      button
+
+      A user can overrule a package-template, by installing it again as a user-template.  Installed
+      user-templates are just text files, you can edit them with any decent text editor.  This allows you to
+      alter package-templates, and to keep your changes across updates.  You can use your preferred file
+      handling tool to copy or rename your user-templates.
 
 Choosing a template implies the choice of a template language.  |ghini.desktop| supports three template
 languages: Jinja2, Mako and XSL.  There is only one formatting engine handling the Jinja2 template language,
