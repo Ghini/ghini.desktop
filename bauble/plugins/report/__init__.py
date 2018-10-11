@@ -605,14 +605,20 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
         '''
 
+        new_row = (name[:-len(plugin.extension)], plugin.title, is_package_template, plugin.extension, )
+
         names_ls = self.view.widgets.names_ls
-        for n, row in enumerate(names_ls):
-            if row[1] < plugin.title:
-                continue
-            if row[0] < name:
-                continue
-            break
-        names_ls.insert(n, (name[:-len(plugin.extension)], plugin.title, is_package_template, plugin.extension, ))
+        item = names_ls.get_iter_first()
+        for row in names_ls:
+            if row[1] >= plugin.title and row[0] >= name:
+                break
+            item = names_ls.iter_next(item)
+        if row[1] == plugin.title and row[0] == name:
+            names_ls.set(item, [2], [False])
+        elif item:
+            names_ls.insert_before(item, new_row)
+        else:
+            names_ls.append(new_row)
         GObject.idle_add(self.view.widget_set_value, 'names_combo', name)
 
     def populate_names_combo(self):
