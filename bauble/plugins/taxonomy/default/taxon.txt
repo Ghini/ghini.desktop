@@ -221,7 +221,7 @@ id,rank_id,epithet,parent_id,accepted_id,author,year
 220,7,Desmodieae,206,,,
 221,7,Dipteryxeae,206,,,
 222,7,Euchresteae,206,,,
-223,7,Fabeae,206,,,
+223,7,Fabeae,206,,Rchb.,1832
 224,7,Galegeae,206,,,
 225,7,Genisteae,206,,,
 226,7,Hedysareae,206,,,
@@ -238,7 +238,7 @@ id,rank_id,epithet,parent_id,accepted_id,author,year
 237,7,Swartzieae,206,,,
 238,7,Thermopsideae,206,,,
 239,7,Trifolieae,206,,,
-240,7,Vicieae,206,,,
+240,7,Vicieae,206,223,(Bronn) DC.,1825
 241,8,Cajaninae,231,,,
 242,9,Adenodolichos,241,,,
 243,9,Bolusafra,241,,,
