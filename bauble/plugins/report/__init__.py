@@ -616,10 +616,10 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         if row[1] == plugin.title and row[0] == name:
             names_ls.set(item, [2], [False])
         elif item:
-            names_ls.insert_before(item, new_row)
+            item = names_ls.insert_before(item, new_row)
         else:
-            names_ls.append(new_row)
-        GObject.idle_add(self.view.widget_set_value, 'names_combo', name)
+            item = names_ls.append(new_row)
+        GObject.idle_add(self.view.widgets.names_combo.set_active_iter, item)
 
     def populate_names_combo(self):
         '''populate names_ls from package- and user-templates
