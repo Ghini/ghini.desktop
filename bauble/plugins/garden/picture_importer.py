@@ -90,25 +90,18 @@ def decode_parts(name, acc_format=None):
     return result
 
 
-def none(function, *args):
-    '''invoke function but drop return value'''
-
-    function(*args)
-    return None
-
-
 class ListStoreHandler(logging.Handler):
     def __init__(self, container, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.container = container
-        GObject.idle_add(none, self.container.clear)
+        GObject.idle_add(utils.none, self.container.clear)
 
     def emit(self, record):
         msg = self.format(record)
         stock = {11: 'gtk-directory',
                  12: 'gtk-file',
                  13: 'gtk-new', }[record.levelno]
-        GObject.idle_add(none, self.container.append, [stock, msg])
+        GObject.idle_add(utils.none, self.container.append, [stock, msg])
 
 
 def query_session_new(session, cls, **kwargs):
