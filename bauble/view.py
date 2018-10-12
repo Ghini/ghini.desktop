@@ -845,7 +845,7 @@ class SearchView(pluginmgr.View):
                 # window is set to a busy state
                 import time
                 start = time.time()
-                if len(results) > 1000:
+                if len(results) < 1000:
                     self.populate_results(results)
                 else:
                     task = self._populate_worker(results)
