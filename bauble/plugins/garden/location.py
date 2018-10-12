@@ -127,7 +127,7 @@ class Location(db.Base, db.Serializable, db.WithNotes):
     # columns
     # refers to beds by unique codes
     code = Column(Unicode(12), unique=True, nullable=False)
-    name = Column(Unicode(64))
+    name = Column(Unicode(80))
     description = Column(UnicodeText)
 
     # relations
