@@ -277,13 +277,19 @@ def open(uri, verify=True, show_error_dialogs=False):
     global engine
     new_engine = None
 
-    from sqlalchemy.pool import SingletonThreadPool
-    from bauble.prefs import testing
+    import sqlalchemy.pool
+    import bauble.prefs
+    if bauble.prefs.testing:  # this causes trouble in production but works
+                              # in testing.  who can explain?  #133, #425
+        new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
+                                      implicit_returning=False,
+                                      poolclass=sqlalchemy.pool.SingletonThreadPool,
+                                      pool_size=20)
+    else:
+        new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
+                                      implicit_returning=False,
+                                      poolclass=sqlalchemy.pool.NullPool)
 
-    poolclass = SingletonThreadPool
-    new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
-                                  implicit_returning=False,
-                                  poolclass=poolclass, pool_size=20)
     # TODO: there is a problem here: the code may cause an exception, but we
     # immediately loose the 'new_engine', which should know about the
     # encoding used in the exception string.
