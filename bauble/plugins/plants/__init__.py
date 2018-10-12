@@ -89,7 +89,7 @@ class LabelUpdater(Thread):
     def run(self):
         ssn = db.Session()
         value, = ssn.execute(self.query).first()
-        GObject.idle_add(lambda x: self.widget.set_text(str(x)), value)
+        GObject.idle_add(utils.none, self.widget.set_text, str(value))
         ssn.close()
 
 
