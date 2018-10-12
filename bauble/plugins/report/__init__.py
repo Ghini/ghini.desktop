@@ -619,7 +619,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             item = names_ls.insert_before(item, new_row)
         else:
             item = names_ls.append(new_row)
-        GObject.idle_add(self.view.widgets.names_combo.set_active_iter, item)
+        GObject.idle_add(butils.none, self.view.widgets.names_combo.set_active_iter, item)
 
     def populate_names_combo(self):
         '''populate names_ls from package- and user-templates
@@ -655,7 +655,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                     names.add(candidate)
                 else:
                     logger.debug('%s refuses %s' % (title, candidate, ))
-        GObject.idle_add(self.view.widget_set_sensitive, 'names_combo', True)
+        GObject.idle_add(butils.none, self.view.widget_set_sensitive, 'names_combo', True)
 
     def save_formatter_settings(self):
         template_options = prefs[config_list_pref]
