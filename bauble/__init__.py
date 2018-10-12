@@ -313,6 +313,8 @@ dbengine.html#create-engine-url-arguments>`_
                 if conn_name is None:
                     quit()
             try:
+                # testing, database initialized at current version.  or we
+                # get two different exceptions.
                 if db.open(uri, True, True):
                     prefs[conn_default_pref] = conn_name
                     break
@@ -333,9 +335,7 @@ dbengine.html#create-engine-url-arguments>`_
                 break
             except err.DatabaseError, e:
                 logger.debug("%s(%s)" % (type(e), e))
-                # traceback.format_exc()
                 open_exc = e
-                # break
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % e
                 utils.message_details_dialog(msg, traceback.format_exc(),
