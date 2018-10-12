@@ -537,6 +537,24 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
                         (type(widget), widget.name))
 
 
+def none(function, *args):
+    '''invoke function but drop return value
+
+    meant to be used in GObject.idle_add, so that the function is not placed
+    back in the queue.
+
+    instead of:
+    GObject.idle_add(f, a1, a2, a3)
+
+    use:
+    GObject.idle_add(utils.none, f, a1, a2, a3)
+
+    '''
+
+    function(*args)
+    return None
+
+
 def create_message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                           parent=None):
     ''' Create a message dialog, display and return it ready to be run.
@@ -1024,19 +1042,19 @@ def make_label_clickable(label, on_clicked, *args):
           'label must have an Gtk.EventBox as its parent')
     label.__pressed = False
 
-    def on_enter_notify(widget, *args):
+    def on_enter_notify(widget, event, label, *args):
         widget.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse("#faf8f7"))
         label.modify_fg(Gtk.StateType.NORMAL, Gdk.color_parse("blue"))
 
-    def on_leave_notify(widget, *args):
+    def on_leave_notify(widget, event, label, *args):
         widget.modify_bg(Gtk.StateType.NORMAL, None)
         label.modify_fg(Gtk.StateType.NORMAL, None)
         label.__pressed = False
 
-    def on_press(*args):
+    def on_press(widget, event, label, *args):
         label.__pressed = True
 
-    def on_release(widget, event, *args):
+    def on_release(widget, event, label, *args):
         if label.__pressed:
             label.__pressed = False
             label.modify_fg(Gtk.StateType.NORMAL, None)
@@ -1046,14 +1064,14 @@ def make_label_clickable(label, on_clicked, *args):
         eventbox.disconnect(label.__on_event)
         logger.debug('disconnected previous release-event handler')
         label.__on_event = eventbox.connect(
-            'button_release_event', on_release, *args)
+            'button_release_event', on_release, label, *args)
     except AttributeError:
         logger.debug('defining handlers')
         label.__on_event = eventbox.connect(
-            'button_release_event', on_release, *args)
-        eventbox.connect('enter_notify_event', on_enter_notify)
-        eventbox.connect('leave_notify_event', on_leave_notify)
-        eventbox.connect('button_press_event', on_press)
+            'button_release_event', on_release, label, *args)
+        eventbox.connect('enter_notify_event', on_enter_notify, label)
+        eventbox.connect('leave_notify_event', on_leave_notify, label)
+        eventbox.connect('button_press_event', on_press, label)
 
 
 def enum_values_str(col):
@@ -1465,7 +1483,6 @@ def get_urls(text):
     rx = re.compile('(?:\[(.+?)\])?((?:(?:http)|(?:https))://\S+)', re.I)
     matches = []
     for match in rx.finditer(text):
-        #print match.groups()
         matches.append(match.groups())
     return matches
 
