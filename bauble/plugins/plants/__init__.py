@@ -88,7 +88,7 @@ class LabelUpdater(Thread):
     def run(self):
         ssn = db.Session()
         value, = ssn.execute(self.query).first()
-        idle_add(lambda x: self.widget.set_text(str(x)), value)
+        idle_add(self.widget.set_text, str(value))
         ssn.close()
 
 
