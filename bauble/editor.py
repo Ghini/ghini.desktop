@@ -1208,6 +1208,13 @@ class GenericEditorPresenter(object):
         thread.start()
         return thread
 
+    def idle_start_thread(self, cls, *args, **kwargs):
+        def create_and_start(cls, args, kwargs):
+            thread = cls(*args, **kwargs)
+            self.running_threads.append(thread)
+            thread.start()
+        GObject.idle_add(create_and_start, cls, args, kwargs)
+
     def commit_changes(self):
         '''
         Commit the changes to self.session()

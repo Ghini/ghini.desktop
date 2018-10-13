@@ -961,7 +961,7 @@ class SearchView(pluginmgr.View):
             model.set_sort_column_id(-1, Gtk.SortType.ASCENDING)
             utils.clear_model(self.results_view)
             self.results_view.set_model(model)
-            self.start_thread(PopulateResults(self, results))
+            self.idle_start_thread(PopulateResults, self, results)
 
         self.update_bottom_notebook()
 

@@ -47,7 +47,7 @@ import traceback
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 
 
 from sqlalchemy import Column, Unicode, select
@@ -518,6 +518,13 @@ class View(Gtk.VBox):
         self.running_threads.append(thread)
         thread.start()
         return thread
+
+    def idle_start_thread(self, cls, *args, **kwargs):
+        def create_and_start(cls, args, kwargs):
+            thread = cls(*args, **kwargs)
+            self.running_threads.append(thread)
+            thread.start()
+        GObject.idle_add(create_and_start, cls, args, kwargs)
 
     def update(self):
         pass
