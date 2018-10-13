@@ -237,7 +237,7 @@ clients will be able to register, request database snapshots, or send collected 
 .. image::  images/ghini-pocket-client.png
 
 The above is how |ghini.pocket| looks on my virtual phone, and 192.168.43.226 is the IP address
-of my laptop in my local network.  YMMV.
+of my laptop in my local network.  Please replace that with your own computer address.
 
 .. admonition:: I understand beans, what should I do?
    :class: toggle
@@ -287,6 +287,14 @@ shown by |ghini.desktop|, to all your |ghini.pocket| clients, and make sure that
 are talking to the port on which the server will be listening.
 
 .. image:: images/pocket-server-settings.png
+
+.. admonition:: 127.0.0.1
+   :class: toggle
+
+      Is your ghini.desktop showing the ``127.0.0.1`` address, that means that it is not
+      connected to anything.  That address is the numeric form of ``localhost``, and only useful
+      for local connections.  You will **not** be able to connect pocket to desktop if this is
+      what desktop reports as server IP address.
 
 |ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section
 on the client user interface, for how to register a phone.)  When |ghini.desktop| receives a
