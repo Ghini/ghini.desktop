@@ -496,6 +496,70 @@ class CountResultsTask(threading.Thread):
         session.close()
 
 
+class PopulateResults(threading.Thread):
+    def __init__(self, view, results, group=None):
+        super().__init__(group=group, target=None, name=None)
+        self.__stopped = False
+        self.results = [(type(i).__name__, str(i), i) for i in results]
+        self.view = view
+
+    def cancel(self):
+        self.__stopped = True
+
+    def run(self):
+        results = self.results
+        nresults = len(results)
+        steps_so_far = 0
+        
+        groups = []
+
+        for key, group in itertools.groupby(sorted(results, key=lambda x: x[:2]), key=lambda x: x[0]):
+            # 'group' is a temporary object, which we convert into a list.
+            groups.append(list(group))
+
+        # sort again by type name, so we have a deterministic output
+        groups = sorted(groups, key=lambda x: x[:2])
+
+        model = self.view.results_view.get_model()
+
+        def append_expandable_row(model, content):
+            parent = model.append(None, [content])
+            content_type = type(content)
+            if self.view.row_meta[content_type].children is not None:
+                model.prepend(parent, ['-'])
+        
+        added = set()
+        for kname, klass, obj in itertools.chain(*groups):
+            if self.__stopped:
+                return
+            if obj in added:  # only add unique object
+                continue
+            GObject.idle_add(append_expandable_row, model, obj)
+            if not added:  # this is the first iteration
+                GObject.idle_add(utils.none, self.view.results_view.set_cursor, 0)
+                GObject.idle_add(utils.none, self.view.results_view.scroll_to_cell, 0)
+            steps_so_far += 1
+            percent = float(steps_so_far) / nresults
+            if 0 < percent < 1.0:
+                GObject.idle_add(bauble.gui.progressbar.set_fraction, percent)
+
+            added.add(obj)
+
+        statusbar = bauble.gui.widgets.statusbar
+        sbcontext_id = statusbar.get_context_id('searchview.nresults')
+        statusbar.pop(sbcontext_id)
+        statusbar.push(sbcontext_id, _('counting results'))
+        if len(set(item[2].__class__ for item in results)) == 1:
+            dots_thread = self.view.start_thread(AddOneDot())
+            self.view.start_thread(CountResultsTask(
+                results[0][2].__class__, [i[2].id for i in results],
+                dots_thread))
+        else:
+            statusbar.push(sbcontext_id,
+                           _('size of non homogeneous result: %s') %
+                           len(results))
+
+
 class SearchView(pluginmgr.View):
     """
     The SearchView is the main view for Ghini.  It manages the search
@@ -578,9 +642,6 @@ class SearchView(pluginmgr.View):
         from . import pictures_view
         pictures_view.floating_window = pictures_view.PicturesView(
             parent=self.widgets.search_h2pane)
-
-        # we only need this for the timeout version of populate_results
-        self.populate_callback_id = None
 
         # the context menu cache holds the context menus by type in the results
         # view so that we don't have to rebuild them every time
@@ -761,6 +822,9 @@ class SearchView(pluginmgr.View):
         if not values:
             set_infobox_from_row(None)
             return
+        if not values[0]:
+            set_infobox_from_row(None)
+            return
 
         if object_session(values[0]) is None:
             logger.debug('cannot populate info box from detached object')
@@ -892,38 +956,12 @@ class SearchView(pluginmgr.View):
                     return
             statusbar.push(sbcontext_id, _("Retrieving %s search "
                                            "results…") % len(results))
-            try:
-                # don't bother with a task if the results are small,
-                # this keeps the screen from flickering when the main
-                # window is set to a busy state
-                import time
-                start = time.time()
-                if len(results) > 1000:
-                    self.populate_results(results)
-                else:
-                    task = self._populate_worker(results)
-                    while True:
-                        try:
-                            next(task)
-                        except StopIteration:
-                            break
-                logger.debug(time.time() - start)
-            except StopIteration:
-                return
-            else:
-                statusbar.pop(sbcontext_id)
-                statusbar.push(sbcontext_id, _('counting results'))
-                if len(set(item.__class__ for item in results)) == 1:
-                    dots_thread = self.start_thread(AddOneDot())
-                    self.start_thread(CountResultsTask(
-                        results[0].__class__, [i.id for i in results],
-                        dots_thread))
-                else:
-                    statusbar.push(sbcontext_id,
-                                   _('size of non homogeneous result: %s') %
-                                   len(results))
-                self.results_view.set_cursor(0)
-                GObject.idle_add(lambda: self.results_view.scroll_to_cell(0))
+            model = Gtk.TreeStore(object)
+            model.set_default_sort_func(lambda *args: -1)
+            model.set_sort_column_id(-1, Gtk.SortType.ASCENDING)
+            utils.clear_model(self.results_view)
+            self.results_view.set_model(model)
+            self.start_thread(PopulateResults(self, results))
 
         self.update_bottom_notebook()
 
@@ -964,73 +1002,6 @@ class SearchView(pluginmgr.View):
             self.append_children(
                 model, treeiter, sorted(kids, key=utils.natsort_key))
             return False
-
-    def populate_results(self, results, check_for_kids=False):
-        """
-        Adds results to the search view in a task.
-
-        :param results: a list or list-like object
-        :param check_for_kids: only used for testing
-        """
-        bauble.task.queue(self._populate_worker(results, check_for_kids))
-
-    def _populate_worker(self, results, check_for_kids=False):
-        """
-        Generator function for adding the search results to the
-        model. This method is usually called by self.populate_results()
-        """
-        nresults = len(results)
-        model = Gtk.TreeStore(object)
-        model.set_default_sort_func(lambda *args: -1)
-        model.set_sort_column_id(-1, Gtk.SortType.ASCENDING)
-        utils.clear_model(self.results_view)
-
-        groups = []
-
-        # sort by type so that groupby works properly
-        results = sorted(results, key=lambda x: type(x).__name__)
-
-        for key, group in itertools.groupby(results, key=lambda x: type(x)):
-            # return groups by type and natural sort each of the
-            # groups by their strings
-            groups.append(sorted(group, key=utils.natsort_key, reverse=True))
-
-        # sort the groups by type so we more or less always get the
-        # results by type in the same order
-        groups = sorted(groups, key=lambda x: type(x[0]), reverse=True)
-
-        update_every = 200
-        steps_so_far = 0
-
-        # iterate over slice of size "steps", yield after adding each
-        # slice to the model
-        #for obj in itertools.islice(itertools.chain(*groups), 0,None, steps):
-        #for obj in itertools.islice(itertools.chain(results), 0,None, steps):
-
-        added = set()
-        for obj in itertools.chain(*groups):
-            if obj in added:  # only add unique object
-                continue
-            else:
-                added.add(obj)
-            parent = model.prepend(None, [obj])
-            obj_type = type(obj)
-            if check_for_kids:
-                kids = self.row_meta[obj_type].get_children(obj)
-                if len(kids) > 0:
-                    model.prepend(parent, ['-'])
-            elif self.row_meta[obj_type].children is not None:
-                model.prepend(parent, ['-'])
-            #steps_so_far += chunk_size
-            steps_so_far += 1
-            if steps_so_far % update_every == 0:
-                percent = float(steps_so_far)/float(nresults)
-                if 0 < percent < 1.0:
-                    bauble.gui.progressbar.set_fraction(percent)
-                yield
-        self.results_view.freeze_child_notify()
-        self.results_view.set_model(model)
-        self.results_view.thaw_child_notify()
 
     def append_children(self, model, parent, kids):
         """
