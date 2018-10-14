@@ -220,58 +220,19 @@ Managing pocket/desktop interaction
 
 Interaction between |ghini.pocket| and |ghini.desktop| is handled following a client server
 scheme.  When you need to export a new database snapshot to pocket, or import the pocket log
-into the main database, you put |ghini.desktop| in server mode, so that it awaits for requests
+into the main database, you put |ghini.desktop| in server mode, so that it awaits requests
 from registered |ghini.pocket| clients.
 
 |ghini.desktop| server mode
 ----------------------------------------
 
 Select :menuselection:`Tools-->Pocket Server..` to activate server mode on |ghini.desktop|.
-This is the Pocket Server console:
+The Pocket Server console looks like this when just invoked:
 
 .. image:: images/pocket-server-starting.png
 
 While in server mode, |ghini.desktop| is not available for other uses, and |ghini.pocket|
 clients will be able to register, request database snapshots, or send collected updates.
-
-.. image::  images/ghini-pocket-client.png
-
-The above is how |ghini.pocket| looks on my virtual phone, and 192.168.43.226 is the IP address
-of my laptop in my local network.  Please replace that with your own computer address.
-
-.. admonition:: I understand beans, what should I do?
-   :class: toggle
-
-      Right, you're a botanist, with little interest in learning network management, quite fair.
-      
-      Here are my three guesses for getting ghini.desktop (running on your computer) and
-      ghini.pocket (running on your Android phone) to see each other:
-
-      1) Easiest case: you have a local network at home, to which you connect both your phone
-         and your computer.  Just make sure both your phone and computer are connected, and read
-         further.
-
-         More info: your local IP address setting is something starting with ``192.168.`` or
-         ``10.``.  Check your phone IP address in Settings > About device > Status, no more to
-         make sure that both addresses belong to the same segment, roughly true if the first
-         three of those four numbers are equal.
-
-      2) Next easiest: configure a WiFi hotspot on your Android phone, and connect your computer
-         to it.
-
-         Make sure your ghini.desktop computer has no other active network connection.  You
-         might want to disable mobile data on the phone, to avoid your computer to consume
-         bandwith and make you incur in costs.
-
-      3) Still easy enough: connect your Android phone to your computer using a USB cable, and
-         activate USB tethering on the phone.
-
-         Again, make sure your computer has no other active network connection, and again
-         consider disabling mobile data on the phone.
-
-      Any of the above three will put your two devices on the same network segment, and enable
-      communication.  Minimal terminology you might still check: IP Address; IP Port; Network
-      Segment.
 
 |ghini.pocket| works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
@@ -293,6 +254,40 @@ shown by |ghini.desktop|, to all your |ghini.pocket| clients, and make sure that
 are talking to the port on which the server will be listening.
 
 .. image:: images/pocket-server-settings.png
+
+.. admonition:: I understand beans, what should I do?
+   :class: toggle
+
+      Right, you're a botanist, with little interest in learning network management, quite fair.
+      
+      Here are my three guesses for getting ghini.desktop (running on your computer) and
+      ghini.pocket (running on your Android phone) to see each other:
+
+      1) Easiest case: you have a local network at home, to which you connect both your phone
+         and your computer.  Just make sure both your phone and computer are connected, and read
+         further.
+
+         More info: your local IP address setting is something starting with ``192.168.`` or
+         ``10.``.  Check your phone IP address in :menuselection:`Settings --> About device -->
+         Status`, no more to make sure that both addresses belong to the same segment, roughly
+         true if the first three of those four numbers are equal.
+
+      2) Next easiest: configure a WiFi hotspot on your Android phone, and connect your computer
+         to it.
+
+         Make sure your ghini.desktop computer has no other active network connection.  You
+         might want to disable mobile data on the phone, to avoid your computer to consume
+         bandwith and make you incur in costs.
+
+      3) Still easy enough: connect your Android phone to your computer using a USB cable, and
+         activate USB tethering on the phone.
+
+         Again, make sure your computer has no other active network connection, and again
+         consider disabling mobile data on the phone.
+
+      Any of the above three will put your two devices on the same network segment, and enable
+      communication.  Minimal terminology you might still check: IP Address; IP Port; Network
+      Segment.
 
 .. admonition:: 127.0.0.1
    :class: toggle
@@ -322,8 +317,16 @@ When done, stop the server, review the logs, close the Pocket Server window.
 |ghini.pocket| user interface
 ----------------------------------------
 
+With the pocket server running on ghini.desktop, grab now your Android phone with the latest
+ghini.pocket version.
+
 |ghini.pocket| options menu has a |desktop| item.  Use it to activate the
 "desktop-client" window, which implements all interaction with the |ghini.desktop| server.
+
+.. image::  images/ghini-pocket-client.png
+
+The above is |ghini.pocket|'s "desktop-client" on my virtual phone.  192.168.43.226 is my
+laptop's IP address in my local network.  Please replace that with your own computer address.
 
 The "desktop-client" window contains data fields you have to edit in order to gain access to the
 server, and buttons for server communication.  The communication buttons are not enabled unless
