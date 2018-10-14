@@ -267,9 +267,13 @@ are talking to the port on which the server will be listening.
          and your computer.  Just make sure both your phone and computer are connected, and read
          further.  In most cases, it will just work.
 
-         More info: your local IP address setting is something starting with ``192.168.`` or
-         ``10.``.  Check your phone IP address in :menuselection:`Settings --> About device -->
-         Status`, no more to make sure that both addresses belong to the same segment, roughly
+         More info: your local IP address setting is something starting with
+         ``192.168.`` followed by two more numbers between 0 and 255, or
+         maybe ``10.`` followed by three more such numbers, or still
+         ``172.`` followed by a number in the range 16 to 31, and again two
+         more numbers between 0 and 255.  Check your phone IP address in
+         :menuselection:`Settings --> About device --> Status`, no more to
+         make sure that both addresses belong to the same segment, roughly
          true if the first three of those four numbers are equal.
 
          Beware: there's routers which will not let you talk from one system to the other, or
