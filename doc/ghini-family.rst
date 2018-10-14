@@ -265,12 +265,17 @@ are talking to the port on which the server will be listening.
 
       1) Easiest case: you have a local network at home, to which you connect both your phone
          and your computer.  Just make sure both your phone and computer are connected, and read
-         further.
+         further.  In most cases, it will just work.
 
          More info: your local IP address setting is something starting with ``192.168.`` or
          ``10.``.  Check your phone IP address in :menuselection:`Settings --> About device -->
          Status`, no more to make sure that both addresses belong to the same segment, roughly
          true if the first three of those four numbers are equal.
+
+         Beware: there's routers which will not let you talk from one system to the other, or
+         that leave only a few ports open.  I'm not so sure, it depends, and you should check
+         with your router.  If you are using your home router and you still can't quite connect
+         pocket to desktop, try the next option.
 
       2) Next easiest: configure a WiFi hotspot on your Android phone, and connect your computer
          to it.
@@ -289,6 +294,17 @@ are talking to the port on which the server will be listening.
       communication.  Minimal terminology you might still check: IP Address; IP Port; Network
       Segment.
 
+.. admonition:: Port Number, GHINI/44464?  What is that?
+   :class: toggle
+
+      44464 is a port number and a port, that's something like a plug, or a wire that a server
+      program can enable and listen to, and to which client programs may attach and speak into.
+      This port number, 44464 makes some sense because it's like GHINI on a phone keyboard.
+      There is nothing special with this 44464, you can choose just about any number from 1025
+      to 65535, as long as it's [not already in
+      use](https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers) by other programs and
+      it's the same on both ghini.desktop and ghini.pocket.
+
 .. admonition:: 127.0.0.1
    :class: toggle
 
@@ -296,6 +312,8 @@ are talking to the port on which the server will be listening.
       connected to anything.  That address is the numeric form of ``localhost``, and only useful
       for local connections.  You will **not** be able to connect pocket to desktop if this is
       what desktop reports as server IP address.
+           
+
 
 |ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section on
 the client user interface, for how to register a phone.)  The first time you activate
