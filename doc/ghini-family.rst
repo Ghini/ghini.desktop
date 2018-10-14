@@ -328,17 +328,15 @@ ghini.pocket version.
 |ghini.pocket| options menu has a |desktop| item.  Use it to activate the
 "desktop-client" window, which implements all interaction with the |ghini.desktop| server.
 
-.. image::  images/ghini-pocket-client.png
-
-The above is |ghini.pocket|'s "desktop-client" on my virtual phone.  192.168.43.226 is my
-laptop's IP address in my local network.  Please replace that with your own computer address as
-previously explained.
-
 The "desktop-client" window contains data fields you have to edit in order to gain access to the
 server, and buttons for server communication.  The communication buttons are not enabled unless
 you validate (that is: register, or verify if already registered) your identity.
 
 .. image::  images/ghini-pocket-client.png
+
+The above is |ghini.pocket|'s "desktop-client" on my virtual phone.  192.168.43.226 is my
+laptop's IP address in my local network.  Please replace that with your own computer address as
+previously explained.
 
 |ghini.pocket| implements a very basic authentication check, trusting that your local
 network is secure.  In fact the main goal of authentication between pocket and desktop is to
