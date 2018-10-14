@@ -227,7 +227,7 @@ from registered |ghini.pocket| clients.
 ----------------------------------------
 
 Select :menuselection:`Tools-->Pocket Server..` to activate server mode on |ghini.desktop|.
-The Pocket Server console looks like this when just invoked:
+The Pocket Server console looks roughly like this, where it is creating a "snapshot":
 
 .. image:: images/pocket-server-starting.png
 
@@ -297,20 +297,25 @@ are talking to the port on which the server will be listening.
       for local connections.  You will **not** be able to connect pocket to desktop if this is
       what desktop reports as server IP address.
 
-|ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section
-on the client user interface, for how to register a phone.)  When |ghini.desktop| receives a
-valid registration request for a specific IMEI number, the specified IMEI is added to the
-list of registered clients and associated to the remote user name.  The registration is
-persistent, and is used as a basic identity check for all client-server interaction.  If you
-need to use the same phone with a different user name, you must overrule the existing
-registration, and to do so, you need the security code as shown in the desktop server
-settings.
+|ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section on
+the client user interface, for how to register a phone.)  The first time you activate
+|ghini.pocket|, it will create a persistent custom phone code, high chance it is a unique code,
+and this code will be used by both pocket and desktop to identify your phones.  The chance that
+two of your 40 phones share the same code is smaller than a 2cm meteorite to strike your house
+within the next 5 minutes.  Maybe not precisely this small, but definitely very small.  When
+|ghini.desktop| receives a valid registration request for a phone code, the code is added to the
+list of registered clients and associated to the remote user name.
+
+The client registration is persistent, and is used as a basic identity check for all
+client-server interaction.  If you need to use the same phone with a different user name, you
+must overrule the existing registration, and to do so, you need the security code as shown in
+the desktop server settings.
 
 Start the server on |ghini.desktop| by clicking on that thick square push button: it will stay
-pushed and slowly spinning while the server is active.  Possibly enable automatic refresh, then
-move your attention focus to your |ghini.pocket| client.  It is from the |ghini.pocket| clients
-that you handle the communication.  After accepting updates from your |ghini.pocket| clients,
-refresh the snapshot and update it on all your clients.
+pushed, slowly spinning, while the server is active.  Decide if you prefer to enable automatic
+refresh, then move your attention focus to your |ghini.pocket| client.  It is from the
+|ghini.pocket| clients that you handle the communication.  After accepting updates from your
+|ghini.pocket| clients, refresh the snapshot and update it on all your clients.
 
 When done, stop the server, review the logs, close the Pocket Server window.
 
@@ -326,7 +331,8 @@ ghini.pocket version.
 .. image::  images/ghini-pocket-client.png
 
 The above is |ghini.pocket|'s "desktop-client" on my virtual phone.  192.168.43.226 is my
-laptop's IP address in my local network.  Please replace that with your own computer address.
+laptop's IP address in my local network.  Please replace that with your own computer address as
+previously explained.
 
 The "desktop-client" window contains data fields you have to edit in order to gain access to the
 server, and buttons for server communication.  The communication buttons are not enabled unless
