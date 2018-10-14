@@ -301,8 +301,8 @@ are talking to the port on which the server will be listening.
       program can enable and listen to, and to which client programs may attach and speak into.
       This port number, 44464 makes some sense because it's like GHINI on a phone keyboard.
       There is nothing special with this 44464, you can choose just about any number from 1025
-      to 65535, as long as it's [not already in
-      use](https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers) by other programs and
+      to 65535, as long as it's `not already in
+      use <https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers>`_ by other programs and
       it's the same on both ghini.desktop and ghini.pocket.
 
 .. admonition:: 127.0.0.1
