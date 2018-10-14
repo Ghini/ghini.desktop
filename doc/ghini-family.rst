@@ -309,9 +309,9 @@ are talking to the port on which the server will be listening.
    :class: toggle
 
       Is your ghini.desktop showing the ``127.0.0.1`` address, that means that it is not
-      connected to anything.  That address is the numeric form of ``localhost``, and only useful
-      for local connections.  You will **not** be able to connect pocket to desktop if this is
-      what desktop reports as server IP address.
+      connected to any network.  That address is the numeric form of ``localhost``, and only
+      useful for local connections.  You will **not** be able to connect pocket to desktop if
+      this is what desktop reports as server IP address.
            
 
 
