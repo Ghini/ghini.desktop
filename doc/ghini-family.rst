@@ -247,21 +247,27 @@ of my laptop in my local network.  Please replace that with your own computer ad
       Here are my three guesses for getting ghini.desktop (running on your computer) and
       ghini.pocket (running on your Android phone) to see each other:
 
-      1) Easiest case: you have a local network at home, to which you can connect both your
-         phone and your computer.  Read further in this page your local IP address setting, it
-         is something starting with 192.168.  You can check your phone IP address in Settings >
-         About device > Status.  You would use it only to make sure that the two addresses
-         belong to the same segment, roughly true if the first three of those four numbers are
-         equal.
+      1) Easiest case: you have a local network at home, to which you connect both your phone
+         and your computer.  Just make sure both your phone and computer are connected, and read
+         further.
+
+         More info: your local IP address setting is something starting with ``192.168.`` or
+         ``10.``.  Check your phone IP address in Settings > About device > Status, no more to
+         make sure that both addresses belong to the same segment, roughly true if the first
+         three of those four numbers are equal.
 
       2) Next easiest: configure a WiFi hotspot on your Android phone, and connect your computer
-         to it.  Make sure your ghini.desktop computer has no other active network connection.
-         You might want to disable mobile data on the phone, to avoid your computer to consume
+         to it.
+
+         Make sure your ghini.desktop computer has no other active network connection.  You
+         might want to disable mobile data on the phone, to avoid your computer to consume
          bandwith and make you incur in costs.
 
       3) Still easy enough: connect your Android phone to your computer using a USB cable, and
-         activate USB tethering on the phone.  Again, make sure your computer has no other
-         active network connection, and again consider disabling mobile data on the phone.
+         activate USB tethering on the phone.
+
+         Again, make sure your computer has no other active network connection, and again
+         consider disabling mobile data on the phone.
 
       Any of the above three will put your two devices on the same network segment, and enable
       communication.  Minimal terminology you might still check: IP Address; IP Port; Network
