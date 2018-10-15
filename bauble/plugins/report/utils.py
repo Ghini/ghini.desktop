@@ -589,7 +589,6 @@ def get_caller_template_location():
 
     '''
     try:
-        import mako.template
         import sys
         import os.path
         here = sys._getframe()
@@ -597,13 +596,11 @@ def get_caller_template_location():
         while here.f_code.co_name not in ['render_body', 'block_body']:
             here = here.f_back
         template_name = here.f_code.co_filename
-        try:
-            # this is needed and works for Mako templates
+        if here.f_code.co_name == 'render_body':
+            import mako.template  # Mako hides the full path
             info = mako.template._get_module_info(template_name)
-            return os.path.dirname(info.template_filename)
-        except:
-            # Jinja2 puts the complete name in the frame
-            return os.path.dirname(template_name)
+            template_name = info.template_filename
+        return os.path.dirname(template_name)
     except Exception as e:
         logger.debug("%s(%s)" % (type(e).__name__, e))
         return ''
