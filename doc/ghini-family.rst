@@ -267,7 +267,7 @@ are talking to the port on which the server will be listening.
          and your computer.  Just make sure both your phone and computer are connected, and read
          further.  In most cases, it will just work.
 
-         Beware: there's routers which will not let you talk from one system to the other, or
+         Beware: there's routers that will not let you talk from one system to the other, or
          that leave only a few ports open.  If your router has a 'guest' and a 'home' SSID, do
          use the 'home' signal for both systems.  But it all depends, and you should check with
          your router.  If you are using your home router and you still can't quite connect
@@ -319,7 +319,7 @@ are talking to the port on which the server will be listening.
       between 0 and 255, or maybe ``10.`` followed by three more such numbers, or still ``172.``
       followed by a number in the range 16 to 31, and again two more numbers between 0 and 255.
 
-      Anything else is something else and will not work.
+      Anything else is something else, not your local IP address, and will not work.
 
 
 |ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section on
