@@ -267,18 +267,10 @@ are talking to the port on which the server will be listening.
          and your computer.  Just make sure both your phone and computer are connected, and read
          further.  In most cases, it will just work.
 
-         More info: your local IP address setting is something starting with
-         ``192.168.`` followed by two more numbers between 0 and 255, or
-         maybe ``10.`` followed by three more such numbers, or still
-         ``172.`` followed by a number in the range 16 to 31, and again two
-         more numbers between 0 and 255.  Check your phone IP address in
-         :menuselection:`Settings --> About device --> Status`, no more to
-         make sure that both addresses belong to the same segment, roughly
-         true if the first three of those four numbers are equal.
-
          Beware: there's routers which will not let you talk from one system to the other, or
-         that leave only a few ports open.  I'm not so sure, it depends, and you should check
-         with your router.  If you are using your home router and you still can't quite connect
+         that leave only a few ports open.  If your router has a 'guest' and a 'home' SSID, do
+         use the 'home' signal for both systems.  But it all depends, and you should check with
+         your router.  If you are using your home router and you still can't quite connect
          pocket to desktop, try the next option.
 
       2) Next easiest: configure a WiFi hotspot on your Android phone, and connect your computer
@@ -286,7 +278,9 @@ are talking to the port on which the server will be listening.
 
          Make sure your ghini.desktop computer has no other active network connection.  You
          might want to disable mobile data on the phone, to avoid your computer to consume
-         bandwith and make you incur in costs.
+         bandwith and make you incur in costs.  Without mobile data, Android might warn you that
+         the hotspot will not be functional.  Ignore that: you're using the hotspot for local
+         connections, not for getting on internet.
 
       3) Still easy enough: connect your Android phone to your computer using a USB cable, and
          activate USB tethering on the phone.
@@ -298,25 +292,34 @@ are talking to the port on which the server will be listening.
       communication.  Minimal terminology you might still check: IP Address; IP Port; Network
       Segment.
 
+      Check your phone IP address in :menuselection:`Settings --> About device --> Status`, no
+      more to make sure that both addresses, desktop and pocket, belong to the same segment,
+      roughly true if the first three of those four numbers are equal.
+
 .. admonition:: Port Number, GHINI/44464?  What is that?
    :class: toggle
 
-      44464 is a port number and a port, that's something like a plug, or a wire that a server
+      44464 is a port number and a port, think of it like of a virtual plug that a server
       program can enable and listen to, and to which client programs may attach and speak into.
       This port number, 44464 makes some sense because it's like GHINI on a phone keyboard.
       There is nothing special with this 44464, you can choose just about any number from 1025
-      to 65535, as long as it's `not already in
-      use <https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers>`_ by other programs and
+      to 65535, as long as it's `not already in use
+      <https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers>`_ by other programs and
       it's the same on both ghini.desktop and ghini.pocket.
 
-.. admonition:: 127.0.0.1
+.. admonition:: localhost and your local network
    :class: toggle
 
       Is your ghini.desktop showing the ``127.0.0.1`` address, that means that it is not
       connected to any network.  That address is the numeric form of ``localhost``, and only
       useful for local connections.  You will **not** be able to connect pocket to desktop if
       this is what desktop reports as server IP address.
-           
+
+      Your local IP address is something starting with ``192.168.`` followed by two more numbers
+      between 0 and 255, or maybe ``10.`` followed by three more such numbers, or still ``172.``
+      followed by a number in the range 16 to 31, and again two more numbers between 0 and 255.
+
+      Anything else is something else and will not work.
 
 
 |ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section on
@@ -333,11 +336,12 @@ client-server interaction.  If you need to use the same phone with a different u
 must overrule the existing registration, and to do so, you need the security code as shown in
 the desktop server settings.
 
-Start the server on |ghini.desktop| by clicking on that thick square push button: it will stay
-pushed, slowly spinning, while the server is active.  Decide if you prefer to enable automatic
-refresh, then move your attention focus to your |ghini.pocket| client.  It is from the
-|ghini.pocket| clients that you handle the communication.  After accepting updates from your
-|ghini.pocket| clients, refresh the snapshot and update it on all your clients.
+Start the server on |ghini.desktop| by clicking on that thick square push button with the
+diagonal arrow: the button will stay pushed, the arrow slowly spinning, while the server is
+active.  Decide if you prefer to enable automatic refresh, then move your attention focus to
+your |ghini.pocket| client.  It is from the |ghini.pocket| clients that you handle the
+communication.  After accepting updates from your |ghini.pocket| clients, refresh the snapshot
+and update it on all your clients.
 
 When done, stop the server, review the logs, close the Pocket Server window.
 
