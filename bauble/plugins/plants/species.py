@@ -55,11 +55,6 @@ SpeciesEditorPresenter, SpeciesEditorView, SpeciesEditor, edit_species,
 DefaultVernacularName
 SpeciesNote
 
-# TODO: we need to make sure that this will still work if the
-# AccessionPlugin is not present, this means that we would have to
-# change the species context menu, getting the children from the
-# search view and what else
-
 
 def edit_callback(values):
     from bauble.plugins.plants.species_editor import edit_species
