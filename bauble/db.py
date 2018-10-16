@@ -297,6 +297,8 @@ def open(uri, verify=True, show_error_dialogs=False):
     def _bind():
         """bind metadata to engine and create sessionmaker """
         global Session, engine
+        if engine is not None:
+            engine.dispose()
         engine = new_engine
         metadata.bind = engine  # make engine implicit for metadata
         def temp():
@@ -502,7 +504,7 @@ def make_note_class(name, compute_serializable_fields=None, as_dict=None, retrie
         """return database object corresponding to keys
         """
         category = keys.get('category', '')
-        
+
         # normally, it's one note per category, but for list values, and for
         # pictures, we can have more than one.
         if (create and (category.startswith('[') and category.endswith(']') or
@@ -529,7 +531,7 @@ def make_note_class(name, compute_serializable_fields=None, as_dict=None, retrie
             return q.one()
         except:
             return None
-    
+
     def as_dict_default(self):
         result = db.Serializable.as_dict(self)
         result[name.lower()] = getattr(self, name.lower()).code
@@ -541,7 +543,7 @@ def make_note_class(name, compute_serializable_fields=None, as_dict=None, retrie
     bases = (Base, )
     fields = {'__tablename__': table_name,
               '__mapper_args__': {'order_by': table_name + '.date'},
-              
+
               'date': sa.Column(types.Date, default=sa.func.now()),
               'user': sa.Column(sa.Unicode(64), default=''),
               'category': sa.Column(sa.Unicode(32), default=''),
@@ -558,7 +560,7 @@ def make_note_class(name, compute_serializable_fields=None, as_dict=None, retrie
     if compute_serializable_fields is not None:
         bases = (Base, Serializable)
         fields['compute_serializable_fields'] = classmethod(compute_serializable_fields)
-        
+
     result = type(class_name, bases, fields)
     return result
 
@@ -575,7 +577,7 @@ class WithNotes:
 
         if name.startswith('_sa'):  # it's a SA field, don't even try to look it up
             raise AttributeError(name)
-        
+
         result = []
         is_dict = False
         for n in self.notes:
@@ -690,14 +692,14 @@ class Serializable:
         except Exception as e:
             logger.debug("this was unexpected")
             raise
-            
+
         logger.debug('3 value of keys: %s' % keys)
 
         # correct any timestamp, parsing it as good as possible
         for k in ['_created', '_last_updated']:
             if k in keys:
                 keys[k] = parse_date(keys[k])
-        
+
         logger.debug('3½ value of keys: %s' % keys)
 
         ## at this point, resulting object is either in database or not. in

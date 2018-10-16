@@ -50,13 +50,16 @@ from bauble.editor import (
 
 
 class DefaultView(pluginmgr.View):
-    '''consider DefaultView a splash screen.
+    '''ghini's home screen
 
-    it is displayed at program start and never again.
-    it's the core of the "what do I do now" screen.
+    come back here if you want the numeric overview and the stored queries.
+
+    in Bauble this was just a splash screen, displayed at program start and
+    never again.  it was basically a "what do I do now" screen.
 
     DefaultView is related to the SplashCommandHandler,
     not to the view.DefaultCommandHandler
+
     '''
     infoboxclass = None
 
@@ -152,7 +155,9 @@ def create_menu_item_with_image(label, icon_name=None, base_dir=None):
     else:
         item = Gtk.MenuItem(label)
     return item
-        
+
+
+from bauble.db import engine
 
 class GUI(object):
 
@@ -359,7 +364,7 @@ class GUI(object):
             self.widgets.main_comboentry.get_child().set_text(query)
             self.widgets.go_button.emit("clicked")
         qb.cleanup()
-            
+
     def add_to_history(self, text, index=0):
         """
         add text to history, if text is already in the history then set its
@@ -525,7 +530,7 @@ class GUI(object):
                                    None, None, self.on_help_menu_about),
                                   ])
         menu_actions.get_action('file_new').set_sensitive(False)
-        menu_actions.get_action('file_open').set_sensitive(False)
+        menu_actions.get_action('file_open').set_sensitive(True)
         self.ui_manager.insert_action_group(menu_actions, 0)
 
         # TODO: as things stand, the menu is defined in two quite unrelated
@@ -742,8 +747,8 @@ class GUI(object):
         self.set_default_view()
 
     def on_file_menu_open(self, widget, data=None):
-        """
-        Open the connection manager.
+        """Open the connection manager.
+
         """
         from .connmgr import start_connection_manager
         default_conn = prefs[bauble.conn_default_pref]
@@ -751,7 +756,10 @@ class GUI(object):
         if name is None:
             return
 
-        engine = None
+        global engine
+        if engine is not None:
+            engine.dispose()
+            engine = None
         try:
             engine = db.open(uri, True, True)
         except Exception as e:
@@ -778,6 +786,7 @@ class GUI(object):
             # settings from the previous handler...
             bauble.last_handler = None
             self.set_default_view()
+            self.get_view().update()
             self.clear_menu('/ui/MenuBar/insert_menu')
             self.statusbar_clear()
             pluginmgr.init()
