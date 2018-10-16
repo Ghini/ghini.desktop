@@ -1041,6 +1041,7 @@ def make_label_clickable(label, on_clicked, *args):
     check(isinstance(eventbox, Gtk.EventBox),
           'label must have an Gtk.EventBox as its parent')
     label.__pressed = False
+    label.__on_clicked = on_clicked
 
     def on_enter_notify(widget, event, label, *args):
         widget.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse("#faf8f7"))
@@ -1058,7 +1059,7 @@ def make_label_clickable(label, on_clicked, *args):
         if label.__pressed:
             label.__pressed = False
             label.modify_fg(Gtk.StateType.NORMAL, None)
-            on_clicked(label, event, *args)
+            label.__on_clicked(label, event, *args)
 
     try:
         eventbox.disconnect(label.__on_event)
