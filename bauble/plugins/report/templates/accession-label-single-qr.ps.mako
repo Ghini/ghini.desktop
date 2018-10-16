@@ -30,7 +30,7 @@
 from bauble.plugins.report import PS
 page = 1
 
-if options['accession_format']:
+if options.get('accession_format'):
     format = options['accession_format']
     start = format.rstrip('#')
     if start != format:
@@ -54,7 +54,7 @@ else:
 grestore
 </%text>\
 <%
-et = options['extra_text']
+et = options.get('extra_text')
 if et:
   if accession and et.startswith('{') and et.endswith('}'):
     ets = accession
