@@ -463,7 +463,11 @@ class CountResultsTask(threading.Thread):
         klass = self.klass
         d = {}
         for ndx in self.ids:
-            item = session.query(klass).filter(klass.id == ndx).one()
+            item = session.query(klass).filter(klass.id == ndx).first()
+            if item is None:
+                self.__cancel = True
+                logger.warning('object %s(%s) disappeared' % (klass.__name__, ndx))
+                break
             if self.__cancel:  # check whether caller asks to cancel
                 break
             for k, v in list(item.top_level_count().items()):
@@ -859,14 +863,7 @@ class SearchView(pluginmgr.View):
         self.update_bottom_notebook()
         pictures_view.floating_window.set_selection(self.get_selected_values())
 
-        for accel, cb in self.installed_accels:
-            # disconnect previously installed accelerators by the key
-            # and modifier, accel_group.disconnect_by_func won't work
-            # here since we install a closure as the actual callback
-            # in instead of the original action.callback
-            r = self.accel_group.disconnect_key(accel[0], accel[1])
-            if not r:
-                logger.warning('callback not removed: %s' % cb)
+        self.accel_group = Gtk.AccelGroup()
         self.installed_accels = []
 
         selected = self.get_selected_values()
