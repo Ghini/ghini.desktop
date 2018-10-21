@@ -251,7 +251,7 @@ class CSVImporter(Importer):
         self.__error_exc = BaubleError(_('Unknown Error.'))
 
         try:
-            # user a contextual connect in case whoever called this
+            # use a contextual connect in case whoever called this
             # method called it inside a transaction then we can pick
             # up the parent connection and the transaction
             connection = metadata.bind.connect()
@@ -356,7 +356,7 @@ class CSVImporter(Importer):
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
                     % {'table': table.name, 'filename': filename}
-                #log.info(msg)
+                logger.info(msg)
                 bauble.task.set_message(msg)
                 yield  # allow progress bar update
 
