@@ -463,7 +463,11 @@ class CountResultsTask(threading.Thread):
         klass = self.klass
         d = {}
         for ndx in self.ids:
-            item = session.query(klass).filter(klass.id == ndx).one()
+            item = session.query(klass).filter(klass.id == ndx).first()
+            if item is None:
+                self.__cancel = True
+                logger.warning('object %s(%s) disappeared' % (klass.__name__, ndx))
+                break             
             if self.__cancel:  # check whether caller asks to cancel
                 break
             for k, v in list(item.top_level_count().items()):
