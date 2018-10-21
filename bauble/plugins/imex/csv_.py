@@ -314,9 +314,10 @@ class CSVImporter(Importer):
         insert = None
         depends = set()  # the type will be changed to a [] later
         try:
+            logger.debug('entering try block in csv importer')
             ## get all the dependencies
             for table, filename in sorted_tables:
-                logger.debug(table.name)
+                logger.debug('get table dependendencies for table %s' % table.name)
                 d = utils.find_dependent_tables(table)
                 depends.update(list(d))
                 del d
