@@ -714,7 +714,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
                                  on_location_select)
 
-        self.refresh_view(initializing=True)  # put initial model values in view
+        # put initial model values in view and sets `initializing` to True
+        self.refresh_view(initializing=True)
 
         self.change = PlantChange()
         self.session.add(self.change)
@@ -787,6 +788,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             box.on_response = on_response
             box.show()
             self.view.add_box(box)
+        # done initializing, reset it
+        self.initializing = False
 
     def is_dirty(self):
         return (self.pictures_presenter.is_dirty() or
