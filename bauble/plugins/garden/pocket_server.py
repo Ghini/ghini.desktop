@@ -85,6 +85,7 @@ class PocketServer(Thread):
             FILE_EXISTS_ALREADY = 4
             PLEASE_TRY_LATER = 5
             USER_ALREADY_REGISTERED = 16
+            SEND_MORE = 17
             GENERIC_ERROR = -1
 
             def __init__(self, presenter):
@@ -175,6 +176,34 @@ class PocketServer(Thread):
                 except:
                     return self.GENERIC_ERROR
 
+            def put_picture_chunk(self, client_id, name, chunk_no, chunk_count, base64_content):
+                self.log.append(("put_picture ›%s‹ ›%s‹" % (client_id, name, ), ))
+                if self.presenter.is_exporting:
+                    return self.PLEASE_TRY_LATER
+                elif client_id not in set((i[1] for i in self.clients)):
+                    return self.USER_NOT_REGISTERED
+                elif not isinstance(client_id, str) or not isinstance(name, str) or not isinstance(base64_content, str):
+                    return self.WRONG_TYPE_IN_PARAMETERS
+                import base64
+                content = base64.b64decode(base64_content)
+                self.receiving.set_default(name, {})
+                self.receiving[name][chunk_no] = content
+                if len(self.receiving[name]) < chunk_count:
+                    return self.SEND_MORE
+                from bauble import prefs
+                filename = os.path.join(prefs.prefs[prefs.picture_root_pref], name)
+                try:
+                    with open(filename, "xb") as picture_file:
+                        content = b''.join([i[1] for i in sorted(self.receiving[name].items())])
+                        picture_file.write(content)
+                        picture_file.close()
+                        del self.receiving[name]
+                        return self.OK
+                except FileExistsError:
+                    return self.FILE_EXISTS_ALREADY
+                except:
+                    return self.GENERIC_ERROR
+
         self.ip = presenter.model.ip_address
         self.port = int(presenter.model.port)
         self.api = API(presenter)
@@ -223,6 +252,7 @@ class PocketServerPresenter(GenericEditorPresenter):
         else:
             self.view.widgets.progressbar_placeholder.set_visible(True)
             self.view.widgets.progressbar.set_visible(False)
+            self.is_exporting = False
 
     def cleanup(self):
         super().cleanup()
