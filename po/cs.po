@@ -3605,9 +3605,8 @@ msgid "browse"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:1402
-#, fuzzy
 msgid "by %(verifier)s"
-msgstr "Ověřovatel"
+msgstr "%(verifier)s"
 
 #: bauble/plugins/garden/plant.py:981
 msgid "cannot split a new plant"

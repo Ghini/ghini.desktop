@@ -401,11 +401,11 @@ msgstr "<vuota>"
 
 #: bauble/plugins/garden/plant.py:1353
 msgid "<i>Split as %(plant)s</i>"
-msgstr "<i>Divisa come % (pianta) s</i>"
+msgstr "<i>Divisa come %(plant)s</i>"
 
 #: bauble/plugins/garden/plant.py:1336
 msgid "<i>Split from %(plant)s</i>"
-msgstr "<i>Divisa da % (pianta) s</i>"
+msgstr "<i>Divisa da %(plant)s</i>"
 
 #: bauble/plugins/plants/family.py:355
 msgid ""

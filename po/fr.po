@@ -64,7 +64,7 @@ msgstr "%(quantity)s en %(location)s"
 
 #: bauble/editor.py:1999
 msgid "%(user)s on %(date)s"
-msgstr "%(user)s sur% (date) s"
+msgstr "%(user)s sur %(date)s"
 
 #: bauble/plugins/report/__init__.py:449
 msgid "%s already exists"
@@ -92,7 +92,7 @@ msgstr "%s.plugin n'est pas une instance de pluginmgr.Plugin"
 
 #: bauble/plugins/plants/species_model.py:453
 msgid "(%(group)s Group)"
-msgstr "(%(groupe)s groupe)"
+msgstr "(%(group)s groupe)"
 
 #: bauble/view.py:814
 msgid "** Error: %s"
@@ -3956,7 +3956,7 @@ msgstr "synonyme de %s"
 
 #: bauble/plugins/tag/__init__.py:519
 msgid "tagging %(1)s objects of %(2)s different types"
-msgstr "marquage de %(1)s objets de %(s)s différents types"
+msgstr "marquage de %(1)s objets de %(2)s différents types"
 
 #: bauble/plugins/tag/__init__.py:513
 msgid "tagging %(1)s objects of type %(2)s"
