@@ -372,7 +372,7 @@ class ReportToolDialogPresenter(object):
         try:
             self.set_names_combo(default)
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             self.set_names_combo(0)
 
     def set_names_combo(self, val):
@@ -481,7 +481,7 @@ class ReportToolDialogPresenter(object):
         except (KeyError, TypeError), e:
             # TODO: show a dialog saying that you can't find whatever
             # you're looking for in the settings
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             return
 
         try:
@@ -489,7 +489,7 @@ class ReportToolDialogPresenter(object):
         except Exception, e:
             # TODO: show a dialog saying that you can't find whatever
             # you're looking for in the settings
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             self.set_formatter_combo(-1)
         self.view.set_sensitive('details_box', True)
 
@@ -506,7 +506,7 @@ class ReportToolDialogPresenter(object):
         try:
             saved_name, settings = prefs[config_list_pref][name]
         except KeyError, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             return
 
         expander = self.view.widgets.settings_expander
@@ -575,7 +575,7 @@ class ReportToolDialogPresenter(object):
             combo.set_model(model)
         except AttributeError, e:
             # no formatters
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             pass
 
     def init_names_combo(self):
@@ -658,7 +658,7 @@ class ReportTool(pluginmgr.Tool):
                 if ok:
                     break
         except AssertionError, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             logger.debug(traceback.format_exc())
             parent = None
             if hasattr(self, 'view') and hasattr(self.view, 'dialog'):

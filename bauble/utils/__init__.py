@@ -1149,7 +1149,7 @@ def range_builder(text):
     try:
         tokens = range_list.parseString(text)
     except (AttributeError, ParseException), e:
-        logger.debug(e)
+        logger.debug("%s(%s)" % (type(e).__name__, e))
         return []
     values = set()
     for rng in tokens:

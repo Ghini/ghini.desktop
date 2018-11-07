@@ -58,7 +58,7 @@ class VNList(list):
             if vn.species.default_vernacular_name == vn:
                 del vn.species.default_vernacular_name
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
 
 
 infrasp_rank_values = {u'subsp.': _('subsp.'),

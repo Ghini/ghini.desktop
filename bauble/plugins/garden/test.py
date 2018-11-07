@@ -1454,7 +1454,7 @@ class AccessionTests(GardenTestCase):
         except Exception, e:
             import traceback
             logger.debug(traceback.format_exc(0))
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name, e))
 
     def test_remove_callback_no_plants_no_confirm(self):
         # T_0

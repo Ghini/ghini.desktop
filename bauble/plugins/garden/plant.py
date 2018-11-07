@@ -140,7 +140,7 @@ def get_next_code(acc):
         try:
             next = max([int(code[0]) for code in codes])+1
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             return None
     return utils.utf8(next)
 
@@ -805,7 +805,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         try:
             value = int(value)
         except ValueError, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             value = None
         self.set_model_attr('quantity', value)
         if value < self.lower_quantity_limit or value >= self.upper_quantity_limit:

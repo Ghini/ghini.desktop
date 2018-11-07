@@ -309,7 +309,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     depends, unmet = _create_dependency_pairs(plugins.values())
     logger.debug("%s - the dependencies pairs" % str(depends))
     if unmet != {}:
-        logger.debug(unmet)
+        logger.debug('unmet dependecies: %s' % str(unmet))
         raise BaubleError('unmet dependencies')
     to_install = utils.topological_sort(to_install, depends)
     logger.debug("%s - this is after topological sort" % str(to_install))
@@ -413,7 +413,7 @@ class PluginRegistry(db.Base):
                 filter_by(name=utils.utf8(name)).one()
             return True
         except orm_exc.NoResultFound, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             return False
         finally:
             session.close()

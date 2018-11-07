@@ -274,7 +274,7 @@ dbengine.html#create-engine-url-arguments>`_
 
     except Exception, e:
         logger.warning("can't configure sentry client")
-        logger.debug('%s - %s' % (type(e), e))
+        logger.debug("%s(%s)" % (type(e).__name__, e))
 
     import gtk.gdk
     import pygtk
@@ -334,7 +334,7 @@ dbengine.html#create-engine-url-arguments>`_
                 db.open(uri, False)
                 break
             except err.DatabaseError, e:
-                logger.debug("%s(%s)" % (type(e), e))
+                logger.debug("%s(%s)" % (type(e).__name__, e))
                 open_exc = e
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % e
@@ -382,13 +382,14 @@ dbengine.html#create-engine-url-arguments>`_
                         utils.message_details_dialog(utils.xml_safe(e),
                                                      traceback.format_exc(),
                                                      gtk.MESSAGE_ERROR)
-                        logger.error("%s(%s)" % (type(e), e))
+                        logger.error("%s(%s)" % (type(e).__name__, e))
             else:
                 pluginmgr.init()
         except Exception, e:
             logger.warning("%s\n%s(%s)"
-                           % (traceback.format_exc(), type(e), e))
-            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_WARNING)
+                           % (traceback.format_exc(), type(e).__name__, e))
+            msg = utils.utf8("%s(%s)" % (type(e).__name__, e))
+            utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         gui.get_view().update()
         gtk.gdk.threads_leave()
 

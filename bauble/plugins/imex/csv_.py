@@ -594,7 +594,7 @@ class CSVExporter(object):
         try:
             bauble.task.queue(self.__export_task(path))
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
 
     def __export_task(self, path):
         filename_template = os.path.join(path, "%s.txt")

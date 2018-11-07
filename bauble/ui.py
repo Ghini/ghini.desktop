@@ -290,7 +290,7 @@ class GUI(object):
         try:
             arg = tokens['arg']
         except KeyError, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             pass
 
         bauble.command_handler(cmd, arg)
