@@ -2854,7 +2854,7 @@ msgid ""
 "The family <i>%(1)s</i> has %(2)s genera.\n"
 "\n"
 msgstr ""
-"La familia <i>%(2)s</i> está asociada a %(2)s generos.\n"
+"La familia <i>%(1)s</i> está asociada a %(2)s generos.\n"
 "\n"
 
 #: bauble/plugins/plants/genus.py:413

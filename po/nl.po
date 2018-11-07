@@ -366,11 +366,11 @@ msgstr "<leeg>"
 
 #: bauble/plugins/garden/plant.py:1277
 msgid "<i>Split as %(plant)s</i>"
-msgstr "<i>Splitsen als %s (plant)</i>"
+msgstr "<i>Splitsen als %(plant)s</i>"
 
 #: bauble/plugins/garden/plant.py:1260
 msgid "<i>Split from %(plant)s</i>"
-msgstr "<i>Afgesplitst van %s (plant)</i>"
+msgstr "<i>Afgesplitst van %(plant)s</i>"
 
 #: bauble/plugins/plants/family.py:353
 msgid ""
@@ -1296,7 +1296,7 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
-"Export bestand <b>%(filename)s</b> van <b>%(tabel)s</b> tabel bestaat al.\n"
+"Export bestand <b>%(filename)s</b> van <b>%(table)s</b> tabel bestaat al.\n"
 "\n"
 "<i>Wilt u doorgaan?</i>"
 
