@@ -398,11 +398,11 @@ msgstr "<leeg>"
 
 #: bauble/plugins/garden/plant.py:1353
 msgid "<i>Split as %(plant)s</i>"
-msgstr "<i>Splitsen als %s (plant)</i>"
+msgstr "<i>Splitsen als %(plant)s</i>"
 
 #: bauble/plugins/garden/plant.py:1336
 msgid "<i>Split from %(plant)s</i>"
-msgstr "<i>Afgesplitst van %s (plant)</i>"
+msgstr "<i>Afgesplitst van %(plant)s</i>"
 
 #: bauble/plugins/plants/family.py:355
 msgid ""
@@ -1310,7 +1310,7 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
-"Export bestand <b>%(filename)s</b> van <b>%(tabel)s</b> tabel bestaat al.\n"
+"Export bestand <b>%(filename)s</b> van <b>%(table)s</b> tabel bestaat al.\n"
 "\n"
 "<i>Wilt u doorgaan?</i>"
 
@@ -3778,7 +3778,7 @@ msgstr "export omvat:"
 
 #: bauble/plugins/imex/csv_.py:633
 msgid "exporting %(table)s table to %(filename)s"
-msgstr "exporteren %(tabel)s tabel naar %(bestandsnaam)s"
+msgstr "exporteren %(table)s tabel naar %(filename)s"
 
 #: bauble/plugins/plants/species_model.py:67
 msgid "f."
@@ -3812,7 +3812,7 @@ msgstr "http://ghini.github.io"
 
 #: bauble/plugins/imex/csv_.py:357
 msgid "importing %(table)s table from %(filename)s"
-msgstr "importeren %(tabel)s tabel van %(bestandsnaam)s"
+msgstr "importeren %(table)s tabel van %(filename)s"
 
 #: bauble/plugins/garden/propagation.py:305
 msgid "in"
