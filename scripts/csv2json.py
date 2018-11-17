@@ -30,6 +30,26 @@ k = []
 header = ["Contador", "FECHA COLECTA DE DATOS", "ID INV", "ID FENOLOGIA/Parc.Bosque", "ESPECIE", "SINONIMOS", "Autor", "NOMBRE COMÚN", "Ha_Crec", "CAP (cm)", "DAP", "HT (m)", "HB_COPA (m)", "COPA>", "COPA<", "ALTURA A LA PRIMERA RAMA", "NUMERO FOTO", "OBSERVACIONES", ]
 #header = ["Control", 'lat', 'lon', "inventario", "nombre_cientifico", "Control 1-5", "cap_cm", "DAP", "altura_total_m", "alt_copa", "flor", "nivel_floración", "fruto", "nivel_fructificación", "nivel_defoliación", "defoliación", "observaciones", "ubicación", "Reg. X Map"]
 
+correspondence = {"Contador": None,
+                  "FECHA COLECTA DE DATOS": Plant.abc,
+                  "ID INV": Plant.accession.code,
+                  "ID FENOLOGIA/Parc.Bosque": None,
+                  "ESPECIE": Plant.accession.species,
+                  "SINONIMOS": None,
+                  "Autor": None,
+                  "NOMBRE COMÚN": Plant.accession.species.vernacular,
+                  "Ha_Crec": None,
+                  "CAP (cm)": None,
+                  "DAP": None,
+                  "HT (m)": None,
+                  "HB_COPA (m)": None,
+                  "COPA>": None,
+                  "COPA<": None,
+                  "ALTURA A LA PRIMERA RAMA": None,
+                  "NUMERO FOTO": None,
+                  "OBSERVACIONES": None, }
+
+
 binomial_key = 'nombre_cientifico'
 binomial_key = 'ESPECIE'
 accession_code_def = "2017.%(ID INV)04d"
