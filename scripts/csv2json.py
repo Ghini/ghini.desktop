@@ -27,9 +27,13 @@ k = []
 #header = ['code', 'vernacular', 'binomial', 'dap', 'altura', 'hábito', 'altitud', 'easting', 'northing', 'ecosistema', 'observaciones']
 #header = ["Item", "Species", "Fecha registro", "No.Plantas", "Locale", "Contacto", "N° De Autorización de Investigación:", "N° autorización de movilización", "Nombre del recolector", "Latitud", "Longitud"]
 #header = ["Numeración", "Condición fitosanitaria", "Notas"]
-#header = ["Contador", "FECHA COLECTA DE DATOS", "ID INV", "ID FENOLOGIA/Parc.Bosque", "ESPECIE", "SINONIMOS", "Autor", "NOMBRE COMÚN", "Ha_Crec", "CAP (cm)", "DAP", "HT (m)", "HB_COPA (m)", "COPA>", "COPA<", "ALTURA A LA PRIMERA RAMA", "NUMERO FOTO", "OBSERVACIONES", ]
+header = ["Contador", "FECHA COLECTA DE DATOS", "ID INV", "ID FENOLOGIA/Parc.Bosque", "ESPECIE", "SINONIMOS", "Autor", "NOMBRE COMÚN", "Ha_Crec", "CAP (cm)", "DAP", "HT (m)", "HB_COPA (m)", "COPA>", "COPA<", "ALTURA A LA PRIMERA RAMA", "NUMERO FOTO", "OBSERVACIONES", ]
+#header = ["Control", 'lat', 'lon', "inventario", "nombre_cientifico", "Control 1-5", "cap_cm", "DAP", "altura_total_m", "alt_copa", "flor", "nivel_floración", "fruto", "nivel_fructificación", "nivel_defoliación", "defoliación", "observaciones", "ubicación", "Reg. X Map"]
 
-header = ["Control", 'lat', 'lon', "inventario", "nombre_cientifico", "Control 1-5", "cap_cm", "DAP", "altura_total_m", "alt_copa", "flor", "nivel_floración", "fruto", "nivel_fructificación", "nivel_defoliación", "defoliación", "observaciones", "ubicación", "Reg. X Map"]
+binomial_key = 'nombre_cientifico'
+binomial_key = 'ESPECIE'
+accession_code_def = "2017.%(ID INV)04d"
+
 
 note_defs = {
     'species': [],
@@ -43,12 +47,14 @@ note_defs = {
           {'key': "COPA<", 'category': 'copa<'},
           {'key': "ALTURA A LA PRIMERA RAMA", 'category': 'altura primera rama'},
           {'key': "NUMERO FOTO", 'category': 'fotos'},
-          {'key': "OBSERVACIONES", 'category': ''}, ],
+          {'key': "OBSERVACIONES", 'category': 'observaciones'}, ],
 }
 
 note_defs = {
     'species': [],
-    'plant': [],
+    'plant': [
+          {'key': "OBSERVACIONES", 'category': 'observaciones'},
+    ],
 }
 
 formatted_note_defs = {
@@ -59,9 +65,6 @@ class_fields = {
     'species': {'key': 'Uso Actual y Potencial', 'category': 'use'},
 }
 
-binomial_key = 'nombre_cientifico'
-accession_code_def = "2017.%(inventario)04d"
-
 habit_key = None
 origin_key = None
 easting_key, northing_key, altitude_key = 'lon', 'lat', None
@@ -70,6 +73,8 @@ plant_quantity_key = None
 location_key = 'ubicación'
 height_key = 'HT (m)'
 dbh_key = 'DAP'
+creation_key = 'FECHA COLECTA DE DATOS'  # goes into _created
+creation_format = '%m/%d/%Y'  # use datetime.strptime to parse the above field
 dbh_category = '{DAP:2017}'
 height_category = "{alt:2017}"
 
@@ -185,12 +190,17 @@ for obj in k:
     plant = {"acc_type": "Plant", "accession": code, "code": "1", "location": location_id, "object": "plant", "quantity": 1}
     result.append(plant)
     for note_def in note_defs['plant']:
-        pass
+        if obj[note_def['key']]:
+            for value in obj[note_def['key']].split('-'):
+                result.append({"object": "plant_note",
+                               "plant": code + ".1",
+                               'category': note_def['category'],
+                               'note': value.lower()})
     if height_key in obj:
         note = {"category": height_key, "note": obj[height_key], "object": "plant_note", "plant": code + ".1"}
         result.append(note)
     if dbh_key in obj:
-        note = {"category": dbh_category, "note": obj[dbh_key], "object": "plant_note", "plant": code + ".1" % obj}
+        note = {"category": dbh_category, "note": obj[dbh_key], "object": "plant_note", "plant": code + ".1"}
         result.append(note)
     if easting_key in obj and northing_key in obj:
         note =  {"category": "<coords>", "note": "lat:%(lat)s;lon:%(lon)s" % obj, "object": "plant_note", "plant": code + ".1" % obj}
