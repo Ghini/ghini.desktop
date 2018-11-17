@@ -25,22 +25,30 @@ import staale
 k = []
 #header = ['No', 'NOMBRE CIENTIFICO', 'FAMILIA', 'Nombre común', 'Uso Actual y Potencial', 'Importancia ecológica', 'Ecosistema', 'Habito', 'Procedencia']
 #header = ['code', 'vernacular', 'binomial', 'dap', 'altura', 'hábito', 'altitud', 'easting', 'northing', 'ecosistema', 'observaciones']
-header = ["Item", "Species", "Fecha registro", "No.Plantas", "Locale", "Contacto", "N° De Autorización de Investigación:", "N° autorización de movilización", "Nombre del recolector", "Latitud", "Longitud"]
+#header = ["Item", "Species", "Fecha registro", "No.Plantas", "Locale", "Contacto", "N° De Autorización de Investigación:", "N° autorización de movilización", "Nombre del recolector", "Latitud", "Longitud"]
 #header = ["Numeración", "Condición fitosanitaria", "Notas"]
+#header = ["Contador", "FECHA COLECTA DE DATOS", "ID INV", "ID FENOLOGIA/Parc.Bosque", "ESPECIE", "SINONIMOS", "Autor", "NOMBRE COMÚN", "Ha_Crec", "CAP (cm)", "DAP", "HT (m)", "HB_COPA (m)", "COPA>", "COPA<", "ALTURA A LA PRIMERA RAMA", "NUMERO FOTO", "OBSERVACIONES", ]
+
+header = ["Control", 'lat', 'lon', "inventario", "nombre_cientifico", "Control 1-5", "cap_cm", "DAP", "altura_total_m", "alt_copa", "flor", "nivel_floración", "fruto", "nivel_fructificación", "nivel_defoliación", "defoliación", "observaciones", "ubicación", "Reg. X Map"]
 
 note_defs = {
-    'species': [
-        {'key': 'Uso Actual y Potencial', 'category': 'use'},
-        {'key': 'Importancia ecológica', 'category': 'relevance'},
-        {'key': 'Ecosistema', 'category': 'ecosystem'},
-        {'key': 'ecosistema', 'category': 'ecosystem'},
-    ],
-    'plant': [
-        {'key': 'Condición fitosanitaria', 'category': 'state'},
-#        {'key': 'observaciones', 'category': 'generic'},
-#        {'key': 'dap', 'category': '{dap:2016-11}'},
-#        {'key': 'altura', 'category': '{alt:2016-11}'},
-    ],
+    'species': [],
+    'plant': [{'key': "ID FENOLOGIA/Parc.Bosque", 'category': 'id-fenología'},
+          {'key': "Ha_Crec", 'category': ''},
+          {'key': "CAP (cm)", 'category': ''},
+          {'key': "DAP", 'category': ''},
+          {'key': "HT (m)", 'category': ''},
+          {'key': "HB_COPA (m)", 'category': ''},
+          {'key': "COPA>", 'category': 'copa>'},
+          {'key': "COPA<", 'category': 'copa<'},
+          {'key': "ALTURA A LA PRIMERA RAMA", 'category': 'altura primera rama'},
+          {'key': "NUMERO FOTO", 'category': 'fotos'},
+          {'key': "OBSERVACIONES", 'category': ''}, ],
+}
+
+note_defs = {
+    'species': [],
+    'plant': [],
 }
 
 formatted_note_defs = {
@@ -51,22 +59,30 @@ class_fields = {
     'species': {'key': 'Uso Actual y Potencial', 'category': 'use'},
 }
 
-binomial_key = 'Species'
+binomial_key = 'nombre_cientifico'
+accession_code_def = "2017.%(inventario)04d"
+
 habit_key = None
 origin_key = None
-easting_key, northing_key, altitude_key = None, None, None
-utm_slice = None
-plant_quantity_key = 'No.Plantas'
-
-accession_code_def = "%(code)06d"
+easting_key, northing_key, altitude_key = 'lon', 'lat', None
+utm_slice = None  # set it to None if easting/northing are really longitude/latitude
+plant_quantity_key = None
+location_key = 'ubicación'
+height_key = 'HT (m)'
+dbh_key = 'DAP'
+dbh_category = '{DAP:2017}'
+height_category = "{alt:2017}"
 
 vernacular_keys = [
 #    {'key': 'vernacular', 'lang': 'es'},
 ]
 
 
+import sys
+print("invoked with args:", sys.argv)
+
 #input_file_name = '/tmp/species.csv'
-input_file_name = '/tmp/plants.csv'
+input_file_name = sys.argv[1]
 
 count = skipped = 0
 
@@ -87,7 +103,7 @@ for r in csv.reader(open(input_file_name)):
             obj['family'] = obj[key]
             obj[key] = ''
             break
-    if obj[binomial_key]:
+    if obj.get(binomial_key):
         count += 1
         try:
             m = binomial_with_authorship.match(obj[binomial_key]).groups()
@@ -171,7 +187,7 @@ for obj in k:
     for note_def in note_defs['plant']:
         pass
     if height_key in obj:
-        note = {"category": "{alt:2016-11}", "note": obj['altura'], "object": "plant_note", "plant": code + ".1"}
+        note = {"category": height_key, "note": obj[height_key], "object": "plant_note", "plant": code + ".1"}
         result.append(note)
     if dbh_key in obj:
         note = {"category": dbh_category, "note": obj[dbh_key], "object": "plant_note", "plant": code + ".1" % obj}
@@ -186,7 +202,10 @@ formatted_json = []
 for i in result:
     formatted_json.append(' ' + json.dumps(i))
 
-with open("/tmp/out.json", "w") as out:
-    out.write('[\n ')
-    out.write(',\n '.join(formatted_json))
-    out.write(']')
+try:
+    with open("/tmp/out.json", "w") as out:
+        out.write('[\n ')
+        out.write(',\n '.join(formatted_json))
+        out.write(']')
+except Exception, e:
+    print(type(e).__name__, e)
