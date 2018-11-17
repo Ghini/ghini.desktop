@@ -177,7 +177,7 @@ for obj in k:
         note = {"category": dbh_category, "note": obj[dbh_key], "object": "plant_note", "plant": code + ".1" % obj}
         result.append(note)
     if easting_key in obj and northing_key in obj:
-        note =  {"category": "{coords}", "note": "%(lat)s\t%(lon)s" % obj, "object": "plant_note", "plant": code + ".1" % obj}
+        note =  {"category": "<coords>", "note": "%(lat)s\t%(lon)s" % obj, "object": "plant_note", "plant": code + ".1" % obj}
         result.append(note)
 
         
