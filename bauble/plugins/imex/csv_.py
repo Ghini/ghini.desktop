@@ -251,7 +251,7 @@ class CSVImporter(Importer):
         self.__error_exc = BaubleError(_('Unknown Error.'))
 
         try:
-            # user a contextual connect in case whoever called this
+            # use a contextual connect in case whoever called this
             # method called it inside a transaction then we can pick
             # up the parent connection and the transaction
             connection = metadata.bind.connect()
@@ -314,9 +314,10 @@ class CSVImporter(Importer):
         insert = None
         depends = set()  # the type will be changed to a [] later
         try:
+            logger.debug('entering try block in csv importer')
             ## get all the dependencies
             for table, filename in sorted_tables:
-                logger.debug(table.name)
+                logger.debug('get table dependendencies for table %s' % table.name)
                 d = utils.find_dependent_tables(table)
                 depends.update(list(d))
                 del d
@@ -356,7 +357,7 @@ class CSVImporter(Importer):
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
                     % {'table': table.name, 'filename': filename}
-                #log.info(msg)
+                logger.info(msg)
                 bauble.task.set_message(msg)
                 yield  # allow progress bar update
 
@@ -593,7 +594,7 @@ class CSVExporter(object):
         try:
             bauble.task.queue(self.__export_task(path))
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
 
     def __export_task(self, path):
         filename_template = os.path.join(path, "%s.txt")
@@ -687,8 +688,8 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
 #
 
 class CSVImportTool(pluginmgr.Tool):
-    category = _('Import')
-    label = _('Comma Separated Value')
+    category = _('Backup')
+    label = _('Restore')
 
     @classmethod
     def start(cls):
@@ -705,8 +706,8 @@ class CSVImportTool(pluginmgr.Tool):
 
 
 class CSVExportTool(pluginmgr.Tool):
-    category = _('Export')
-    label = _('Comma Separated Value')
+    category = _('Backup')
+    label = _('Create')
 
     @classmethod
     def start(cls):

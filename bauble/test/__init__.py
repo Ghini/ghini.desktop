@@ -36,21 +36,6 @@ import bauble.pluginmgr as pluginmgr
 uri = 'sqlite:///:memory:'
 
 
-def init_bauble(uri, create=False):
-    try:
-        db.open(uri, verify=False)
-    except Exception, e:
-        print >>sys.stderr, e
-        #debug e
-    if not bauble.db.engine:
-        raise BaubleError('not connected to a database')
-    prefs.init()
-    prefs.testing = True
-    pluginmgr.load()
-    db.create(create)
-    pluginmgr.init(force=True)
-
-
 def update_gui():
     """
     Flush any GTK Events.  Used for doing GUI testing.
@@ -105,7 +90,19 @@ class BaubleTestCase(unittest.TestCase):
 
     def setUp(self):
         assert uri is not None, "The database URI is not set"
-        init_bauble(uri)
+        try:
+            # we know we're connecting to an empty database
+            db.open(uri, verify=False, show_error_dialogs=False)
+        except Exception, e:
+            print >>sys.stderr, e
+        if not bauble.db.engine:
+            raise BaubleError('not connected to a database')
+        pluginmgr.load()
+        prefs.init()
+        prefs.testing = True
+        db.create(import_defaults=False)
+        pluginmgr.install('all', False, force=True)
+        pluginmgr.init()
         self.session = db.Session()
         self.handler = MockLoggingHandler()
         logging.getLogger().addHandler(self.handler)

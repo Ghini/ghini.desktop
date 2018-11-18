@@ -93,10 +93,8 @@ Ghini Development
 Supporting Ghini
 =================
 
-.. image:: https://pledgie.com/campaigns/29188.png
-
 If you're using Ghini, or if you feel like helping its development anyway, 
-please consider `donating <https://pledgie.com/campaigns/29188>`_
+please consider donating.
 
 
 .. Indices and tables

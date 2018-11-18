@@ -140,7 +140,7 @@ def get_next_code(acc):
         try:
             next = max([int(code[0]) for code in codes])+1
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             return None
     return utils.utf8(next)
 
@@ -714,7 +714,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
                                  on_location_select)
 
-        self.refresh_view(initializing=True)  # put initial model values in view
+        # put initial model values in view and sets `initializing` to True
+        self.refresh_view(initializing=True)
 
         self.change = PlantChange()
         self.session.add(self.change)
@@ -787,6 +788,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             box.on_response = on_response
             box.show()
             self.view.add_box(box)
+        # done initializing, reset it
+        self.initializing = False
 
     def is_dirty(self):
         return (self.pictures_presenter.is_dirty() or
@@ -802,7 +805,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         try:
             value = int(value)
         except ValueError, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             value = None
         self.set_model_attr('quantity', value)
         if value < self.lower_quantity_limit or value >= self.upper_quantity_limit:

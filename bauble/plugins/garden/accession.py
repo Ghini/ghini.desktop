@@ -684,7 +684,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             else:
                 next = format % 1
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name, e))
             pass
         finally:
             session.close()
@@ -1321,7 +1321,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             try:
                 value = editor.DateValidator().to_python(entry.props.text)
             except ValidatorError, e:
-                logger.debug(e)
+                logger.debug("%s(%s)" % (type(e).__name__, e))
                 self.presenter().add_problem(PROBLEM, entry)
             else:
                 self.presenter().remove_problem(PROBLEM, entry)
@@ -2182,7 +2182,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         try:
             value = editor.DateValidator().to_python(entry.props.text)
         except ValidatorError, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name, e))
             self.add_problem(PROBLEM, entry)
         else:
             self.remove_problem(PROBLEM, entry)

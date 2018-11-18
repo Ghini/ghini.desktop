@@ -429,7 +429,7 @@ class CollectionPresenter(editor.ChildPresenter):
         try:
             value = editor.DateValidator().to_python(entry.props.text)
         except ValidatorError, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             self.parent_ref().add_problem(PROBLEM, entry)
         else:
             self.parent_ref().remove_problem(PROBLEM, entry)
@@ -467,7 +467,7 @@ class CollectionPresenter(editor.ChildPresenter):
             # integer before toggling
             int(lat_text.split(' ')[0])
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s(%s)" % (type(e).__name__, e))
             return
 
         if direction == 'S' and lat_text[0] != '-':

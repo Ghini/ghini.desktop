@@ -274,7 +274,7 @@ dbengine.html#create-engine-url-arguments>`_
 
     except Exception, e:
         logger.warning("can't configure sentry client")
-        logger.debug('%s - %s' % (type(e), e))
+        logger.debug("%s(%s)" % (type(e).__name__, e))
 
     import gtk.gdk
     import pygtk
@@ -313,6 +313,8 @@ dbengine.html#create-engine-url-arguments>`_
                 if conn_name is None:
                     quit()
             try:
+                # testing, database initialized at current version.  or we
+                # get two different exceptions.
                 if db.open(uri, True, True):
                     prefs[conn_default_pref] = conn_name
                     break
@@ -332,10 +334,8 @@ dbengine.html#create-engine-url-arguments>`_
                 db.open(uri, False)
                 break
             except err.DatabaseError, e:
-                logger.debug("%s(%s)" % (type(e), e))
-                # traceback.format_exc()
+                logger.debug("%s(%s)" % (type(e).__name__, e))
                 open_exc = e
-                # break
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % e
                 utils.message_details_dialog(msg, traceback.format_exc(),
@@ -382,13 +382,14 @@ dbengine.html#create-engine-url-arguments>`_
                         utils.message_details_dialog(utils.xml_safe(e),
                                                      traceback.format_exc(),
                                                      gtk.MESSAGE_ERROR)
-                        logger.error("%s(%s)" % (type(e), e))
+                        logger.error("%s(%s)" % (type(e).__name__, e))
             else:
                 pluginmgr.init()
         except Exception, e:
             logger.warning("%s\n%s(%s)"
-                           % (traceback.format_exc(), type(e), e))
-            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_WARNING)
+                           % (traceback.format_exc(), type(e).__name__, e))
+            msg = utils.utf8("%s(%s)" % (type(e).__name__, e))
+            utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         gui.get_view().update()
         gtk.gdk.threads_leave()
 

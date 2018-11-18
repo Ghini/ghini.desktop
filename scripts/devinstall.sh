@@ -94,7 +94,7 @@ mkdir -p $HOME/.ghini
 if [ ! -z $PG ]
 then
     echo 'installing postgresql adapter'
-    pip install psycopg2 ;
+    pip install psycopg2-binary ;
 fi
 
 if [ ! -z $MYSQL ]
@@ -127,7 +127,7 @@ do
     m)  pip install MySQL-python
         END=1
         ;;
-    p)  pip install psycopg2
+    p)  pip install psycopg2-binary
         END=1
         ;;
   esac
