@@ -31,13 +31,13 @@ header = ["Contador", "FECHA COLECTA DE DATOS", "ID INV", "ID FENOLOGIA/Parc.Bos
 #header = ["Control", 'lat', 'lon', "inventario", "nombre_cientifico", "Control 1-5", "cap_cm", "DAP", "altura_total_m", "alt_copa", "flor", "nivel_floración", "fruto", "nivel_fructificación", "nivel_defoliación", "defoliación", "observaciones", "ubicación", "Reg. X Map"]
 
 correspondence = {"Contador": None,
-                  "FECHA COLECTA DE DATOS": Plant.abc,
-                  "ID INV": Plant.accession.code,
+                  "FECHA COLECTA DE DATOS": 'Plant.abc',
+                  "ID INV": 'Plant.accession.code',
                   "ID FENOLOGIA/Parc.Bosque": None,
-                  "ESPECIE": Plant.accession.species,
+                  "ESPECIE": 'Plant.accession.species',
                   "SINONIMOS": None,
                   "Autor": None,
-                  "NOMBRE COMÚN": Plant.accession.species.vernacular,
+                  "NOMBRE COMÚN": 'Plant.accession.species.vernacular',
                   "Ha_Crec": None,
                   "CAP (cm)": None,
                   "DAP": None,
@@ -99,7 +99,7 @@ dbh_category = '{DAP:2017}'
 height_category = "{alt:2017}"
 
 vernacular_keys = [
-#    {'key': 'vernacular', 'lang': 'es'},
+    {'key': 'NOMBRE COMÚN', 'lang': 'es'},
 ]
 
 
