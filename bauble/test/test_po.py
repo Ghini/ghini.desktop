@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 import re
-from babel.messages.pofile import read_po
 import unittest
 import glob
 import os
@@ -34,6 +33,12 @@ class PoTests(unittest.TestCase):
         parts = __file__.split(os.path.sep)[:-3]
         po_dir = os.path.sep.join(parts)
         files = glob.glob(os.path.join(po_dir, 'po', '*.po'))
+        try:
+            from babel.messages.pofile import read_po
+        except:
+            from nose import SkipTest
+            raise SkipTest("don't test on appveyor")
+
         for filename in files:
             catalog = read_po(open(filename))
             for msg in catalog:
