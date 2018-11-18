@@ -85,7 +85,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     # for a list of all packages in the sqlalchemy namespace
     sqlalchemy_includes = ['sqlalchemy.dialects.sqlite',
                            'sqlalchemy.dialects.postgresql']
-    py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2-binary',
+    py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2',
                        'encodings', 'mako', 'mako.cache',
                        'pygments.styles.default', 'pyparsing']
     py2exe_includes += gtk_pkgs + plugins_pkgs + sqlalchemy_includes
