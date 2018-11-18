@@ -34,7 +34,7 @@ artifacts:
   - path: dist\ghini.desktop-*-runtime.zip
 
 deploy:
-  release: 'v1.0.89' # :bump
+  release: 'v1.0.90' # :bump
   description: ''
   provider: GitHub
   auth_token:
