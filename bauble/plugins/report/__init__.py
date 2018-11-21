@@ -417,13 +417,16 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
     def thaw_templates(self, *args):
         template_options = prefs[config_list_pref] or {}
+        thawn = 0
         for key in template_options:
             try:
                 del template_options[key]['__is_frozen__']
+                thawn += 1
             except:
                 pass
         prefs[config_list_pref] = template_options
         self.start_thread(Thread(target=self.populate_names_combo))
+        logger.debug('thawn %s templates' % thawn)
 
     def on_new_button_clicked(self, *args):
         filename = os.path.join(bpaths.lib_dir(), "plugins", "report", 'report.glade')
