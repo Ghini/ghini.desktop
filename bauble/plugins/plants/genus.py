@@ -245,7 +245,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
         'Name that should be used if name of self should be rejected'
         session = object_session(self)
         if not session:
-            logger.warn('genus:accepted - object not in session')
+            logger.warning('genus:accepted - object not in session')
             return None
         syn = session.query(GenusSynonym).filter(
             GenusSynonym.synonym_id == self.id).first()
@@ -261,7 +261,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
         # remove any previous `accepted` link
         session = object_session(self)
         if not session:
-            logger.warn('genus:accepted.setter - object not in session')
+            logger.warning('genus:accepted.setter - object not in session')
             return
         session.query(GenusSynonym).filter(
             GenusSynonym.synonym_id == self.id).delete()

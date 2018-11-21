@@ -461,7 +461,7 @@ class QueryAction(object):
             result.update(records)
 
         if None in result:
-            logger.warn('removing None from result set')
+            logger.warning('removing None from result set')
             result = set(i for i in result if i is not None)
         return result
 
@@ -498,7 +498,7 @@ class BinomialNameAction(object):
             Genus.genus.startswith(self.genus_epithet)).all()
         result = set(result)
         if None in result:
-            logger.warn('removing None from result set')
+            logger.warning('removing None from result set')
             result = set(i for i in result if i is not None)
         return result
 
@@ -563,7 +563,7 @@ class DomainExpressionAction(object):
             result.update(query.filter(ors).all())
 
         if None in result:
-            logger.warn('removing None from result set')
+            logger.warning('removing None from result set')
             result = set(i for i in result if i is not None)
         return result
 
@@ -653,7 +653,7 @@ class ValueListAction(object):
         result = set([replace(i) for i in result])
         logger.debug("result is now %s" % result)
         if None in result:
-            logger.warn('removing None from result set')
+            logger.warning('removing None from result set')
             result = set(i for i in result if i is not None)
         return result
 

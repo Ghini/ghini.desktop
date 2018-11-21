@@ -77,7 +77,7 @@ def check_dupids(filename):
             ids.add(elid)
         elif elid and elid not in duplicates:
             duplicates.add(elid)
-    logger.warn(duplicates)
+    logger.warning(duplicates)
     return list(duplicates)
 
 

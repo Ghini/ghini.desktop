@@ -221,7 +221,7 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         'Name that should be used if name of self should be rejected'
         session = object_session(self)
         if not session:
-            logger.warn('family:accepted - object not in session')
+            logger.warning('family:accepted - object not in session')
             return None
         syn = session.query(FamilySynonym).filter(
             FamilySynonym.synonym_id == self.id).first()
@@ -237,7 +237,7 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         # remove any previous `accepted` link
         session = object_session(self)
         if not session:
-            logger.warn('family:accepted.setter - object not in session')
+            logger.warning('family:accepted.setter - object not in session')
             return
         session.query(FamilySynonym).filter(
             FamilySynonym.synonym_id == self.id).delete()

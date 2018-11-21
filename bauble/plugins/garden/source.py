@@ -446,7 +446,7 @@ class CollectionPresenter(editor.ChildPresenter):
             # integer before toggling
             int(lon_text.split(' ')[0])
         except Exception as e:
-            logger.warn("east-west %s(%s)" % (type(e), e))
+            logger.warning("east-west %s(%s)" % (type(e), e))
             return
 
         if direction == 'W' and lon_text[0] != '-':

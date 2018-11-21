@@ -483,7 +483,7 @@ class GenericEditorView(object):
                     return c
         else:
             return self.widgets[widget]
-        logger.warn('cannot solve widget reference %s' % str(p))
+        logger.warning('cannot solve widget reference %s' % str(p))
         return None
 
     def widget_append_page(self, widget, page, label):

@@ -520,7 +520,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         from sqlalchemy.orm.session import object_session
         session = object_session(self)
         if not session:
-            logger.warn('species:accepted - object not in session')
+            logger.warning('species:accepted - object not in session')
             return None
         syn = session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == self.id).first()
@@ -538,7 +538,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         from sqlalchemy.orm.session import object_session
         session = object_session(self)
         if not session:
-            logger.warn('species:accepted.setter - object not in session')
+            logger.warning('species:accepted.setter - object not in session')
             return
         previous_synonymy_link = session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == self.id).first()

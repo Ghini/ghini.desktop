@@ -748,7 +748,7 @@ class SearchView(pluginmgr.View):
                 self.add_page_to_bottom_notebook(bottom_info)
             label = bottom_info['label']
             if not hasattr(klass, 'attached_to'):
-                logging.warn('class %s does not implement attached_to' % klass)
+                logging.warning('class %s does not implement attached_to' % klass)
                 continue
             objs = klass.attached_to(row)
             model = bottom_info['tree'].get_model()
