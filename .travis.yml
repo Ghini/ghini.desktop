@@ -12,6 +12,7 @@ before_install:
     - sudo apt-get install gettext python3-gi python-lxml git libxslt1-dev pkg-config libjpeg-dev build-essential python-all-dev
     - sudo apt-get install gir1.2-gtk-3.0
     - sudo apt-get install python-nose
+    - sudo apt-get install -y libchamplain-0.12-0
     - pip install pip --upgrade
     - pip install --upgrade gevent
     - export VIRT_ROOT=/home/travis/virtualenv/python$TRAVIS_PYTHON_VERSION
