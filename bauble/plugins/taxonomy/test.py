@@ -209,13 +209,13 @@ class TestDefaultData(BaubleTestCase):
         
     def test_imported_taxa(self):
         objs = self.session.query(Taxon).all()
-        self.assertEquals(len(objs), 203)
+        self.assertEquals(len(objs), 342)
         beschorneria = self.session.query(Taxon).filter_by(epithet='Beschorneria').first()
         self.assertNotEquals(beschorneria, None)
         self.assertEquals(beschorneria.epithet, 'Beschorneria')
 
     def test_imported_ranks(self):
-        obj = self.session.query(Rank).filter_by(id=4).first()
+        obj = self.session.query(Rank).filter_by(id=3).first()
         self.assertNotEquals(obj, None)
         self.assertEquals(obj.name, 'ordo')
         objs = self.session.query(Rank).all()
