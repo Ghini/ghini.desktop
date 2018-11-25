@@ -11,7 +11,7 @@ id,name,short,depth,shows_as,defines
 9,"subgenus","Subgen.",25,".genus subg. .epithet sp.",""
 10,"sectio","Sec.",30,".genus sec. .epithet sp.",""
 11,"subsectio","Subsec.",35,".genus subsec. .epithet sp.",""
-12,"species","sp.",40,"[.ranked_name .epithet]","binomial"
+12,"species","sp.",40,".ranked_name .epithet","binomial"
 13,"subspecies","subsp.",45,".binomial subsp. .epithet",""
 14,"varietas","var.",50,".binomial var. .epithet",""
 15,"forma","f.",55,".binomial f. .epithet",""

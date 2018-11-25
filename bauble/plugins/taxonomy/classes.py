@@ -98,7 +98,7 @@ class Taxon(db.Base, db.WithNotes):
             field = item[1:]
             return getattr(self, field)
         import re
-        return re.sub(r'\.[\w]+', convert, self.rank.shows_as.replace(']', '').replace('[', ''))
+        return re.sub(r'\.\w+', convert, self.rank.shows_as)
 
     @property
     def complete(self):

@@ -24,17 +24,17 @@ from bauble.test import BaubleTestCase
 
 def initialize_ranks_and_taxa(self):
     ranks = [
-        ('regnum', '', 0, '[.name] sp.', 'regnum'),
-        ('ordo', 'Ordo', 8, '[.name] sp.', 'ordo'),
-        ('familia', 'Fam.', 10, '[.name] sp.', 'familia'),
-        ('subfamilia', 'Subfam.', 14, '[.name] sp.', 'subfamilia'),
+        ('regnum', '', 0, '.name sp.', 'regnum'),
+        ('ordo', 'Ordo', 8, '.name sp.', 'ordo'),
+        ('familia', 'Fam.', 10, '.name sp.', 'familia'),
+        ('subfamilia', 'Subfam.', 14, '.name sp.', 'subfamilia'),
         ('tribus', 'Tr.', 16, '.name sp.', ''),
         ('subtribus', 'Subtr.', 18, '.name sp.', ''),
-        ('genus', 'Gen.', 20, '[.name] sp.', 'genus'),
+        ('genus', 'Gen.', 20, '.name sp.', 'genus'),
         ('subgenus', 'subg.', 25, '.genus subg. .name sp.', ''),
         ('sectio', 'sec.', 30, '.genus sec. .name sp.', ''),
         ('subsectio', 'subsec.', 35, '.genus subsec. .name sp.', ''),
-        ('species', 'sp.', 40, '[.ranked_name .name]', 'binomial'),
+        ('species', 'sp.', 40, '.ranked_name .name', 'binomial'),
         ('subspecies', 'subsp.', 45, '.binomial subsp. .name', ''),
         ('varietas', 'var.', 50, '.binomial var. .name', ''),
         ('forma', 'f.', 55, '.binomial f. .name', ''),
@@ -74,7 +74,7 @@ def initialize_ranks_and_taxa(self):
 
 class CreateRanks(BaubleTestCase):
     def test_can_create_a_rank(self):
-        p = Rank(name='Ordo', depth=8, shows_as='[.name] sp', defines='ordo')
+        p = Rank(name='Ordo', depth=8, shows_as='.name sp', defines='ordo')
         self.session.add(p)
         self.session.commit()
 
@@ -84,16 +84,16 @@ class CreateRanks(BaubleTestCase):
 
     def test_can_create_rank_structure(self):
         ranks = [
-            ('ordo', 8, '[.name] sp.', 'ordo'),
-            ('familia', 10, '[.name] sp.', 'familia'),
-            ('subfamilia', 14, '[.name] sp.', 'subfamilia'),
+            ('ordo', 8, '.name sp.', 'ordo'),
+            ('familia', 10, '.name sp.', 'familia'),
+            ('subfamilia', 14, '.name sp.', 'subfamilia'),
             ('tribus', 16, '.name sp.', ''),
             ('subtribus', 18, '.name sp.', ''),
-            ('genus', 20, '[.name] sp.', 'genus'),
+            ('genus', 20, '.name sp.', 'genus'),
             ('subgenus', 25, '.genus subg. .name sp.', ''),
             ('sectio', 30, '.genus sec. .name sp.', ''),
             ('subsectio', 35, '.genus subsec. .name sp.', ''),
-            ('species', 40, '[.genus .name]', 'binomial'),
+            ('species', 40, '.ranked_name .name', 'binomial'),
             ('subspecies', 45, '.binomial subsp. .name', ''),
             ('varietas', 50, '.binomial var. .name', ''),
             ('forma', 55, '.binomial f. .name', ''), ]
