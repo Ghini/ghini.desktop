@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2017-09-05 22:07+0000\n"
-"Last-Translator: JoHegg <joheggemann@gmail.com>\n"
+"PO-Revision-Date: 2018-11-28 21:08+0000\n"
+"Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.17-dev\n"
+"X-Generator: Weblate 3.3-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -561,7 +561,7 @@ msgid ""
 "or what's its purpose"
 msgstr ""
 "Alle Informationen, die für diesen Standort relevant sein könnten, z.B. wo "
-"er sich befindet und was sein Zweck ist."
+"er sich befindet und was sein Zweck ist"
 
 #: bauble/plugins/tag/__init__.py:104
 msgid "Apply active tag"
@@ -1192,7 +1192,7 @@ msgstr "Ost"
 
 #: bauble/plugins/garden/source.py:483
 msgid "East/West radio buttons in a confused state"
-msgstr "Die Ost-/West-Optionsschaltflächen sind vertauscht."
+msgstr "Die Ost-/West-Optionsschaltflächen sind vertauscht"
 
 #: bauble/plugins/garden/plant_editor.glade:484
 #: bauble/plugins/garden/plant_editor.glade:1348
@@ -2078,7 +2078,7 @@ msgstr "Nord"
 
 #: bauble/plugins/garden/source.py:473
 msgid "North/South radio buttons in a confused state"
-msgstr "Die Nord-/Süd-Optionsschaltfläche sind vertauscht."
+msgstr "Die Nord-/Süd-Optionsschaltfläche sind vertauscht"
 
 #: bauble/plugins/plants/species_model.py:223
 msgid "Not Evaluated (NE)"
@@ -2967,7 +2967,7 @@ msgid ""
 msgstr ""
 "Die Datenbank, zu welcher Sie verbunden sind, besitzt keine Metatabelle für "
 "Ghini. Das heißt normalerweise, dass die Datenbank entweder zerstört ist "
-"oder sie mit einer älteren Version von Ghini erstellt wurde."
+"oder sie mit einer älteren Version von Ghini erstellt wurde"
 
 #: bauble/db.py:420
 msgid "The database you have connected to is empty."
@@ -3131,7 +3131,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:371
 msgid "The name or abbreviation of the author that published this genus"
-msgstr "Der Name oder Kürzel des Autors der diese Gattung publiziert hat."
+msgstr "Der Name oder Kürzel des Autors der diese Gattung publiziert hat"
 
 #: bauble/plugins/garden/location.py:207
 msgid "The name that you will use later to refer to this location."
@@ -3972,7 +3972,7 @@ msgstr ""
 msgid "model must have both latitude and longitude or neither"
 msgstr ""
 "Das Model muss entweder Breiten- und Längengrad oder keines von beiden "
-"enthalten."
+"enthalten"
 
 #: bauble/plugins/tag/tag.glade:540
 msgid "name"
