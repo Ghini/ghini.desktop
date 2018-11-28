@@ -368,11 +368,7 @@ class ABCDExporter(object):
         if plants is None:
             plants = db.Session().query(Plant).all()
 
-        # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
-        # PlantABCDAdapter into the ABCD plugin
-        from bauble.plugins.report.xsl import PlantABCDAdapter
-        data = create_abcd([PlantABCDAdapter(p) for p in plants],
-                           validate=False)
+        data = plants_to_abcd(plants)
 
         data.write_c14n(filename)
 
