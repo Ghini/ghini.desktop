@@ -113,3 +113,5 @@ test.py
 imex-it.rst
 ghini.py
 glade-tester.*
+travis-log.txt
+travis-log1.txt
