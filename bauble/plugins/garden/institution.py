@@ -520,9 +520,12 @@ def start_institution_editor():
     if response == Gtk.ResponseType.OK:
         o.write()
         inst_pres.commit_changes()
+        result = True
     else:
         inst_pres.session.rollback()
+        result = False
     inst_pres.session.close()
+    return result
 
 
 class InstitutionCommand(pluginmgr.CommandHandler):
