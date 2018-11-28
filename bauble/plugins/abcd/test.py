@@ -33,12 +33,12 @@ logger = logging.getLogger(__name__)
 
 import bauble.paths as paths
 from bauble.test import BaubleTestCase
-import bauble.plugins.abcd as abcd
 from bauble.plugins.garden import Plant, Accession, Source, Collection
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
 from nose import SkipTest
 
+from bauble.plugins.abcd import *
 
 # TODO: the ABCD tests need to be completely reworked
 
