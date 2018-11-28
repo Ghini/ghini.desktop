@@ -106,12 +106,6 @@ class ABCDTestCase(BaubleTestCase):
                                 elevation=1, elevation_accy=1,
                                 notes=u'some notes')
         source.collection = collection
-        from bauble.plugins.garden import Institution
-        inst = Institution()
-        inst.name = inst.code = inst.contact = \
-            inst.technical_contact = inst.email = 'test'
-        inst.write()
-        self.session.commit()
         dummy, filename = tempfile.mkstemp()
         ABCDExporter().start(filename)
 
