@@ -37,6 +37,7 @@ import bauble.plugins.abcd as abcd
 from bauble.plugins.garden import Plant, Accession, Source, Collection
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
+from nose import SkipTest
 
 
 # TODO: the ABCD tests need to be completely reworked
@@ -57,33 +58,32 @@ class ABCDTestCase(BaubleTestCase):
         self.abcd_schema = etree.XMLSchema(xmlschema_doc)
 
     def test_abcd(self):
-        # TODO: this needs to be updated, we don't use the
-        # ElementFactory anymore
-        pass
-        # datasets = DataSets()
-        # ds = ElementFactory(datasets, 'DataSet')
-        # tech_contacts = ElementFactory( ds, 'TechnicalContacts')
-        # tech_contact = ElementFactory(tech_contacts, 'TechnicalContact')
-        # ElementFactory(tech_contact, 'Name', text='Brett')
-        # ElementFactory(tech_contact, 'Email', text='brett@belizebotanic.org')
-        # cont_contacts = ElementFactory(ds, 'ContentContacts')
-        # cont_contact = ElementFactory(cont_contacts, 'ContentContact')
-        # ElementFactory(cont_contact, 'Name', text='Brett')
-        # ElementFactory(cont_contact, 'Email', text='brett@belizebotanic.org')
-        # metadata = ElementFactory(ds, 'Metadata', )
-        # description = ElementFactory(metadata, 'Description')
-        #   representation = ElementFactory(description, 'Representation',
-        #                                   attrib={'language': 'en'})
-        # revision = ElementFactory(metadata, 'RevisionData')
-        # ElementFactory(revision, 'DateModified', text='2001-03-01T00:00:00')
-        # title = ElementFactory(representation, 'Title', text='TheTitle')
-        # units = ElementFactory(ds, 'Units')
-        # unit = ElementFactory(units, 'Unit')
-        # ElementFactory(unit, 'SourceInstitutionID', text='BBG')
-        # ElementFactory(unit, 'SourceID', text='1111')
-        # unit_id = ElementFactory(unit, 'UnitID', text='2222')
+        raise SkipTest("we don't use the ElementFactory anymore")
 
-        # self.assert_(self.validate(datasets), self.abcd_schema.error_log)
+        datasets = DataSets()
+        ds = ElementFactory(datasets, 'DataSet')
+        tech_contacts = ElementFactory( ds, 'TechnicalContacts')
+        tech_contact = ElementFactory(tech_contacts, 'TechnicalContact')
+        ElementFactory(tech_contact, 'Name', text='Brett')
+        ElementFactory(tech_contact, 'Email', text='brett@belizebotanic.org')
+        cont_contacts = ElementFactory(ds, 'ContentContacts')
+        cont_contact = ElementFactory(cont_contacts, 'ContentContact')
+        ElementFactory(cont_contact, 'Name', text='Brett')
+        ElementFactory(cont_contact, 'Email', text='brett@belizebotanic.org')
+        metadata = ElementFactory(ds, 'Metadata', )
+        description = ElementFactory(metadata, 'Description')
+        representation = ElementFactory(description, 'Representation',
+                                        attrib={'language': 'en'})
+        revision = ElementFactory(metadata, 'RevisionData')
+        ElementFactory(revision, 'DateModified', text='2001-03-01T00:00:00')
+        title = ElementFactory(representation, 'Title', text='TheTitle')
+        units = ElementFactory(ds, 'Units')
+        unit = ElementFactory(units, 'Unit')
+        ElementFactory(unit, 'SourceInstitutionID', text='BBG')
+        ElementFactory(unit, 'SourceID', text='1111')
+        unit_id = ElementFactory(unit, 'UnitID', text='2222')
+
+        self.assert_(self.validate(datasets), self.abcd_schema.error_log)
 
     def test_export(self):
         """
@@ -111,15 +111,16 @@ class ABCDTestCase(BaubleTestCase):
         dummy, filename = tempfile.mkstemp()
         xml = abcd.ABCDExporter().start(filename)
         logger.debug(xml)
+        raise SkipTest("this is not a test")
 
     def test_plants_to_abcd(self):
         plants = self.session.query(Plant)
         assert plants.count() > 0
-        pass
         # create abcd from plants
         # data = abcd.plants_to_abcd(plants)
         # assert validate abcd
         # self.assert_(self.validate(data), self.abcd_schema.error_log)
+        raise SkipTest("this is not a test")
 
     def validate(self, xml):
         return self.abcd_schema.validate(xml)
