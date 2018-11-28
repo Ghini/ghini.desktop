@@ -321,6 +321,14 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     return ElementTree(datasets)
 
 
+def plants_to_abcd(plants):
+    # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
+    # PlantABCDAdapter into the ABCD plugin
+    from bauble.plugins.report.xsl import PlantABCDAdapter
+    return create_abcd([PlantABCDAdapter(p) for p in plants],
+                       validate=False)
+
+
 class ABCDExporter(object):
     """
     Export Plants to an ABCD file.
