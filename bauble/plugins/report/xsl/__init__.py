@@ -526,7 +526,7 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     @staticmethod
     def format(objs, **kwargs):
-#        debug('format(%s)' % kwargs)
+        logger.debug('format(%s)' % kwargs)
         stylesheet = kwargs['stylesheet']
         authors = kwargs['authors']
         renderer = kwargs['renderer']

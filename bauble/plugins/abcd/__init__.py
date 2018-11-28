@@ -211,8 +211,11 @@ def create_abcd(decorated_objects, authors=True, validate=True):
                 'Name, Technical Contact, Email, Contact and Institution '
                 'Code fields are filled in.')
         utils.message_dialog(msg)
-        institution.InstitutionEditor().start()
-        return create_abcd(decorated_objects, authors, validate)
+        modified = institution.start_institution_editor()
+        if modified:
+            return create_abcd(decorated_objects, authors, validate)
+        else:
+            return None
 
     datasets = DataSets()
     ds = ABCDElement(datasets, 'DataSet')
@@ -320,6 +323,14 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         check(validate_xml(datasets), 'ABCD data not valid')
 
     return ElementTree(datasets)
+
+
+def plants_to_abcd(plants):
+    # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
+    # PlantABCDAdapter into the ABCD plugin
+    from bauble.plugins.report.xsl import PlantABCDAdapter
+    return create_abcd([PlantABCDAdapter(p) for p in plants],
+                       validate=False)
 
 
 class ABCDExporter(object):
