@@ -56,6 +56,12 @@ class ABCDTestCase(BaubleTestCase):
             paths.lib_dir(), 'plugins', 'abcd', 'abcd_2.06.xsd')
         xmlschema_doc = etree.parse(schema_file)
         self.abcd_schema = etree.XMLSchema(xmlschema_doc)
+        from bauble.plugins.garden import Institution
+        inst = Institution()
+        inst.name = inst.code = inst.contact = \
+            inst.technical_contact = inst.email = 'test'
+        inst.write()
+        self.session.commit()
 
     def test_abcd(self):
         datasets = DataSets()
