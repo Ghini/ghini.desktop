@@ -30,9 +30,6 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-#from sqlalchemy import *
-#from sqlalchemy.orm import *
-
 import bauble.db as db
 from bauble.error import check
 import bauble.paths as paths
