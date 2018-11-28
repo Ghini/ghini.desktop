@@ -83,13 +83,13 @@ class ABCDTestCase(BaubleTestCase):
         ElementFactory(unit, 'SourceID', text='1111')
         unit_id = ElementFactory(unit, 'UnitID', text='2222')
 
-        self.assert_(self.validate(datasets), self.abcd_schema.error_log)
+        self.assertTrue(self.abcd_schema.validate(datasets), self.abcd_schema.error_log)
 
     def test_export(self):
         """
         Test the ABCDExporter
         """
-        self.assert_(self.session.query(Plant).count() > 0)
+        self.assertTrue(self.session.query(Plant).count() > 0)
         accession = self.session.query(Accession).first()
         source = Source()
         accession.source = source
@@ -119,8 +119,5 @@ class ABCDTestCase(BaubleTestCase):
         # create abcd from plants
         # data = abcd.plants_to_abcd(plants)
         # assert validate abcd
-        # self.assert_(self.validate(data), self.abcd_schema.error_log)
+        # self.assertTrue(self.abcd_schema.validate(data), self.abcd_schema.error_log)
         raise SkipTest("this is not a test")
-
-    def validate(self, xml):
-        return self.abcd_schema.validate(xml)
