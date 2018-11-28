@@ -301,8 +301,8 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ABCDElement(taxon_identified, 'InformalNameString',
                         text=vernacular_name)
         if obj.get_IdentificationQualifier():
-            ABCDElement(scientific_name, 'IdentificationQualifier', 
-                        text=obj.get_IdentificationQualifier(), 
+            ABCDElement(scientific_name, 'IdentificationQualifier',
+                        text=obj.get_IdentificationQualifier(),
                         attrib={'insertionpoint': obj.get_IdentificationQualifierRank()})
         # add all the extra non standard elements
         obj.extra_elements(unit)
