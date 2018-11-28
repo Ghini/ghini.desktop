@@ -174,16 +174,16 @@ class ABCDAdapter(object):
 
     def get_InfraspecificEpithet(self):
         pass
-    
+
     def get_CultivarName(self):
         pass
 
     def get_HybridFlag (self):
-        pass    
+        pass
 
     def get_IdentificationQualifier(self):
         pass
-    
+
     def get_IdentificationQualifierRank(self):
         pass
 
