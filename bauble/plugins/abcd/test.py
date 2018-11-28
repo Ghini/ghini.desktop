@@ -107,9 +107,7 @@ class ABCDTestCase(BaubleTestCase):
         inst.write()
         self.session.commit()
         dummy, filename = tempfile.mkstemp()
-        xml = abcd.ABCDExporter().start(filename)
-        logger.debug(xml)
-        raise SkipTest("this is not a test")
+        ABCDExporter().start(filename)
 
     def test_plants_to_abcd(self):
         plants = self.session.query(Plant)
