@@ -28,9 +28,6 @@ import os
 
 import gtk
 
-#from sqlalchemy import *
-#from sqlalchemy.orm import *
-
 import bauble.db as db
 from bauble.error import check
 import bauble.paths as paths
