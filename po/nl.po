@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-10-03 15:24+0000\n"
+"PO-Revision-Date: 2018-12-06 20:08+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.2-dev\n"
+"X-Generator: Weblate 3.4-dev\n"
 "X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
 
 #: bauble/btypes.py:87
@@ -330,7 +330,7 @@ msgstr "<b>Zaaidata</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:894
 msgid "<b>Species:</b>"
-msgstr "<b>Soort:</b>"
+msgstr "<b>Soorten:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:29
 #, fuzzy
@@ -521,7 +521,7 @@ msgstr "Voeg Geslachten toe"
 
 #: bauble/plugins/plants/genus_editor.glade:70
 msgid "Add Species"
-msgstr "Voeg Soorten toe"
+msgstr "Voeg Soort toe"
 
 #: bauble/plugins/garden/loc_editor.glade:56
 #: bauble/plugins/garden/acc_editor.glade:204
@@ -2792,7 +2792,7 @@ msgstr "Zuiden"
 #: bauble/plugins/report/xsl/__init__.py:88
 #: bauble/plugins/report/xsl/__init__.py:427
 msgid "Species"
-msgstr "Soorten"
+msgstr "Soort"
 
 #: bauble/plugins/plants/species_editor.glade:23
 msgid "Species Editor"
