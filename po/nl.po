@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-12-06 20:08+0000\n"
+"PO-Revision-Date: 2019-01-19 14:20+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -493,7 +493,7 @@ msgstr "Accessie ID"
 
 #: bauble/plugins/garden/accession.py:373 bauble/plugins/plants/itf2.py:100
 msgid "Accession not of wild source"
-msgstr "Accessie niet van wilde bron"
+msgstr "Accessie van niet wilde bron"
 
 #: bauble/plugins/garden/accession.py:371 bauble/plugins/plants/itf2.py:98
 msgid "Accession of wild source"
@@ -548,7 +548,7 @@ msgstr "Aggregaat"
 
 #: bauble/plugins/garden/accession.py:432
 msgid "Air layer"
-msgstr "Luchtlaag"
+msgstr "Gemarcotteerde plant"
 
 #: bauble/plugins/herbarium/accession.glade:693
 msgid "Alcohol"
@@ -722,7 +722,7 @@ msgstr "Oogstek"
 
 #: bauble/plugins/garden/accession.py:436
 msgid "Budded"
-msgstr "Ontsproten"
+msgstr "Oculatie of oogent"
 
 #: bauble/plugins/garden/institution.glade:310
 msgid "Bug reporting"
@@ -820,7 +820,7 @@ msgstr "Clausule"
 
 #: bauble/plugins/garden/accession.py:438
 msgid "Clump"
-msgstr "Polvormig"
+msgstr "Pol"
 
 #: bauble/plugins/garden/loc_editor.glade:231
 msgid "Code"
@@ -1196,7 +1196,7 @@ msgstr "Verspreiding"
 #: bauble/plugins/garden/accession.py:417
 #: bauble/plugins/garden/accession.py:440
 msgid "Division"
-msgstr "Afdeling"
+msgstr "Gescheurde plant"
 
 #: bauble/connmgr.py:456
 msgid "Do you want to save %s?"
@@ -1800,7 +1800,7 @@ msgstr "Institutionele code"
 #: bauble/plugins/garden/accession.py:375
 #: bauble/plugins/garden/accession.py:407
 msgid "Insufficient Data"
-msgstr "Onvoldoende Gegevens"
+msgstr "Onvoldoende gegevens"
 
 #: bauble/plugins/plants/itf2.py:101
 msgid "Insufficient data to determine"
@@ -1877,7 +1877,7 @@ msgstr "Breedtegraad:"
 
 #: bauble/plugins/garden/accession.py:442
 msgid "Layer"
-msgstr "Laag"
+msgstr "Aflegger"
 
 #: bauble/plugins/plants/species_model.py:221
 msgid "Least Concern (LC)"
@@ -2521,7 +2521,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:446
 msgid "Rhizome"
-msgstr "Rizoom"
+msgstr "Rhizoom of wortelstok"
 
 #: bauble/plugins/garden/plant.py:336
 msgid "Ripe"
@@ -2537,7 +2537,7 @@ msgstr "Wortelstek"
 
 #: bauble/plugins/garden/accession.py:459
 msgid "Root sucker"
-msgstr "Wortel uitloper"
+msgstr "Wortelopslag"
 
 #: bauble/plugins/garden/accession.py:445
 msgid "Rooted cutting"
@@ -2610,7 +2610,7 @@ msgstr "Geur/parfum"
 
 #: bauble/plugins/garden/accession.py:449
 msgid "Scion"
-msgstr "Ent"
+msgstr "Bovenstam"
 
 #: bauble/utils/web.py:52 bauble/utils/web.py:56
 msgid "Search"
