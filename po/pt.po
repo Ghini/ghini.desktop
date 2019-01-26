@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-11 17:29-0500\n"
-"PO-Revision-Date: 2017-07-04 03:08+0000\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
-"ghini/desktop-10/pt_BR/>\n"
-"Language: pt_BR\n"
+"PO-Revision-Date: 2019-01-27 21:05+0000\n"
+"Last-Translator: ssantos <ssantos@web.de>\n"
+"Language-Team: Portuguese <https://hosted.weblate.org/projects/ghini/"
+"desktop-10/pt/>\n"
+"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2.16-dev\n"
+"X-Generator: Weblate 3.5-dev\n"
 "X-Launchpad-Export-Date: 2012-07-05 05:03+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -764,14 +764,14 @@ msgstr "Alterações"
 
 #: bauble/plugins/abcd/__init__.py:335
 msgid "Choose a file to export to..."
-msgstr "Escolher um arquivo de destino para exportação..."
+msgstr "Escolher um ficheiro de destino para exportação..."
 
 #: bauble/connmgr.py:287 bauble/connmgr.py:298 bauble/connmgr.py:309
 #: bauble/editor.py:2101 bauble/editor.py:2108
 #: bauble/plugins/imex/iojson.py:197 bauble/plugins/imex/iojson.py:280
 #: bauble/plugins/plants/taxonomy_check.py:279
 msgid "Choose a file…"
-msgstr "Escolher um arquivo…"
+msgstr "Escolher um ficheiro…"
 
 #: bauble/search.py:1091
 msgid "Choose a property…"
@@ -779,11 +779,11 @@ msgstr "Escolher uma propriedade…"
 
 #: bauble/plugins/imex/csv_.py:556
 msgid "Choose file(s) to import…"
-msgstr "Escolher arquivo a ser importado…"
+msgstr "Escolher ficheiro a ser importado…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
-msgstr ""
+msgstr "Cláusulas"
 
 #: bauble/plugins/garden/accession.py:435
 msgid "Clump"
@@ -956,7 +956,7 @@ msgid ""
 "manually at %s"
 msgstr ""
 "Não foi possível abrir o relatório com o programa padrão. Você pode abrir o "
-"arquivo manualmente em %s"
+"ficheiro manualmente em %s"
 
 #: bauble/view.py:830
 msgid "Couldn't find anything for search: \"%s\""
@@ -1266,7 +1266,7 @@ msgid ""
 "Error creating the PDF file. Please ensure that your PDF formatter is "
 "properly installed."
 msgstr ""
-"Erro ao criar o arquivo PDF. Verifique se o seu formatador PDF está "
+"Erro ao criar o ficheiro PDF. Verifique se o seu formatador PDF está "
 "instalado corretamente."
 
 #: bauble/view.py:811
@@ -1311,7 +1311,7 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
-"Exportar arquivo <b>%(filename)s</b> para <b>%(table)s</b>. A tabela já "
+"Exportar ficheiro <b>%(filename)s</b> para <b>%(table)s</b>. A tabela já "
 "existe.\n"
 "\n"
 "<i>Gostaria de continuar?</i>"
@@ -1450,7 +1450,7 @@ msgid ""
 msgstr ""
 "O Ghini não pôde salvar suas preferências de usuário. \n"
 "\n"
-"Por favor, verifique as permissões de seu arquivo de configuração:\n"
+"Por favor, verifique as permissões de seu ficheiro de configuração:\n"
 " %s"
 
 #: bauble/ui.py:457
@@ -1464,7 +1464,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"O Ghini não possui permissão para ler o arquivo do banco de dados:\n"
+"O Ghini não possui permissão para ler o ficheiro do banco de dados:\n"
 "\n"
 "%s"
 
@@ -1484,7 +1484,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"O Ghini não possui permissão para gravar no arquivo do banco de dados:\n"
+"O Ghini não possui permissão para gravar no ficheiro do banco de dados:\n"
 "\n"
 "%s"
 
@@ -1848,7 +1848,7 @@ msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
 msgstr ""
-"Mais de um arquivo a ser importado para a tabela <b>%(table_name)s</b>: "
+"Mais de um ficheiro a ser importado para a tabela <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1451
@@ -2344,7 +2344,7 @@ msgstr ""
 
 #: bauble/plugins/imex/xml.py:78
 msgid "Save all data in one file"
-msgstr "Salvar todos os dados em um arquivo"
+msgstr "Salvar todos os dados num ficheiro"
 
 #: bauble/plugins/plants/species_editor.py:1097
 msgid "Save your changes"
@@ -2517,7 +2517,7 @@ msgstr "Selecionar um diretório"
 
 #: bauble/plugins/report/xsl/__init__.py:377
 msgid "Select a file…"
-msgstr "Selecionar um arquivo…"
+msgstr "Selecionar um ficheiro…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
@@ -2726,8 +2726,8 @@ msgid ""
 "data in your database if you do this?</i>"
 msgstr ""
 "A tabela <b>%s</b> já existe no banco de dados e pode conter alguns dados. "
-"Se uma linha do arquivo importado tiver a mesma ID de uma linha do banco de "
-"dados, então o arquivo não será importado corretamente.\n"
+"Se uma linha do ficheiro importado tiver a mesma ID de uma linha do banco de "
+"dados, então o ficheiro não será importado corretamente.\n"
 "\n"
 "<i>Gostaria de descartar a tabela no banco de dados primeiro? Você perderá "
 "os dados no seu banco de dados se fizer isso.</i>"
@@ -2740,7 +2740,7 @@ msgstr "O pacote <i>lxml</i> é requerido para o plugin ABCD"
 msgid ""
 "The ABCD file was created but failed to validate correctly against the ABCD "
 "standard."
-msgstr "O arquivo ABCD foi criado mas falhou ao ser validado no padrão ABCD."
+msgstr "O ficheiro ABCD foi criado mas falhou ao ser validado no padrão ABCD."
 
 #: bauble/plugins/garden/accession.py:880
 msgid ""
@@ -3538,7 +3538,7 @@ msgstr "_Editar"
 
 #: bauble/ui.py:431
 msgid "_File"
-msgstr "Arquivo"
+msgstr "_Ficheiro"
 
 #: bauble/ui.py:447
 msgid "_Help"
