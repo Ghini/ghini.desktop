@@ -1,5 +1,3 @@
-
-
 # Copyright (c) 2017 Mario Frasca <mario@anche.no>
 #
 # This file is part of ghini.desktop.
