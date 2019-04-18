@@ -2563,23 +2563,23 @@ class GeneralAccessionExpander(InfoExpander):
 
         nplants = session.query(Plant).filter_by(accession_id=row.id).count()
         self.widget_set_value('nplants_data', nplants)
-        self.widget_set_value('date_recvd_data', row.date_recvd)
-        self.widget_set_value('date_accd_data', row.date_accd)
+        self.set_labeled_value('date_recvd', row.date_recvd)
+        self.set_labeled_value('date_accd', row.date_accd)
 
         type_str = ''
         if row.recvd_type:
             type_str = recvd_type_values[row.recvd_type]
-        self.widget_set_value('recvd_type_data', type_str)
+        self.set_labeled_value('recvd_type', type_str)
         quantity_str = ''
         if row.quantity_recvd:
             quantity_str = row.quantity_recvd
-        self.widget_set_value('quantity_recvd_data', quantity_str)
+        self.set_labeled_value('quantity_recvd', quantity_str)
 
         prov_str = dict(prov_type_values)[row.prov_type]
         if row.prov_type == 'Wild' and row.wild_prov_status:
             prov_str = '%s (%s)' % \
                 (prov_str, dict(wild_prov_status_values)[row.wild_prov_status])
-        self.widget_set_value('prov_data', prov_str, False)
+        self.set_labeled_value('prov', prov_str)
 
         image_size = Gtk.IconSize.MENU
         stock = Gtk.STOCK_NO

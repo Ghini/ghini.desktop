@@ -143,6 +143,23 @@ class InfoExpander(Gtk.Expander):
             prefs.prefs[self.expanded_pref] = expander.get_expanded()
             prefs.prefs.save()
 
+    def set_labeled_value(self, prefix, value):
+        '''toggle visibility of labeled value, set value
+
+        if value is not empty, update the value and show both the label and
+        the value.  if the value is empty, show both label and value.
+
+        note: label id is prefix+'_label', value id is prefix+'_data'.
+
+        '''
+        if value:
+            self.widget_set_value(prefix + '_data', value)
+            self.widgets[prefix + '_data'].set_visible(True)
+            self.widgets[prefix + '_label'].set_visible(True)
+        else:
+            self.widgets[prefix + '_data'].set_visible(False)
+            self.widgets[prefix + '_label'].set_visible(False)
+
     def widget_set_value(self, widget_name, value, markup=False, default=None):
         '''
         a shorthand for L{bauble.utils.set_widget_value()}

@@ -131,7 +131,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label2">
+              <object class="GtkLabel" id="prov_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">1</property>
@@ -177,7 +177,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="date_received_label">
+              <object class="GtkLabel" id="date_recvd_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">1</property>
@@ -224,7 +224,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="quantity_label">
+              <object class="GtkLabel" id="quantity_recvd_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">1</property>
@@ -239,7 +239,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label4">
+              <object class="GtkLabel" id="recvd_type_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">1</property>
