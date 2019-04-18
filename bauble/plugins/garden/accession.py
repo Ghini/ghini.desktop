@@ -2587,13 +2587,15 @@ class GeneralAccessionExpander(InfoExpander):
             stock = Gtk.STOCK_YES
         self.widgets.private_image.set_from_stock(stock, image_size)
 
-        loc_map = (('intended_loc_data', 'intended_location'),
-                   ('intended2_loc_data', 'intended2_location'))
+        loc_map = (('intended_loc', 'intended_location'),
+                   ('intended2_loc', 'intended2_location'))
 
-        for label, attr in loc_map:
+        set_count = False
+        for prefix, attr in loc_map:
             location_str = ''
             location = getattr(row, attr)
             if location:
+                set_count = True
                 if location.name and location.code:
                     location_str = '%s (%s)' % (location.name,
                                                 location.code)
@@ -2601,7 +2603,8 @@ class GeneralAccessionExpander(InfoExpander):
                     location_str = '%s' % location.name
                 elif not location.name and location.code:
                     location_str = '(%s)' % location.code
-            self.widget_set_value(label, location_str)
+            self.set_labeled_value(prefix, location_str)
+        self.widgets['intended_loc_separator'].set_visible(set_count)
 
 
 class SourceExpander(InfoExpander):
