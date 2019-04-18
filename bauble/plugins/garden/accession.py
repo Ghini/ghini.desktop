@@ -2815,9 +2815,6 @@ class AccessionInfoBox(InfoBox):
             self.links._sep.props.visible = True
             self.links.update(row)
 
-        # TODO: should test if the source should be expanded from the prefs
-        expanded = prefs.prefs.get('acc_source_expander', True)
-        self.source.props.expanded = expanded
         self.source.props.sensitive = True
         self.source.update(row)
 
