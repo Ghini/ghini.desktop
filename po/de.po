@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-14 08:36-0500\n"
-"PO-Revision-Date: 2018-11-28 21:08+0000\n"
+"PO-Revision-Date: 2019-06-18 19:04+0000\n"
 "Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "de/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.3-dev\n"
+"X-Generator: Weblate 3.7\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -29,11 +29,11 @@ msgstr ""
 
 #: bauble/btypes.py:89
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr ""
+msgstr "\"%(value)s\" ist nicht in Enum.Werte: %(all_values)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
-msgstr ""
+msgstr "# Gekeimt"
 
 #: bauble/plugins/garden/propagation.py:225
 msgid "# of seedlings"
@@ -46,7 +46,7 @@ msgstr "Anzahl an Samen"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
-msgstr ""
+msgstr "% Gekeimt"
 
 #: bauble/plugins/garden/accession.py:699
 msgid "%(1)s plant groups in %(2)s location(s)"
