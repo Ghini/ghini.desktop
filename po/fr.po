@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2018-09-20 20:24+0000\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"PO-Revision-Date: 2019-08-28 11:24+0000\n"
+"Last-Translator: leela <53352@protonmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "fr/>\n"
 "Language: fr\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.2-dev\n"
+"X-Generator: Weblate 3.9-dev\n"
 "X-Launchpad-Export-Date: 2012-01-27 05:40+0000\n"
 
 #: bauble/btypes.py:87
@@ -620,11 +620,11 @@ msgstr "Êtes-vous sûr(e) d'ôter/effacer «%s» ?"
 
 #: bauble/plugins/garden/accession.py:189
 msgid "Are you sure you want to remove accession <b>%s</b>?"
-msgstr "Êtes-vous sûr(e) de supprimer l'accès <b>%s</b>?"
+msgstr "Êtes-vous sûr(e) de supprimer l'accès <b>%s</b> ?"
 
 #: bauble/plugins/plants/family.py:86
 msgid "Are you sure you want to remove the family <i>%s</i>?"
-msgstr "Êtes-vous sûr(e) de supprimer la famille <i>%s</i>?"
+msgstr "Êtes-vous sûr(e) de supprimer la famille <i>%s</i> ?"
 
 #: bauble/plugins/garden/plant.py:88
 msgid ""
@@ -638,15 +638,15 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:99
 msgid "Are you sure you want to remove the genus <i>%s</i>?"
-msgstr "Êtes-vous sûr(e) de supprimer le genre <i>%s</i>?"
+msgstr "Êtes-vous sûr(e) de supprimer le genre <i>%s</i> ?"
 
 #: bauble/plugins/plants/species.py:88
 msgid "Are you sure you want to remove the species <i>%s</i>?"
-msgstr "Êtes-vous sûr(e) de supprimer l'espèce <i>%s</i>?"
+msgstr "Êtes-vous sûr(e) de supprimer l'espèce <i>%s</i> ?"
 
 #: bauble/plugins/plants/species_editor.py:876
 msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
-msgstr "Êtes-vous sûr(e) de supprimer le nom usuel <b>%s</b>?"
+msgstr "Êtes-vous sûr(e) de supprimer le nom usuel <b>%s</b> ?"
 
 #: bauble/plugins/garden/accession.py:1322
 msgid "Are you sure you want to remove this verification?"
@@ -1192,15 +1192,15 @@ msgstr ""
 
 #: bauble/connmgr.py:456
 msgid "Do you want to save %s?"
-msgstr "Voulez-vous enregistrer %s?"
+msgstr "Voulez-vous enregistrer %s ?"
 
 #: bauble/connmgr.py:400 bauble/connmgr.py:462
 msgid "Do you want to save your changes to %s ?"
-msgstr "Voulez-vous sauvegarder vos modifications sur %s?"
+msgstr "Voulez-vous sauvegarder vos modifications sur %s ?"
 
 #: bauble/connmgr.py:354
 msgid "Do you want to save your changes?"
-msgstr "Voulez-vous enregistrer les modifications?"
+msgstr "Voulez-vous enregistrer les modifications ?"
 
 #: bauble/plugins/garden/propagation.py:291
 msgid "Double"
@@ -1737,7 +1737,7 @@ msgstr ""
 "\n"
 "<b>%s</b>\n"
 "\n"
-"Voulez-vous continuez?"
+"Voulez-vous continuez ?"
 
 #: bauble/plugins/tag/__init__.py:676
 msgid ""
@@ -3345,7 +3345,7 @@ msgid ""
 msgstr ""
 "Ce nom binomial est déjà dans votre collection, comme %s.\n"
 "\n"
-"Vous êtes sûr de vouloir remettre en place?"
+"Vous êtes sûr de vouloir remettre en place ?"
 
 #: bauble/plugins/garden/plant.py:781
 msgid ""
@@ -3367,7 +3367,7 @@ msgstr ""
 "Cette propagation a produit %s plantes. \n"
 "Elles peuvent déjà être répertorié.\n"
 "\n"
-"Vous êtes sûr que vous voulez la supprimer?"
+"Vous êtes sûr que vous voulez la supprimer ?"
 
 #: bauble/plugins/garden/propagation.py:502
 msgid ""
@@ -3642,7 +3642,7 @@ msgstr "Mortalité hivernale"
 
 #: bauble/ui.py:795
 msgid "Would you like the cancel the current tasks?"
-msgstr "Voulez-vous annuler les tâches courantes?"
+msgstr "Voulez-vous annuler les tâches courantes ?"
 
 #: bauble/__init__.py:376
 msgid ""
