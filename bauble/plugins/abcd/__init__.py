@@ -336,7 +336,7 @@ class ABCDExporter(object):
 
     def start(self, filename=None, plants=None):
         if filename is None:  # no filename, ask the user
-            d = Gtk.FileChooserDialog(_("Choose a file to export to..."), None,
+            d = Gtk.FileChooserDialog(_("Choose a file to export to…"), None,
                                       Gtk.FileChooserAction.SAVE,
                                       (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
                                        Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
