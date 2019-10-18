@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:11-0500\n"
-"PO-Revision-Date: 2018-02-14 04:38+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2019-10-19 16:53+0000\n"
+"Last-Translator: Mattias Münster <mattiasmun@gmail.com>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "sv/>\n"
 "Language: sv\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.19-dev\n"
+"X-Generator: Weblate 3.9.1-dev\n"
 "X-Launchpad-Export-Date: 2013-01-23 05:32+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -36,7 +36,6 @@ msgid "# Germinated"
 msgstr "Antal som grott"
 
 #: bauble/plugins/garden/propagation.py:225
-#, fuzzy
 msgid "# of seedlings"
 msgstr "Antal sticklingar"
 
@@ -54,9 +53,8 @@ msgid "%(1)s plant groups in %(2)s location(s)"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:456
-#, fuzzy
 msgid "%(group)s Group"
-msgstr "\"%(group)s\""
+msgstr "%(group)s Grupp"
 
 #: bauble/plugins/garden/accession.py:183
 msgid ""
@@ -167,7 +165,7 @@ msgstr "<b>Accessionstyp:</b>"
 
 #: bauble/plugins/herbarium/accession.glade:478
 msgid "<b>Accession</b>"
-msgstr "<b>Accession</b>"
+msgstr "<b>Anslutning</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:971
 msgid "<b>Accessions:</b>"
@@ -179,7 +177,7 @@ msgstr "<b>Priser:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:683
 msgid "<b>CITES:</b>"
-msgstr "<b>CITES:</b>"
+msgstr "<b>CITERAR:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
@@ -363,7 +361,6 @@ msgid "<b>commit or rollback</b>"
 msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:351
-#, fuzzy
 msgid "<b>danger zone</b>"
 msgstr "<b>riskområde</b>"
 
@@ -419,11 +416,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:1361
 msgid "<i>Split as %(plant)s</i>"
-msgstr ""
+msgstr "<i>Uppdelat som %(plant)s</i>"
 
 #: bauble/plugins/garden/plant.py:1344
 msgid "<i>Split from %(plant)s</i>"
-msgstr ""
+msgstr "<i>Uppdelat från %(plant)s</i>"
 
 #: bauble/plugins/plants/family.py:334
 msgid ""
@@ -474,7 +471,7 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:87
 #: bauble/plugins/report/xsl/__init__.py:427
 msgid "Accession"
-msgstr "Accession"
+msgstr "Anslutning"
 
 #: bauble/plugins/garden/acc_editor.glade:16
 #: bauble/plugins/garden/acc_editor.glade:3049
@@ -801,7 +798,7 @@ msgstr ""
 #: bauble/plugins/imex/iojson.py:172 bauble/plugins/imex/iojson.py:255
 #: bauble/plugins/plants/taxonomy_check.py:268
 msgid "Choose a file…"
-msgstr ""
+msgstr "Välj en fil…"
 
 #: bauble/search.py:1006
 msgid "Choose a property…"
@@ -809,7 +806,7 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:560
 msgid "Choose file(s) to import…"
-msgstr ""
+msgstr "Välj fil(er) att importera…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -826,7 +823,6 @@ msgstr "Kod"
 #: bauble/plugins/garden/acc_infobox.glade:1000
 #: bauble/plugins/garden/acc_editor.glade:2377
 #: bauble/plugins/garden/accession.py:405
-#, fuzzy
 msgid "Collection"
 msgstr "Samling"
 
@@ -1082,7 +1078,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:383
 msgid "Database:"
-msgstr ""
+msgstr "Databas:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1359,7 +1355,6 @@ msgid "Export"
 msgstr "Exportera"
 
 #: bauble/plugins/imex/select_export.glade:8
-#, fuzzy
 msgid "Export To JSON"
 msgstr "Exportera till JSON"
 
@@ -1541,9 +1536,8 @@ msgstr ""
 " %s"
 
 #: bauble/ui.py:457
-#, fuzzy
 msgid "Ghini development website"
-msgstr "Ghini utveckling webbplats"
+msgstr "Ghini utvecklingswebbplats"
 
 #: bauble/connmgr.py:561
 msgid ""
@@ -1586,12 +1580,10 @@ msgstr ""
 "%s"
 
 #: bauble/ui.py:463
-#, fuzzy
 msgid "Ghini forum"
 msgstr "Ghini forum"
 
 #: bauble/ui.py:460
-#, fuzzy
 msgid "Ghini wiki"
 msgstr "Ghini wiki"
 
@@ -1671,7 +1663,7 @@ msgstr "Hortikulturell organisation/Trädgårdsförening"
 
 #: bauble/connmgr.glade:391
 msgid "Host:"
-msgstr ""
+msgstr "Värd:"
 
 #: bauble/plugins/plants/genus_editor.glade:335
 #: bauble/plugins/plants/family_editor.glade:248
@@ -1712,12 +1704,10 @@ msgid "Import"
 msgstr "Importera"
 
 #: bauble/plugins/garden/accession.py:426
-#, fuzzy
 msgid "Imported"
 msgstr "Importerade"
 
 #: bauble/plugins/garden/accession.py:404
-#, fuzzy
 msgid "Impound"
 msgstr "Beslagta"
 
@@ -1854,7 +1844,6 @@ msgid "Label distribution"
 msgstr "Utbredningstext på etikett"
 
 #: bauble/view.py:185
-#, fuzzy
 msgid "Last updated:"
 msgstr "Senast uppdaterad:"
 
@@ -2014,7 +2003,6 @@ msgid "Name"
 msgstr "Namn"
 
 #: bauble/plugins/garden/accession.py:425
-#, fuzzy
 msgid "National"
 msgstr "Nationell"
 
@@ -2180,7 +2168,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:415
 msgid "Password:"
-msgstr ""
+msgstr "Lösenord:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -2234,7 +2222,7 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:86
 #: bauble/plugins/report/xsl/__init__.py:427
 msgid "Plant/Clone"
-msgstr "Planta/Klon"
+msgstr "Växt/Klon"
 
 #: bauble/plugins/plants/family_editor.glade:356
 msgid "Plantae"
@@ -2248,7 +2236,7 @@ msgstr "Växt"
 
 #: bauble/plugins/garden/plant_editor.glade:560
 msgid "Planting code"
-msgstr ""
+msgstr "Växtkod"
 
 #: bauble/connmgr.py:543
 msgid "Please choose a name for this connection"
@@ -2361,7 +2349,7 @@ msgstr "Förökningsredigerare"
 
 #: bauble/plugins/garden/prop_editor.glade:38
 msgid "Propagation Type"
-msgstr ""
+msgstr "Typ av förökning"
 
 #: bauble/plugins/plants/itf2.py:117
 msgid "Propagation history uncertain, or no information"
@@ -2479,7 +2467,7 @@ msgstr ""
 
 #: bauble/view.py:822
 msgid "Retrieving %s search results…"
-msgstr ""
+msgstr "Hämtar %s sökresultat…"
 
 #: bauble/plugins/garden/accession.py:446
 msgid "Rhizome"
@@ -2519,7 +2507,7 @@ msgstr ""
 
 #: bauble/plugins/imex/xml.py:78
 msgid "Save all data in one file"
-msgstr "Spara all data i en enda fil."
+msgstr "Spara all data i en enda fil"
 
 #: bauble/plugins/plants/species_editor.py:1173
 msgid "Save your changes"
@@ -2527,7 +2515,7 @@ msgstr "Spara dina ändringar"
 
 #: bauble/plugins/plants/family.py:340
 msgid "Save your changes and add a genus to this family."
-msgstr ""
+msgstr "Spara dina ändringar och lägg till ett släkte i den här familjen."
 
 #: bauble/plugins/garden/accession.py:881
 msgid "Save your changes and add a plant to this accession."
@@ -2535,31 +2523,31 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:379
 msgid "Save your changes and add a species to this genus."
-msgstr ""
+msgstr "Spara dina ändringar och lägg till en art i det här släktet."
 
 #: bauble/plugins/plants/species_editor.py:1174
 msgid "Save your changes and add an accession to this species"
-msgstr ""
+msgstr "Spara dina ändringar och registerför arten som en accession"
 
 #: bauble/plugins/garden/accession.py:883 bauble/plugins/garden/plant.py:618
 msgid "Save your changes and add another accession."
-msgstr ""
+msgstr "Spara dina ändringar och lägg till ytterligare en anslutning."
 
 #: bauble/plugins/plants/family.py:342
 msgid "Save your changes and add another family."
-msgstr ""
+msgstr "Spara dina ändringar och lägg till ytterligare en familj."
 
 #: bauble/plugins/plants/genus.py:381
 msgid "Save your changes and add another genus."
-msgstr ""
+msgstr "Spara dina ändringar och lägg till ytterligare ett släkte."
 
 #: bauble/plugins/garden/plant.py:616
 msgid "Save your changes and add another plant."
-msgstr ""
+msgstr "Spara dina ändringar och lägg till ytterligare en växt."
 
 #: bauble/plugins/plants/species_editor.py:1176
 msgid "Save your changes and add another species "
-msgstr ""
+msgstr "Spara dina ändringar och lägg till ytterligare en art "
 
 #: bauble/plugins/garden/accession.py:880 bauble/plugins/garden/plant.py:615
 #: bauble/plugins/plants/family.py:339 bauble/plugins/plants/genus.py:378
@@ -2698,7 +2686,7 @@ msgstr "Välj en mapp"
 
 #: bauble/plugins/report/xsl/__init__.py:374
 msgid "Select a file…"
-msgstr ""
+msgstr "Välj en fil…"
 
 #: bauble/plugins/report/xsl/__init__.py:382
 msgid "Select a stylesheet"
@@ -2756,7 +2744,7 @@ msgstr "Art"
 
 #: bauble/plugins/plants/species_editor.glade:23
 msgid "Species Editor"
-msgstr ""
+msgstr "Växtartsredigerare"
 
 #: bauble/plugins/garden/acc_editor.glade:529
 msgid "Species Qualifier"
@@ -2792,17 +2780,19 @@ msgstr "Vetenskapliga synonymer"
 
 #: bauble/plugins/garden/plant_editor.glade:270
 msgid "Split"
-msgstr ""
+msgstr "Dela"
 
 #: bauble/plugins/garden/plant.py:1168
 msgid "Split Mode"
-msgstr ""
+msgstr "Delningsläge"
 
 #: bauble/plugins/garden/plant.py:1171
 msgid ""
 "Splitting from %(plant_code)s.  The quantity will be subtracted from "
 "%(plant_code)s"
 msgstr ""
+"Uppdelning från %(plant_code)s. Mängden kommer att subtraheras från "
+"%(plant_code)s"
 
 #: bauble/plugins/garden/accession.py:452
 msgid "Spore"
@@ -3116,7 +3106,7 @@ msgstr "Institutionskoden måste vara unik."
 
 #: bauble/plugins/garden/plant.py:605
 msgid "The location of the planting in your collection."
-msgstr ""
+msgstr "Växtens plats i din samling."
 
 #: bauble/plugins/garden/institution.py:207
 msgid "The mailing address of the institition."
@@ -3180,7 +3170,7 @@ msgstr "Namnet på posten har inte verifierats av någon namnkunnig källa."
 #: bauble/plugins/plants/genus.py:371
 msgid "The name or abbreviation of the author that published this genus"
 msgstr ""
-"Namnet på eller förkortningen för den auktor som beskrev det här släktet."
+"Namnet på eller förkortningen av författaren som publicerade denna släkt"
 
 #: bauble/plugins/garden/location.py:207
 msgid "The name that you will use later to refer to this location."
@@ -3353,9 +3343,10 @@ msgid ""
 "\n"
 "You cannot remove it."
 msgstr ""
-"Denna version av Ghini kräver SQLAlchemy 0.6 eller senare. Du använder "
-"version %s. Var vänlig hämta och installera en nyare version av SQLAlchemy "
-"från http://www.sqlalchemy.org eller kontakta din systemadministratör."
+"Denna förökning hänvisas till\n"
+"av %s anslutningar.\n"
+"\n"
+"Du kan inte ta bort den."
 
 #: bauble/plugins/garden/propagation.py:498
 msgid ""
@@ -3370,6 +3361,8 @@ msgid ""
 "This query returned %s results.  It may take a long time to get all the "
 "data. Are you sure you want to continue?"
 msgstr ""
+"Denna fråga returnerade %s träffar. Det kan ta lång tid att hämta all data. "
+"Är du säker på att du vill fortsätta?"
 
 #: bauble/plugins/plants/species_editor.py:993
 msgid ""
@@ -3391,6 +3384,9 @@ msgid ""
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
+"Denna version av Ghini kräver SQLAlchemy 0.6 eller senare. Du använder "
+"version %s. Var vänlig hämta och installera en nyare version av SQLAlchemy "
+"från http://www.sqlalchemy.org eller kontakta din systemadministratör."
 
 #: bauble/connmgr.py:596
 msgid "Thumbnails name occupied by non directory."
@@ -3507,7 +3503,7 @@ msgstr "Användare"
 
 #: bauble/connmgr.glade:403
 msgid "User:"
-msgstr ""
+msgstr "Användare:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:527
 #: bauble/plugins/users/__init__.py:741
@@ -3785,7 +3781,7 @@ msgstr "_Infoga"
 
 #: bauble/ui.py:432
 msgid "_New"
-msgstr ""
+msgstr "_Nytt"
 
 #: bauble/ui.py:434
 msgid "_Open"
@@ -3801,7 +3797,7 @@ msgstr "A_vsluta"
 
 #: bauble/plugins/garden/plant.py:113
 msgid "_Split"
-msgstr ""
+msgstr "_Dela"
 
 #: bauble/ui.py:446
 msgid "_Tools"
@@ -3870,7 +3866,7 @@ msgstr "av %(verifier)s"
 
 #: bauble/plugins/garden/plant.py:984
 msgid "cannot split a new plant"
-msgstr ""
+msgstr "kan inte dela upp en ny växt"
 
 #: bauble/plugins/plants/stored_queries.glade:413
 msgid "click on query button and edit the associated values"
@@ -4046,7 +4042,6 @@ msgid "name"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:237
-#, fuzzy
 msgid "native"
 msgstr "inhemsk"
 
@@ -4099,7 +4094,6 @@ msgid "picture location"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:137
-#, fuzzy
 msgid "plants"
 msgstr "växter"
 
@@ -4171,15 +4165,15 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:70
 msgid "subf."
-msgstr "subf."
+msgstr "underformulär."
 
 #: bauble/plugins/plants/species_model.py:66
 msgid "subsp."
-msgstr "subsp."
+msgstr "underart."
 
 #: bauble/plugins/plants/species_model.py:68
 msgid "subvar"
-msgstr "subvar."
+msgstr "undersort"
 
 #: bauble/plugins/plants/species_model.py:182
 msgid "synonym of %s"
@@ -4255,7 +4249,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:67
 msgid "var."
-msgstr "var."
+msgstr "variation"
 
 #: bauble/plugins/herbarium/accession.glade:522
 msgid "verifications"
