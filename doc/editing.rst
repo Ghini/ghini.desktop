@@ -25,7 +25,7 @@ on a Family and selecting "Add genus".
 Notes
 -----
 Almost all of the editors in Ghini have a *Notes* tab which should work
-the same regardless of which editor you are using.  
+the same regardless of which editor you are using.
 
 If you enter a web address in a note then the link shows up in the
 Links box when the item your are editing is selected in the search results.
@@ -48,7 +48,7 @@ either be *sensu lato*, *sensu stricto*, or nothing.
 *Synonyms* allow you to add other families that are synonyms with the family
 you are currently editing.  To add a new synonyms type in a family name in
 the entry.  You must select a family name from the list of completions.
-Once you have selcted a family name that you want to add as a synonym click
+Once you have selected a family name that you want to add as a synonym click
 on the Add button next to the synonym list and the software adds the
 selected synonym to the list.  To remove a synonym, select the synonym from
 the list and click on the Remove button.
@@ -83,7 +83,7 @@ author(s) for the genus.
 *Synonyms* allow you to add other genera that are synonyms with the
 genus you are currently editing.  To add a new synonyms type in a
 genus name in the entry.  You must select a genus name from the list
-of completions.  Once you have selcted a genus name that you want to
+of completions.  Once you have selected a genus name that you want to
 add as a synonym click on the Add button next to the synonym list and
 it will add the selected synonym to the list.  To remove a synonym
 select the synonym from the list and click on the Remove button.
