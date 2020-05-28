@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:04-0500\n"
-"PO-Revision-Date: 2017-11-14 13:27+0000\n"
+"PO-Revision-Date: 2020-05-30 16:41+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/ghini/"
-"desktop-10/nb/>\n"
+"desktop-11/nb_NO/>\n"
 "Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.19-dev\n"
+"X-Generator: Weblate 4.1-dev\n"
 
 #: bauble/btypes.py:87
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
@@ -62,7 +62,7 @@ msgstr ""
 
 #: bauble/editor.py:2067
 msgid "%(user)s on %(date)s"
-msgstr ""
+msgstr "%(user)s %(date)s"
 
 #: bauble/plugins/report/__init__.py:449
 msgid "%s already exists"
@@ -102,7 +102,7 @@ msgstr "** Feil: %s"
 
 #: bauble/__init__.py:231
 msgid "** Error: could not import gtk and/or gobject"
-msgstr ""
+msgstr "** Feil: Kunne ikke importere GTK og/eller GObject"
 
 #: bauble/__init__.py:295
 msgid "**Error: Ghini must be run in a windowed environment."
@@ -180,7 +180,7 @@ msgstr "<b>Kontakt:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:246
 msgid "<b>Coordinates:</b>"
-msgstr ""
+msgstr "<b>Koordinater:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:440
 msgid "<b>Cutting treatment</b>"
@@ -590,7 +590,7 @@ msgstr ""
 #: bauble/plugins/garden/location.py:70 bauble/plugins/garden/source.py:731
 #: bauble/plugins/tag/__init__.py:204
 msgid "Are you sure you want to remove %s?"
-msgstr ""
+msgstr "Er du sikker på at du vil fjerne %s?"
 
 #: bauble/plugins/garden/accession.py:189
 msgid "Are you sure you want to remove accession <b>%s</b>?"
@@ -898,8 +898,9 @@ msgid ""
 msgstr ""
 
 #: bauble/ui.py:134
+#, fuzzy
 msgid "Could not load icon from %s"
-msgstr ""
+msgstr "Kunne ikke laste inn ikon fra %s"
 
 #: bauble/plugins/imex/csv_.py:292
 msgid ""
@@ -915,6 +916,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"Kunne ikke åpne %(url)s\n"
+"\n"
+"Ukjent skrivebordsmiljø: %(desktop)s\n"
+"\n"
 
 #: bauble/__init__.py:349
 msgid ""
@@ -922,6 +927,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Kunne ikke åpne tilkobling.\n"
+"\n"
+"%s"
 
 #: bauble/plugins/report/mako/__init__.py:433
 #: bauble/plugins/report/xsl/__init__.py:636
@@ -1008,7 +1016,7 @@ msgstr ""
 
 #: bauble/connmgr.py:577
 msgid "DBMS host name"
-msgstr ""
+msgstr "DBMS-vertsnavn"
 
 #: bauble/plugins/plants/species_model.py:222
 msgid "Data Deficient (DD)"
@@ -1685,7 +1693,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:375
 #: bauble/plugins/garden/accession.py:407
 msgid "Insufficient Data"
-msgstr ""
+msgstr "Utilstrekkelig data"
 
 #: bauble/plugins/plants/itf2.py:101
 msgid "Insufficient data to determine"
@@ -1904,7 +1912,7 @@ msgstr ""
 
 #: bauble/plugins/tag/tag.glade:289
 msgid "New Tag"
-msgstr ""
+msgstr "Ny etikett"
 
 #: bauble/plugins/users/ui.glade:328
 msgid "New password"
@@ -2182,7 +2190,7 @@ msgstr "Velg en mal."
 
 #: bauble/plugins/tag/__init__.py:158
 msgid "Please select something in the search results."
-msgstr ""
+msgstr "Velg noe i søkeresultatene."
 
 #: bauble/plugins/garden/institution.py:129
 msgid "Please specify an institution name for this database."
@@ -2691,7 +2699,7 @@ msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:350
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: bauble/plugins/garden/plant.py:256
 msgid "Stolen"
