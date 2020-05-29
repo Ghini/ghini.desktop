@@ -44,7 +44,7 @@ try:
         msg = _('This version of Ghini requires SQLAlchemy 0.6 or greater. '
                 'You are using version %s. '
                 'Please download and install a newer version of SQLAlchemy '
-                'from http://www.sqlalchemy.org or contact your system '
+                'from https://www.sqlalchemy.org or contact your system '
                 'administrator.') % '.'.join(parts)
         raise error.SQLAlchemyVersionError(msg)
 except ImportError:
@@ -182,7 +182,7 @@ Session = None
 """
 bauble.db.Session is created after the database has been opened with
 :func:`bauble.db.open()`. bauble.db.Session should be used when you need
-to do ORM based activities on a bauble database.  To create a new
+to do ORM based activities on a bauble database. To create a new
 Session use::Uncategorized
 
     session = bauble.db.Session()
@@ -246,7 +246,7 @@ class History(history_base):
 
 def open(uri, verify=True, show_error_dialogs=False):
     """
-    Open a database connection.  This function sets bauble.db.engine to
+    Open a database connection. This function sets bauble.db.engine to
     the opened engined.
 
     Return bauble.db.engine if successful else returns None and
@@ -256,12 +256,12 @@ def open(uri, verify=True, show_error_dialogs=False):
     :type uri: str
 
     :param verify: Where the database we connect to should be verified
-        as one created by Ghini.  This flag is used mostly for
+        as one created by Ghini. This flag is used mostly for
         testing.
     :type verify: bool
 
     :param show_error_dialogs: A flag to indicate whether the error
-        dialogs should be displayed.  This is used mostly for testing.
+        dialogs should be displayed. This is used mostly for testing.
     :type show_error_dialogs: bool
     """
 
@@ -325,7 +325,7 @@ def create(import_defaults=True):
 
     :param import_defaults: A flag that is passed to each plugins
         install() method to indicate where it should import its
-        default data.  This is mainly used for testing.  The default
+        default data. This is mainly used for testing. The default
         value is True
     :type import_defaults: bool
 
@@ -423,7 +423,7 @@ def verify_connection(engine, show_error_dialogs=False):
             raise
         except error.MetaTableError:
             msg = _('The database you have connected to does not have the '
-                    'bauble meta table.  This usually means that the database '
+                    'bauble meta table. This usually means that the database '
                     'is either corrupt or it was created with an old version '
                     'of Ghini')
             utils.message_dialog(msg, Gtk.MessageType.ERROR)
@@ -431,8 +431,8 @@ def verify_connection(engine, show_error_dialogs=False):
         except error.TimestampError:
             msg = _('The database you have connected to does not have a '
                     'timestamp for when it was created. This usually means '
-                    'that there was a problem when you created the '
-                    'database or the database you connected to wasn\'t '
+                    'a problem arose when you created the '
+                    'database, or the one you connected to wasn\'t '
                     'created with Ghini.')
             utils.message_dialog(msg, Gtk.MessageType.ERROR)
             raise
@@ -458,7 +458,7 @@ def verify_connection(engine, show_error_dialogs=False):
 
     from sqlalchemy.orm import sessionmaker
     # if we don't close this session before raising an exception then we
-    # will probably get deadlocks....i'm not really sure why
+    # will probably get deadlocks....I'm not really sure why
     session = sessionmaker(bind=engine)()
     query = session.query  # (meta.BaubleMeta)
 
@@ -705,7 +705,7 @@ class Serializable:
         ## at this point, resulting object is either in database or not. in
         ## either case, the database is going to be updated.
 
-        ## link_keys are python-side properties, not database associations
+        ## link_keys are Python-side properties, not database associations
         ## and have as value objects that are possibly in the database, or
         ## not, but they cannot be used to construct the `self` object.
         link_values = {}
