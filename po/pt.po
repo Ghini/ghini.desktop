@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:12-0500\n"
-"PO-Revision-Date: 2019-08-26 21:23+0000\n"
+"PO-Revision-Date: 2020-07-20 14:41+0000\n"
 "Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/ghini/"
 "desktop-11/pt/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 4.2-dev\n"
 "X-Launchpad-Export-Date: 2012-07-05 05:03+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -1538,9 +1538,9 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
-"O Ghini não pôde salvar suas preferências de usuário. \n"
+"O Ghini não pôde salvar as suas preferências de utilizador. \n"
 "\n"
-"Por favor, verifique as permissões de seu ficheiro de configuração:\n"
+"Por favor, verifique as permissões do seu ficheiro de configuração:\n"
 " %s"
 
 #: bauble/ui.py:457
@@ -3205,15 +3205,15 @@ msgstr "A parte do nome do grupo a qual o ID qualificador se refere."
 
 #: bauble/plugins/users/__init__.py:649
 msgid "The password for user <b>%s</b> has not been changed."
-msgstr "A palavra-passe do usuário <b>%s</b> não foi alterada."
+msgstr "A palavra-passe do utilizador <b>%s</b> não foi alterada."
 
 #: bauble/plugins/users/__init__.py:655
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
 msgstr ""
-"As senhas não coincidem. A palavra-passe do usuário <b>%s</b> não foi "
-"alterada."
+"As palavras-passe não coincidem. A palavra-passe do utilizador <b>%s</b> não "
+"foi alterada."
 
 #: bauble/plugins/plants/itf2.py:88
 msgid ""
@@ -3508,7 +3508,7 @@ msgstr "Usuário"
 
 #: bauble/connmgr.glade:403
 msgid "User:"
-msgstr "Usuário:"
+msgstr "Utilizador:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:527
 #: bauble/plugins/users/__init__.py:741
