@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-11 17:29-0500\n"
-"PO-Revision-Date: 2020-07-20 14:41+0000\n"
+"PO-Revision-Date: 2020-10-02 21:41+0000\n"
 "Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/ghini/"
 "desktop-10/pt/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.3-dev\n"
 "X-Launchpad-Export-Date: 2012-07-05 05:03+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -557,7 +557,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:343
 msgid "Are you sure you want to delete the tag \"%s\"?"
-msgstr "Tem certeza que deseja excluir a etiqueta \"%s\"?"
+msgstr "Tem certeza que deseja apagar a etiqueta \"%s\"?"
 
 #: bauble/plugins/garden/accession.py:2363 bauble/plugins/garden/plant.py:1092
 #: bauble/plugins/plants/genus.py:773
@@ -640,9 +640,9 @@ msgid ""
 "<i>It is possible that this user could have permissions on other databases "
 "not related to Ghini.</i>"
 msgstr ""
-"Tem certeza de que deseja remover o usuário <b>%(name)s</b>?\n"
+"Tem certeza de que deseja remover o utilizador <b>%(name)s</b>?\n"
 "\n"
-"<i>É possível que este usuário tenha permissões em outros bancos de dados "
+"<i>É possível que este utilizador tenha permissões em outros bancos de dados "
 "não relacionados ao Ghini.</i>"
 
 #: bauble/plugins/garden/plant.py:264
@@ -922,7 +922,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Não foi possível combinar todos os nomes dos arquivos com os nomes das "
+"Não foi possível combinar todos os nomes dos ficheiros com os nomes das "
 "tabelas.\n"
 "\n"
 "%s"
@@ -1211,7 +1211,7 @@ msgstr "Informe um nome para o novo formatador"
 
 #: bauble/plugins/users/__init__.py:569
 msgid "Enter a user name"
-msgstr "Informe um nome de usuário"
+msgstr "Introduza um nome de utilizador"
 
 #: bauble/connmgr.py:509
 msgid "Enter your password"
@@ -1615,8 +1615,8 @@ msgid ""
 "\n"
 "Would you like to continue?"
 msgstr ""
-"Para poder importar os arquivos, as tabelas a seguir deverão ser "
-"eliminadas:\n"
+"Para poder importar os ficheiros, as tabelas a seguir deverão ser eliminadas:"
+"\n"
 "\n"
 "<b>%s</b>\n"
 "\n"
@@ -2545,7 +2545,7 @@ msgstr "Exibir detalhes"
 
 #: bauble/plugins/users/ui.glade:121
 msgid "Show only Ghini users"
-msgstr "Mostrar somente usuários do Ghini"
+msgstr "Mostrar somente utilizadores do Ghini"
 
 #: bauble/plugins/garden/propagation.py:290
 msgid "Singled"
@@ -2754,7 +2754,7 @@ msgstr ""
 
 #: bauble/plugins/users/__init__.py:501
 msgid "The Users editor is only valid on a PostgreSQL database"
-msgstr "O Editor de usuários funciona somente em um banco de dados PostgreSQL"
+msgstr "O Editor de utilizadores funciona somente num banco de dados PostgreSQL"
 
 #: bauble/plugins/garden/accession.py:879
 msgid "The accession ID must be a unique code"
@@ -3281,7 +3281,7 @@ msgstr ""
 
 #: bauble/pictures.glade:307 bauble/notes.glade:33 bauble/bauble.glade:61
 msgid "User"
-msgstr "Usuário"
+msgstr "Utilizador"
 
 #: bauble/connmgr.glade:403
 msgid "User:"
@@ -3290,7 +3290,7 @@ msgstr "Utilizador:"
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:524
 #: bauble/plugins/users/__init__.py:738
 msgid "Users"
-msgstr "Usuários"
+msgstr "Utilizadores"
 
 #: bauble/bauble.glade:455
 msgid "Value"
@@ -3459,7 +3459,7 @@ msgstr ""
 
 #: bauble/plugins/users/__init__.py:509
 msgid "You do not have privileges to change other user privileges"
-msgstr "Você não tem privilégios para alterar privilégios de outros usuários"
+msgstr "Não tem privilégios para alterar privilégios de outros utilizadores"
 
 #: bauble/connmgr.glade:173
 msgid ""
