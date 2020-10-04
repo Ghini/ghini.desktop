@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-11 17:29-0500\n"
-"PO-Revision-Date: 2020-10-02 21:41+0000\n"
+"PO-Revision-Date: 2020-10-05 12:12+0000\n"
 "Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/ghini/"
 "desktop-10/pt/>\n"
@@ -890,7 +890,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Não foi possível excluir.\n"
+"Não foi possível apagar.\n"
 "\n"
 "%s"
 
@@ -2101,7 +2101,7 @@ msgstr ""
 
 #: bauble/plugins/garden/location.py:66
 msgid "Please remove the plants from <b>%(location)s</b> before deleting it."
-msgstr "Por favor, remova as plantas de <b>%(location)s</b> antes de excluir."
+msgstr "Por favor, remova as plantas de <b>%(location)s</b> antes de o apagar."
 
 #: bauble/plugins/report/xsl/__init__.py:539
 msgid "Please select a a renderer"
@@ -3527,7 +3527,7 @@ msgstr "Recortar"
 #: bauble/plugins/plants/genus.py:119 bauble/plugins/plants/species.py:120
 #: bauble/plugins/tag/__init__.py:251
 msgid "_Delete"
-msgstr "_Excluir"
+msgstr "_Apagar"
 
 #: bauble/plugins/garden/accession.py:204 bauble/plugins/garden/location.py:85
 #: bauble/plugins/garden/plant.py:109 bauble/plugins/garden/source.py:67
