@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-14 08:36-0500\n"
-"PO-Revision-Date: 2020-04-12 22:11+0000\n"
-"Last-Translator: Jeannette L <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2020-11-14 00:28+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.0-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -1169,7 +1169,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:230
 msgid "Email"
-msgstr ""
+msgstr "E-Mail"
 
 #: bauble/plugins/plants/species_model.py:209
 msgid "Endangered (EN)"
@@ -2532,7 +2532,7 @@ msgid ""
 "and Institution Code fields are filled in."
 msgstr ""
 "Einige oder alle Informationen über Ihre Institution oder Firma sind nicht "
-"vollständig. Stellen Sie sicher, dass der Name, technischer Kontakt, Email, "
+"vollständig. Stellen Sie sicher, dass der Name, technischer Kontakt, E-Mail, "
 "Kontaktdaten und Codefelder der Institution eingetragen sind."
 
 #: bauble/plugins/garden/acc_editor.glade:2408
@@ -2784,13 +2784,15 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:212
 msgid "The email address of the institution."
-msgstr ""
+msgstr "Die E-Mail-Adresse der Institution."
 
 #: bauble/plugins/garden/institution.py:209
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
 msgstr ""
+"Die E-Mail-Adresse oder Telefonnummer der Person, an die Sie sich wenden "
+"müssen, um technische Informationen zur Einrichtung zu erhalten."
 
 #: bauble/plugins/plants/genus.py:517
 msgid ""
@@ -2892,7 +2894,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:215
 msgid "The mailing address of the institition."
-msgstr ""
+msgstr "Die Postanschrift der Institution."
 
 #: bauble/plugins/garden/institution.py:207
 msgid ""
