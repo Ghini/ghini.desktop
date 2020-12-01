@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2020-06-29 09:41+0000\n"
+"PO-Revision-Date: 2020-12-02 19:29+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "nl/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 "X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
 
 #: bauble/btypes.py:87
@@ -2338,7 +2338,7 @@ msgstr "Gelieve een stylesheet te selecteren."
 
 #: bauble/plugins/report/mako/__init__.py:404
 msgid "Please select a template."
-msgstr "Gelieve een template te selecteren."
+msgstr "Selecteer een template."
 
 #: bauble/plugins/tag/__init__.py:158
 msgid "Please select something in the search results."
@@ -2412,7 +2412,7 @@ msgstr "Propagaties"
 
 #: bauble/plugins/garden/accession.py:372 bauble/plugins/plants/itf2.py:99
 msgid "Propagule(s) from a wild source plant"
-msgstr "Voortkwekingsmateriaal van een plant van wilde herkomst"
+msgstr "Voortkwekings materiaal van wilde herkomst"
 
 #: bauble/view.py:152
 msgid "Properties"
