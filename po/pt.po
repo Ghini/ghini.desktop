@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:12-0500\n"
-"PO-Revision-Date: 2020-10-05 12:12+0000\n"
+"PO-Revision-Date: 2020-12-10 18:29+0000\n"
 "Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/ghini/"
 "desktop-11/pt/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 "X-Launchpad-Export-Date: 2012-07-05 05:03+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -1267,7 +1267,7 @@ msgstr "Introduza um nome de utilizador"
 
 #: bauble/connmgr.py:489
 msgid "Enter your password"
-msgstr "Forneça sua palavra-passe"
+msgstr "Forneça a sua palavra-passe"
 
 #: bauble/btypes.py:56
 msgid "Enum requires a list of values"
@@ -2185,7 +2185,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:415
 msgid "Password:"
-msgstr "Palavra-Passe:"
+msgstr "Palavra-passe:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
