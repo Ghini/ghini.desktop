@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-11 17:29-0500\n"
-"PO-Revision-Date: 2019-01-19 14:20+0000\n"
+"PO-Revision-Date: 2020-12-02 19:29+0000\n"
 "Last-Translator: Jaap Uilhoorn <pietpaardebloem2@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "nl/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.4-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 "X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
 
 #: bauble/btypes.py:89
@@ -551,9 +551,7 @@ msgstr "Actieve tag toepassen"
 
 #: bauble/plugins/garden/accession.py:1334
 msgid "Are you sure you want to copy this verification to the general taxon?"
-msgstr ""
-"Weet U zeker dat U deze verificatie wilt kopieren naar het taxon in het "
-"algemeen?"
+msgstr "Deze accessie onderbrengen bij het geverifieerde nieuwe taxon?"
 
 #: bauble/plugins/tag/__init__.py:343
 msgid "Are you sure you want to delete the tag \"%s\"?"
@@ -1513,7 +1511,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:263
 msgid "Given to FOGs to sell"
-msgstr "Aan FOG's gegeven voor verkoop"
+msgstr "Aan Vrienden van Tuin gegeven voor verkoop"
 
 #: bauble/plugins/garden/plant.py:320
 msgid "Good"
@@ -2130,7 +2128,7 @@ msgstr "Gelieve een stylesheet te selecteren."
 
 #: bauble/plugins/report/mako/__init__.py:410
 msgid "Please select a template."
-msgstr "Gelieve een template te selecteren."
+msgstr "Selecteer een template."
 
 #: bauble/plugins/tag/__init__.py:183
 msgid "Please select something in the search results."
@@ -2200,7 +2198,7 @@ msgstr "Propagaties"
 
 #: bauble/plugins/garden/accession.py:369
 msgid "Propagule(s) from a wild source plant"
-msgstr "Voortkwekingsmateriaal van een plant van wilde herkomst"
+msgstr "Voortkwekings materiaal van wilde herkomst"
 
 #: bauble/view.py:152
 msgid "Properties"
