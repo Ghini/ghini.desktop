@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 #
 # Copyright 2016,2017 Mario Frasca <mario@anche.no>.

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 #
 # Copyright 2015 Mario Frasca <mario@anche.no>.
@@ -23,8 +23,12 @@ import csv
 
 
 def project(d, fields):
-    '''project dictionary on selected fields.
+    '''project dictionary on selected translated fields.
+
+    fields is a list of pairs, first element is source field, second is
+    target.  a field is copied-translated if source is present.
     '''
+
     result = {}
     for k, kk in fields:
         value = d.get(k)
