@@ -22,6 +22,7 @@
 import csv
 import json
 import staale
+import re
 
 k = []
 #header = ['No', 'NOMBRE CIENTIFICO', 'FAMILIA', 'Nombre común', 'Uso Actual y Potencial', 'Importancia ecológica', 'Ecosistema', 'Habito', 'Procedencia']
@@ -37,55 +38,76 @@ header = ['número', 'ubicación', 'fecha', 'species']
 sp_format = ',\n{"object": "taxon", "rank": "species", "epithet": "%(sp_epit)s", "ht-rank": "genus", "ht-epithet": "%(gn_epit)s"}'
 acc_format = ',\n{"object": "accession", "code": "%(acc_code)s", "species": "%(binomial)s"}'
 plt_format = ',\n{"object": "plant", "accession": "%(acc_code)s", "code": "%(plt_code)s", "quantity": "%(plt_qty)s", "location": "%(loc)s"}'
+plt_coordinates_format = ',\n {"category": "<UTM>", "note": "easting:%(easting)s;northing:%(northing)s", "object": "plant_note", "plant": "%(acc_code)s.%(plt_code)s"}'
+plt_sex_format = ',\n {"category": "sex", "note": "%(sex)s", "object": "plant_note", "plant": "%(acc_code)s.%(plt_code)s"}'
 
 # correspondence header → fields
 fields = {
+    'plant': 'accession-plant',
     'species': 'binomial',
-    'número': 'acc_code',
-    'ubicación': 'loc',
-    'Fecha': 'date_accd',
+    'x': 'easting',
+    'y': 'northing',
 }
 
 #input_file_name = '/tmp/species.csv'
-input_file_name = '/home/mario/Documents/JBQ-2017/seralia-inv3.log'
+input_file_name = '/home/mario/to-import.csv'
 
 count = skipped = 0
 
 species_collected = set()
-old_accessions = set(['007725', '009376', '007683', '007269', '007530', '007644', '014220',
-                      '006974', '014959', '015016', '007572', '007578', '005014', '007758',
-                      '007505', '015051', '012599', '007523', '007628', '007682', '011579',
-                      '006908', '006987', '005149', '006910', '007321', '007085', '005148',
-                      '007775', '007501', '007565', '005021', '009999', '007624', '007182',
-                      '005142', '007634', '010126', '007589', '009269', '012284', '007562',
-                      '006988', '004073', '006935', '007120', '007554', '007027', '009406',
-                      '007528', '007772', '006793', '007789', '007796', '007204', '004058',
-                      '014044', '007585', '014456', '009951', '014585', '006976', '014897',
-                      '014193', '005610', '007207', '010423', '007300', '014103', '005007',
-                      '014773', '014993', '007537', '004018', '007232', '012618', '006946'])
+old_accessions = set()
+
+subspecies_re = re.compile(r'^(.*) subsp\. ([a-z]*)(.*)$')
+varietas_re = re.compile(r'^(.*) var\. ([a-z]*)(.*)$')
+forma_re = re.compile(r'^(.*) f\. ([a-z]*)(.*)$')
+cultivar_re = re.compile(r"^(.*) '(.*)'(.*)$")
+sex_re = re.compile(r'^(.*)\(([fm])\)(.*)$')
+previous_accession_code = None
 
 with open("/tmp/out.json", "w") as out:
     out.write('[ {}')
     for line_no, r in enumerate(csv.reader(open(input_file_name))):
         if line_no == 0:
+            header = [i.strip() for i in r]
             continue
         obj = dict(zip(header, [i.strip() for i in r]))
         if len(obj) == 1:
             break
         for k1, k2 in fields.items():
             obj[k2] = obj.get(k1)
-        if not obj['binomial'].strip():
+        for field, expression in [('subspecies', subspecies_re),
+                                  ('varietas', varietas_re),
+                                  ('forma', forma_re),
+                                  ('cultivar', cultivar_re),
+                                  ('sex', sex_re)]:
+            m = expression.match(obj['binomial'])
+            if m:
+                obj['binomial'] = m.group(1) + m.group(3)
+                obj[field] = m.group(2)
+        obj['binomial'] = obj['binomial'].strip()
+        if not obj['binomial']:
             obj['binomial'] = 'Zzz sp'
         try:
             obj['gn_epit'], obj['sp_epit'] = obj['binomial'].split(' ')
         except:
-            obj['gn_epit'], obj['sp_epit'] = ('Zzz', 'sp')
+            obj['gn_epit'], obj['sp_epit'] = (obj['binomial'], 'sp')
+        #obj['acc_code'], obj['plt_code'] = obj.get('accession-plant').split('.')
+        obj['acc_code'] = obj.get('accession-plant')
+        if obj['acc_code'] == previous_accession_code:
+            plant_code += 1
+        else:
+            plant_code = 1
+        obj['plt_code'] = plant_code
+        obj['loc'] = 1
+        print(obj)
         if obj['binomial'] not in species_collected:
             out.write(sp_format % obj)
             species_collected.add(obj['binomial'])
         if obj['acc_code'] not in old_accessions:
             out.write(acc_format % obj)
-        obj['plt_code'] = 1
         obj['plt_qty'] = 1
         out.write(plt_format % obj)
+        if obj.get('x') and obj.get('y'):
+            out.write(plt_coordinates_format % obj)
+        previous_accession_code = obj['acc_code']
     out.write(']')
