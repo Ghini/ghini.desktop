@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016,2017 Mario Frasca <mario@anche.no>.
+# Copyright 2016,2017,2020 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
@@ -35,11 +35,13 @@ k = []
 header = ['número', 'ubicación', 'fecha', 'species']
 
 # list of formats once data lines are read
-sp_format = ',\n{"object": "taxon", "rank": "species", "epithet": "%(sp_epit)s", "ht-rank": "genus", "ht-epithet": "%(gn_epit)s"}'
-acc_format = ',\n{"object": "accession", "code": "%(acc_code)s", "species": "%(binomial)s"}'
-plt_format = ',\n{"object": "plant", "accession": "%(acc_code)s", "code": "%(plt_code)s", "quantity": "%(plt_qty)s", "location": "%(loc)s"}'
-plt_coordinates_format = ',\n {"category": "<UTM>", "note": "easting:%(easting)s;northing:%(northing)s", "object": "plant_note", "plant": "%(acc_code)s.%(plt_code)s"}'
-plt_sex_format = ',\n {"category": "sex", "note": "%(sex)s", "object": "plant_note", "plant": "%(acc_code)s.%(plt_code)s"}'
+sp_format = ',\n  {"object": "taxon", "rank": "species", "epithet": "%(sp_epit)s", "ht-rank": "genus", "ht-epithet": "%(gn_epit)s"%(--infrasp)s}'
+acc_format = ',\n  {"object": "accession", "code": "%(acc_code)s", "species": "%(binomial)s"}'
+plt_format = ',\n  {"object": "plant", "accession": "%(acc_code)s", "code": "%(plt_code)s", "quantity": "%(plt_qty)s", "location": "%(loc)s"}'
+plt_coordinates_format = ',\n  {"category": "<UTM>", "note": "easting:%(easting)s;northing:%(northing)s", "object": "plant_note", "plant": "%(acc_code)s.%(plt_code)s"}'
+plt_sex_format = ',\n  {"category": "sex", "note": "%(sex)s", "object": "plant_note", "plant": "%(acc_code)s.%(plt_code)s"}'
+
+infrasp_format = ', "infrasp%s": "%s", "infrasp%s_rank": "%s"'
 
 # correspondence header → fields
 fields = {
@@ -75,15 +77,20 @@ with open("/tmp/out.json", "w") as out:
             break
         for k1, k2 in fields.items():
             obj[k2] = obj.get(k1)
-        for field, expression in [('subspecies', subspecies_re),
-                                  ('varietas', varietas_re),
-                                  ('forma', forma_re),
-                                  ('cultivar', cultivar_re),
-                                  ('sex', sex_re)]:
+        obj['--infrasp'] = ''
+        seq = 1
+        for field, expression, rank in [('subspecies', subspecies_re, 'subsp.'),
+                                        ('varietas', varietas_re, 'var.'),
+                                        ('forma', forma_re, 'f.'),
+                                        ('cultivar', cultivar_re, 'cv.'),
+                                        ('sex', sex_re, None)]:
             m = expression.match(obj['binomial'])
             if m:
                 obj['binomial'] = m.group(1) + m.group(3)
                 obj[field] = m.group(2)
+                if rank:
+                    obj['--infrasp'] += infrasp_format % (seq, obj[field], seq, rank)
+                    seq += 1
         obj['binomial'] = obj['binomial'].strip()
         if not obj['binomial']:
             obj['binomial'] = 'Zzz sp'
@@ -99,7 +106,6 @@ with open("/tmp/out.json", "w") as out:
             plant_code = 1
         obj['plt_code'] = plant_code
         obj['loc'] = 1
-        print(obj)
         if obj['binomial'] not in species_collected:
             out.write(sp_format % obj)
             species_collected.add(obj['binomial'])
