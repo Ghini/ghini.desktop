@@ -6,6 +6,9 @@
 while true
 do
     MISSING=''
+    if ! sudo --version >/dev/null 2>&1; then
+        MISSING="$MISSING sudo"
+    fi
     if ! msgfmt --version >/dev/null 2>&1; then
         MISSING="$MISSING gettext"
     fi
@@ -16,10 +19,10 @@ do
         MISSING="$MISSING python3-gi"
     fi
     if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; ' >/dev/null 2>&1; then
-        MISSING="$MISSING gir1.2-gtkclutter "
+        MISSING="$MISSING gir1.2-gtkclutter"
     fi
     if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; gi.require_version("Champlain", "0.12"); from gi.repository import GtkChamplain; GtkClutter.init([]); from gi.repository import Champlain' >/dev/null 2>&1; then
-        MISSING="$MISSING gir1.2-gtkchamplain-0.12 "
+        MISSING="$MISSING gir1.2-gtkchamplain-0.12"
     fi
     if ! python3 -c 'import lxml' >/dev/null 2>&1; then
         MISSING="$MISSING python3-lxml"
@@ -55,7 +58,7 @@ do
         break;
     else
         echo 'Guessing package names, if you get in a loop, please double check.'
-        echo 'You need to solve the following dependencies:'
+        echo 'In Debian terms, you need to solve the following dependencies:'
         echo '------------------------------------------------------------------'
         echo $MISSING
         echo '------------------------------------------------------------------'
@@ -65,12 +68,15 @@ do
         then
             echo 'you are on a debian-like system, I should know how to proceed'
             sudo apt-get -y install $MISSING
-            echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
-            read
         elif [ -x /usr/bin/pacman ]
         then
-            echo 'your system looks like Archlinux.'
-            exit 1
+            echo 'your system looks like Archlinux, I give it a try'
+            MISSING=$(echo $MISSING |
+                          sed -e 's/build-essential/gcc make libc-dev/' |
+                          sed -e 's/python3-gi/python-gobject/' |
+                          sed -e 's/gir1.2-gtkclutter/clutter-gtk/' |
+                          sed -e 's/gir1.2-gtkchamplain-0.12/libchamplain/')
+            sudo pacman -S $MISSING
         elif [ -x /usr/bin/rpm ]
         then
             echo 'your system looks like RedHat.'
@@ -79,6 +85,8 @@ do
             echo 'so sorry, I have no clue about your system.'
             exit 1
         fi
+        echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
+        read
     fi
 done
 
