@@ -67,11 +67,11 @@ do
             sudo apt-get -y install $MISSING
             echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
             read
-        elif [-x /usr/bin/pacman ]
+        elif [ -x /usr/bin/pacman ]
         then
             echo 'your system looks like Archlinux.'
             exit 1
-        elif [-x /usr/bin/rpm ]
+        elif [ -x /usr/bin/rpm ]
         then
             echo 'your system looks like RedHat.'
             exit 1
