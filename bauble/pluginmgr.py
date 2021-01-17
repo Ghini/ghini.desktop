@@ -298,7 +298,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     """
 
     logger.debug('pluginmgr.install(%s)' % str(plugins_to_install))
-    if plugins_to_install is 'all':
+    if plugins_to_install == 'all':
         to_install = list(plugins.values())
     else:
         to_install = plugins_to_install

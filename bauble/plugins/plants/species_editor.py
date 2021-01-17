@@ -501,7 +501,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.items():
-            if field is 'genus_id':
+            if field == 'genus_id':
                 value = self.model.genus
             else:
                 value = getattr(self.model, field)
