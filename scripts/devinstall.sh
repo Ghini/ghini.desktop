@@ -73,6 +73,9 @@ do
             echo 'your system looks like Archlinux, I give it a try'
             MISSING=$(echo $MISSING |
                           sed -e 's/build-essential/gcc make libc-dev/' |
+                          sed -e 's/virtualenv/python-virtualenv/' |
+                          sed -e 's/python3-lxml/python-lxml/' |
+                          sed -e 's/ libjpeg-dev//' |
                           sed -e 's/python3-gi/python-gobject/' |
                           sed -e 's/gir1.2-gtkclutter/clutter-gtk/' |
                           sed -e 's/gir1.2-gtkchamplain-0.12/libchamplain/')
