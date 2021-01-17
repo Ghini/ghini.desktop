@@ -60,13 +60,24 @@ do
         echo $MISSING
         echo '------------------------------------------------------------------'
         echo 'Then restart the devinstall.sh script'
-        if [ -x /usr/bin/apt-get ]; then
-            echo
-            echo 'you are on a debian-like system, I should know how to install'
-            echo $MISSING
+        echo
+        if [ -x /usr/bin/apt-get ]
+        then
+            echo 'you are on a debian-like system, I should know how to proceed'
             sudo apt-get -y install $MISSING
             echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
             read
+        elif [-x /usr/bin/pacman ]
+        then
+            echo 'your system looks like Archlinux.'
+            exit 1
+        elif [-x /usr/bin/rpm ]
+        then
+            echo 'your system looks like RedHat.'
+            exit 1
+        else
+            echo 'so sorry, I have no clue about your system.'
+            exit 1
         fi
     fi
 done
