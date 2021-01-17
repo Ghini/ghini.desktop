@@ -15,10 +15,10 @@ do
     if ! python3 --version >/dev/null 2>&1; then
         MISSING="$MISSING python3-minimal"
     fi
-    if ! python3 -c 'import gi' >/dev/null 2>&1; then
+    if ! python3 -c 'import gi; gi.require_version' >/dev/null 2>&1; then
         MISSING="$MISSING python3-gi"
     fi
-    if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; ' >/dev/null 2>&1; then
+    if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter' >/dev/null 2>&1; then
         MISSING="$MISSING gir1.2-gtkclutter"
     fi
     if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; gi.require_version("Champlain", "0.12"); from gi.repository import GtkChamplain; GtkClutter.init([]); from gi.repository import Champlain' >/dev/null 2>&1; then
@@ -75,7 +75,7 @@ do
                           sed -e 's/build-essential/gcc make libc-dev/' |
                           sed -e 's/virtualenv/python-virtualenv/' |
                           sed -e 's/python3-lxml/python-lxml/' |
-                          sed -e 's/ libjpeg-dev//' |
+                          sed -e 's/libjpeg-dev/libjpeg-turbo/' |
                           sed -e 's/python3-gi/python-gobject/' |
                           sed -e 's/gir1.2-gtkclutter/clutter-gtk/' |
                           sed -e 's/gir1.2-gtkchamplain-0.12/libchamplain/')
