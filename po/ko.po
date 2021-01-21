@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-11 17:29-0500\n"
-"PO-Revision-Date: 2021-01-20 20:32+0000\n"
+"PO-Revision-Date: 2021-01-21 20:27+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "ko/>\n"
@@ -42,19 +42,19 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:209
 msgid "# of seeds"
-msgstr ""
+msgstr "종자 수(립)"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
-msgstr ""
+msgstr "발아율"
 
 #: bauble/plugins/garden/accession.py:699
 msgid "%(1)s plant groups in %(2)s location(s)"
-msgstr ""
+msgstr "%(1)s의 식물 군은 %(2)s의 위치"
 
 #: bauble/plugins/plants/species_model.py:467
 msgid "%(group)s Group"
-msgstr ""
+msgstr "%(group)s 우점도"
 
 #: bauble/plugins/garden/accession.py:180
 msgid ""
@@ -100,7 +100,7 @@ msgstr ""
 
 #: bauble/__init__.py:221
 msgid "** Error: could not import gtk and/or gobject"
-msgstr ""
+msgstr "** 오류:gtk 과/또는 gobject을 가져올 수 없습니다"
 
 #: bauble/__init__.py:286
 msgid "**Error: Ghini must be run in a windowed environment."
@@ -3051,11 +3051,7 @@ msgstr ""
 
 #: bauble/search.py:532
 msgid "Unknown search domain: %s"
-msgstr ""
-"Ghini이 사용자 환경 설정을 저장할 수 없습니다.\n"
-"\n"
-"구성 파일의 사용 권한을 확인하십시오:\n"
-"%s"
+msgstr "알 수 없는 검색 도메인: %s"
 
 #: bauble/plugins/garden/plant.py:336
 msgid "Unripe"
