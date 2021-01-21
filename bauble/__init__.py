@@ -56,8 +56,8 @@ import bauble.i18n
 def pb_set_fraction(fraction):
     """set progressbar fraction safely
 
-    provides a safe way to handle the progress bar if the gui isn't started,
-    we use this in the tests where there is no gui
+    provides a safe way to handle the progress bar if the GUI isn't started,
+    we use this in the tests where there is no GUI
     """
     if gui is not None and gui.progressbar is not None:
         gui.progressbar.set_fraction(fraction)
@@ -126,7 +126,7 @@ def save_state():
     Save the gui state and preferences.
     """
     from bauble.prefs import prefs
-    # in case we quit before the gui is created
+    # in case we quit before the GUI is created
     if gui is not None:
         gui.save_state()
     prefs.save()
@@ -209,8 +209,8 @@ def main(uri=None):
     """
     Run the main Ghini application.
 
-    :param uri:  the URI of the database to connect to.  For more information
-                 about database URIs see `<http://www.sqlalchemy.org/docs/05/\
+    :param uri:  The URI of the database to connect to.  For more info
+                 about database URIs, see `<http://www.sqlalchemy.org/docs/05/\
 dbengine.html#create-engine-url-arguments>`_
 
     :type uri: str
@@ -219,10 +219,10 @@ dbengine.html#create-engine-url-arguments>`_
         from gi.repository import Gtk
         from gi.repository import GObject
     except ImportError as e:
-        print(_('** Error: could not import gtk and/or gobject'))
+        print(_('** Error: Could not import GTK and/or GObject'))
         print(e)
         if sys.platform == 'win32':
-            print(_('Please make sure that GTK_ROOT\\bin is in your PATH.'))
+            print(_('Please make sure GTK_ROOT\\bin is in your PATH.'))
         sys.exit(1)
 
     # create the user directory
@@ -256,7 +256,7 @@ dbengine.html#create-engine-url-arguments>`_
     prefs.init()
 
     try:
-        # no raven.conf.setup_logging: just standard Python logging
+        # no raven.conf.setup_logging: Just standard Python logging
         from raven import Client
         from raven.handlers.logging import SentryHandler
 
@@ -367,7 +367,7 @@ dbengine.html#create-engine-url-arguments>`_
             if isinstance(open_exc, err.DatabaseError):
                 msg = _('Would you like to create a new Ghini database at '
                         'the current connection?\n\n<i>Warning: If there is '
-                        'already a database at this connection any existing '
+                        'already a database at this connection, any existing '
                         'data will be destroyed!</i>')
                 d = utils.create_yes_no_dialog(msg, buttons=Gtk.ButtonsType.NONE)
                 d.add_button(_("Cancel"), Gtk.ResponseType.CANCEL)
