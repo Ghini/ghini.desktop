@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-11 17:29-0500\n"
-"PO-Revision-Date: 2021-01-21 20:27+0000\n"
+"PO-Revision-Date: 2021-01-22 22:59+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "ko/>\n"
@@ -42,7 +42,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:209
 msgid "# of seeds"
-msgstr "종자 수(립)"
+msgstr "종자 수"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
@@ -50,7 +50,7 @@ msgstr "발아율"
 
 #: bauble/plugins/garden/accession.py:699
 msgid "%(1)s plant groups in %(2)s location(s)"
-msgstr "%(1)s의 식물 군은 %(2)s의 위치"
+msgstr "%(1)s 개의 공장 그룹이 %(2)s 곳에 있습니다"
 
 #: bauble/plugins/plants/species_model.py:467
 msgid "%(group)s Group"
