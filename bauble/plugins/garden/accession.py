@@ -1632,7 +1632,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
-        map(lambda x: model.append([x]), self.session.query(Contact))
+        map(lambda x: model.append([x]), self.session.query(Contact).order_by(Contact.name))
         combo.set_model(model)
         combo.child.get_completion().set_model(model)
 
