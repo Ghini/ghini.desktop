@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ghini.desktop
 # Brett Adams <brettadams@fastmail.us>, 2011.
 # Mario Frasca <mario@anche.no>, 2014-2017
+# 김주열 <quick337@hanmail.net>, 2021
 #
 msgid ""
 msgstr ""
@@ -84,7 +85,7 @@ msgstr ""
 msgid ""
 "%s is the closest match for your data.\n"
 "Do you want to accept it?"
-msgstr "이것을 여시겠습니까?"
+msgstr ""
 
 #: bauble/pluginmgr.py:627
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
@@ -123,20 +124,20 @@ msgstr "<b>억세션 넘버</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:87
 msgid "<b># of Genera:</b>"
-msgstr "속"
+msgstr "<b>속</b>"
 
 #: bauble/plugins/garden/loc_infobox.glade:35
 msgid "<b># of Plants:</b>"
-msgstr "개체"
+msgstr "<b>개체</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:72
 #: bauble/plugins/plants/infoboxes.glade:306
 msgid "<b># of Taxa:</b>"
-msgstr "분류"
+msgstr "<b>분류</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:147
 msgid "<b>Accession Status:</b>"
-msgstr "억세션상태"
+msgstr "<b>억세션상태</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1002
 msgid "<b>Accessions:</b>"
@@ -144,11 +145,11 @@ msgstr "<b>엑세션:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:698
 msgid "<b>Awards:</b>"
-msgstr "보상"
+msgstr "<b>보상</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:683
 msgid "<b>CITES:</b>"
-msgstr "싸이테스"
+msgstr "<b>싸이테스</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
@@ -160,99 +161,99 @@ msgstr "<b>연락처</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:440
 msgid "<b>Cutting treatment</b>"
-msgstr "삽목처리"
+msgstr "<b>삽목처리</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:167
 msgid "<b>Date accessioned:</b>"
-msgstr "억세션부여일"
+msgstr "<b>억세션부여일</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:182
 msgid "<b>Date received:</b>"
-msgstr "도입일"
+msgstr "<b>도입일</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:87
 msgid "<b>Description:</b>"
-msgstr "기술"
+msgstr "<b>기술</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:819
 msgid "<b>Distribution for label:</b>"
-msgstr "기여도"
+msgstr "<b>기여도</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:785
 msgid "<b>Distribution:</b>"
-msgstr "기여"
+msgstr "<b>기여</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:959
 msgid "<b>Families:</b>"
-msgstr "과"
+msgstr "<b>과</b>"
 
 #: bauble/plugins/report/report.glade:164
 msgid "<b>Formatter</b>"
-msgstr "포멧터"
+msgstr "<b>포멧터</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:942
 msgid "<b>Genera:</b>"
-msgstr "속"
+msgstr "<b>속</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:1436
 msgid "<b>Germination data</b>"
-msgstr "번식일"
+msgstr "<b>번식일</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:713
 msgid "<b>Habit:</b>"
-msgstr "습성"
+msgstr "<b>습성</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:149
 #: bauble/plugins/report/mako/gui.glade:67
 msgid "<b>Include data marked as private</b>"
-msgstr "인식표포함일"
+msgstr "<b>인식표포함일</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:365
 msgid "<b>Intended Location 2:</b>"
-msgstr "예정 위치2"
+msgstr "<b>예정 위치2</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:396
 msgid "<b>Intended Location:</b>"
-msgstr "예정 위치"
+msgstr "<b>예정 위치</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:412
 #: bauble/plugins/plants/infoboxes.glade:728
 msgid "<b>Living Plants:</b>"
-msgstr "생체"
+msgstr "<b>생체</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:162
 msgid "<b>Location:</b>"
-msgstr "위치"
+msgstr "<b>위치</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1036
 msgid "<b>Locations:</b>"
-msgstr "위치"
+msgstr "<b>위치</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:193
 msgid "<b>Memorial:</b>"
-msgstr "기록"
+msgstr "<b>기록</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:565
 msgid "<b>Parent Plant:</b>"
-msgstr "모수"
+msgstr "<b>모수</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:103
 #: bauble/plugins/plants/infoboxes.glade:319
 #: bauble/plugins/plants/infoboxes.glade:655
 msgid "<b>Plant Groups:</b>"
-msgstr "개체군"
+msgstr "<b>개체군</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:42
 msgid "<b>Plant Groups</b>"
-msgstr "개체군"
+msgstr "<b>개체군</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:133
 msgid "<b>Plant Material:</b>"
-msgstr "기록식물"
+msgstr "<b>기록식물</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1019
 msgid "<b>Plants:</b>"
-msgstr "식물"
+msgstr "<b>식물</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:304
 msgid "<b>Private:</b>"
@@ -260,19 +261,19 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:603
 msgid "<b>Propagation:</b>"
-msgstr "번식"
+msgstr "<b>번식</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:136
 msgid "<b>Provenance:</b>"
-msgstr "기원"
+msgstr "<b>기원</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:229
 msgid "<b>Quantity received:</b>"
-msgstr "도입수량"
+msgstr "<b>도입수량</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:219
 msgid "<b>Quantity:</b>"
-msgstr "수량"
+msgstr "<b>수량</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:60
 msgid "<b>Renderer</b>"
@@ -537,7 +538,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:343
 msgid "Are you sure you want to delete the tag \"%s\"?"
-msgstr "이름표를 지우길 원합니까?"
+msgstr "\"%s\": 이름표를 지우길 원합니까?"
 
 #: bauble/plugins/garden/accession.py:2363 bauble/plugins/garden/plant.py:1092
 #: bauble/plugins/plants/genus.py:773
@@ -2276,15 +2277,15 @@ msgstr "검색"
 #: bauble/plugins/plants/family.py:870 bauble/plugins/plants/genus.py:1008
 #: bauble/plugins/plants/species.py:423
 msgid "Search ALA"
-msgstr ""
+msgstr "ALA 검색"
 
 #: bauble/plugins/plants/genus.py:1010 bauble/plugins/plants/species.py:426
 msgid "Search BGCI"
-msgstr ""
+msgstr "BGCI 검색"
 
 #: bauble/plugins/plants/genus.py:1010 bauble/plugins/plants/species.py:426
 msgid "Search Botanic Gardens Conservation International"
-msgstr ""
+msgstr "BGCI 검색"
 
 #: bauble/querybuilder.glade:97 bauble/search.py:898
 msgid "Search Domain"
@@ -2298,12 +2299,12 @@ msgstr "GBIF 검색"
 #: bauble/plugins/plants/family.py:865 bauble/plugins/plants/genus.py:1009
 #: bauble/plugins/plants/species.py:425
 msgid "Search IPNI"
-msgstr ""
+msgstr "IPNI 검색"
 
 #: bauble/plugins/plants/family.py:868 bauble/plugins/plants/genus.py:1006
 #: bauble/plugins/plants/species.py:421
 msgid "Search ITIS"
-msgstr ""
+msgstr "ITIS 검색"
 
 #: bauble/plugins/plants/family.py:869 bauble/plugins/plants/genus.py:1007
 #: bauble/plugins/plants/species.py:422
