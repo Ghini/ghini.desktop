@@ -836,7 +836,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def on_loc_button_clicked(self, button, cmd=None):
         location = self.model.location
         combo = self.view.widgets.plant_loc_comboentry
-        if cmd is 'edit' and location:
+        if cmd == 'edit' and location:
             LocationEditor(location, parent=self.view.get_window()).start()
             self.session.refresh(location)
             self.view.widget_set_value(combo, location)

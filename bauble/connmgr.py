@@ -425,7 +425,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.view.get_window(),
             Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
             (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-        if name is not '':
+        if name == not '':
             self.connection_name = name
             self.connection_names.insert(0, name)
             self.connections[name] = self.get_params(new=name)

@@ -2159,7 +2159,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             return
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                             self.view.widgets.acc_code_entry)
-        if text is '':
+        if text == '':
             self.set_model_attr('code', None)
         else:
             self.set_model_attr('code', utils.utf8(text))
