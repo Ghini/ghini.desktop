@@ -182,8 +182,9 @@ class ExpressionRow(object):
             self.and_or_combo.append_text("and")
             self.and_or_combo.append_text("or")
             self.and_or_combo.set_active(0)
-            self.table.attach(self.and_or_combo, 0, 1,
-                              row_number, row_number + 1)
+            #self.table.attach(self.and_or_combo, 0, 1,
+            #                  row_number, row_number + 1)
+            self.table.attach(self.and_or_combo, 0, row_number, 1, 1)
 
         self.prop_button = Gtk.Button(_('Choose a property…'))
         self.prop_button.props.use_underline = False
@@ -196,19 +197,22 @@ class ExpressionRow(object):
                                       self.relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
                                  self.schema_menu)
-        self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
+        #self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
+        self.table.attach(self.prop_button, 1, row_number, 1, 1)
 
         self.cond_combo = Gtk.ComboBoxText()
         list(map(self.cond_combo.append_text, self.conditions))
         self.cond_combo.set_active(0)
-        self.table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
+        #self.table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
+        self.table.attach(self.cond_combo, 2, row_number, 1, 1)
 
         # by default we start with an entry but value_widget can
         # change depending on the type of the property chosen in the
         # schema menu, see self.on_schema_menu_activated
         self.value_widget = Gtk.Entry()
         self.value_widget.connect('changed', self.on_value_changed)
-        self.table.attach(self.value_widget, 3, 4, row_number, row_number+1)
+        #self.table.attach(self.value_widget, 3, 4, row_number, row_number+1)
+        self.table.attach(self.value_widget, 3, row_number, 1, 1)
 
         if row_number != 1:
             image = Gtk.Image.new_from_stock(Gtk.STOCK_REMOVE,
@@ -217,8 +221,9 @@ class ExpressionRow(object):
             self.remove_button.props.image = image
             self.remove_button.connect('clicked',
                                        lambda b: remove_callback(self))
-            self.table.attach(self.remove_button, 4, 5,
-                              row_number, row_number + 1)
+            #self.table.attach(self.remove_button, 4, 5,
+            #                  row_number, row_number + 1)
+            self.table.attach(self.remove_button, 4, row_number, 1, 1)
 
     def on_value_changed(self, widget, *args):
         """
@@ -233,12 +238,12 @@ class ExpressionRow(object):
         """
         self.prop_button.props.label = path
         self.menu_item_activated = True
-        top = self.table.child_get_property(self.value_widget, 'top-attach')
-        bottom = self.table.child_get_property(self.value_widget,
-                                               'bottom-attach')
-        right = self.table.child_get_property(self.value_widget,
-                                              'right-attach')
-        left = self.table.child_get_property(self.value_widget, 'left-attach')
+        row = self.table.child_get_property(self.value_widget, 'top-attach')
+        width = self.table.child_get_property(self.value_widget,
+                                               'width')
+        height = self.table.child_get_property(self.value_widget,
+                                              'height')
+        column = self.table.child_get_property(self.value_widget, 'left-attach')
         self.table.remove(self.value_widget)
 
         # change the widget depending on the type of the selected property
@@ -266,7 +271,8 @@ class ExpressionRow(object):
             self.value_widget = Gtk.Entry()
             self.value_widget.connect('changed', self.on_value_changed)
 
-        self.table.attach(self.value_widget, left, right, top, bottom)
+        #self.table.attach(self.value_widget, left, right, top, bottom)
+        self.table.attach(self.value_widget, column, row, width, height)
         self.table.show_all()
         self.presenter.validate()
 
