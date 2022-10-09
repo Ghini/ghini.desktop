@@ -990,7 +990,7 @@ class AccessionEditorView(editor.GenericEditorView):
     def species_match_func(completion, key, treeiter, data=None):
         species = completion.get_model()[treeiter][0]
         epg, eps = (species.str(remove_zws=True).lower() + ' ').split(' ')[:2]
-        key_epg, key_eps = (key.replace('\\u200b', '').lower() + ' ').split(' ')[:2]
+        key_epg, key_eps = (key.replace('\u200b', '').lower() + ' ').split(' ')[:2]
         if not epg:
             epg = str(species.genus.epithet).lower()
         if (epg.startswith(key_epg) and eps.startswith(key_eps)):

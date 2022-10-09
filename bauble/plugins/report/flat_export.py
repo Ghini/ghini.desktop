@@ -238,7 +238,7 @@ class FlatFileExporter(GenericEditorPresenter):
                             values = [item for sublist in values for item in sublist]
                             single_valued = False
                     if field == '<str>':
-                        value = str(values[0]).replace('\\u200b', '')
+                        value = str(values[0]).replace('\u200b', '')
                     else:
                         values = [getattr(value, field) for value in values]
                         if single_valued:
