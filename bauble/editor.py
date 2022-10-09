@@ -540,12 +540,12 @@ class GenericEditorView(object):
             model = widget.get_model()
             for i, row in enumerate(model):
                 if item == row[0]:
-                    widget.remove_text(i)
+                    widget.remove(i)
                     break
             logger.warning("combobox_remove - not found >%s<" % item)
         elif isinstance(item, int):
             # remove at position
-            widget.remove_text(item)
+            widget.remove(item)
         else:
             logger.warning('invoked combobox_remove with item=(%s)%s' %
                            (type(item), item))
