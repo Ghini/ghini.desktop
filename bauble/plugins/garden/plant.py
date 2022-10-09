@@ -1204,7 +1204,7 @@ class ChangesExpander(InfoExpander):
         """
         super().__init__(_('Changes'), widgets)
         self.vbox.props.spacing = 5
-        self.table = Gtk.Table()
+        self.table = Gtk.Grid()
         self.vbox.pack_start(self.table, False, False, 0)
         self.table.props.row_spacing = 3
         self.table.props.column_spacing = 5
@@ -1216,7 +1216,6 @@ class ChangesExpander(InfoExpander):
         if not row.changes:
             return
         nrows = len(row.changes)
-        self.table.resize(nrows, 2)
         date_format = prefs.prefs[prefs.date_format_pref]
         current_row = 0
 
@@ -1233,8 +1232,7 @@ class ChangesExpander(InfoExpander):
             date = change.date.strftime(date_format)
             label = Gtk.Label(label='%s:' % date)
             label.set_alignment(0, 0)
-            self.table.attach(label, 0, 1, current_row, current_row+1,
-                              xoptions=Gtk.AttachOptions.FILL)
+            self.table.attach(label, 0, current_row, 1, 1)
             if change.to_location and change.from_location:
                 s = '%(quantity)s Transferred from %(from_loc)s to %(to)s' % \
                     dict(quantity=change.quantity,
@@ -1253,8 +1251,7 @@ class ChangesExpander(InfoExpander):
                 s += '\n%s' % change_reasons[change.reason]
             label = Gtk.Label(label=s)
             label.set_alignment(0, .5)
-            self.table.attach(label, 1, 2, current_row, current_row+1,
-                              xoptions=Gtk.AttachOptions.FILL)
+            self.table.attach(label, 1, current_row, 1, 1)
             current_row += 1
             if change.parent_plant:
                 s = _('<i>Split from %(plant)s</i>') % \
@@ -1264,8 +1261,7 @@ class ChangesExpander(InfoExpander):
                 label.set_markup(s)
                 eb = Gtk.EventBox()
                 eb.add(label)
-                self.table.attach(eb, 1, 2, current_row, current_row+1,
-                                  xoptions=Gtk.AttachOptions.FILL)
+                self.table.attach(eb, 1, current_row, 1, 1)
 
                 def on_clicked(widget, event, parent):
                     select_in_search_results(parent)
@@ -1281,8 +1277,7 @@ class ChangesExpander(InfoExpander):
                 label.set_markup(s)
                 eb = Gtk.EventBox()
                 eb.add(label)
-                self.table.attach(eb, 1, 2, current_row, current_row+1,
-                                  xoptions=Gtk.AttachOptions.FILL)
+                self.table.attach(eb, 1, current_row, 1, 1)
 
                 def on_clicked(widget, event, parent):
                     select_in_search_results(parent)
