@@ -234,7 +234,7 @@ class GenericEditorView(object):
         self.boxes = set()
 
         # set the tooltips...use Gtk.Tooltip api introducted in GTK+ 2.12
-        for widget_name, markup in self._tooltips.items():
+        for widget_name, markup in list(self._tooltips.items()):
             try:
                 self.widgets[widget_name].set_tooltip_markup(markup)
             except Exception as e:
@@ -728,7 +728,7 @@ class GenericEditorView(object):
         # using 'object' avoids SA unicode warning
         model = Gtk.ListStore(object, str)
         if isinstance(translations, dict):
-            translations = sorted(translations.items(),
+            translations = sorted(list(translations.items()),
                                   key=lambda x: (x[1] != None, x[1]))
         if cmp is not None:
             translations = sorted(translations,
@@ -1431,7 +1431,7 @@ class GenericEditorPresenter(object):
         Clear all the problems from all widgets associated with the presenter
         """
         tmp = self.problems.copy()
-        list(map(lambda p: self.remove_problem(p[0], p[1]), tmp))
+        list([self.remove_problem(p[0], p[1]) for p in tmp])
         self.problems.clear()
 
     def remove_problem(self, problem_id, widget=None):
@@ -1487,7 +1487,7 @@ class GenericEditorPresenter(object):
         logger.debug('add_problem(%s, %s, %s)' %
                      (self, problem_id, problem_widgets))
         if isinstance(problem_widgets, (tuple, list)):
-            list(map(lambda w: self.add_problem(problem_id, w), problem_widgets))
+            list([self.add_problem(problem_id, w) for w in problem_widgets])
             return
 
         ## here single widget.

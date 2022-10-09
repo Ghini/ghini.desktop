@@ -219,10 +219,10 @@ dbengine.html#create-engine-url-arguments>`_
         from gi.repository import Gtk
         from gi.repository import GObject
     except ImportError as e:
-        print(_('** Error: could not import gtk and/or gobject'))
+        print((_('** Error: could not import gtk and/or gobject')))
         print(e)
         if sys.platform == 'win32':
-            print(_('Please make sure that GTK_ROOT\\bin is in your PATH.'))
+            print((_('Please make sure that GTK_ROOT\\bin is in your PATH.')))
         sys.exit(1)
 
     # create the user directory
@@ -284,7 +284,7 @@ dbengine.html#create-engine-url-arguments>`_
 
     display = Gdk.Display.get_default()
     if display is None:
-        print(_("**Error: Ghini must be run in a windowed environment."))
+        print((_("**Error: Ghini must be run in a windowed environment.")))
         sys.exit(1)
 
     import bauble.pluginmgr as pluginmgr

@@ -98,8 +98,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         combo = self.view.widgets.sp_habit_comboentry
         model = Gtk.ListStore(str, object)
-        list(map(lambda p: model.append(p),
-            [(str(h), h) for h in self.session.query(Habit)]))
+        list([model.append(p) for p in [(str(h), h) for h in self.session.query(Habit)]])
         utils.setup_text_combobox(combo, model)
 
         def on_focus_out(entry, event):
@@ -500,7 +499,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         return r
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.items():
+        for widget, field in list(self.widget_to_field_map.items()):
             if field == 'genus_id':
                 value = self.model.genus
             else:
@@ -1180,14 +1179,14 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         save the current state of the gui to the preferences
         '''
-        for expander, pref in self.expanders_pref_map.items():
+        for expander, pref in list(self.expanders_pref_map.items()):
             prefs[pref] = self.widgets[expander].get_expanded()
 
     def restore_state(self):
         '''
         restore the state of the gui from the preferences
         '''
-        for expander, pref in self.expanders_pref_map.items():
+        for expander, pref in list(self.expanders_pref_map.items()):
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 

@@ -259,7 +259,7 @@ class ExpressionRow(object):
             model = Gtk.ListStore(str, str)
             if prop.columns[0].type.translations:
                 trans = prop.columns[0].type.translations
-                prop_values = [(k, trans[k]) for k in sorted(trans.keys(), key=lambda x: (x is not None, x))]
+                prop_values = [(k, trans[k]) for k in sorted(list(trans.keys()), key=lambda x: (x is not None, x))]
             else:
                 values = prop.columns[0].type.values
                 prop_values = [(v, v) for v in sorted(values, key=lambda x: (x is not None, x))]

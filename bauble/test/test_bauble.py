@@ -152,7 +152,7 @@ class BaubleTests(BaubleTestCase):
         s = '2008-12-1 11:50:01.001-05:00'
         expect = '2008-12-01 11:50:01.001000-05:00'
         result = dt.process_bind_param(s, None)
-        self.assertEquals(str(result), expect)
+        self.assertEqual(str(result), expect)
 
         # test with positive timezone
         s = '2008-12-1 11:50:01.001+05:00'

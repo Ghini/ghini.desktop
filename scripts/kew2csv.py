@@ -66,8 +66,8 @@ for f in sorted(files):
 
 try:
     z.close()
-except NameError, e:
-    print 'wasn\'t a zip'
+except NameError as e:
+    print('wasn\'t a zip')
 
 genera_file.close()
 families.close()

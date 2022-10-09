@@ -17,13 +17,13 @@
 import sys
 
 if sys.platform != 'win32':
-    print "Error: This script is only for Win32"
+    print("Error: This script is only for Win32")
     sys.exit(1)
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import zipfile
-import _winreg
+import winreg
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-r', '--redl', action='store_true', dest='redl',
@@ -72,7 +72,7 @@ def get_subkey_names(reg_key):
     L = []
     while True:
         try:
-            name = _winreg.EnumKey(reg_key, index)
+            name = winreg.EnumKey(reg_key, index)
         except EnvironmentError:
             break
         index += 1
@@ -93,17 +93,17 @@ def get_python_versions():
     """
     python_path = r'software\python\pythoncore'
     versions = {}
-    for reg_hive in (_winreg.HKEY_LOCAL_MACHINE,
-                      _winreg.HKEY_CURRENT_USER):
+    for reg_hive in (winreg.HKEY_LOCAL_MACHINE,
+                      winreg.HKEY_CURRENT_USER):
         try:
-            python_key = _winreg.OpenKey(reg_hive, python_path)
+            python_key = winreg.OpenKey(reg_hive, python_path)
         except EnvironmentError:
             continue
         for version_name in get_subkey_names(python_key):
-            key = _winreg.OpenKey(python_key, version_name)
-            modification_date = _winreg.QueryInfoKey(key)[2]
+            key = winreg.OpenKey(python_key, version_name)
+            modification_date = winreg.QueryInfoKey(key)[2]
             try:
-                install_path = _winreg.QueryValue(key, 'installpath')
+                install_path = winreg.QueryValue(key, 'installpath')
                 versions[version_name] = install_path
             except:
                 pass
@@ -117,22 +117,22 @@ PYTHON_EXE = None
 python_versions = get_python_versions()
 available_versions = {}
 #print python_versions
-if len(python_versions.keys()) == 0:
-    print "Error: Install Python first"
+if len(list(python_versions.keys())) == 0:
+    print("Error: Install Python first")
     sys.exit(1)
 
 try:
     PYTHON_HOME = python_versions[supported_python_version]
     PYTHON_EXE = os.path.join(PYTHON_HOME, 'python.exe')
     if os.path.exists(PYTHON_EXE):
-        print 'Using Python %s' % supported_python_version
+        print(('Using Python %s' % supported_python_version))
         #print 'Python %s seems to be installed correctly' % version
     else:
-        print 'Python %s NOT installed correctly' % version
+        print(('Python %s NOT installed correctly' % version))
         sys.exit(1)
 
 except KeyError:
-    print 'This script only supports Python %s' % supported_python_version
+    print(('This script only supports Python %s' % supported_python_version))
     sys.exit(1)
 
 
@@ -141,7 +141,7 @@ if options.download_path:
 else:
     DL_PATH = os.path.join(os.getcwd(), 'install_deps')
 
-print 'using download path: %s' % DL_PATH
+print(('using download path: %s' % DL_PATH))
 if not os.path.exists(DL_PATH):
     os.makedirs(DL_PATH)
 
@@ -152,12 +152,12 @@ for url in ALL_FILES:
     dest_file = os.path.join(DL_PATH, filename)
     if os.path.exists(dest_file) and not options.redl:
         continue
-    print 'downloading %s...' % filename
+    print(('downloading %s...' % filename))
     try:
-        urllib.urlretrieve(url, os.path.join(DL_PATH, filename))
-    except Exception, e:
-        print e
-        print 'ERROR: Could not download %s' % url
+        urllib.request.urlretrieve(url, os.path.join(DL_PATH, filename))
+    except Exception as e:
+        print(e)
+        print(('ERROR: Could not download %s' % url))
         sys.exit(1)
 
 
@@ -177,15 +177,15 @@ if not options.noeggs:
     if not os.path.exists(EASY_INSTALL_EXE):
         EZ_SETUP_DL_PATH = os.path.join(DL_PATH, 'ez_setup.py')
         if not os.path.exists(EZ_SETUP_DL_PATH):
-            urllib.urlretrieve(EZ_SETUP_PATH, EZ_SETUP_DL_PATH)
+            urllib.request.urlretrieve(EZ_SETUP_PATH, EZ_SETUP_DL_PATH)
         cmd = '%s "%s"' % (PYTHON_EXE, EZ_SETUP_DL_PATH)
         #print cmd
         os.system(cmd)
 
     # install the eggs
-    for egg, version in eggs_install.iteritems():
+    for egg, version in list(eggs_install.items()):
         #cmd = '%s -Z "%s%s"' % (EASY_INSTALL_EXE, egg, version)
         cmd = '%s -Z -U "%s%s"' % (EASY_INSTALL_EXE, egg, version)
         os.system(cmd)
 
-print 'done.'
+print('done.')

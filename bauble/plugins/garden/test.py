@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-from __future__ import print_function
+
 
 
 import os
@@ -751,7 +751,7 @@ class PropagationTests(GardenTestCase):
         # we add the cutting_presenter manually (GUI does it)
         cutting_presenter = self.editor.presenter._cutting_presenter
         # we set values simulating user action;
-        for widget, attr in cutting_presenter.widget_to_field_map.items():
+        for widget, attr in list(cutting_presenter.widget_to_field_map.items()):
             logger.debug('attribute %s in widget %s is now set to %s' % (attr, widget, default_cutting_values[attr]))
             view.widget_set_value(widget, default_cutting_values[attr])
         # without a real GUI we manually force all events;
@@ -766,7 +766,7 @@ class PropagationTests(GardenTestCase):
         self.assertEqual(model.prop_type, 'UnrootedCutting')
         from nose import SkipTest
         raise SkipTest("related to issue #375")
-        for attr, value in default_cutting_values.items():
+        for attr, value in list(default_cutting_values.items()):
             v = getattr(model._cutting, attr)
             self.assertEqual(v, value, 'attribute %s in model is %s, not %s' % (attr, v, value))
             logger.debug('attribute %s in model is %s, equal to %s' % (attr, v, value))
@@ -787,7 +787,7 @@ class PropagationTests(GardenTestCase):
         view.widget_set_value('prop_type_combo', 'Seed')
         view.widget_set_value('prop_date_entry',
                               default_propagation_values['date'])
-        for widget, attr in seed_presenter.widget_to_field_map.items():
+        for widget, attr in list(seed_presenter.widget_to_field_map.items()):
             w = widgets[widget]
             if isinstance(w, Gtk.ComboBox) and w.get_child() and not w.get_model():
                 widgets[widget].get_child().props.text = default_seed_values[attr]
@@ -808,7 +808,7 @@ class PropagationTests(GardenTestCase):
         # make sure the each value in default_seed_values matches the model
         from nose import SkipTest
         raise SkipTest("related to issue #375")
-        for attr, expected in default_seed_values.items():
+        for attr, expected in list(default_seed_values.items()):
             v = getattr(propagation._seed, attr)
             if isinstance(v, datetime.date):
                 format = prefs.prefs[prefs.date_format_pref]
@@ -817,7 +817,7 @@ class PropagationTests(GardenTestCase):
                     expected = expected.strftime(format)
             self.assertEqual(v, expected)
 
-        for attr, expected in default_propagation_values.items():
+        for attr, expected in list(default_propagation_values.items()):
             v = getattr(propagation, attr)
             self.assertEqual(v, expected)
 
@@ -863,7 +863,7 @@ class PropagationTests(GardenTestCase):
 
         # make sure the default values match the values in the widgets
         date_format = prefs.prefs[prefs.date_format_pref]
-        for widget, attr in editor.presenter.widget_to_field_map.items():
+        for widget, attr in list(editor.presenter.widget_to_field_map.items()):
             if not attr in default_propagation_values:
                 continue
             default = default_propagation_values[attr]
@@ -875,7 +875,7 @@ class PropagationTests(GardenTestCase):
         # check the default for the PropSeed and SeedPresenter
         from nose import SkipTest
         raise SkipTest("related to issue #375")
-        for widget, attr in seed_presenter.widget_to_field_map.items():
+        for widget, attr in list(seed_presenter.widget_to_field_map.items()):
             if not attr in default_seed_values:
                 continue
             default = default_seed_values[attr]

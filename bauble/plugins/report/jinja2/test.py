@@ -95,7 +95,7 @@ class Jinja2FormatterTests(BaubleTestCase):
             filename = os.path.join(td, tn)
             domain = Jinja2FormatterPlugin.get_iteration_domain(filename)
             if domain == '':
-                self.assertEquals(tn[:5], 'base.')
+                self.assertEqual(tn[:5], 'base.')
                 continue
             try:
                 cls = {
@@ -110,4 +110,4 @@ class Jinja2FormatterTests(BaubleTestCase):
                 todo = selection
             logger.debug('formatting ›%s‹' % filename)
             report = Jinja2FormatterPlugin.format(todo, template=filename)
-            self.assertEquals((i, filename, type(report)), (i, filename, bytes))
+            self.assertEqual((i, filename, type(report)), (i, filename, bytes))

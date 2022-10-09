@@ -961,14 +961,14 @@ class AccessionEditorView(editor.GenericEditorView):
         '''
         save the current state of the gui to the preferences
         '''
-        for expander, pref in self.expanders_pref_map.items():
+        for expander, pref in list(self.expanders_pref_map.items()):
             prefs.prefs[pref] = self.widgets[expander].get_expanded()
 
     def restore_state(self):
         '''
         restore the state of the gui from the preferences
         '''
-        for expander, pref in self.expanders_pref_map.items():
+        for expander, pref in list(self.expanders_pref_map.items()):
             expanded = prefs.prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
@@ -990,7 +990,7 @@ class AccessionEditorView(editor.GenericEditorView):
     def species_match_func(completion, key, treeiter, data=None):
         species = completion.get_model()[treeiter][0]
         epg, eps = (species.str(remove_zws=True).lower() + ' ').split(' ')[:2]
-        key_epg, key_eps = (key.replace('\u200b', '').lower() + ' ').split(' ')[:2]
+        key_epg, key_eps = (key.replace('\\u200b', '').lower() + ' ').split(' ')[:2]
         if not epg:
             epg = str(species.genus.epithet).lower()
         if (epg.startswith(key_epg) and eps.startswith(key_eps)):
@@ -1276,7 +1276,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                   % (level, descr))
             combo.set_cell_data_func(renderer, cell_data_func)
             model = Gtk.ListStore(int, str)
-            for level, descr in ver_level_descriptions.items():
+            for level, descr in list(ver_level_descriptions.items()):
                 model.append([level, descr])
             combo.set_model(model)
             if self.model.level:
@@ -1624,7 +1624,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = Gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
-        list(map(lambda x: model.append([x]), self.session.query(Contact)))
+        list([model.append([x]) for x in self.session.query(Contact)])
         combo.set_model(model)
         combo.get_child().get_completion().set_model(model)
 
@@ -1689,7 +1689,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             else:
                 #self.model.source.source_detail = value
                 widget_visibility['source_sw'] = True
-            for widget, value in widget_visibility.items():
+            for widget, value in list(widget_visibility.items()):
                 self.view.widgets[widget].props.visible = value
             self.view.widgets.source_alignment.props.sensitive = True
 
@@ -2282,7 +2282,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         get the values from the model and put them in the view
         '''
         date_format = prefs.prefs[prefs.date_format_pref]
-        for widget, field in self.widget_to_field_map.items():
+        for widget, field in list(self.widget_to_field_map.items()):
             if field == 'species_id':
                 value = self.model.species
             else:
@@ -2553,7 +2553,7 @@ class GeneralAccessionExpander(InfoExpander):
             plant_locations[plant.location] = q + plant.quantity
         if plant_locations:
             strs = []
-            for location, quantity in plant_locations.items():
+            for location, quantity in list(plant_locations.items()):
                 strs.append(_('%(quantity)s in %(location)s')
                             % dict(location=str(location), quantity=quantity))
             s = '\n'.join(strs)

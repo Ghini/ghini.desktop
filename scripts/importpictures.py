@@ -48,22 +48,22 @@ from bauble.plugins.plants import Genus
 bauble.db.open(dburi, True, True)
 session = bauble.db.Session()
 
-q = session.query(Species).filter(Species.infrasp1 == u'sp')
-q = q.join(Genus).filter(Genus.epithet == u'Zzz')
+q = session.query(Species).filter(Species.infrasp1 == 'sp')
+q = q.join(Genus).filter(Genus.epithet == 'Zzz')
 zzz = q.one()
 
-loc = session.query(Location).filter(Location.code == u'desconocid').one()
+loc = session.query(Location).filter(Location.code == 'desconocid').one()
 import sys
 
 with open("/tmp/plant-pictures.txt") as f:
     for text in f.readlines():
-        text = unicode(text.strip())
+        text = str(text.strip())
         acc_no = text[:6]
 
         try:
             q = session.query(Plant)
             q = q.join(Accession).filter(Accession.code == acc_no)
-            q = q.filter(Plant.code == u'1')
+            q = q.filter(Plant.code == '1')
             plant = q.one()
         except:
             try:
@@ -72,7 +72,7 @@ with open("/tmp/plant-pictures.txt") as f:
                 accession = Accession(species=zzz, code=acc_no)
                 session.add(accession)
                 sys.stdout.write('a')
-            plant = Plant(accession=accession, location=loc, quantity=1, code=u'1')
+            plant = Plant(accession=accession, location=loc, quantity=1, code='1')
             session.add(plant)
             sys.stdout.write('p')
             session.flush()
@@ -81,15 +81,15 @@ with open("/tmp/plant-pictures.txt") as f:
 
         q = session.query(Plant)
         q = q.join(Accession).filter(Accession.code == acc_no)
-        q = q.join(PlantNote).filter(PlantNote.category == u'<picture>')
+        q = q.join(PlantNote).filter(PlantNote.category == '<picture>')
         q = q.filter(PlantNote.note == text)
         if q.count() == 0:
             # we need to add this note to the plant
-            note = PlantNote(plant=plant, category=u'<picture>', note=text)
+            note = PlantNote(plant=plant, category='<picture>', note=text)
             session.add(note)
             sys.stdout.write('f')
         else:
             sys.stdout.write('.')
         sys.stdout.flush()
 session.commit()
-print
+print()

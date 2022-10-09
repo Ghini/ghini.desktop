@@ -81,27 +81,27 @@ def get_genus(session, keys):
     try:
         keys['gn_epit'], keys['sp_epit'] = keys['species'].split(' ')
     except:
-        keys['gn_epit'], keys['sp_epit'] = (u'Zzz', u'sp')
+        keys['gn_epit'], keys['sp_epit'] = ('Zzz', 'sp')
 
     genus = session.query(Genus).filter(Genus.epithet == keys['gn_epit']).one()
     return genus
 
 
 def get_species(session, keys):
-    if keys['sp_epit'] == u'sp':
-        keys['infrasp1'], keys['sp_epit'] = u'sp', u''
+    if keys['sp_epit'] == 'sp':
+        keys['infrasp1'], keys['sp_epit'] = 'sp', ''
     else:
-        keys['infrasp1'] = u''
+        keys['infrasp1'] = ''
 
-    if keys['sp_epit'] == u'sp':
+    if keys['sp_epit'] == 'sp':
         try:
             species = session.query(Species).filter(
                 Species.genus == genus).filter(
-                Species.infrasp1 == u'sp').one()
+                Species.infrasp1 == 'sp').one()
             if species != zzz:  # no hace falta mencionarlo
                 sys.stdout.write('+')  # encontramos
         except:
-            species = Species(genus=genus, sp=u'', infrasp1=u'sp')
+            species = Species(genus=genus, sp='', infrasp1='sp')
             session.add(species)
             session.flush()
             sys.stdout.write('*')  # tuvimos que crear
@@ -112,7 +112,7 @@ def get_species(session, keys):
                 Species.epithet == keys['sp_epit']).one()
             sys.stdout.write('+')  # encontramos
         except:
-            species = Species(genus=genus, sp=u'', epithet=keys['sp_epit'])
+            species = Species(genus=genus, sp='', epithet=keys['sp_epit'])
             session.add(species)
             session.flush()
             sys.stdout.write('*')  # tuvimos que crear
@@ -121,7 +121,7 @@ def get_species(session, keys):
 
 def get_location(session, keys):
     try:
-        loc = session.query(Location).filter(bauble.utils.ilike(Location.code, unicode(keys['location']))).one()
+        loc = session.query(Location).filter(bauble.utils.ilike(Location.code, str(keys['location']))).one()
     except:
         loc = Location(code=keys['location'].upper())
         session.add(loc)
@@ -191,7 +191,7 @@ for k in species:
 
     result['species'].append(d)
 
-for k, plants in species.items():
+for k, plants in list(species.items()):
     for v in plants:
         d = {'garden_uuid': garden['uuid'],
              'garden': insti.name,
@@ -202,17 +202,17 @@ for k, plants in species.items():
              'lon': v.coords['lon']}
         result['plants'].append(d)
 
-print 'db.gardens.update({uuid: "%s"}, {$set: %s}, {upsert: true});' % (garden['uuid'], json.dumps(garden))
+print(('db.gardens.update({uuid: "%s"}, {$set: %s}, {upsert: true});' % (garden['uuid'], json.dumps(garden))))
 for i in result['species']:
-    print 'db.taxa.update({name: %s}, {$set: %s}, {upsert: true});' % (json.dumps(i['name']), json.dumps(i))
-print 'db.plants.deleteMany({garden: %s});' % json.dumps(garden['name'])
-print 'db.plants.insertMany(%s);' % json.dumps(result['plants'])
+    print(('db.taxa.update({name: %s}, {$set: %s}, {upsert: true});' % (json.dumps(i['name']), json.dumps(i))))
+print(('db.plants.deleteMany({garden: %s});' % json.dumps(garden['name'])))
+print(('db.plants.insertMany(%s);' % json.dumps(result['plants'])))
 
-print '''\
+print(('''\
 db.gardens.find().sort({id:-1}).limit(1).forEach(function(g){
     db.gardens.updateOne({uuid: "%(uuid)s", id: {$exists: false}}, {$set: {id: g.id + 1}});
 });
 db.gardens.find({uuid: "%(uuid)s"}).forEach(function (elem) {
     db.plants.updateMany({garden_uuid: elem.uuid}, {$set: {garden_id: elem.id}})
 });
-''' % garden
+''' % garden))

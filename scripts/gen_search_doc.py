@@ -66,11 +66,11 @@ for item in classes:
             raise Exception('**Error')
         #s = '-- %s' % p.key
 
-    print '%s (%s table)' % (item.__name__ , mapper.local_table.name)
-    print ' * Columns:'
+    print(('%s (%s table)' % (item.__name__ , mapper.local_table.name)))
+    print(' * Columns:')
     for c in columns:
-        print '  |- %s' % c.key
-    print ' * Collections:'
+        print(('  |- %s' % c.key))
+    print(' * Collections:')
     for c in collections:
-        print '  |- %s (collection of %s)'  % (c.key, c.mapper.class_.__name__)
-    print ''
+        print(('  |- %s (collection of %s)'  % (c.key, c.mapper.class_.__name__)))
+    print('')

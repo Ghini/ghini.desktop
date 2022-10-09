@@ -86,9 +86,9 @@ def main(config_file, input_stream, output_stream, want_taxonomy=False):
     then we pull things out of the set and we produce the output.
     '''
 
-    import ConfigParser
+    import configparser
     import codecs
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.readfp(codecs.open(config_file, 'r', 'utf-8'))
 
     input_stream = codecs.open(args.input)
@@ -96,13 +96,13 @@ def main(config_file, input_stream, output_stream, want_taxonomy=False):
 
     r = csv.reader(input_stream)
 
-    header = r.next()
+    header = next(r)
     # we don't want to repeat items, so we are storing the objects in a set.
     # they must be tuples because they must be indexable.
     result = set()
     for line in r:
 
-        record = dict(zip(header, line))
+        record = dict(list(zip(header, line)))
 
         ## the following is still hard coded and should be done otherwise
         for k in ['Genero', 'Subtribu', 'Tribu',

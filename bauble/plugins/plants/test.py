@@ -409,7 +409,7 @@ class FamilyTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', 'Are you sure you want to '
@@ -437,7 +437,7 @@ class FamilyTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', 'Are you sure you want to '
@@ -469,7 +469,7 @@ class FamilyTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', 'The family <i>Arecaceae</i> has 1 genera.\n\nYou cannot remove a family with genera.')
@@ -647,7 +647,7 @@ class GenusTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', 'Are you sure you want to '
@@ -680,7 +680,7 @@ class GenusTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', 'The genus <i>Carica</i> has 1 species.\n\nYou cannot remove a genus with species.')
@@ -815,23 +815,23 @@ class SpeciesTests(PlantTestCase):
         def get_sp_str(id, **kwargs):
             return self.session.query(Species).get(id).str(**kwargs)
 
-        for sid, expect in species_str_map.items():
+        for sid, expect in list(species_str_map.items()):
             sp = self.session.query(Species).get(sid)
-            print("»%s« »%s« »%s« »%s« " % (sp.genus.epithet, sp.epithet, sp.genus, sp))
+            print(("»%s« »%s« »%s« »%s« " % (sp.genus.epithet, sp.epithet, sp.genus, sp)))
             printable_name = remove_zws("%s" % sp)
             self.assertEqual(expect, printable_name)
             spstr = get_sp_str(sid)
             self.assertEqual(remove_zws(spstr), expect)
 
-        for sid, expect in species_str_authors_map.items():
+        for sid, expect in list(species_str_authors_map.items()):
             spstr = get_sp_str(sid, authors=True)
             self.assertEqual(remove_zws(spstr), expect)
 
-        for sid, expect in species_markup_map.items():
+        for sid, expect in list(species_markup_map.items()):
             spstr = get_sp_str(sid, markup=True)
             self.assertEqual(remove_zws(spstr), expect)
 
-        for sid, expect in species_markup_authors_map.items():
+        for sid, expect in list(species_markup_authors_map.items()):
             spstr = get_sp_str(sid, markup=True, authors=True)
             self.assertEqual(remove_zws(spstr), expect)
 
@@ -1064,14 +1064,14 @@ class SpeciesTests(PlantTestCase):
         self.assertEqual([i.epithet for i in sp1.synonyms], [sp3.epithet])
         sp1.synonyms.append(sp2)  # (1 3 2), (4)
         self.session.flush()
-        print('synonyms of 1', [i.epithet[-1] for i in sp1.synonyms])
-        print('synonyms of 4', [i.epithet[-1] for i in sp4.synonyms])
+        print(('synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]))
+        print(('synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]))
         self.assertEqual(sp2.accepted.epithet, sp1.epithet)  # just added
         self.assertEqual(sp3.accepted.epithet, sp1.epithet)  # no change
         sp2.accepted = sp4  # (1 3), (4 2)
         self.session.flush()
-        print('synonyms of 1', [i.epithet[-1] for i in sp1.synonyms])
-        print('synonyms of 4', [i.epithet[-1] for i in sp4.synonyms])
+        print(('synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]))
+        print(('synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]))
         self.assertEqual([i.epithet for i in sp4.synonyms], [sp2.epithet])
         self.assertEqual([i.epithet for i in sp1.synonyms], [sp3.epithet])
         self.assertEqual(sp1.accepted, None)
@@ -1105,8 +1105,8 @@ class SpeciesTests(PlantTestCase):
         # effect
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
-        print(self.invoked)
-        self.assertTrue(('yes_no_dialog', 'Are you sure you want to remove the species <i>Carica \u200bpapaya</i>?')
+        print((self.invoked))
+        self.assertTrue(('yes_no_dialog', 'Are you sure you want to remove the species <i>Carica \\u200bpapaya</i>?')
                         in self.invoked)
         self.assertEqual(result, None)
         q = self.session.query(Species).filter_by(genus=f5, sp="papaya")
@@ -1132,10 +1132,10 @@ class SpeciesTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
-        self.assertTrue(('yes_no_dialog', 'Are you sure you want to remove the species <i>Carica \u200bpapaya</i>?')
+        self.assertTrue(('yes_no_dialog', 'Are you sure you want to remove the species <i>Carica \\u200bpapaya</i>?')
                         in self.invoked)
 
         self.assertEqual(result, True)
@@ -1166,10 +1166,10 @@ class SpeciesTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
-        self.assertTrue(('message_dialog', 'The species <i>Carica \u200bpapaya</i> has 1 accessions.\n\nYou cannot remove a species with accessions.')
+        self.assertTrue(('message_dialog', 'The species <i>Carica \\u200bpapaya</i> has 1 accessions.\n\nYou cannot remove a species with accessions.')
                         in self.invoked)
         q = self.session.query(Species).filter_by(genus=f5, sp="papaya")
         matching = q.all()

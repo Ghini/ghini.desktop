@@ -77,7 +77,7 @@ class Plant:
         dict = {}
         #Joy: all the attributes in a class are already in __dict__
         privatePrefix = "_" + self.__class__.__name__
-        for elem in self.__dict__.keys():
+        for elem in list(self.__dict__.keys()):
             if elem.find(privatePrefix) == 0:
                 continue
                 #We discard private variables, which are automatically
@@ -88,7 +88,7 @@ class Plant:
                     #dict[elem] = self.__dict__[elem].encode("latin-1")
                     dict[elem] = self.__dict__[elem]
                 except Exception:
-                    print dict[elem]
+                    print((dict[elem]))
 
                 #dict[elem] = str(self.__dict__[elem]).encode("latin-1")
         return dict
@@ -129,8 +129,8 @@ class Plant:
                    field(self.species_author) + ft + \
                    field(self.infrasp_rank)  + ft + \
                    field(self.infrasp) + ft + field(self.infrasp_author)
-        except UnicodeDecodeError, e:
-            print sys.stderr.write(e)
+        except UnicodeDecodeError as e:
+            print((sys.stderr.write(e)))
             raise
 
         # there are no cultivars in the belize checklist
@@ -161,7 +161,7 @@ for line in csv.reader(open(genera_file)):
     gen_dict[line[2]] = line[0]
 
 # print out a first line since it will be skipped
-print plantname_columns
+print(plantname_columns)
 family = None
 for line in open(checklist_file).readlines():
     line = line.strip()
@@ -186,12 +186,12 @@ for line in open(checklist_file).readlines():
         continue # skip Prescottia sp. style names
     else:
         p.genus = int(gen_dict[p.genus])
-        print p.csv()
+        print((p.csv()))
 
 
 if len(missing) > 0:
     sys.stderr.write("******* could not find the following genera *******\n")
-for gen, sp in missing.iteritems():
+for gen, sp in list(missing.items()):
     sys.stderr.write('%s: %s\n' % (gen, sp))
 
 

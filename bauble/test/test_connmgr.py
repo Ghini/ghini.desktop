@@ -485,7 +485,7 @@ class AddConnectionTests(BaubleTestCase):
                         in presenter.view.invoked_detailed)
         self.assertTrue(('widget_set_value', ['name_combo', 'new_conn', ()])
                         in presenter.view.invoked_detailed)
-        print(presenter.view.invoked_detailed)
+        print((presenter.view.invoked_detailed))
         raise SkipTest("related to issue #194")
 
 

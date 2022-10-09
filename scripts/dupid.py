@@ -21,7 +21,7 @@ if sys.argv[1] == '-w':
 
 
 if len(sys.argv) < filename_arg+1:
-    print '** you have to supply a filename'
+    print('** you have to supply a filename')
     sys.exit(1)
 
 
@@ -29,7 +29,7 @@ random.seed()
 ids = set()
 
 filename = sys.argv[filename_arg]
-print "duplicates in %s: " % filename
+print(("duplicates in %s: " % filename))
 tree = etree.parse(filename)
 for el in tree.getiterator():
     elid = el.get('id')
@@ -42,9 +42,9 @@ for el in tree.getiterator():
                 newid = '%s%s' % (elid, str(random.randint(0, 99)))
             ids.add(newid)
             el.set('id', newid)
-            print '%s = %s' % (elid, newid)
+            print(('%s = %s' % (elid, newid)))
         else:
-            print elid
+            print(elid)
 if overwrite:
     tree.write('%s.dupid' % filename, encoding='utf8')
 

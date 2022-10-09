@@ -79,7 +79,7 @@ for item in sorted(items, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     plant['accession'] = accession['code']
     if item['location']:
         # correct location codes according to ILIKE matches,
-        db_loc = session.query(Location).filter(bauble.utils.ilike(Location.code, unicode(item['location']))).first()
+        db_loc = session.query(Location).filter(bauble.utils.ilike(Location.code, str(item['location']))).first()
         if db_loc:
             plant['location'] = db_loc.code
         else:
@@ -89,23 +89,23 @@ for item in sorted(items, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     if item['species']:
         item['species'] = item['species'].replace('.', '')
 
-        genus_epithet, species_epithet = (unicode(item['species']).split(u' ') + [u''])[:2]
+        genus_epithet, species_epithet = (str(item['species']).split(' ') + [''])[:2]
         if species_epithet == '':
-            species_epithet = u'sp'
+            species_epithet = 'sp'
 
-        accession['species'] = item['species'] = u"%s %s" % (genus_epithet, species_epithet)
+        accession['species'] = item['species'] = "%s %s" % (genus_epithet, species_epithet)
 
     # add a default quantity=1 for plants relative to new accessions,
     # add a default species=Zzz sp for new accessions,
     # ignore species=Zzz sp for already existing accessions.
     need_species = False
-    db_accession = session.query(Accession).filter(Accession.code == unicode(accession['code'])).first()
+    db_accession = session.query(Accession).filter(Accession.code == str(accession['code'])).first()
 
     if db_accession is None:  # this is a new accession
         plant['quantity'] = 1
-        item['species'] = item.get('species') or u'Zzz sp'
+        item['species'] = item.get('species') or 'Zzz sp'
         accession['species'] = item['species']
-        genus_epithet, species_epithet = (unicode(item['species']).split(u' ') + [u''])[:2]
+        genus_epithet, species_epithet = (str(item['species']).split(' ') + [''])[:2]
         need_species = True
 
     else:                     # this is an existing accession
@@ -143,8 +143,8 @@ for item in sorted(items, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     for pic_name in item.get('photo', []):
         try:
             url, md5 = item['media'][pic_name]
-        except Exception, e:
-            print type(e), e
+        except Exception as e:
+            print((type(e), e))
             continue
         pic_name = (item['acc_no_scan'] or item['acc_no_typed']) + ' ' + pic_name
         pic_full_name = os.path.join(pic_path, pic_name)
@@ -158,7 +158,7 @@ for item in sorted(items, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     # should create a change object, just like the Accession Editor
     pass
 
-for i in species_needed.values() + locations_needed.values():
+for i in list(species_needed.values()) + list(locations_needed.values()):
     objects.insert(0, i)
 
 with codecs.open(filename, "wb", "utf-8") as output:

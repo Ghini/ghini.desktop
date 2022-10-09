@@ -45,16 +45,16 @@ class ImportNewPlant(BaubleTestCase):
     def test_importing_nothing(self):
         # prepare T0
         # test T0
-        self.assertEquals(self.session.query(Accession).first(), None)
-        self.assertEquals(self.session.query(Plant).first(), None)
+        self.assertEqual(self.session.query(Accession).first(), None)
+        self.assertEqual(self.session.query(Plant).first(), None)
 
         # action
         line = '20180905_170619 :PENDING_EDIT:  : Eugenia stipitata : 1 : (@;@)'
         process_line(self.session, line, 1536845535)
 
         # T1
-        self.assertEquals(self.session.query(Accession).first(), None)
-        self.assertEquals(self.session.query(Plant).first(), None)
+        self.assertEqual(self.session.query(Accession).first(), None)
+        self.assertEqual(self.session.query(Plant).first(), None)
 
     def test_completely_identified_existing_species(self):
         # prepare T0
@@ -65,22 +65,22 @@ class ImportNewPlant(BaubleTestCase):
         self.session.commit()
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         eugenia = self.session.query(Genus).filter_by(epithet='Eugenia').first()
-        self.assertNotEquals(eugenia, None)
+        self.assertNotEqual(eugenia, None)
         s = self.session.query(Species).filter_by(genus=eugenia, epithet='stipitata').first()
-        self.assertNotEquals(s, None)
+        self.assertNotEqual(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia stipitata : 1 : (@;@)'
         process_line(self.session, line, 1536845535)
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.genus.epithet, 'Eugenia')
-        self.assertEquals(a.species.epithet, 'stipitata')
-        self.assertEquals(a.quantity_recvd, 1)
-        self.assertEquals(len(a.plants), 1)
-        self.assertEquals(a.plants[0].quantity, 1)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.genus.epithet, 'Eugenia')
+        self.assertEqual(a.species.epithet, 'stipitata')
+        self.assertEqual(a.quantity_recvd, 1)
+        self.assertEqual(len(a.plants), 1)
+        self.assertEqual(a.plants[0].quantity, 1)
 
     def test_completely_identified_new_species(self):
         # prepare T0
@@ -90,11 +90,11 @@ class ImportNewPlant(BaubleTestCase):
         self.session.commit()
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         eugenia = self.session.query(Genus).filter_by(epithet='Eugenia').first()
-        self.assertNotEquals(eugenia, None)
+        self.assertNotEqual(eugenia, None)
         s = self.session.query(Species).filter_by(genus=eugenia, epithet='stipitata').first()
-        self.assertEquals(s, None)
+        self.assertEqual(s, None)
 
         # action
         db.current_user.override('Pasquale')
@@ -104,14 +104,14 @@ class ImportNewPlant(BaubleTestCase):
 
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.genus.epithet, 'Eugenia')
-        self.assertEquals(a.species.epithet, 'stipitata')
-        self.assertEquals(a.quantity_recvd, 1)
-        self.assertEquals(len(a.plants), 1)
-        self.assertEquals(a.plants[0].quantity, 1)
-        self.assertEquals(len(a.verifications), 1)
-        self.assertEquals(a.verifications[0].verifier, 'Pasquale')
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.genus.epithet, 'Eugenia')
+        self.assertEqual(a.species.epithet, 'stipitata')
+        self.assertEqual(a.quantity_recvd, 1)
+        self.assertEqual(len(a.plants), 1)
+        self.assertEqual(a.plants[0].quantity, 1)
+        self.assertEqual(len(a.verifications), 1)
+        self.assertEqual(a.verifications[0].verifier, 'Pasquale')
 
     def test_genus_identified(self):
         # prepare T0
@@ -121,117 +121,117 @@ class ImportNewPlant(BaubleTestCase):
         self.session.commit()
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         eugenia = self.session.query(Genus).filter_by(epithet='Eugenia').first()
-        self.assertNotEquals(eugenia, None)
+        self.assertNotEqual(eugenia, None)
         s = self.session.query(Species).filter_by(genus=eugenia, infrasp1='sp', infrasp1_rank=None).first()
-        self.assertEquals(s, None)
+        self.assertEqual(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 : Eugenia : 1 : (@;@)'
         process_line(self.session, line, 1536845535)
         # T1
         eugenia_sp = self.session.query(Species).filter_by(genus=eugenia, infrasp1='sp', infrasp1_rank=None).first()
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.genus, eugenia)
-        self.assertEquals(a.species, eugenia_sp)
-        self.assertEquals(a.quantity_recvd, 1)
-        self.assertEquals(len(a.plants), 1)
-        self.assertEquals(a.plants[0].quantity, 1)
-        self.assertEquals(len(a.verifications), 0)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.genus, eugenia)
+        self.assertEqual(a.species, eugenia_sp)
+        self.assertEqual(a.quantity_recvd, 1)
+        self.assertEqual(len(a.plants), 1)
+        self.assertEqual(a.plants[0].quantity, 1)
+        self.assertEqual(len(a.verifications), 0)
 
     def test_not_identified(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         s = self.session.query(Species).first()
-        self.assertEquals(s, None)
+        self.assertEqual(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 1 : (@;@)'
         process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.infrasp1, 'sp')
-        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
-        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
-        self.assertEquals(a.quantity_recvd, 1)
-        self.assertEquals(len(a.plants), 1)
-        self.assertEquals(a.plants[0].quantity, 1)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.infrasp1, 'sp')
+        self.assertEqual(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEqual(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEqual(a.quantity_recvd, 1)
+        self.assertEqual(len(a.plants), 1)
+        self.assertEqual(a.plants[0].quantity, 1)
 
     def test_not_identified_no_quantity_defaults_to_one(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         s = self.session.query(Species).first()
-        self.assertEquals(s, None)
+        self.assertEqual(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  :  : (@;@)'
         process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.infrasp1, 'sp')
-        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
-        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
-        self.assertEquals(a.quantity_recvd, 1)
-        self.assertEquals(len(a.plants), 1)
-        self.assertEquals(a.plants[0].quantity, 1)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.infrasp1, 'sp')
+        self.assertEqual(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEqual(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEqual(a.quantity_recvd, 1)
+        self.assertEqual(len(a.plants), 1)
+        self.assertEqual(a.plants[0].quantity, 1)
 
     def test_not_identified_some_quantity_not_one(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         s = self.session.query(Species).first()
-        self.assertEquals(s, None)
+        self.assertEqual(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 3 : (@;@)'
         process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.infrasp1, 'sp')
-        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
-        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
-        self.assertEquals(a.quantity_recvd, 3)
-        self.assertEquals(len(a.plants), 1)
-        self.assertEquals(a.plants[0].quantity, 3)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.infrasp1, 'sp')
+        self.assertEqual(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEqual(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEqual(a.quantity_recvd, 3)
+        self.assertEqual(len(a.plants), 1)
+        self.assertEqual(a.plants[0].quantity, 3)
 
     def test_not_identified_no_plant_code(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         s = self.session.query(Species).first()
-        self.assertEquals(s, None)
+        self.assertEqual(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001 :  : 1 : (@;@)'
         process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.infrasp1, 'sp')
-        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
-        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
-        self.assertEquals(a.quantity_recvd, 1)
-        self.assertEquals(len(a.plants), 1)
-        self.assertEquals(a.plants[0].quantity, 1)
-        self.assertEquals(len(a.verifications), 0)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.infrasp1, 'sp')
+        self.assertEqual(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEqual(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEqual(a.quantity_recvd, 1)
+        self.assertEqual(len(a.plants), 1)
+        self.assertEqual(a.plants[0].quantity, 1)
+        self.assertEqual(len(a.verifications), 0)
 
     def test_not_identified_quito_accession_code(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).filter_by(code='018901').first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         s = self.session.query(Species).first()
-        self.assertEquals(s, None)
+        self.assertEqual(s, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 018901 :  : 1 : (@;@)'
         process_line(self.session, line, 1536845535)
@@ -240,14 +240,14 @@ class ImportNewPlant(BaubleTestCase):
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='018901').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.infrasp1, 'sp')
-        self.assertEquals(a.species.genus.epithet, 'Zzd-Plantae')
-        self.assertEquals(a.species.genus.family.epithet, 'Zz-Plantae')
-        self.assertEquals(a.quantity_recvd, 1)
-        self.assertEquals(len(a.plants), 2)
-        self.assertEquals(a.plants[0].quantity, 1)
-        self.assertEquals(a.plants[1].quantity, 2)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.infrasp1, 'sp')
+        self.assertEqual(a.species.genus.epithet, 'Zzd-Plantae')
+        self.assertEqual(a.species.genus.family.epithet, 'Zz-Plantae')
+        self.assertEqual(a.quantity_recvd, 1)
+        self.assertEqual(len(a.plants), 2)
+        self.assertEqual(a.plants[0].quantity, 1)
+        self.assertEqual(a.plants[1].quantity, 2)
 
 
 class ImportExistingPlant(BaubleTestCase):
@@ -270,26 +270,26 @@ class ImportExistingPlant(BaubleTestCase):
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.epithet, 'stipitata')
-        self.assertEquals(a.species.genus.epithet, 'Eugenia')
-        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
-        self.assertNotEquals(p, None)
-        self.assertEquals(p.location, l)
-        self.assertEquals(p.quantity, 1)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.epithet, 'stipitata')
+        self.assertEqual(a.species.genus.epithet, 'Eugenia')
+        self.assertEqual(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertNotEqual(p, None)
+        self.assertEqual(p.location, l)
+        self.assertEqual(p.quantity, 1)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001.1 :  : 3 : (@;@)'
         process_line(self.session, line, 1536845535)
         # test T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.epithet, 'stipitata')
-        self.assertEquals(a.species.genus.epithet, 'Eugenia')
-        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
-        self.assertNotEquals(p, None)
-        self.assertEquals(p.location, l)
-        self.assertEquals(p.quantity, 3)
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.epithet, 'stipitata')
+        self.assertEqual(a.species.genus.epithet, 'Eugenia')
+        self.assertEqual(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertNotEqual(p, None)
+        self.assertEqual(p.location, l)
+        self.assertEqual(p.quantity, 3)
 
     def test_import_identified_overwriting_identification(self):
         # prepare T0
@@ -298,14 +298,14 @@ class ImportExistingPlant(BaubleTestCase):
         p = lookup(self.session, Plant, accession=a, code='1', location=l, quantity=1)
         # test T0
         a = self.session.query(Accession).filter_by(code='2018.0002').first()
-        self.assertNotEquals(a, None)
+        self.assertNotEqual(a, None)
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertNotEquals(p, None)
-        self.assertEquals(a.species.epithet, 'stipitata')
-        self.assertEquals(a.species.genus.epithet, 'Eugenia')
-        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
-        self.assertEquals(p.location, l)
-        self.assertEquals(p.quantity, 1)
+        self.assertNotEqual(p, None)
+        self.assertEqual(a.species.epithet, 'stipitata')
+        self.assertEqual(a.species.genus.epithet, 'Eugenia')
+        self.assertEqual(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertEqual(p.location, l)
+        self.assertEqual(p.quantity, 1)
         initial_count = len(a.verifications)
 
         # action
@@ -317,15 +317,15 @@ class ImportExistingPlant(BaubleTestCase):
         # test T1
         a = self.session.query(Accession).filter_by(code='2018.0002').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(a.species.epithet, 'insignis')
-        self.assertEquals(a.species.genus.epithet, 'Eugenia')
-        self.assertEquals(a.species.genus.family.epithet, 'Myrtaceae')
-        self.assertNotEquals(p, None)
-        self.assertEquals(p.location, l)
-        self.assertEquals(p.quantity, 1)
-        self.assertEquals(len(a.verifications), initial_count + 1)
-        self.assertEquals(a.verifications[-1].verifier, 'Pasquale')
+        self.assertNotEqual(a, None)
+        self.assertEqual(a.species.epithet, 'insignis')
+        self.assertEqual(a.species.genus.epithet, 'Eugenia')
+        self.assertEqual(a.species.genus.family.epithet, 'Myrtaceae')
+        self.assertNotEqual(p, None)
+        self.assertEqual(p.location, l)
+        self.assertEqual(p.quantity, 1)
+        self.assertEqual(len(a.verifications), initial_count + 1)
+        self.assertEqual(a.verifications[-1].verifier, 'Pasquale')
 
 class ImportInventoryLines(BaubleTestCase):
     def setUp(self):
@@ -346,7 +346,7 @@ class ImportInventoryLines(BaubleTestCase):
         a = lookup(self.session, Accession, code='2013.1317', species=self.spe)
         p = lookup(self.session, Plant, accession=a, code='1', location=self.loc, quantity=1)
         # test T0
-        self.assertEquals(p.location, self.loc)
+        self.assertEqual(p.location, self.loc)
 
         # action
         line = '20180223_092139 :INVENTORY: A09x : 2013.1317 : 000000000000000'
@@ -356,16 +356,16 @@ class ImportInventoryLines(BaubleTestCase):
         # test T1
         a = self.session.query(Accession).filter_by(code='2013.1317').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertEquals(p.location.code, 'A09x')
-        self.assertEquals(len(p.notes), 1)
-        self.assertEquals(p.notes[0].category, 'inventory')
-        self.assertEquals(p.notes[0].note, '2018-02-23')
+        self.assertEqual(p.location.code, 'A09x')
+        self.assertEqual(len(p.notes), 1)
+        self.assertEqual(p.notes[0].category, 'inventory')
+        self.assertEqual(p.notes[0].note, '2018-02-23')
 
     def test_inventory_unknown_plant(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
 
         # action
         line = '20180223_092139 :INVENTORY: A09x : 2013.1317 : 000000000000000'
@@ -375,15 +375,15 @@ class ImportInventoryLines(BaubleTestCase):
         # test T1
         a = self.session.query(Accession).filter_by(code='2013.1317').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertEquals(p.location.code, 'A09x')
-        self.assertEquals(len(p.notes), 1)
+        self.assertEqual(p.location.code, 'A09x')
+        self.assertEqual(len(p.notes), 1)
 
     def test_inventory_totally_useless_line(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).first()
-        self.assertEquals(a, None)
-        self.assertEquals(len(self.session.query(Location).all()), 1)
+        self.assertEqual(a, None)
+        self.assertEqual(len(self.session.query(Location).all()), 1)
 
         # action
         line = '20180223_092139 :INVENTORY:  :  : 000000000000000'
@@ -392,15 +392,15 @@ class ImportInventoryLines(BaubleTestCase):
 
         # test T1
         a = self.session.query(Accession).first()
-        self.assertEquals(a, None)
-        self.assertEquals(len(self.session.query(Location).all()), 1)
+        self.assertEqual(a, None)
+        self.assertEqual(len(self.session.query(Location).all()), 1)
 
     def test_inventory_existence_assertion_on_already_existing(self):
         # prepare T0
         a = lookup(self.session, Accession, code='2013.1317', species=self.spe)
         p = lookup(self.session, Plant, accession=a, code='1', location=self.loc, quantity=1)
         # test T0
-        self.assertEquals(p.location, self.loc)
+        self.assertEqual(p.location, self.loc)
 
         # action
         line = '20180223_092139 :INVENTORY:  : 2013.1317 : 000000000000000'
@@ -410,15 +410,15 @@ class ImportInventoryLines(BaubleTestCase):
         # test T1
         a = self.session.query(Accession).filter_by(code='2013.1317').first()
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertEquals(p.location.code, 'somewhere')
-        self.assertEquals(len(p.notes), 1)  # inventory always noted
+        self.assertEqual(p.location.code, 'somewhere')
+        self.assertEqual(len(p.notes), 1)  # inventory always noted
 
     def test_inventory_existence_assertion_on_not_existing(self):
         # prepare T0
         # test T0
         a = self.session.query(Accession).first()
-        self.assertEquals(a, None)
-        self.assertEquals(len(self.session.query(Location).all()), 1)
+        self.assertEqual(a, None)
+        self.assertEqual(len(self.session.query(Location).all()), 1)
 
         # action
         line = '20180223_092139 :INVENTORY:  : 2013.1317 : 000000000000000'
@@ -426,13 +426,13 @@ class ImportInventoryLines(BaubleTestCase):
         self.session.commit()
 
         # test T1
-        self.assertEquals(len(self.session.query(Location).all()), 2)
+        self.assertEqual(len(self.session.query(Location).all()), 2)
         a = self.session.query(Accession).filter_by(code='2013.1317').first()
-        self.assertNotEquals(a, None)
+        self.assertNotEqual(a, None)
         p = self.session.query(Plant).filter_by(code='1', accession=a).first()
-        self.assertNotEquals(p, None)
-        self.assertEquals(p.location.code, 'default')
-        self.assertEquals(len(p.notes), 1)  # inventory always noted
+        self.assertNotEqual(p, None)
+        self.assertEqual(p.location.code, 'default')
+        self.assertEqual(len(p.notes), 1)  # inventory always noted
 
 
 class ImportGPSCoordinates(BaubleTestCase):
@@ -450,17 +450,17 @@ class ImportGPSCoordinates(BaubleTestCase):
         # prepare T0
         # test T0
         a = self.session.query(Accession).first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0001 :  :  : (31.5215;-5.5312)'
         process_line(self.session, line, 1536845535)
         self.session.commit()
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0001').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(len(a.plants), 1)
+        self.assertNotEqual(a, None)
+        self.assertEqual(len(a.plants), 1)
         p = a.plants[0]
-        self.assertEquals(p.coords, {'lat': 31.5215, 'lon': -5.5312})
+        self.assertEqual(p.coords, {'lat': 31.5215, 'lon': -5.5312})
 
     def test_gps_coordinates_overwriting(self):
         # prepare T0
@@ -471,7 +471,7 @@ class ImportGPSCoordinates(BaubleTestCase):
         pn = lookup(self.session, PlantNote, plant=p, category='<coords>', note="{lat:32.2996,lon:-9.2395}")
 
         # test T0
-        self.assertEquals(p.coords, {'lat': 32.2996, 'lon': -9.2395})
+        self.assertEqual(p.coords, {'lat': 32.2996, 'lon': -9.2395})
 
         # action
         line = '20180905_170619 :PENDING_EDIT: 2018.0002 :  :  : (31.5215;-5.5312)'
@@ -480,10 +480,10 @@ class ImportGPSCoordinates(BaubleTestCase):
 
         # T1
         a = self.session.query(Accession).filter_by(code='2018.0002').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(len(a.plants), 1)
+        self.assertNotEqual(a, None)
+        self.assertEqual(len(a.plants), 1)
         p = a.plants[0]
-        self.assertEquals(p.coords, {'lat': 31.5215, 'lon': -5.5312})
+        self.assertEqual(p.coords, {'lat': 31.5215, 'lon': -5.5312})
 
 
 class ImportPictures(BaubleTestCase):
@@ -501,7 +501,7 @@ class ImportPictures(BaubleTestCase):
         # prepare T0
         # test T0
         a = self.session.query(Accession).first()
-        self.assertEquals(a, None)
+        self.assertEqual(a, None)
 
         # action
         line = '20180223_130951 :PENDING_EDIT: 2015.0901 :  :  : (@;@) : file:///storage/sdcard/Android/data/me.ghini.pocket/files/Pictures/GPP_20180223_130931-958344128.jpg : file:///storage/sdcard/Android/data/me.ghini.pocket/files/Pictures/GPP_20180223_130943948184518.jpg'
@@ -512,7 +512,7 @@ class ImportPictures(BaubleTestCase):
 
         # T1
         a = self.session.query(Accession).filter_by(code='2015.0901').first()
-        self.assertNotEquals(a, None)
-        self.assertEquals(len(a.plants), 1)
+        self.assertNotEqual(a, None)
+        self.assertEqual(len(a.plants), 1)
         p = a.plants[0]
-        self.assertEquals(len(p.pictures), 2)
+        self.assertEqual(len(p.pictures), 2)

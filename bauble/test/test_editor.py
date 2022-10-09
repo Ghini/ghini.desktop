@@ -38,7 +38,7 @@ class BaubleTests(BaubleTestCase):
     def test_create_generic_view(self):
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
         view = GenericEditorView(filename)
-        print(type(view.widgets))
+        print((type(view.widgets)))
         self.assertTrue(type(view.widgets) is utils.BuilderWidgets)
 
     def test_set_title_ok(self):
@@ -107,38 +107,38 @@ class TimeStampParserTests(unittest.TestCase):
     def test_date_parser_generic(self):
         target = datetime.datetime(2019, 1, 18, 18, 20, tzinfo=datetime.timezone(datetime.timedelta(hours=5)))
         result = parse_date('18 January 2019 18:20 +0500')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)
         result = parse_date('18:20, 18 January 2019 +0500')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)
         result = parse_date('18:20+0500, 18 January 2019')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)
         result = parse_date('18:20+0500, 18 Jan 2019')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)
         result = parse_date('18:20+0500, 2019-01-18')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)
         result = parse_date('18:20+0500, 1/18 2019')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)
         result = parse_date('18:20+0500, 18/1 2019')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)
 
     def test_date_parser_ambiguous(self):
         # defaults to European: day, month, year
         result = parse_date('5 1 4')
-        self.assertEquals(result, datetime.datetime(2004, 1, 5, 0, 0))
+        self.assertEqual(result, datetime.datetime(2004, 1, 5, 0, 0))
         # explicit, American: month, day, year
         result = parse_date('5 1 4', dayfirst=False, yearfirst=False)
-        self.assertEquals(result, datetime.datetime(2004, 5, 1, 0, 0))
+        self.assertEqual(result, datetime.datetime(2004, 5, 1, 0, 0))
         # explicit, European: day, month, year
         result = parse_date('5 1 4', dayfirst=True, yearfirst=False)
-        self.assertEquals(result, datetime.datetime(2004, 1, 5, 0, 0))
+        self.assertEqual(result, datetime.datetime(2004, 1, 5, 0, 0))
         # explicit, Japanese: year, month, day (month, day, year)
         result = parse_date('5 1 4', dayfirst=False, yearfirst=True)
-        self.assertEquals(result, datetime.datetime(2005, 1, 4, 0, 0))
+        self.assertEqual(result, datetime.datetime(2005, 1, 4, 0, 0))
         # explicit, illogical: year, day, month
         result = parse_date('5 1 4', dayfirst=True, yearfirst=True)
-        self.assertEquals(result, datetime.datetime(2005, 4, 1, 0, 0))
+        self.assertEqual(result, datetime.datetime(2005, 4, 1, 0, 0))
 
     def test_date_parser_365(self):
         target = datetime.datetime(2014, 1, 1, 20)
         result = parse_date('2014-01-01 20')
-        self.assertEquals(result, target)
+        self.assertEqual(result, target)

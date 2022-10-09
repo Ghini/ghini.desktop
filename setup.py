@@ -119,7 +119,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
 
     # py2exe doesn't seem to respect packages_data so build data_files from
     # package_data
-    for package, patterns in package_data.items():
+    for package, patterns in list(package_data.items()):
         pkg_dir = all_package_dirs[package]
         for p in patterns:
             matches = glob.glob(pkg_dir + '/' + p)
@@ -420,7 +420,7 @@ class clean(Command):
                     def delete(p):
                         print(('removing %s' % p))
                         os.remove(p)
-                    map(delete, [os.path.join(path, m) for m in matches])
+                    list(map(delete, [os.path.join(path, m) for m in matches]))
         if os.path.exists('dist'):
             dir_util.remove_tree('dist')
         if os.path.exists('build'):

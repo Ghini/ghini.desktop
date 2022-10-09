@@ -95,7 +95,7 @@ class XMLExporter:
         if not one_file:
             tableset_el = etree.Element('tableset')
 
-        for table_name, table in db.metadata.tables.items():
+        for table_name, table in list(db.metadata.tables.items()):
             if one_file:
                 tableset_el = etree.Element('tableset')
             logger.info('exporting %s…' % table_name)

@@ -16,9 +16,9 @@ import sys
 
 import bauble
 if bauble.version_tuple[0] != '1' and bauble.version_tuple[1] != '0':
-    print "Bauble 1.0 must be installed"
-    print bauble.version
-    print bauble.version_tuple
+    print("Bauble 1.0 must be installed")
+    print((bauble.version))
+    print((bauble.version_tuple))
     sys.exit(1)
 
 import bauble.utils as utils
@@ -33,7 +33,7 @@ parser.add_option('-f', '--force', dest='force', action='store_true',
 (options, args) = parser.parse_args()
 
 if not args:
-    print parser.error('a directory with a dumped CSV files is required')
+    print((parser.error('a directory with a dumped CSV files is required')))
 
 
 
@@ -53,8 +53,8 @@ dst_path = os.path.join(src_path, '1.0')
 if os.path.exists(dst_path) and options.force:
     shutil.rmtree(dst_path)
 elif os.path.exists(dst_path):
-    response = raw_input('%s exists.  Would you like to delete it? ' \
-                             % dst_path)
+    response = eval(input('%s exists.  Would you like to delete it? ' \
+                             % dst_path))
     if response in ('y', 'Y'):
         shutil.rmtree(dst_path)
     else:
@@ -172,8 +172,8 @@ def do_species(filename):
         if line['sp_hybrid']:
             hybrid = True
             if line['infrasp_rank'] or line['infrasp_author']:
-                print '**', line['sp'], line['infrasp'], line['infrasp_rank'], \
-                    line['infrasp_author']
+                print(('**', line['sp'], line['infrasp'], line['infrasp_rank'], \
+                    line['infrasp_author']))
             sp2 = line['infrasp']
             infrasp1 = None
         else:
@@ -413,7 +413,7 @@ def skip_file(filename):
     """
     Do nothing with the file, not even copy it.
     """
-    print '- skipping'
+    print('- skipping')
 
 
 file_map = {'accession.txt': do_accession,
@@ -446,9 +446,9 @@ do_geography(os.path.join(src_path, "geography.txt"))
 # for each text file in src_path call the appropriate entry in file_map
 for f in glob.glob(os.path.join(src_path, "*.txt")):
     basename = os.path.basename(f)
-    print basename
+    print(basename)
     if basename not in file_map:
-        print "** don't know what to do with: %s" % f
+        print(("** don't know what to do with: %s" % f))
         sys.exit(1)
     if not file_map[basename]:
         shutil.copy(f, dst_path)

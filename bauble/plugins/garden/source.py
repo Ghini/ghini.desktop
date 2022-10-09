@@ -382,7 +382,7 @@ class CollectionPresenter(editor.ChildPresenter):
     def refresh_view(self):
         from bauble.plugins.garden.accession import latitude_to_dms, \
             longitude_to_dms
-        for widget, field in self.widget_to_field_map.items():
+        for widget, field in list(self.widget_to_field_map.items()):
             value = getattr(self.model, field)
             logger.debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
@@ -392,7 +392,7 @@ class CollectionPresenter(editor.ChildPresenter):
 
         latitude = self.model.latitude
         if latitude is not None:
-            dms_string = '%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
+            dms_string = '%s %s\\u00B0%s\'%s"' % latitude_to_dms(latitude)
             self.view.widgets.lat_dms_label.set_text(dms_string)
             if float(latitude) < 0:
                 self.view.widgets.south_radio.set_active(True)
@@ -404,7 +404,7 @@ class CollectionPresenter(editor.ChildPresenter):
 
         longitude = self.model.longitude
         if longitude is not None:
-            dms_string = '%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
+            dms_string = '%s %s\\u00B0%s\'%s"' % longitude_to_dms(longitude)
             self.view.widgets.lon_dms_label.set_text(dms_string)
             if float(longitude) < 0:
                 self.view.widgets.west_radio.set_active(True)
@@ -539,7 +539,7 @@ class CollectionPresenter(editor.ChildPresenter):
                 direction = self._get_lat_direction()
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
                 #u"\N{DEGREE SIGN}"
-                dms_string = '%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
+                dms_string = '%s %s\\u00B0%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
             logger.debug(traceback.format_exc())
             #bg_color = Gdk.color_parse("red")
@@ -571,7 +571,7 @@ class CollectionPresenter(editor.ChildPresenter):
                 east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
-                dms_string = '%s %s\u00B0%s\'%s"' % longitude_to_dms(
+                dms_string = '%s %s\\u00B0%s\'%s"' % longitude_to_dms(
                     longitude)
         except Exception:
             logger.debug(traceback.format_exc())

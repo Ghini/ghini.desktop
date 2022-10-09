@@ -101,11 +101,11 @@ class QBP(BaubleTestCase):
     def test_is_only_usable_clauses(self):
         # valid query, but not for the query builder
         query = BuiltQuery("species WHERE genus.epithet=Inga or count(accessions.id)>4")
-        print(query.parsed)
+        print((query.parsed))
         self.assertEqual(query.is_valid, True)
         self.assertEqual(len(query.clauses), 1)
         query = BuiltQuery("species WHERE a=1 or count(accessions.id)>4 or genus.epithet=Inga")
-        print(query, query.clauses)
+        print((query, query.clauses))
         self.assertEqual(query.is_valid, True)
         self.assertEqual(len(query.clauses), 2)
 
@@ -113,6 +113,6 @@ class QBP(BaubleTestCase):
         # valid query, but not for the query builder
         raise SkipTest("we can't do that without rewriting the grammar")
         query = BuiltQuery("species WHERE count(accessions.id)>4 or genus.epithet=Inga")
-        print(query, query.clauses)
+        print((query, query.clauses))
         self.assertEqual(query.is_valid, True)
         self.assertEqual(len(query.clauses), 1)
