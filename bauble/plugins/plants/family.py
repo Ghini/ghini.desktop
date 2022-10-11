@@ -450,7 +450,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
             or self.notes_presenter.dirty()
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.items():
+        for widget, field in list(self.widget_to_field_map.items()):
             value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
 

@@ -84,7 +84,7 @@ class UnicodeReader(object):
     def __next__(self):
         row = next(self.reader)
         t = {}
-        for k, v in row.items():
+        for k, v in list(row.items()):
             if len(v) == 0:
                 t[k] = None
             else:

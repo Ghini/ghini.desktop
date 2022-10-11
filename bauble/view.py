@@ -178,9 +178,10 @@ class PropertiesExpander(InfoExpander):
 
     def __init__(self):
         super().__init__(_('Properties'))
-        table = Gtk.Table(rows=4, columns=2)
-        table.set_col_spacings(15)
-        table.set_row_spacings(8)
+        table = Gtk.Grid()
+       
+        table.set_column_spacing(15)
+        table.set_row_spacing(8)
 
         # database id
         id_label = Gtk.Label(label="<b>"+_("ID:")+"</b>")
@@ -188,8 +189,9 @@ class PropertiesExpander(InfoExpander):
         id_label.set_alignment(1, .5)
         self.id_data = Gtk.Label(label='--')
         self.id_data.set_alignment(0, .5)
-        table.attach(id_label, 0, 1, 0, 1)
-        table.attach(self.id_data, 1, 2, 0, 1)
+        
+        table.attach(id_label, 0, 0, 1, 1)
+        table.attach(self.id_data, 1, 0, 1, 1)
 
         # object type
         type_label = Gtk.Label(label="<b>"+_("Type:")+"</b>")
@@ -197,8 +199,9 @@ class PropertiesExpander(InfoExpander):
         type_label.set_alignment(1, .5)
         self.type_data = Gtk.Label(label='--')
         self.type_data.set_alignment(0, .5)
-        table.attach(type_label, 0, 1, 1, 2)
-        table.attach(self.type_data, 1, 2, 1, 2)
+
+        table.attach(type_label, 0, 1, 1, 1)
+        table.attach(self.type_data, 1, 1, 1, 1)
 
         # date created
         created_label = Gtk.Label(label="<b>"+_("Date created:")+"</b>")
@@ -206,8 +209,8 @@ class PropertiesExpander(InfoExpander):
         created_label.set_alignment(1, .5)
         self.created_data = Gtk.Label(label='--')
         self.created_data.set_alignment(0, .5)
-        table.attach(created_label, 0, 1, 2, 3)
-        table.attach(self.created_data, 1, 2, 2, 3)
+        table.attach(created_label, 0, 2, 1, 1)
+        table.attach(self.created_data, 1, 2, 1, 1)
 
         # date last updated
         updated_label = Gtk.Label(label="<b>"+_("Last updated:")+"</b>")
@@ -215,8 +218,8 @@ class PropertiesExpander(InfoExpander):
         updated_label.set_alignment(1, .5)
         self.updated_data = Gtk.Label(label='--')
         self.updated_data.set_alignment(0, .5)
-        table.attach(updated_label, 0, 1, 3, 4)
-        table.attach(self.updated_data, 1, 2, 3, 4)
+        table.attach(updated_label, 0, 3, 1, 1)
+        table.attach(self.updated_data, 1, 3, 1, 1)
 
         box = Gtk.HBox()
         box.pack_start(table, False, False, 0)

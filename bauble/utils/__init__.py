@@ -754,7 +754,7 @@ def setup_text_combobox(combo, values=None, cell_data_func=None):
         if values is None:
             values = []
         model = Gtk.ListStore(str)
-        list(map(lambda v: model.append([v]), values))
+        list([model.append([v]) for v in values])
 
     combo.clear()
     combo.set_model(model)

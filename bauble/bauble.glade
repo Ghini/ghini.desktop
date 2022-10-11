@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.0 -->
+<!-- Generated with glade 3.38.2 -->
 <interface>
-  <requires lib="gtk+" version="3.18"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkListStore" id="history_ls">
     <columns>
       <!-- column-name timestamp -->
@@ -19,18 +19,18 @@
     </columns>
   </object>
   <object class="GtkWindow" id="history_window">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkScrolledWindow" id="history_sv">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
+        <property name="can-focus">True</property>
         <child>
           <object class="GtkTreeView" id="history_tv">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <property name="model">history_ls</property>
             <property name="reorderable">True</property>
-            <property name="rules_hint">True</property>
+            <property name="rules-hint">True</property>
             <signal name="row-activated" handler="on_row_activated" swapped="no"/>
             <child internal-child="selection">
               <object class="GtkTreeSelection"/>
@@ -103,7 +103,7 @@
   </object>
   <object class="GtkEntryCompletion" id="main_entrycompletion">
     <property name="model">many_liststore</property>
-    <property name="text_column">0</property>
+    <property name="text-column">0</property>
     <child>
       <object class="GtkCellRendererText" id="main_entrycompletion_renderer"/>
       <attributes>
@@ -112,26 +112,26 @@
     </child>
   </object>
   <object class="GtkWindow" id="main_window">
-    <property name="can_focus">True</property>
+    <property name="can-focus">True</property>
     <property name="title">Ghini</property>
     <property name="role">bauble</property>
-    <property name="default_width">800</property>
-    <property name="default_height">600</property>
-    <property name="startup_id">bauble</property>
+    <property name="default-width">800</property>
+    <property name="default-height">600</property>
+    <property name="startup-id">bauble</property>
     <child>
       <object class="GtkBox" id="top_box">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
+        <property name="can-focus">True</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox" id="main_box">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox" id="menu_box">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <property name="orientation">vertical</property>
               </object>
               <packing>
@@ -143,17 +143,17 @@
             <child>
               <object class="GtkBox" id="hbox1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <child>
                   <object class="GtkButton" id="home_button">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">back to startup screen</property>
+                    <property name="can-focus">False</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">back to startup screen</property>
                     <child>
                       <object class="GtkImage" id="image3">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="stock">gtk-home</property>
                       </object>
                     </child>
@@ -167,13 +167,13 @@
                 <child>
                   <object class="GtkButton" id="prev_view_button">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">previous view</property>
+                    <property name="can-focus">False</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">previous view</property>
                     <child>
                       <object class="GtkImage" id="image4">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="stock">gtk-go-back</property>
                       </object>
                     </child>
@@ -187,13 +187,13 @@
                 <child>
                   <object class="GtkButton" id="query_button">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">activate query builder</property>
+                    <property name="can-focus">False</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">activate query builder</property>
                     <child>
                       <object class="GtkImage" id="image2">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can-focus">True</property>
                         <property name="stock">gtk-properties</property>
                       </object>
                     </child>
@@ -207,8 +207,8 @@
                 <child>
                   <object class="GtkComboBoxText" id="main_comboentry">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="has_entry">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="has-entry">True</property>
                     <child>
                       <object class="GtkCellRendererText" id="main_cellrenderertext1">
                         <property name="xalign">0</property>
@@ -216,7 +216,7 @@
                     </child>
                     <child internal-child="entry">
                       <object class="GtkEntry">
-                        <property name="can_focus">True</property>
+                        <property name="can-focus">True</property>
                         <property name="completion">main_entrycompletion</property>
                       </object>
                     </child>
@@ -230,13 +230,13 @@
                 <child>
                   <object class="GtkButton" id="go_button">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">execute the query</property>
+                    <property name="can-focus">False</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">execute the query</property>
                     <child>
                       <object class="GtkImage" id="image1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can-focus">True</property>
                         <property name="stock">gtk-find</property>
                       </object>
                     </child>
@@ -259,12 +259,12 @@
             <child>
               <object class="GtkBox" id="vbox1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="msg_box_parent">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can-focus">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -275,7 +275,7 @@
                 <child>
                   <object class="GtkBox" id="view_box">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can-focus">True</property>
                     <property name="orientation">vertical</property>
                   </object>
                   <packing>
@@ -301,7 +301,7 @@
         <child>
           <object class="GtkStatusbar" id="statusbar">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -325,17 +325,17 @@
     </columns>
   </object>
   <object class="GtkWindow" id="notes_parent">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkScrolledWindow" id="notes_scrolledwindow">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
+        <property name="can-focus">True</property>
         <child>
           <object class="GtkTreeView" id="notes_treeview">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <property name="model">notes_liststore</property>
-            <property name="headers_clickable">False</property>
+            <property name="headers-clickable">False</property>
             <property name="reorderable">True</property>
             <child internal-child="selection">
               <object class="GtkTreeSelection"/>
@@ -420,24 +420,24 @@
     </columns>
   </object>
   <object class="GtkWindow" id="prefs_window">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkNotebook">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
+        <property name="can-focus">True</property>
         <child>
           <object class="GtkScrolledWindow">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">in</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
             <child>
               <object class="GtkTreeView" id="prefs_prefs_tv">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <property name="model">prefs_prefs_ls</property>
-                <property name="headers_clickable">False</property>
-                <property name="enable_search">False</property>
-                <property name="enable_grid_lines">horizontal</property>
+                <property name="headers-clickable">False</property>
+                <property name="enable-search">False</property>
+                <property name="enable-grid-lines">horizontal</property>
                 <signal name="row-activated" handler="on_prefs_prefs_tv_row_activated" swapped="no"/>
                 <child internal-child="selection">
                   <object class="GtkTreeSelection"/>
@@ -471,25 +471,25 @@
         <child type="tab">
           <object class="GtkLabel">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">Preferences</property>
             <attributes>
               <attribute name="weight" value="bold"/>
             </attributes>
           </object>
           <packing>
-            <property name="tab_fill">False</property>
+            <property name="tab-fill">False</property>
           </packing>
         </child>
         <child>
           <object class="GtkScrolledWindow">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">in</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
             <child>
               <object class="GtkTreeView">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <property name="model">prefs_plugins_ls</property>
                 <child internal-child="selection">
                   <object class="GtkTreeSelection"/>
@@ -526,7 +526,7 @@
         <child type="tab">
           <object class="GtkLabel">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">Plugins</property>
             <attributes>
               <attribute name="weight" value="bold"/>
@@ -534,7 +534,7 @@
           </object>
           <packing>
             <property name="position">1</property>
-            <property name="tab_fill">False</property>
+            <property name="tab-fill">False</property>
           </packing>
         </child>
         <child>
@@ -547,36 +547,36 @@
     </child>
   </object>
   <object class="GtkWindow" id="search_window">
-    <property name="can_focus">True</property>
+    <property name="can-focus">True</property>
     <child>
       <object class="GtkBox" id="search_vbox">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
+        <property name="can-focus">True</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkPaned" id="search_hpane">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <child>
               <object class="GtkPaned" id="search_h2pane">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <child>
                   <object class="GtkPaned" id="search_vpane">
-                    <property name="width_request">400</property>
+                    <property name="width-request">400</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can-focus">True</property>
                     <property name="orientation">vertical</property>
                     <property name="position">9999</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hscrollbar_policy">never</property>
+                        <property name="can-focus">True</property>
+                        <property name="hscrollbar-policy">never</property>
                         <child>
                           <object class="GtkTreeView" id="results_treeview">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
+                            <property name="can-focus">True</property>
                             <child internal-child="selection">
                               <object class="GtkTreeSelection"/>
                             </child>
@@ -591,8 +591,8 @@
                     <child>
                       <object class="GtkNotebook" id="bottom_notebook">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tab_pos">left</property>
+                        <property name="can-focus">False</property>
+                        <property name="tab-pos">left</property>
                       </object>
                       <packing>
                         <property name="resize">False</property>

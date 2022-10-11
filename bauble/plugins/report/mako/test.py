@@ -114,7 +114,7 @@ class MakoFormatterTests(BaubleTestCase):
                 todo = selection
             logger.debug('formatting ›%s‹' % filename)
             report = MakoFormatterPlugin.format(todo, template=filename)
-            self.assertEquals((i, filename, type(report)), (i, filename, bytes))
+            self.assertEqual((i, filename, type(report)), (i, filename, bytes))
 
     def test_format_qr_postscript_templates(self):
         selection = self.session.query(Plant).all()
@@ -138,7 +138,7 @@ class MakoFormatterTests(BaubleTestCase):
             todo = sorted(get_pertinent_objects(cls, selection),
                           key=utils.natsort_key)
             report = MakoFormatterPlugin.format(todo, template=filename)
-            self.assertEquals((filename, type(report)), (filename, bytes))
+            self.assertEqual((filename, type(report)), (filename, bytes))
 
     def test_format_qr_svg_templates(self):
         from nose import SkipTest
@@ -156,7 +156,7 @@ class MakoFormatterTests(BaubleTestCase):
             filename = os.path.join(td, tn)
             options = dict((n, d) for (n, t, d, p) in  MakoFormatterPlugin.get_options(filename))
             report = MakoFormatterPlugin.format(plants, template=filename, **options)
-            self.assertEquals((filename, type(report)), (filename, bytes))
+            self.assertEqual((filename, type(report)), (filename, bytes))
 
 
 class PostscriptProductionTest(TestCase):

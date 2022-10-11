@@ -61,4 +61,4 @@ max_column = max(i for i in range(sheet.max_column) if sheet.cell(row=1, column=
 header = [sheet.cell(row=1, column=i+1).value for i in range(max_column)]
 
 for rn in range(1, sheet.max_row):
-    row = dict(zip(header, [sheet.cell(row=rn+1, column=i+1).value for i in range(max_column)]))
+    row = dict(list(zip(header, [sheet.cell(row=rn+1, column=i+1).value for i in range(max_column)])))

@@ -382,7 +382,7 @@ class CollectionPresenter(editor.ChildPresenter):
     def refresh_view(self):
         from bauble.plugins.garden.accession import latitude_to_dms, \
             longitude_to_dms
-        for widget, field in self.widget_to_field_map.items():
+        for widget, field in list(self.widget_to_field_map.items()):
             value = getattr(self.model, field)
             logger.debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':

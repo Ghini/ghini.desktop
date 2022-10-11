@@ -21,7 +21,7 @@
 
 import csv
 import json
-import staale
+from . import staale
 
 k = []
 #header = ['No', 'NOMBRE CIENTIFICO', 'FAMILIA', 'Nombre común', 'Uso Actual y Potencial', 'Importancia ecológica', 'Ecosistema', 'Habito', 'Procedencia']
@@ -69,10 +69,10 @@ with open("/tmp/out.json", "w") as out:
     for line_no, r in enumerate(csv.reader(open(input_file_name))):
         if line_no == 0:
             continue
-        obj = dict(zip(header, [i.strip() for i in r]))
+        obj = dict(list(zip(header, [i.strip() for i in r])))
         if len(obj) == 1:
             break
-        for k1, k2 in fields.items():
+        for k1, k2 in list(fields.items()):
             obj[k2] = obj.get(k1)
         if not obj['binomial'].strip():
             obj['binomial'] = 'Zzz sp'

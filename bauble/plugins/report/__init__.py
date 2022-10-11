@@ -447,7 +447,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             elif name in names:
                 if butils.yes_no_dialog(_('template name ›%s‹ is already in use.\ndo you mean to overwrite it?') % name) is False:
                     continue
-            for plugin in self.formatter_class_map.values():
+            for plugin in list(self.formatter_class_map.values()):
                 if plugin.can_handle(template):
                     break
             else:

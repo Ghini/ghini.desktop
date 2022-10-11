@@ -197,7 +197,7 @@ class StoredQueriesPresenterTests(BaubleTestCase):
         self.assertEqual(m.page, 4)
         presenter.view.values['stqr_label_entry'] = 'abc'
         presenter.on_label_entry_changed('stqr_label_entry')
-        print(presenter.view.invoked_detailed)
+        print((presenter.view.invoked_detailed))
         self.assertEqual(m.label, 'abc')
         self.assertTrue(('widget_set_text', ('stqr_04_label', 'abc')) in
                         presenter.view.invoked_detailed)

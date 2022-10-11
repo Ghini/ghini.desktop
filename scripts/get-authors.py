@@ -25,13 +25,13 @@
 # will query tropicos and generate a json file for the same species, but
 # with authorship. pipe the output to a different json file.
 
-from __future__ import print_function
+
 
 import sys
 import json
 import fileinput
 
-import gettropicos
+from . import gettropicos
 
 result = []
 json_to_import = "\n".join(fileinput.input())
@@ -55,4 +55,4 @@ for i in values:
                   '"ht-rank": "genus", "rank": "species"}' % obj)
     sys.stderr.write('ok\n')
 
-print("[" + ",\n  ".join(result) + "]")
+print(("[" + ",\n  ".join(result) + "]"))

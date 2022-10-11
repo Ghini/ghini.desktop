@@ -98,8 +98,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         combo = self.view.widgets.sp_habit_comboentry
         model = Gtk.ListStore(str, object)
-        list(map(lambda p: model.append(p),
-            [(str(h), h) for h in self.session.query(Habit)]))
+        list([model.append(p) for p in [(str(h), h) for h in self.session.query(Habit)]])
         utils.setup_text_combobox(combo, model)
 
         def on_focus_out(entry, event):
@@ -500,7 +499,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         return r
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.items():
+        for widget, field in list(self.widget_to_field_map.items()):
             if field == 'genus_id':
                 value = self.model.genus
             else:
@@ -565,8 +564,11 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             self.presenter = presenter
             self.species = presenter.model
             table = self.presenter.view.widgets.infrasp_table
-            nrows = table.props.n_rows
-            ncols = table.props.n_columns
+            #print(dir(table))
+            #nrows = table.props.n_rows
+            #ncols = table.props.n_columns
+            nrows = table.get_allocated_height()
+            ncols = table.get_allocated_width()
             self.level = level
 
             rank, epithet, author = self.species.get_infrasp(self.level)
@@ -578,37 +580,42 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             utils.set_widget_value(self.rank_combo, rank)
             presenter.view.connect(self.rank_combo,
                                    'changed', self.on_rank_combo_changed)
-            table.attach(self.rank_combo, 0, 1, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL,
-                         yoptions=Gtk.AttachOptions.FILL)
+            #                             left, right, top, bottom
+            #table.attach(self.rank_combo, 0, 1, level, level+1)
+            #                            column, row,  width, height
+            table.attach(self.rank_combo, 0, level, 1, 1)
 
             # epithet entry
             self.epithet_entry = Gtk.Entry()
             utils.set_widget_value(self.epithet_entry, epithet)
             presenter.view.connect(self.epithet_entry, 'changed',
                                    self.on_epithet_entry_changed)
-            table.attach(self.epithet_entry, 1, 2, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,
-                         yoptions=Gtk.AttachOptions.FILL)
+            table.attach(self.epithet_entry, 1, level, 1, 1)
+            #table.attach(self.epithet_entry, 1, 2, level, level+1,
+            #             xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,
+            #             yoptions=Gtk.AttachOptions.FILL)
 
             # author entry
             self.author_entry = Gtk.Entry()
             utils.set_widget_value(self.author_entry, author)
             presenter.view.connect(self.author_entry, 'changed',
                                    self.on_author_entry_changed)
-            table.attach(self.author_entry, 2, 3, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,
-                         yoptions=Gtk.AttachOptions.FILL)
+            table.attach(self.author_entry, 2, level, 1, 1)
+            #table.attach(self.author_entry, 2, 3, level, level+1,
+            #             xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,
+            #             yoptions=Gtk.AttachOptions.FILL)
 
             self.remove_button = Gtk.Button()
+            self.remove_button.set_property('hexpand', False)
             img = Gtk.Image.new_from_stock(Gtk.STOCK_REMOVE,
                                            Gtk.IconSize.BUTTON)
             self.remove_button.props.image = img
             presenter.view.connect(self.remove_button, 'clicked',
                                    self.on_remove_button_clicked)
-            table.attach(self.remove_button, 3, 4, level, level+1,
-                         xoptions=Gtk.AttachOptions.FILL,
-                         yoptions=Gtk.AttachOptions.FILL)
+            table.attach(self.remove_button, 3, level, 1, 1)
+            #table.attach(self.remove_button, 3, 4, level, level+1,
+            #             xoptions=Gtk.AttachOptions.FILL,
+            #             yoptions=Gtk.AttachOptions.FILL)
             table.show_all()
 
         def on_remove_button_clicked(self, *args):
@@ -1172,14 +1179,14 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         save the current state of the gui to the preferences
         '''
-        for expander, pref in self.expanders_pref_map.items():
+        for expander, pref in list(self.expanders_pref_map.items()):
             prefs[pref] = self.widgets[expander].get_expanded()
 
     def restore_state(self):
         '''
         restore the state of the gui from the preferences
         '''
-        for expander, pref in self.expanders_pref_map.items():
+        for expander, pref in list(self.expanders_pref_map.items()):
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 

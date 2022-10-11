@@ -114,6 +114,6 @@ class ABCDTestCase(BaubleTestCase):
         assert plants.count() > 0
         # create abcd from plants
         data = plants_to_abcd(plants)
-        self.assertNotEquals(data, None)
+        self.assertNotEqual(data, None)
         # assert validate abcd
         self.assertTrue(self.abcd_schema.validate(data), self.abcd_schema.error_log)

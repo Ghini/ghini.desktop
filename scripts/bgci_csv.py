@@ -60,14 +60,14 @@ if options.port:
 
 conn_str = ' '.join(connect_args)
 if options.verbose:
-    print conn_str
+    print(conn_str)
 conn = dbapi.connect(conn_str)
 cursor = conn.cursor()
 
 sql = "select distinct g.hybrid, g.genus, s.sp_hybrid, s.sp, s.infrasp_rank, s.infrasp from genus as g, species as s, accession as a, plant as p where s.genus_id = g.id and a.species_id = s.id and p.accession_id = a.id and p.acc_status='Living accession' and s.sp != 'sp' and s.sp != 'spp' and s.sp != 'sp.' and s.sp != 'spp.' order by g.genus, s.sp;"
 
 if options.verbose:
-    print '- %s' % sql
+    print(('- %s' % sql))
 
 cursor.execute(sql)
 rows = cursor.fetchall()
@@ -82,15 +82,15 @@ for row in rows:
         line.append(line[SP_INFRASP])
     else:
         line.append(None)
-    print ','.join(['%s' % (col or '') for col in line])
+    print((','.join(['%s' % (col or '') for col in line])))
 
 if options.verbose:
-    print '%s results' % cursor.rowcount
+    print(('%s results' % cursor.rowcount))
 
 if options.verbose:
-    print '** Warning: the output from this file is not suitable for '\
+    print('** Warning: the output from this file is not suitable for '\
           'importing into the BGCI Plant Search when the verbose output (-v) '\
-          'option is enabled.'
+          'option is enabled.')
 
 def main():
     pass

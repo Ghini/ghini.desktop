@@ -56,7 +56,7 @@ class Reader(object):
         m = self.line_rx.match(line.strip())
         if m is None:
             raise ValueError("could not match:\n%s\n%s" % \
-                (unicode(line), (unicode(s))))
+                (str(line), (str(s))))
         return m.groupdict()
 
 
@@ -64,8 +64,8 @@ class Reader(object):
         return self
 
 
-    def next(self):
-        line = self.file.next()
+    def __next__(self):
+        line = next(self.file)
         # remove the stupid ,00 decimals at the end of the integers
         #line = self.file.next().replace(',00','')
         return self.group(line)
@@ -114,7 +114,7 @@ def convert_level1():
         r = Row(id=str(id_ctr), name=line['L1_continent'],
                 tdwg_code=line['L1_code'])
         converted_rows[line['L1_code']] = r
-        print r.csv()
+        print((r.csv()))
         id_ctr+=1
 
 
@@ -126,7 +126,7 @@ def convert_level2():
                 tdwg_code=line['L2_code'], iso_code=line['L2_ISOcode'])
         r.parent_id = converted_rows[line['L1_code']]['id']
         converted_rows[line['L2_code']] = r
-        print r.csv()
+        print((r.csv()))
         id_ctr+=1
 
 
@@ -139,7 +139,7 @@ def convert_level3():
         #r.parent_id = converted_rows[line['L2_code']]['id']
         r['parent_id'] = converted_rows[line['L2_code']]['id']
         converted_rows[line['L3_code']] = r
-        print r.csv()
+        print((r.csv()))
         id_ctr+=1
 
 
@@ -154,7 +154,7 @@ def convert_level4():
                 tdwg_code=line['L4_code'], iso_code=line['L4_ISOcode'])
         r.parent_id = converted_rows[line['L3_code']]['id']
         converted_rows[line['L4_code']] = r
-        print r.csv()
+        print((r.csv()))
         id_ctr+=1
 
 
@@ -185,35 +185,35 @@ def convert_gazetteer():
             continue
         try:
             r.parent_id = converted_rows[line['L4_code']]['id']
-        except KeyError, e:
+        except KeyError as e:
             try:
                 r.parent_id = converted_rows[line['L3_code']]['id']
-            except KeyError, e:
+            except KeyError as e:
                 try:
                     r.parent_id = converted_rows[line['L2_code']]['id']
-                except KeyError, e:
+                except KeyError as e:
                     try:
                         r.parent_id = converted_rows[line['L1_code']]['id']
-                    except KeyError, e:
+                    except KeyError as e:
                         pass
 
         # add the converted rows and print out the csv line
         converted_rows[line['ID']] = r
-        print r.csv()
+        print((r.csv()))
         id_ctr+=1
 
 
 def main():
     global id_ctr, converted_rows
 
-    print ','.join(['"%s"' % c for c in Row.columns])
+    print((','.join(['"%s"' % c for c in Row.columns])))
     convert_level1()
     convert_level2()
     convert_level3()
     convert_level4()
     convert_gazetteer()
 
-    print Row(id='%s' % id_ctr, name='Cultivated').csv()
+    print((Row(id='%s' % id_ctr, name='Cultivated').csv()))
     id_ctr +=1
 
 

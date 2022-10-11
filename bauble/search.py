@@ -622,7 +622,7 @@ class ValueListAction(object):
             utils.ilike(table.c[col], ('%%%s%%' % val))
 
         result = set()
-        for cls, columns in search_strategy._properties.items():
+        for cls, columns in list(search_strategy._properties.items()):
             column_cross_value = [(c, v) for c in columns
                                   for v in self.express()]
             # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
@@ -846,7 +846,7 @@ class MapperSearch(SearchStrategy):
     @classmethod
     def get_domain_classes(cls):
         d = {}
-        for domain, item in cls._domains.items():
+        for domain, item in list(cls._domains.items()):
             d.setdefault(domain, item[0])
         return d
 

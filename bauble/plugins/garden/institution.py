@@ -341,7 +341,7 @@ class Institution(object):
 
     def __init__(self):
         # initialize properties to None
-        list(map(lambda p: setattr(self, p, None), self.__properties))
+        list([setattr(self, p, None) for p in self.__properties])
 
         for prop in self.__properties:
             db_prop = utils.utf8('inst_' + prop)

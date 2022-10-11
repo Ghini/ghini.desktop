@@ -20,6 +20,7 @@
 
 
 import gi
+import imp
 gi.require_version('Gtk', '3.0')
 
 import os
@@ -229,7 +230,7 @@ class TagTests(BaubleTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', 'Are you sure you want to '
@@ -259,7 +260,7 @@ class TagTests(BaubleTestCase):
         self.session.flush()
 
         # effect
-        print(self.invoked)
+        print((self.invoked))
         self.assertTrue('_reset_tags_menu' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', 'Are you sure you want to '
@@ -542,7 +543,7 @@ class TagCallbackTest(BaubleTestCase):
         import bauble
         bauble.gui = localgui = FakeGui()
         tag_plugin._on_add_tag_activated()
-        reload(bauble)
+        imp.reload(bauble)
         self.assertEqual(localgui.invoked[0],
                           (('In order to tag an item you must first search for something and select one of the results.', ), {}))
 
@@ -571,7 +572,7 @@ class TagCallbackTest(BaubleTestCase):
         bauble.gui = localgui = FakeGui()
         utils.message_dialog = bauble.gui.show_message_box
         tag_plugin._on_add_tag_activated()
-        reload(bauble)
-        reload(utils)
+        imp.reload(bauble)
+        imp.reload(utils)
         self.assertEqual(localgui.invoked[0],
                           (('Nothing selected', ), {}))

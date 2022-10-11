@@ -43,7 +43,7 @@ if options.conn is None:
 
 # a directory full of CSV text files exported from Bauble 0.6
 src_path = None
-print args
+print(args)
 if len(args) == 0:
     src_path = os.getcwd()
 else:
@@ -63,14 +63,14 @@ session = create_session()
 
 major, minor, rev = bauble.version
 if minor != 6:
-    print '** Error: This script will only upgrade from bauble 0.6'
+    print('** Error: This script will only upgrade from bauble 0.6')
     sys.exit(1)
 
 
 def quote(s):
     if s is None:
         return ''
-    elif isinstance(s, (str, unicode)):
+    elif isinstance(s, str):
         return '"%s"' % s
     return '%s' % s
 
@@ -85,13 +85,13 @@ def write_csv(filename, rows):
 
 
 def migrate_idqual():
-    print 'migrating idqual'
+    print('migrating idqual')
     # select all species that have idqual set
     #species = species.select(id_qual != None)
     sp_results = select([species_table.c.id, species_table.c.id_qual],
                         species_table.c.id_qual != None).execute()
 #    print sp_results
-    acc_cols = accession_table.c.keys()
+    acc_cols = list(accession_table.c.keys())
     new_cols = acc_cols[:]
     new_cols.append('id_qual')
     rows = []
@@ -115,7 +115,7 @@ def migrate_idqual():
 
     # copy the species and remove the id_qaul column
     rows = []
-    sp_cols = species_table.c.keys()
+    sp_cols = list(species_table.c.keys())
     sp_cols.remove('id_qual')
     rows.append(sp_cols)
     for sp in species_table.select().execute():
@@ -173,5 +173,5 @@ copy_list = ['donor.txt', 'family_synonym.txt', 'family.txt',
              'plant_history.txt', 'vernacular_name.txt', 'donation.txt',
              'plant.txt']
 for f in copy_list:
-    print 'copying %s' % f
+    print(('copying %s' % f))
     shutil.copy(os.path.join(src_path, f), dst_path)

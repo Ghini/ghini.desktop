@@ -192,7 +192,7 @@ def init(force=False):
         # allows you to connect to a pre bauble 0.9 database and use it to
         # upgrade to a >=0.9 database
         registered_names = PluginRegistry.names()
-        not_installed = [p for n, p in plugins.items()
+        not_installed = [p for n, p in list(plugins.items())
                          if n not in registered_names]
         if len(not_installed) > 0:
             msg = _('The following plugins were not found in the plugin '

@@ -36,4 +36,4 @@ def getTropicos(epithet):
 
 if __name__ == '__main__':
     import sys
-    print getTropicos(' '.join(sys.argv[1:]))
+    print((getTropicos(' '.join(sys.argv[1:]))))

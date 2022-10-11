@@ -30,7 +30,7 @@ input_file_name = '/tmp/plants.csv'
 result = []
 
 for r in csv.reader(open(input_file_name)):
-    obj = dict(zip(header, [i.strip() for i in r]))
+    obj = dict(list(zip(header, [i.strip() for i in r])))
     code = obj['Numeración']
     plant = {"accession": code, "code": "1", "location": "INV4", "object": "plant"}
     if obj['Condición fitosanitaria'] == 'Muerta':

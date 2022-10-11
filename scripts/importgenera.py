@@ -47,12 +47,12 @@ from bauble.plugins.plants import Genus
 bauble.db.open(dburi, True, True)
 session = bauble.db.Session()
 
-q = session.query(Species).filter(Species.infrasp1 == u'sp')
-q = q.join(Genus).filter(Genus.epithet == u'Zzz')
+q = session.query(Species).filter(Species.infrasp1 == 'sp')
+q = q.join(Genus).filter(Genus.epithet == 'Zzz')
 zzz = q.one()
 
-q = session.query(Species).filter(Species.epithet == u'sp')
-q = q.join(Genus).filter(Genus.epithet == u'Zzz')
+q = session.query(Species).filter(Species.epithet == 'sp')
+q = q.join(Genus).filter(Genus.epithet == 'Zzz')
 zzzsp = q.one()
 
 import sys
@@ -62,7 +62,7 @@ unknown = []
 import fileinput, re
 for line in fileinput.input():
     sys.stdout.flush()
-    text = unicode(line.strip())
+    text = str(line.strip())
     if not text:
         continue  # skip any empty lines
 
@@ -74,12 +74,12 @@ for line in fileinput.input():
     if genus_name:
         genus = session.query(Genus).filter(Genus.epithet == genus_name).one()
         try:
-            species = session.query(Species).filter(Species.genus == genus).filter(Species.infrasp1 == u'sp').first()
+            species = session.query(Species).filter(Species.genus == genus).filter(Species.infrasp1 == 'sp').first()
             if species is None:
                 raise Exception
             sys.stdout.write('+')
         except:
-            species = Species(genus=genus, sp=u'', infrasp1=u'sp')
+            species = Species(genus=genus, sp='', infrasp1='sp')
             session.add(species)
             sys.stdout.write('*')
             session.flush()
@@ -104,7 +104,7 @@ for line in fileinput.input():
         conflicting.setdefault(species.str(), []).append((accession.code, accession.species.str()))
         sys.stdout.write('!')
 
-print
+print()
 session.commit()
-print conflicting
-print unknown
+print(conflicting)
+print(unknown)
