@@ -50,7 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Clone ghini.desktop repository
 RUN mkdir -p $HOME/Local/github/Ghini \
     && cd $HOME/Local/github/Ghini \
-    && git clone -b $LINE https://github.com/Ghini/ghini.desktop.git
+    && git clone -b $LINE git@gitlab.com:cwyse/ghini-desktop.git
 
 # Set the working directory to the cloned repository
 WORKDIR $HOME/Local/github/Ghini/ghini.desktop
