@@ -539,7 +539,7 @@ class PopulateResults(threading.Thread):
             groups.append(list(group))
 
         # sort again by type name, so we have a deterministic output
-        groups = sorted(groups, key=lambda x: x[:2])
+        groups = sorted(groups, key=lambda x: x[0][0], reverse=True)
 
         model = self.view.results_view.get_model()
 
