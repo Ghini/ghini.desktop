@@ -1,0 +1,148 @@
+[build-system]
+requires = [
+    "setuptools>=65.5.0",
+    "wheel",
+    "toml",
+    "setuptools-scm>=8.0"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ghini-desktop"
+dynamic = ["version"]
+description = "Ghini: a biodiversity collection manager"
+keywords = [
+    "database",
+    "biodiversity",
+    "botany",
+    "collection",
+    "herbarium",
+    "arboretum"
+]
+license = "GPL-2.0-or-later"
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "certifi==2024.8.30",
+    "chardet==5.2.0",
+    "ecdsa==0.19.0",
+    "fibra==0.0.20",
+    "gdata-python3==3.0.1",
+    "idna==3.4",
+    "Jinja2==3.1.2",
+    "lxml==5.3.0",
+    "Mako==1.2.4",
+    "MarkupSafe==3.0.2",
+    "Pillow==10.0.1",
+    "psycopg2==2.9.10",
+    "pycairo==1.27.0",
+    "PyGObject==3.50.0",
+    "pyparsing==3.1.1",
+    "PyQRCode==1.2.1",
+    "python-dateutil==2.8.2",
+    "raven==6.10.0",
+    "requests==2.32.3",
+    "six==1.16.0",
+    "SQLAlchemy==2.0.36",
+    "tlslite-ng==0.7.6",
+    "urllib3==2.1.0"
+]
+
+[[project.authors]]
+name = "Brett Adams"
+email = "brett@belizebotanic.org"
+
+[[project.authors]]
+name = "Mario Frasca"
+email = "mario@anche.no"
+
+[[project.authors]]
+name = "Ross Demuth"
+email = "rossdemuth123@gmail.com"
+
+[[project.authors]]
+name = "Chris Wyse"
+email = "chris.wyse@wysechoice.net"
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.4.0",
+    "pytest-cov==6.0.0",
+    "tox==4.8.0"
+]
+docs = [
+    "Sphinx==7.4.7",
+    "sphinx-rtd-theme==3.0.2",
+    "sphinx-autodoc-typehints==2.3.0"
+]
+
+[project.urls]
+homepage = "http://ghini.github.io/"
+repository = "https://github.com/ghini/ghini.desktop"
+documentation = "http://ghini.github.io/docs"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "bauble",
+    "bauble.*"
+]
+exclude = [
+    "test",
+    "bauble.*.test",
+    "ghini.*.test"
+]
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "node-and-date"
+
+[tool.ghini]
+platforms = [
+    "Linux",
+    "Windows",
+    "macOS"
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["mypackage"]
+src_paths = ["src"]
+
+[tool.ruff]
+line-length = 88
+exclude = ["tests/data"]
+src = ["src"]
+
+[tool.ruff.lint]
+extend-select = ["I", "E", "F", "B", "UP", "N", "W", "C90"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = "src"
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/node_modules", "**/__pycache__"]
+typeCheckingMode = "strict"
+pythonVersion = "3.9"
+venvPath = "."
+venv = ".venv"
+reportMissingImports = true
+reportMissingTypeStubs = false
+# pyproject.toml
+executionEnvironments = [
+  { extraPaths = ["src", "lib", "bauble/plugins"] }
+]
