@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage:
+  scripts/docker-dev build
+  scripts/docker-dev app
+  scripts/docker-dev debug
+  scripts/docker-dev pytest
+  scripts/docker-dev pytest-debug
+  scripts/docker-dev shell
+  scripts/docker-dev run -- <command> [args...]
+
+Environment:
+  Copy .env.example to .env and adjust local database, Kerberos, and display
+  values. The script loads .env automatically when it exists.
+
+Useful overrides:
+  GHINI_IMAGE=ghini-desktop-dev:latest
+  GHINI_CONTAINER=ghini-dev
+  GHINI_ENV_FILE=.env
+  GHINI_PROJECT_DIR=<repo path>
+  GHINI_CONFIG_DIR=$HOME/.bauble/3.1
+  GHINI_KRB5_DIR=$HOME/krb5
+  GHINI_XHOST=1
+EOF
+}
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/.." && pwd)"
+
+env_file="${GHINI_ENV_FILE:-${repo_root}/.env}"
+if [[ -f "${env_file}" ]]; then
+    while IFS= read -r line || [[ -n "${line}" ]]; do
+        [[ "${line}" =~ ^[[:space:]]*$ || "${line}" =~ ^[[:space:]]*# ]] && continue
+        [[ "${line}" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]] || continue
+
+        name="${line%%=*}"
+        if [[ ! -v "${name}" ]]; then
+            set -a
+            source <(printf '%s\n' "${line}")
+            set +a
+        fi
+    done < "${env_file}"
+fi
+
+image="${GHINI_IMAGE:-ghini-desktop-dev:latest}"
+container="${GHINI_CONTAINER:-ghini-dev}"
+project_dir="${GHINI_PROJECT_DIR:-${repo_root}}"
+config_dir="${GHINI_CONFIG_DIR:-${HOME}/.bauble/3.1}"
+krb5_dir="${GHINI_KRB5_DIR:-${HOME}/krb5}"
+xauthority="${GHINI_XAUTHORITY:-${XAUTHORITY:-${HOME}/.Xauthority}}"
+dri_dir="${GHINI_DRI_DIR:-/usr/lib/dri}"
+
+command="${1:-help}"
+if [[ $# -gt 0 ]]; then
+    shift
+fi
+
+build_image() {
+    docker buildx build \
+        --progress=plain \
+        --build-arg "USER_ID=$(id -u)" \
+        --build-arg "GROUP_ID=$(id -g)" \
+        --load \
+        -f "${repo_root}/Dockerfile.dev" \
+        -t "${image}" \
+        "${repo_root}"
+}
+
+add_env_if_set() {
+    local name="$1"
+    if [[ -n "${!name:-}" ]]; then
+        docker_args+=("--env" "${name}")
+    fi
+}
+
+allow_xhost() {
+    if [[ "${GHINI_XHOST:-1}" != "1" || -z "${DISPLAY:-}" ]]; then
+        return
+    fi
+
+    if command -v xhost >/dev/null 2>&1; then
+        xhost "+SI:localuser:$(id -un)" >/dev/null
+    fi
+}
+
+run_container() {
+    local mode="$1"
+    shift || true
+
+    mkdir -p "${config_dir}"
+
+    local -a docker_args=(
+        --rm
+        --interactive
+        --name "${container}"
+        --user "$(id -u):$(id -g)"
+        --workdir /app
+        --publish 5678:5678
+        --env "GHINI_MODE=${mode}"
+        --env "HOME=/home/ghini"
+        --env "USER=ghini"
+        --env "LOGNAME=ghini"
+        --env "NO_AT_BRIDGE=${NO_AT_BRIDGE:-1}"
+        --env "DISPLAY=${DISPLAY:-}"
+        --volume "${project_dir}:/app"
+        --volume "${config_dir}:/home/ghini/.bauble/3.1"
+    )
+
+    if [[ -t 1 ]]; then
+        docker_args+=(--tty)
+    fi
+
+    if [[ -d /tmp/.X11-unix ]]; then
+        docker_args+=("--volume" /tmp/.X11-unix:/tmp/.X11-unix:rw)
+    fi
+
+    if [[ -f "${xauthority}" ]]; then
+        docker_args+=(
+            --env "XAUTHORITY=/home/ghini/.Xauthority"
+            --volume "${xauthority}:/home/ghini/.Xauthority:ro"
+        )
+    fi
+
+    if [[ -d "${krb5_dir}" ]]; then
+        docker_args+=("--volume" "${krb5_dir}:/krb5:ro")
+    fi
+
+    if [[ -d "${dri_dir}" ]]; then
+        docker_args+=("--volume" "${dri_dir}:${dri_dir}:ro")
+    fi
+
+    if [[ -e /dev/dri ]]; then
+        docker_args+=("--device" /dev/dri:/dev/dri)
+    fi
+
+    local env_name
+    for env_name in \
+        DB_HOST \
+        DB_PORT \
+        DB_NAME \
+        DB_USER \
+        DB_PASSWORD \
+        DB_SSLMODE \
+        KRB5_CONFIG \
+        KRB5_CLIENT_KTNAME \
+        PYTEST_ARGS \
+        DEBUG; do
+        add_env_if_set "${env_name}"
+    done
+
+    allow_xhost
+    docker run "${docker_args[@]}" "${image}" "$@"
+}
+
+case "${command}" in
+    build)
+        build_image
+        ;;
+    app|debug|pytest|pytest-debug|shell)
+        run_container "${command}" "$@"
+        ;;
+    run)
+        if [[ "${1:-}" == "--" ]]; then
+            shift
+        fi
+        if [[ $# -eq 0 ]]; then
+            usage
+            exit 2
+        fi
+        run_container shell "$@"
+        ;;
+    help|-h|--help)
+        usage
+        ;;
+    *)
+        usage
+        exit 2
+        ;;
+esac
