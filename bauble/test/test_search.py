@@ -1126,7 +1126,7 @@ class TestSearch:
         results = mapper_search.search(query, db_session)
 
         # Validate results
-        assert results == [g3]
+        assert results == {g3}
 
     def test_search_by_query_synonyms_disabled(self, db_session) -> None:
         """
@@ -1158,7 +1158,7 @@ class TestSearch:
         results = mapper_search.search(query, db_session)
 
         # Validate results
-        assert results == []
+        assert results == set()
 
     def test_search_by_query_vernacular(self, db_session) -> None:
         """

@@ -1819,6 +1819,9 @@ class SearchParser:
             | binomial_name("binomial")
             | self.value_list("value_list")
         ).set_parse_action(lambda t: StatementAction(t))("statement")
+        self.value = value
+        self.domain_expression = domain_expression
+        self.query = query
 
     def parse_string(self, text: str) -> Any:
         """request pyparsing object to parse text
