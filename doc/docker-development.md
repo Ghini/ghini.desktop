@@ -101,6 +101,22 @@ Open this repository in VS Code and use the Docker tasks:
 The debug configurations attach to debugpy in the container and map the local
 workspace to `/app`.
 
+## VS Code Dev Containers
+
+The repository also includes `.devcontainer/devcontainer.json`. With the VS Code
+Dev Containers extension installed:
+
+1. Open the repository in VS Code.
+2. Run `Dev Containers: Reopen in Container`.
+3. Let VS Code build the `Dockerfile.dev` image.
+
+The Dev Container setup creates `.env` from `.env.example` when `.env` does not
+exist. Edit `.env` on the host for your database, display, and Kerberos
+settings before launching Ghini.
+
+The container uses `/opt/venv/ghini/bin/python` as the Python interpreter and
+keeps the repository mounted at `/app`.
+
 ## Notes
 
 - The development image uses apt-provided PyGObject and GI typelibs rather
