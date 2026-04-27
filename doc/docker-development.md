@@ -24,6 +24,10 @@ The committed `.env.example` contains placeholders. The local `.env` file is
 ignored by Git because it may contain database hostnames, database names,
 Kerberos paths, and other machine-specific settings.
 
+For password-based PostgreSQL authentication, set `DB_PASSWORD` in `.env`.
+`scripts/docker-dev` passes it through to the container but it should remain
+local and uncommitted.
+
 ## Build
 
 ```sh
