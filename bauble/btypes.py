@@ -152,11 +152,11 @@ class Enum(types.TypeDecorator):
         super().__init__()
         # Validate values
         if not values or not isinstance(values, (list, set, tuple)):
-            raise ValueError("Enum requires a list or tuple of values")
+            raise EnumError("Enum requires a list or tuple of values")
         if not all(isinstance(x, (str, type(None))) for x in values):
-            raise ValueError("Enum requires string values (or None)")
+            raise EnumError("Enum requires string values (or None)")
         if len(values) != len(set(values)):
-            raise ValueError("Enum requires unique values")
+            raise EnumError("Enum requires unique values")
 
         # Ensure None is present if `empty_to_none` is True
         if empty_to_none and None not in values:
@@ -166,15 +166,15 @@ class Enum(types.TypeDecorator):
                 )
             )
 
-        # Convert values to a **mutable list**
-        # self.values = list(values)  # ✅ Now mutable
-        self.values = FreezableList(values)
-        self.values.freeze()
+        self.values = tuple(values)
         self.strict = strict
         self.empty_to_none = empty_to_none
 
-        # Ensure translations is always a dictionary
-        self.translations = translations if isinstance(translations, dict) else {}
+        translations_map = translations if isinstance(translations, dict) else {}
+        self.translations = tuple(
+            sorted(translations_map.items(), key=lambda item: repr(item[0]))
+        )
+        self._translations_map = dict(translations_map)
 
         # Determine max length for database storage
         max_length = max((len(v) for v in values if v is not None), default=1)
@@ -198,7 +198,7 @@ class Enum(types.TypeDecorator):
             return None
         if isinstance(value, str):
             # map aliases → canonical
-            val = self.translations.get(value, value)
+            val = self._translations_map.get(value, value)
             if self.empty_to_none and val == "":
                 return None
             return val
@@ -250,10 +250,10 @@ class Enum(types.TypeDecorator):
         Create a copy of the Enum type with the same configuration.
         """
         return Enum(
-            values=self.values.copy(),  # ✅ Preserve mutability
+            values=list(self.values),
             empty_to_none=self.empty_to_none,
             strict=self.strict,
-            translations=self.translations.copy(),
+            translations=dict(self.translations),
         )
 
 
