@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2015,2018 Mario Frasca <mario@anche.no>.
 #
@@ -21,15 +20,17 @@
 #
 # Description: plugin to provide importing and exporting
 #
-
 # TODO: would be best to provide some intermediate format so that we could
 # transform from any format to another
+from typing import Any
 
 import bauble.pluginmgr as pluginmgr
-from bauble.plugins.imex.csv_ import CSVImportTool, CSVExportTool, \
-    CSVExportCommandHandler, CSVImportCommandHandler
-from bauble.plugins.imex.iojson import JSONImportTool, JSONExportTool
-from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
+from bauble.plugins.imex.csv_ import CSVExportCommandHandler as CSVExportCommandHandler
+from bauble.plugins.imex.csv_ import CSVExportTool as CSVExportTool
+from bauble.plugins.imex.csv_ import CSVImportCommandHandler as CSVImportCommandHandler
+from bauble.plugins.imex.csv_ import CSVImportTool as CSVImportTool
+from bauble.plugins.imex.iojson import JSONExportTool, JSONImportTool
+from bauble.plugins.imex.xml import XMLExportCommandHandler, XMLExportTool
 
 # TODO: it might be best to do something like the reporter plugin so
 # that this plugin provides a generic interface for importing and exporting
@@ -43,11 +44,21 @@ from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
 # missing columns so that all columns will have some value
 
 
+
+
 class ImexPlugin(pluginmgr.Plugin):
-    tools = [CSVImportTool, CSVExportTool,
-             JSONImportTool, JSONExportTool, XMLExportTool]
-    commands = [CSVExportCommandHandler, CSVImportCommandHandler,
-                XMLExportCommandHandler]
+    tools: Any = [
+        CSVImportTool,
+        CSVExportTool,
+        JSONImportTool,
+        JSONExportTool,
+        XMLExportTool,
+    ]
+    commands: Any = [
+        CSVExportCommandHandler,
+        CSVImportCommandHandler,
+        XMLExportCommandHandler,
+    ]
 
 
 plugin = ImexPlugin
