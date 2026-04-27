@@ -38,7 +38,7 @@ logger: Any
 from bauble.gtkinit import Gtk
 
 # from sqlalchemy import *
-from sqlalchemy import Integer
+from sqlalchemy import Integer, text
 
 # from sqlalchemy.exc import *
 from sqlalchemy.exc import ProgrammingError
@@ -132,14 +132,16 @@ def safe_set_text(gtk_widget, text) -> None:
 
 def get_users():
     """Return the list of user names."""
-    stmt = "select rolname from pg_roles where rolcanlogin is true;"
-    return [r[0] for r in db.engine.execute(stmt)]
+    stmt = text("select rolname from pg_roles where rolcanlogin is true")
+    with db.engine.connect() as conn:
+        return [r[0] for r in conn.execute(stmt)]
 
 
 def get_groups():
     """Return the list of group names."""
-    stmt = "select rolname from pg_roles where rolcanlogin is false;"
-    return [r[0] for r in db.engine.execute(stmt)]
+    stmt = text("select rolname from pg_roles where rolcanlogin is false")
+    with db.engine.connect() as conn:
+        return [r[0] for r in conn.execute(stmt)]
 
 
 def _create_role(
@@ -370,8 +372,12 @@ def has_privileges(role, privilege):
 
     # if admin check that the user can also create roles
     if privilege == "admin":
-        stmt = f"select rolname from pg_roles where rolcreaterole is true and rolname = '{role}'"
-        r = db.engine.execute(stmt).fetchone()
+        stmt = text(
+            "select rolname from pg_roles "
+            "where rolcreaterole is true and rolname = :role"
+        )
+        with db.engine.connect() as conn:
+            r = conn.execute(stmt, {"role": role}).fetchone()
         if not r:
             return False
 
@@ -537,8 +543,12 @@ class UsersEditor(editor.GenericEditorView):
         self.connect("admin_button", "toggled", on_toggled, "admin")
 
         # only superusers can toggle the admin flag
-        stmt = f"select rolname from pg_roles where rolsuper is true and rolname = '{current_user()}'"
-        r = db.engine.execute(stmt).fetchone()
+        stmt = text(
+            "select rolname from pg_roles "
+            "where rolsuper is true and rolname = :role"
+        )
+        with db.engine.connect() as conn:
+            r = conn.execute(stmt, {"role": current_user()}).fetchone()
         if r:
             self.widgets.admin_button.set_sensitive = True
         else:
