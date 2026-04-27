@@ -70,6 +70,18 @@ PYTEST_ARGS='bauble/test_querybuilderparser.py -q' scripts/docker-dev pytest
 Shell environment values take precedence over `.env`, which makes one-off test
 runs possible without editing local configuration.
 
+## Private Hostnames
+
+Docker does not automatically inherit host-only `/etc/hosts` aliases. If your
+database hostname resolves on the host but not inside the container, add a
+local-only host mapping to `.env`:
+
+```sh
+GHINI_DOCKER_ADD_HOSTS=postgres.example.net:192.0.2.10,postgres:192.0.2.10
+```
+
+Each comma-separated value is passed to Docker as `--add-host`.
+
 ## Debugging
 
 Start Ghini under debugpy:

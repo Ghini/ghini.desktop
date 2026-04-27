@@ -24,6 +24,7 @@ Useful overrides:
   GHINI_CONFIG_DIR=$HOME/.bauble/3.1
   GHINI_KRB5_DIR=$HOME/krb5
   GHINI_XHOST=1
+  GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
 EOF
 }
 
@@ -134,6 +135,17 @@ run_container() {
 
     if [[ -e /dev/dri ]]; then
         docker_args+=("--device" /dev/dri:/dev/dri)
+    fi
+
+    if [[ -n "${GHINI_DOCKER_ADD_HOSTS:-}" ]]; then
+        local add_host
+        IFS=',' read -r -a add_hosts <<< "${GHINI_DOCKER_ADD_HOSTS}"
+        for add_host in "${add_hosts[@]}"; do
+            add_host="${add_host#"${add_host%%[![:space:]]*}"}"
+            add_host="${add_host%"${add_host##*[![:space:]]}"}"
+            [[ -n "${add_host}" ]] || continue
+            docker_args+=("--add-host" "${add_host}")
+        done
     fi
 
     local env_name
