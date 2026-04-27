@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
@@ -20,14 +19,17 @@
 #
 # meta.py
 #
-from sqlalchemy import Unicode, UnicodeText, Column
+# import bauble.utils as utils
+from typing import Any, Optional
 
-import bauble.db as db
-import bauble.utils as utils
+from bauble.db import Base, Session
+from sqlalchemy import Integer, Unicode, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
 
-VERSION_KEY = 'version'
-CREATED_KEY = 'created'
-REGISTRY_KEY = 'registry'
+DATE_FORMAT_KEY: str
+VERSION_KEY: str = "version"
+CREATED_KEY: str = "created"
+REGISTRY_KEY: str = "registry"
 
 # date format strings:
 # yy - short year
@@ -36,10 +38,10 @@ REGISTRY_KEY = 'registry'
 # d - number day, two digits when necessary
 # mm -number month, always two digits
 # m - number month, two digits when necessary
-DATE_FORMAT_KEY = 'date_format'
+DATE_FORMAT_KEY = "date_format"
 
 
-def get_default(name, default=None, session=None):
+def get_default(name, default: Optional[Any] = None, session: Optional[Any] = None):
     """
     Get a BaubleMeta object with name.  If the default value is not
     None then a BaubleMeta object is returned with name and the
@@ -48,30 +50,43 @@ def get_default(name, default=None, session=None):
     If a session instance is passed (session != None) then we
     don't commit the session.
     """
+    if not isinstance(name, str):
+        raise TypeError(f"'name' must be a string, got {type(name).__name__}.")
+    if session and not hasattr(session, "execute"):
+        raise TypeError(
+            f"'session' must be a valid SQLAlchemy session, got {type(session).__name__}."
+        )
+
     commit = False
     if not session:
-        session = db.Session()
+        session = Session()
         commit = True
-    query = session.query(BaubleMeta)
-    meta = query.filter_by(name=name).first()
+    stmt = BaubleMeta.query_with_default_order().where(BaubleMeta.name == name)
+    query = session.execute(stmt).scalars()
+    meta = query.first()
+
+    # If no result and default is provided, create a new entry
     if not meta and default is not None:
-        meta = BaubleMeta(name=utils.utf8(name), value=default)
+        meta = BaubleMeta(name=name, value=default)
         session.add(meta)
         if commit:
-            session.commit()
-            # load the properties so that we can close the session and
-            # avoid getting errors when accessing the properties on the
-            # returned meta
-            meta.value
-            meta.name
+            if session.in_transaction():
+                session.commit()
 
     if commit:
+        # Ensure properties are loaded before closing the session
+        # load the properties so that we can close the session and
+        # avoid getting errors when accessing the properties on the
+        # returned meta
+        if meta:
+            _ = meta.value
+            _ = meta.name
         # close the session whether we added anything or not
         session.close()
     return meta
 
 
-class BaubleMeta(db.Base):
+class BaubleMeta(Base):
     """
     The BaubleMeta class is used to set and retrieve meta information
     based on key/name values from the bauble meta table.
@@ -86,6 +101,8 @@ class BaubleMeta(db.Base):
         The value.
 
     """
-    __tablename__ = 'bauble'
-    name = Column(Unicode(64), unique=True)
-    value = Column(UnicodeText)
+
+    __tablename__: str = "bauble"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(Unicode(64), unique=True)
+    value: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)

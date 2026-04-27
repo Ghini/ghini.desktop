@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
@@ -20,40 +19,71 @@
 #
 # test for bauble.meta
 #
+# Import necessary modules
+import pytest
+from sqlalchemy import select
 
 import bauble.meta as meta
-from bauble.test import BaubleTestCase
 
 
-class MetaTests(BaubleTestCase):
+@pytest.fixture
+def session_with_meta(db_session, clean_db):
+    """
+    Fixture for setting up a clean database session with meta schema.
+    """
+    return db_session
 
-    def __init__(self, *args):
-        super().__init__(*args)
+
+def test_get_default_without_creation(session_with_meta) -> None:
+    """
+    Test bauble.meta.get_default() when object does not exist and no default value is provided.
+    """
+    name = "name"
+    obj = meta.get_default(name, session=session_with_meta)
+    assert obj is None, f"Expected None, but got {obj}"
 
 
-    def test_get_default(self):
-        """
-        Test bauble.meta.get_default()
-        """
-        # test the object isn't created if it doesn't exist and we
-        # don't pass a default value
-        name = 'name'
-        obj = meta.get_default(name)
-        self.assertTrue(obj is None)
+def test_get_default_with_creation(session_with_meta) -> None:
+    """
+    Test bauble.meta.get_default() when object does not exist and a default value is provided.
+    """
+    name = "name"
+    value = "value"
+    meta.get_default(name, default=value, session=session_with_meta)
+    if session_with_meta.in_transaction():
+        session_with_meta.commit()  # Ensure the object is saved to the database
+    obj = (
+        session_with_meta.execute(
+            select(meta.BaubleMeta).where(meta.BaubleMeta.name == name)
+        )
+        .scalars()
+        .one()
+    )
+    assert obj.value == value, f"Expected value '{value}', but got {obj.value}"
 
-        # test that the obj is created if it doesn't exists and that
-        # the default value is set
-        value = 'value'
-        meta.get_default(name, default=value)
-        obj = self.session.query(meta.BaubleMeta).filter_by(name=name).one()
-        self.assertTrue(obj.value == value)
 
-        # test that the value isn't changed if it already exists
-        value2 = 'value2'
-        obj = meta.get_default(name, default=value2)
-        self.assertTrue(obj.value == value)
+def test_get_default_no_override(session_with_meta) -> None:
+    """
+    Test bauble.meta.get_default() does not override existing value when a new default is provided.
+    """
+    name = "name"
+    value = "value"
+    meta.get_default(name, default=value, session=session_with_meta)
+    if session_with_meta.in_transaction():
+        session_with_meta.commit()  # Ensure the object is saved to the database
 
-        # test that if we pass our own session when we are creating a
-        # new value that the object is added to the session but not committed
-        obj = meta.get_default('name2', default=value, session=self.session)
-        self.assertTrue(obj in self.session.new)
+    value2 = "value2"
+    obj = meta.get_default(name, default=value2, session=session_with_meta)
+    assert obj.value == value, f"Expected original value '{value}', but got {obj.value}"
+
+
+def test_get_default_with_custom_session(session_with_meta) -> None:
+    """
+    Test bauble.meta.get_default() with a custom session and without committing the new object.
+    """
+    name = "name2"
+    value = "value"
+    obj = meta.get_default(name, default=value, session=session_with_meta)
+    assert (
+        obj in session_with_meta.new
+    ), "Expected object to be in session's new objects."

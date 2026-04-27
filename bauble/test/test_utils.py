@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
@@ -17,27 +16,29 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
+from unittest import TestCase
 
 import bauble.utils as utils
-from unittest import TestCase
 
 
 class Utils(TestCase):
 
-    def test_topological_sort_total(self):
-        self.assertEqual(utils.topological_sort([1,2,3], [(2,1), (3,2)]), [3, 2, 1])
+    def test_topological_sort_total(self) -> None:
+        self.assertEqual(utils.topological_sort([1, 2, 3], [(2, 1), (3, 2)]), [3, 2, 1])
 
-    def test_topological_sort_partial(self):
-        self.assertEqual(utils.topological_sort([1,2,3,4], [(2,1)]), [4, 3, 2, 1])
+    def test_topological_sort_partial(self) -> None:
+        self.assertEqual(utils.topological_sort([1, 2, 3, 4], [(2, 1)]), [4, 3, 2, 1])
 
-    def test_topological_sort_loop(self):
-        self.assertEqual(utils.topological_sort([1,2], [(2,1), (1,2)]), None)
+    def test_topological_sort_loop(self) -> None:
+        self.assertEqual(utils.topological_sort([1, 2], [(2, 1), (1, 2)]), None)
 
 
 class CacheTest(TestCase):
     def test_create_store_retrieve(self):
-        from bauble.utils import Cache
         from functools import partial
+
+        from bauble.utils import Cache
+
         invoked = []
 
         def getter(x):
@@ -53,8 +54,10 @@ class CacheTest(TestCase):
         self.assertEqual(invoked, [1])
 
     def test_respect_size(self):
-        from bauble.utils import Cache
         from functools import partial
+
+        from bauble.utils import Cache
+
         invoked = []
 
         def getter(x):
@@ -70,8 +73,10 @@ class CacheTest(TestCase):
         self.assertEqual(sorted(cache.storage.keys()), [3, 4])
 
     def test_respect_timing(self):
-        from bauble.utils import Cache
         from functools import partial
+
+        from bauble.utils import Cache
+
         invoked = []
 
         def getter(x):
@@ -80,6 +85,7 @@ class CacheTest(TestCase):
 
         cache = Cache(2)
         from time import sleep
+
         cache.get(1, partial(getter, 1))
         sleep(0.01)
         cache.get(2, partial(getter, 2))
@@ -95,8 +101,10 @@ class CacheTest(TestCase):
         self.assertEqual(sorted(cache.storage.keys()), [1, 4])
 
     def test_cache_on_hit(self):
-        from bauble.utils import Cache
         from functools import partial
+
+        from bauble.utils import Cache
+
         invoked = []
 
         def getter(x):
@@ -104,6 +112,7 @@ class CacheTest(TestCase):
 
         cache = Cache(2)
         from time import sleep
+
         cache.get(1, partial(getter, 1), on_hit=invoked.append)
         sleep(0.01)
         cache.get(1, partial(getter, 1), on_hit=invoked.append)
@@ -122,17 +131,17 @@ class CacheTest(TestCase):
 
 
 class GlobalFuncs(TestCase):
-    def test_safe_int_valid(self):
-        self.assertEqual(utils.safe_int('123'), 123)
+    def test_safe_int_valid(self) -> None:
+        self.assertEqual(utils.safe_int("123"), 123)
 
-    def test_safe_int_valid_not(self):
-        self.assertEqual(utils.safe_int('123.2'), 0)
+    def test_safe_int_valid_not(self) -> None:
+        self.assertEqual(utils.safe_int("123.2"), 0)
 
-    def test_safe_numeric_valid(self):
-        self.assertEqual(utils.safe_numeric('123'), 123)
+    def test_safe_numeric_valid(self) -> None:
+        self.assertEqual(utils.safe_numeric("123"), 123)
 
-    def test_safe_numeric_valid_decimal(self):
-        self.assertEqual(utils.safe_numeric('123.2'), 123.2)
+    def test_safe_numeric_valid_decimal(self) -> None:
+        self.assertEqual(utils.safe_numeric("123.2"), 123.2)
 
-    def test_safe_numeric_valid_not(self):
-        self.assertEqual(utils.safe_numeric('123a.2'), 0)
+    def test_safe_numeric_valid_not(self) -> None:
+        self.assertEqual(utils.safe_numeric("123a.2"), 0)

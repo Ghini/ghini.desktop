@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
@@ -23,13 +22,14 @@
 The bauble.task module allows you to queue up long running tasks. The
 running tasks still block but allows the GUI to update.
 """
-
-import fibra
-from gi.repository import Gtk
-import bauble
-
 import logging
-logger = logging.getLogger(__name__)
+from typing import Any, Optional
+
+import bauble
+import fibra
+from bauble.gtkinit import Gtk
+
+logger: Any = logging.getLogger(__name__)
 
 # TODO: after some specified time the status bar should be cleared but not
 # too soon, maybe 30 seconds or so but only once the queue is empty, anytime
@@ -43,11 +43,14 @@ logger = logging.getLogger(__name__)
 # ==0.17 since fibra doesn't seem to ensure any sort of API
 # compatibility
 
-schedule = fibra.schedule()
+schedule: Any = fibra.schedule()
 
-__running = False
-__kill = False
-__message_ids = None
+__running: bool = False
+__kill: bool = False
+
+# Define once at module level
+_context_id: Optional[int] = None
+__message_ids: list[int] = []
 
 
 def running():
@@ -57,7 +60,7 @@ def running():
     return __running
 
 
-def kill():
+def kill() -> None:
     """
     Kill the current task.
 
@@ -68,7 +71,7 @@ def kill():
     __kill = True
 
 
-def _idle():
+def _idle() -> None:
     """
     Called when a task is idle.
     """
@@ -84,7 +87,7 @@ def _idle():
 schedule.register_idle_func(_idle)
 
 
-def queue(task):
+def queue(task) -> None:
     """Run a task.
 
     task should be a generator with side effects. it does not matter what it
@@ -106,8 +109,7 @@ def queue(task):
     __running = True
     try:
         schedule.run()
-        __running = False
-    except:
+    except Exception:
         raise
     finally:
         __running = False
@@ -118,38 +120,30 @@ def queue(task):
             bauble.gui.set_busy(False)
         clear_messages()
 
-
-__message_ids = []
-
-
 def set_message(msg):
     """
     A convenience function for setting a message on the
     statusbar. Returns the message id
     """
-    if bauble.gui is None or bauble.gui.widgets is None:
+    if not (bauble.gui and bauble.gui.widgets and bauble.gui.widgets.statusbar):
         return
     global _context_id
-    try:
-        _context_id
-    except NameError as e:
-        # this is expected to happen, it's normal behaviour.
-        logger.info(e)  # global name '_context_id' is not defined
-        _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
-        logger.info("new context id: %s" % _context_id)
+    if _context_id is None:
+        _context_id = bauble.gui.widgets.statusbar.get_context_id("__task")
+        logger.info(f"new context id: {_context_id}")
     msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
     __message_ids.append(msg_id)
     return msg_id
 
 
-def clear_messages():
+def clear_messages() -> None:
     """
     Clear all the messages from the statusbar that were set with
     :func:`bauble.task.set_message`
     """
-    if bauble.gui is None or bauble.gui.widgets is None \
-            or bauble.gui.widgets.statusbar is None:
+    if not (bauble.gui and bauble.gui.widgets and bauble.gui.widgets.statusbar):
         return
-    global _context_id, __message_ids
+
     for mid in __message_ids:
         bauble.gui.widgets.statusbar.remove(_context_id, mid)
+    __message_ids.clear()
