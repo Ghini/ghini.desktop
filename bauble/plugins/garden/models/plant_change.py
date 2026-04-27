@@ -24,11 +24,10 @@ Defines the plant table and handled editing plants
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 from typing import Any, ClassVar
 
 import bauble.btypes as types
-from bauble.db import Base
+from bauble.db import Base, utc_now
 from bauble.plugins.garden.constants import change_reasons
 
 # from sqlalchemy import text
@@ -79,7 +78,7 @@ class PlantChange(Base):
 
     # date of change
     date: Mapped[types.DateTime] = mapped_column(
-        types.DateTime, default=datetime.utcnow
+        types.DateTime, default=utc_now
     )
     order_by: ClassVar[list[Any]] = [asc(date)]
 

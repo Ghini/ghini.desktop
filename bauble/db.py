@@ -49,6 +49,11 @@ logger: Any = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+def utc_now() -> datetime.datetime:
+    """Return a naive UTC datetime for database timestamp columns."""
+    return datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+
+
 try:
     import sqlalchemy as sa
 
@@ -320,8 +325,12 @@ databases.
 
 class TypedBaseMixin:
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    _created: Mapped[datetime.datetime] = mapped_column(types.DateTime(), default=datetime.datetime.utcnow)
-    _last_updated: Mapped[datetime.datetime] = mapped_column(types.DateTime(), default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    _created: Mapped[datetime.datetime] = mapped_column(
+        types.DateTime(), default=utc_now
+    )
+    _last_updated: Mapped[datetime.datetime] = mapped_column(
+        types.DateTime(), default=utc_now, onupdate=utc_now
+    )
 
 
     @classmethod
@@ -1136,7 +1145,7 @@ def make_note_class(
     fields = {
         "__tablename__": table_name,
         "id": mapped_column(Integer, primary_key=True, autoincrement=True),
-        "date": mapped_column(types.DateTime, default=datetime.datetime.utcnow),
+        "date": mapped_column(types.DateTime, default=utc_now),
         "user": mapped_column(sa.Unicode(64), default=""),
         "category": mapped_column(sa.Unicode(32), default=""),
         "type": mapped_column(sa.Unicode(32), default=""),
