@@ -7,6 +7,8 @@ Usage:
   scripts/docker-dev build
   scripts/docker-dev app
   scripts/docker-dev debug
+  scripts/docker-dev format [paths...]
+  scripts/docker-dev check [paths...]
   scripts/docker-dev pytest
   scripts/docker-dev pytest-debug
   scripts/docker-dev shell
@@ -19,6 +21,7 @@ Environment:
 Useful overrides:
   GHINI_IMAGE=ghini-desktop-dev:latest
   GHINI_CONTAINER=ghini-dev
+  GHINI_TOOL_CONTAINER=ghini-dev-check-<pid>
   GHINI_ENV_FILE=.env
   GHINI_PROJECT_DIR=<repo path>
   GHINI_CONFIG_DIR=$HOME/.bauble/3.1
@@ -57,6 +60,9 @@ dri_dir="${GHINI_DRI_DIR:-/usr/lib/dri}"
 command="${1:-help}"
 if [[ $# -gt 0 ]]; then
     shift
+fi
+if [[ "${command}" == "format" || "${command}" == "check" ]]; then
+    container="${GHINI_TOOL_CONTAINER:-ghini-dev-check-$$}"
 fi
 
 build_image() {
@@ -99,7 +105,6 @@ run_container() {
         --name "${container}"
         --user "$(id -u):$(id -g)"
         --workdir /app
-        --publish 5678:5678
         --env "GHINI_MODE=${mode}"
         --env "HOME=/home/ghini"
         --env "USER=ghini"
@@ -109,6 +114,10 @@ run_container() {
         --volume "${project_dir}:/app"
         --volume "${config_dir}:/home/ghini/.bauble/3.1"
     )
+
+    if [[ "${mode}" == "debug" || "${mode}" == "pytest-debug" ]]; then
+        docker_args+=(--publish 5678:5678)
+    fi
 
     if [[ -t 1 ]]; then
         docker_args+=(--tty)
@@ -167,9 +176,53 @@ run_container() {
     docker run "${docker_args[@]}" "${image}" "$@"
 }
 
+python_file_args() {
+    if [[ $# -gt 0 ]]; then
+        printf '%s\n' "$@"
+        return
+    fi
+
+    {
+        git -C "${repo_root}" diff --name-only --diff-filter=ACMRTUXB HEAD -- '*.py'
+        git -C "${repo_root}" ls-files --others --exclude-standard -- '*.py'
+    } | awk '!seen[$0]++'
+}
+
+run_black() {
+    local check_flag="$1"
+    shift || true
+
+    local -a paths=()
+    mapfile -t paths < <(python_file_args "$@")
+
+    if [[ ${#paths[@]} -eq 0 ]]; then
+        echo "No changed Python files to ${check_flag}."
+        return
+    fi
+
+    local -a black_args=(python -m black)
+    if [[ "${check_flag}" == "check" ]]; then
+        black_args+=(--check)
+    fi
+    black_args+=("${paths[@]}")
+
+    GHINI_XHOST=0 run_container shell "${black_args[@]}"
+}
+
+run_check() {
+    run_black check "$@"
+    GHINI_XHOST=0 run_container shell python -m pytest tests/test_version.py -q
+}
+
 case "${command}" in
     build)
         build_image
+        ;;
+    format)
+        run_black format "$@"
+        ;;
+    check)
+        run_check "$@"
         ;;
     app|debug|pytest|pytest-debug|shell)
         run_container "${command}" "$@"

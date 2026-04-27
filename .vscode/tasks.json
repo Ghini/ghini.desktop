@@ -54,6 +54,25 @@
             "problemMatcher": []
         },
         {
+            "label": "Docker: Format Changed Python",
+            "type": "shell",
+            "command": "scripts/docker-dev format",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Check Changed Python",
+            "type": "shell",
+            "command": "scripts/docker-dev check",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
             "label": "Docker: Shell",
             "type": "shell",
             "command": "scripts/docker-dev shell",
