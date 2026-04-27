@@ -21,6 +21,8 @@
 #
 # Refactored for Pytest and SQLAlchemy 2.0.36 compatibility
 
+from __future__ import annotations
+
 import logging
 from typing import Any, Iterator, Optional
 from unittest.mock import patch
@@ -30,8 +32,14 @@ from bauble.plugins.plants.ask_tpl import AskTPL, what_to_do_with_it
 
 
 class MockResponse:
-    def __init__(self, text: str) -> None:
-        self.text = text
+    def __init__(self, payload: dict[str, Any]) -> None:
+        self.payload = payload
+
+    def raise_for_status(self) -> None:
+        pass
+
+    def json(self) -> dict[str, Any]:
+        return self.payload
 
 
 @pytest.fixture  # type: ignore[misc]
@@ -40,41 +48,88 @@ def mock_requests() -> Iterator[None]:
     Mock the `requests.get` function to simulate API responses.
     """
 
-    def mock_get(url: str, timeout: Optional[int] = None) -> MockResponse:
+    def wfo_payload(match: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+        return {"data": {"taxonNameMatch": {"match": match, "candidates": []}}}
+
+    def mock_post(
+        url: str,
+        json: Optional[dict[str, Any]] = None,
+        timeout: Optional[tuple[float, int]] = None,
+    ) -> MockResponse:
         import time
 
         time.sleep(0.1)
         answers = {
-            "http://www.theplantlist.org/tpl1.1/search?q=Mangifera indica&csv=true": (
-                "ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,"
-                "Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,"
-                "Nomenclatural status from original data source,Confidence level,Source,"
-                "Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\n"
-                'kew-2362842,A,Anacardiaceae,,Mangifera,,"indica",,"","L.",Accepted,,M,'
-                'WCSP (in review),,69913-1,"Sp. Pl.","200","","1753",\n'
+            "Rhopalocarpus alternifolium": wfo_payload(
+                {
+                    "id": "wfo-rhopalocarpus",
+                    "title": "Rhopalocarpus alternifolius var. sambiranensis Capuron",
+                    "fullNameStringPlain": "Rhopalocarpus alternifolius var. sambiranensis Capuron",
+                    "genusString": "Rhopalocarpus",
+                    "speciesString": "alternifolius",
+                    "authorsString": "Capuron",
+                    "role": "accepted",
+                    "rank": "variety",
+                    "wfoPath": "/Sphaerosepalaceae/Rhopalocarpus/alternifolius",
+                    "currentPreferredUsage": {"hasName": {"id": "wfo-rhopalocarpus"}},
+                }
             ),
-            "http://www.theplantlist.org/tpl1.1/search?q=Iris florentina&csv=true": (
-                "ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,"
-                "Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,"
-                "Nomenclatural status from original data source,Confidence level,Source,"
-                "Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\n"
-                'kew-321828,A,Iridaceae,,Iris,×,"florentina",,"","L.",Synonym,,H,iPlants,321828,'
-                '438598-1,"Syst. Nat. ed. 10","2: 863","","1759",kew-321867\n'
+            "Iris florentina": wfo_payload(
+                {
+                    "id": "kew-321828",
+                    "title": "Iris x florentina L.",
+                    "fullNameStringPlain": "Iris x florentina L.",
+                    "genusString": "Iris",
+                    "speciesString": "florentina",
+                    "authorsString": "L.",
+                    "role": "synonym",
+                    "rank": "species",
+                    "wfoPath": "/Iridaceae/Iris/florentina",
+                    "currentPreferredUsage": {"hasName": {"id": "kew-321867"}},
+                }
             ),
-            "http://www.theplantlist.org/tpl1.1/search?q=kew-321867&csv=true": (
-                "ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,"
-                "Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,"
-                "Nomenclatural status from original data source,Confidence level,Source,"
-                "Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\n"
-                'kew-321867,A,Iridaceae,,Iris,×,"germanica",,"","L.",Accepted,,H,iPlants,321867,'
-                '438637-1,"Sp. Pl.","38","","1753",\n'
+            "kew-321867": wfo_payload(
+                {
+                    "id": "kew-321867",
+                    "title": "Iris x germanica L.",
+                    "fullNameStringPlain": "Iris x germanica L.",
+                    "genusString": "Iris",
+                    "speciesString": "germanica",
+                    "authorsString": "L.",
+                    "role": "accepted",
+                    "rank": "species",
+                    "wfoPath": "/Iridaceae/Iris/germanica",
+                    "currentPreferredUsage": {"hasName": {"id": "kew-321867"}},
+                }
             ),
-            "http://www.theplantlist.org/tpl1.1/search?q=Manducaria italica&csv=true": "",
+            "Manducaria italica": wfo_payload(),
         }
 
-        return MockResponse(answers.get(url, ""))
+        input_string = (json or {}).get("variables", {}).get("inputString", "")
+        return MockResponse(answers.get(input_string, wfo_payload()))
 
-    with patch("requests.get", side_effect=mock_get):
+    class MockSession:
+        headers: dict[str, str]
+
+        def __init__(self) -> None:
+            self.headers = {}
+
+        def mount(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+        def post(self, *args: Any, **kwargs: Any) -> MockResponse:
+            return mock_post(*args, **kwargs)
+
+        def close(self) -> None:
+            pass
+
+        def __enter__(self) -> MockSession:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            pass
+
+    with patch("bauble.plugins.plants.ask_tpl.requests.Session", MockSession):
         yield
 
 
@@ -106,8 +161,8 @@ class TestAskTPL:
 
         infolog = mock_logger.messages[self.logger_name]["info"]
         assert len(infolog) == 2
-        assert infolog[0] == "Iris × florentina L. (Iridaceae)"
-        assert infolog[1] == "Iris × florentina L. (Iridaceae) - is its accepted form"
+        assert infolog[0] == "Iris x florentina L. (Iridaceae)"
+        assert infolog[1] == "Iris x germanica L. (Iridaceae) - is its accepted form"
 
     @pytest.mark.skip(reason="Skipping this needs more work and is non-critical")  # type: ignore[misc]
     def test_empty_answer(self: TestAskTPL, mock_logger: Any) -> None:

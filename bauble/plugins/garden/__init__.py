@@ -35,6 +35,7 @@ from bauble.plugins.garden.institution import (
 )
 from bauble.plugins.garden.location_editor import LocationEditor
 from bauble.plugins.garden.picture_importer import PictureImporterTool
+from bauble.plugins.garden.models import __all__ as _model_exports
 
 # Then import editors, infoboxes, context menus, tools, etc.
 # Import all ORM classes to ensure registration!
@@ -49,7 +50,7 @@ from sqlalchemy import select
 
 
 def __getattr__(name):
-    if name in __all__:
+    if name in _model_exports:
         import importlib
 
         mod = importlib.import_module("bauble.plugins.garden.models")
