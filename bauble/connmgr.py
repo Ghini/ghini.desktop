@@ -290,6 +290,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         self.filename = self.database = self.host = self.port = self.user = (
             self.pictureroot
         ) = self.connection_name = self.prev_connection_name = None
+        self.prefs = prefs if prefs is not None else globals()["prefs"]
         self.use_defaults = True
         self.passwd = False
         # following two look like overkill, since they will be initialized
@@ -307,7 +308,11 @@ class ConnMgrPresenter(GenericEditorPresenter):
         #     self.connections = prefs.prefs[bauble.conn_list_pref]
         # else:
         #     self.connections = {}
-        if prefs and hasattr(prefs, "prefs") and bauble.conn_list_pref in prefs.prefs:
+        if (
+            prefs is not None
+            and hasattr(prefs, "prefs")
+            and bauble.conn_list_pref in prefs.prefs
+        ):
             try:
                 self.connections = prefs.prefs[bauble.conn_list_pref]
             except Exception as e:
@@ -459,31 +464,36 @@ class ConnMgrPresenter(GenericEditorPresenter):
         response,
         data: Optional[Any] = None,
         mock_prefs: Optional[Any] = None,
+        prefs: Optional[Any] = None,
     ):
         """
         The dialog's response signal handler.
         """
-        if mock_prefs is None:
-            mock_prefs = prefs
+        if mock_prefs is not None:
+            prefs_store = mock_prefs
+        elif prefs is not None:
+            prefs_store = prefs
+        else:
+            prefs_store = self.prefs
         if response == Gtk.ResponseType.OK:
             settings = self.get_params()
             valid, msg = self.check_parameters_valid(settings)
             if not valid:
                 self.view.run_message_dialog(msg, Gtk.MessageType.ERROR)
-            if valid and mock_prefs is not None:
+            if valid and prefs_store is not None:
                 # picture root is also made available in global setting
-                mock_prefs.prefs[mock_prefs.picture_root_pref] = make_absolute(
+                prefs_store.prefs[prefs_store.picture_root_pref] = make_absolute(
                     settings["pictures"]
                 )
-                self.save_current_to_prefs()
+                self.save_current_to_prefs(prefs_store)
         elif (
             response == Gtk.ResponseType.CANCEL
             or response == Gtk.ResponseType.DELETE_EVENT
         ):
-            if not self.are_prefs_already_saved(self.connection_name):
+            if not self.are_prefs_already_saved(self.connection_name, prefs_store):
                 msg = _("Do you want to save your changes?")
                 if self.view.run_yes_no_dialog(msg):
-                    self.save_current_to_prefs()
+                    self.save_current_to_prefs(prefs_store)
 
         # system-defined GtkDialog responses are always negative, in which
         # case we want to hide it
@@ -552,23 +562,27 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.view.widget_set_expanded("expander", True)
             self.view.combobox_set_active("name_combo", 0)
 
-    def save_current_to_prefs(self) -> None:
+    def save_current_to_prefs(self, prefs_store: Optional[Any] = None) -> None:
         """add current named params to saved connections"""
+        if prefs_store is None:
+            prefs_store = self.prefs
         if self.connection_name is None:
             return
-        if bauble.conn_list_pref not in prefs.prefs:
-            prefs.prefs[bauble.conn_list_pref] = {}
+        if bauble.conn_list_pref not in prefs_store.prefs:
+            prefs_store.prefs[bauble.conn_list_pref] = {}
         params = copy.copy(self.get_params())
         conn_dict = self.connections
         conn_dict[self.connection_name] = params
-        prefs.prefs[bauble.conn_list_pref] = conn_dict
-        prefs.prefs.save()
+        prefs_store.prefs[bauble.conn_list_pref] = conn_dict
+        prefs_store.prefs.save()
 
-    def are_prefs_already_saved(self, name):
+    def are_prefs_already_saved(self, name, prefs_store: Optional[Any] = None):
         """are current prefs already saved under given name?"""
+        if prefs_store is None:
+            prefs_store = self.prefs
         if not name:  # no name, no need to check
             return True
-        conn_dict = prefs.prefs[bauble.conn_list_pref]
+        conn_dict = prefs_store.prefs[bauble.conn_list_pref]
         if conn_dict is None or name not in conn_dict:
             return False
         stored_params = conn_dict[name]

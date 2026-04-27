@@ -855,6 +855,7 @@ class MockDialog:
     def __init__(self) -> None:
         self.hidden = False
         self.content_area = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.action_groups = {}
 
     def hide(self) -> None:
         self.hidden = True
@@ -870,6 +871,12 @@ class MockDialog:
 
     def get_content_area(self):
         return self.content_area
+
+    def get_action_group(self, name):
+        return self.action_groups.get(name)
+
+    def insert_action_group(self, name, group) -> None:
+        self.action_groups[name] = group
 
 
 class MockView:
