@@ -8,6 +8,7 @@ normal development commands do not rewrite tracked source files.
 from __future__ import annotations
 
 import re
+import subprocess
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as package_version
 from pathlib import Path
@@ -22,30 +23,103 @@ __all__ = [
 ]
 
 _PACKAGE_NAME = "ghini-desktop"
-_FALLBACK_VERSION = "4.0.0+unknown"
+_BASE_VERSION = "4.0.0"
+_FALLBACK_VERSION = f"{_BASE_VERSION}+unknown"
+_SUPPORTED_MAJOR = 4
+_VERSION_TAG_PATTERN = "v4.*"
+
+
+def _is_supported_version(value: str) -> bool:
+    match = re.match(r"^(\d+)\.", value)
+    return bool(match and int(match.group(1)) >= _SUPPORTED_MAJOR)
 
 
 def _version_from_metadata() -> str | None:
     try:
-        return package_version(_PACKAGE_NAME)
+        metadata_version = package_version(_PACKAGE_NAME)
     except PackageNotFoundError:
         return None
 
+    if _is_supported_version(metadata_version):
+        return metadata_version
+    return None
+
+
+def _git_output(root: Path, *args: str) -> str | None:
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(root), *args],
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+    except Exception:
+        return None
+
+
+def _version_from_describe(describe: str) -> str | None:
+    dirty = describe.endswith("-dirty")
+    clean_describe = describe.removesuffix("-dirty")
+    dirty_suffix = ".dirty" if dirty else ""
+
+    tagged = re.match(
+        r"^v(?P<tag>4\.\d+\.\d+)-(?P<count>\d+)-g(?P<node>[0-9a-f]+)$",
+        clean_describe,
+    )
+    if tagged:
+        tag = tagged.group("tag")
+        count = int(tagged.group("count"))
+        node = tagged.group("node")
+        if count == 0 and not dirty:
+            return tag
+        return f"{tag}.post{count}+g{node}{dirty_suffix}"
+
+    if re.match(r"^[0-9a-f]+$", clean_describe):
+        return f"{_BASE_VERSION}.dev0+g{clean_describe}{dirty_suffix}"
+
+    return None
+
 
 def _version_from_git() -> str | None:
+    root = Path(__file__).resolve().parents[1]
     try:
         from setuptools_scm import get_version
     except ImportError:
-        return None
+        pass
+    else:
+        try:
+            return get_version(
+                root=str(root),
+                version_scheme="post-release",
+                local_scheme="node-and-date",
+                tag_regex=r"^v(?P<version>4(?:\.\d+){2})$",
+                scm={
+                    "git": {
+                        "describe_command": (
+                            "git describe --dirty --tags --long --match v4.*"
+                        )
+                    }
+                },
+                fallback_version=_BASE_VERSION,
+            )
+        except Exception:
+            pass
 
-    try:
-        return get_version(
-            root=str(Path(__file__).resolve().parents[1]),
-            version_scheme="post-release",
-            local_scheme="node-and-date",
-        )
-    except Exception:
-        return None
+    describe = _git_output(
+        root,
+        "describe",
+        "--tags",
+        "--match",
+        _VERSION_TAG_PATTERN,
+        "--long",
+        "--dirty",
+        "--always",
+    )
+    if describe:
+        parsed = _version_from_describe(describe)
+        if parsed:
+            return parsed
+
+    return None
 
 
 def _parse_version_tuple(value: str) -> tuple[int | str, ...]:
@@ -58,4 +132,9 @@ version = __version__ = (
 version_tuple = __version_tuple__ = _parse_version_tuple(version)
 
 _commit_match = re.search(r"\+g([0-9a-f]+)(?:\.|$)", version)
-commit_id = __commit_id__ = _commit_match.group(1) if _commit_match else None
+commit_id = __commit_id__ = _commit_match.group(1) if _commit_match else _git_output(
+    Path(__file__).resolve().parents[1],
+    "rev-parse",
+    "--short",
+    "HEAD",
+)
