@@ -49,6 +49,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
     libkrb5-dev \
     libpq-dev \
+    librsvg2-common \
     libxslt1-dev \
     mesa-utils \
     net-tools \
