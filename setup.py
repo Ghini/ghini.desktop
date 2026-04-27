@@ -35,6 +35,7 @@ LOCALE_PATH = os.path.join("share", "locale")
 
 # --- Custom Build Commands ---
 
+
 class build(_build):
     def run(self):
         if not shutil.which("msgfmt"):
@@ -60,67 +61,110 @@ class build(_build):
             sizes = [16, 22, 24, 32, 48, 64]
             for size in sizes:
                 icon_src = f"data/ghini-{size}.png"
-                icon_dest = os.path.join(icons_path, f"{size}x{size}", "apps", "ghini.png")
+                icon_dest = os.path.join(
+                    icons_path, f"{size}x{size}", "apps", "ghini.png"
+                )
                 os.makedirs(os.path.dirname(icon_dest), exist_ok=True)
                 shutil.copy2(icon_src, icon_dest)
             shutil.copy2("data/ghini.svg", os.path.join(base, "share/pixmaps"))
+
 
 class install(_install):
     def run(self):
         if sys.platform not in ("linux", "win32", "darwin"):
             sys.exit(f"Unsupported platform: {sys.platform}")
         super().run()
-        shutil.copytree(os.path.join(self.build_base, "share"),
-                        os.path.join(self.install_data, "share"),
-                        dirs_exist_ok=True)
+        shutil.copytree(
+            os.path.join(self.build_base, "share"),
+            os.path.join(self.install_data, "share"),
+            dirs_exist_ok=True,
+        )
         shutil.copy2("LICENSE", os.path.join(self.install_data, "share", "ghini"))
+
 
 class docs(Command):
     user_options = [("all", "a", "rebuild all docs")]
-    def initialize_options(self): self.all = False
-    def finalize_options(self): pass
+
+    def initialize_options(self):
+        self.all = False
+
+    def finalize_options(self):
+        pass
+
     def run(self):
-        subprocess.run(["sphinx-build", "-b", "html",
-                        "doc", "doc/.build"] + (["-E"] if self.all else []), check=True)
+        subprocess.run(
+            ["sphinx-build", "-b", "html", "doc", "doc/.build"]
+            + (["-E"] if self.all else []),
+            check=True,
+        )
+
 
 class clean(Command):
     user_options = [("all", "a", "clean all artifacts")]
-    def initialize_options(self): self.all = False
-    def finalize_options(self): pass
+
+    def initialize_options(self):
+        self.all = False
+
+    def finalize_options(self):
+        pass
+
     def run(self):
         dirs = ["dist", "build", "deb_dist", "doc/.build", "*.egg-info"]
         for d in dirs:
             shutil.rmtree(d, ignore_errors=True)
 
+
 class run(Command):
     user_options = []
-    def initialize_options(self): pass
-    def finalize_options(self): pass
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
     def run(self):
         subprocess.run(["./ghini.sh"], check=True)
 
+
 # Windows-only commands
 if sys.platform == "win32":
+
     class py2exe_cmd(Command):
         description = "build standalone Windows executable"
         user_options = []
-        def initialize_options(self): pass
-        def finalize_options(self): pass
+
+        def initialize_options(self):
+            pass
+
+        def finalize_options(self):
+            pass
+
         def run(self):
             subprocess.run(["py2exe", "scripts/ghini"], check=True)
 
     class nsis_cmd(Command):
         description = "build NSIS installer"
         user_options = [("makensis=", None, "path to makensis")]
-        def initialize_options(self): self.makensis = "makensis"
-        def finalize_options(self): pass
+
+        def initialize_options(self):
+            self.makensis = "makensis"
+
+        def finalize_options(self):
+            pass
+
         def run(self):
             subprocess.run([self.makensis, "scripts/build-multiuser.nsi"], check=True)
+
 else:
-    py2exe_cmd = nsis_cmd = type("Unsupported", (Command,), {
-        "user_options": [], 
-        "run": lambda self: sys.exit("Not supported on this platform.")
-    })
+    py2exe_cmd = nsis_cmd = type(
+        "Unsupported",
+        (Command,),
+        {
+            "user_options": [],
+            "run": lambda self: sys.exit("Not supported on this platform."),
+        },
+    )
 
 setuptools.setup(
     use_scm_version={
@@ -129,9 +173,7 @@ setuptools.setup(
         "tag_regex": r"^v(?P<version>4(?:\.\d+){2})$",
         "scm": {
             "git": {
-                "describe_command": (
-                    "git describe --dirty --tags --long --match v4.*"
-                )
+                "describe_command": ("git describe --dirty --tags --long --match v4.*")
             }
         },
         "fallback_version": "4.0.0",

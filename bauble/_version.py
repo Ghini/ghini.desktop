@@ -132,9 +132,13 @@ version = __version__ = (
 version_tuple = __version_tuple__ = _parse_version_tuple(version)
 
 _commit_match = re.search(r"\+g([0-9a-f]+)(?:\.|$)", version)
-commit_id = __commit_id__ = _commit_match.group(1) if _commit_match else _git_output(
-    Path(__file__).resolve().parents[1],
-    "rev-parse",
-    "--short",
-    "HEAD",
+commit_id = __commit_id__ = (
+    _commit_match.group(1)
+    if _commit_match
+    else _git_output(
+        Path(__file__).resolve().parents[1],
+        "rev-parse",
+        "--short",
+        "HEAD",
+    )
 )
