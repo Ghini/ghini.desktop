@@ -211,7 +211,8 @@ run_black() {
 
 run_check() {
     run_black check "$@"
-    GHINI_XHOST=0 run_container shell python -m pytest tests/test_version.py -q
+    GHINI_XHOST=0 run_container shell \
+        python -m pytest tests/test_version.py tests/test_database_version.py -q
 }
 
 case "${command}" in

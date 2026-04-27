@@ -89,6 +89,29 @@ sqlalchemy_debug(SQLALCHEMY_DEBUG)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
+COMPATIBLE_DATABASE_SERIES: dict[tuple[int, int], set[tuple[int, int]]] = {
+    (4, 0): {(3, 1)},
+}
+
+
+def version_series(value: str) -> tuple[int, int]:
+    match = re.match(r"^(\d+)\.(\d+)(?:\.\d+)?(?:[.+-].*)?$", value)
+    if not match:
+        raise ValueError(value)
+    return int(match.group(1)), int(match.group(2))
+
+
+def database_version_is_compatible(
+    database_version: str, application_version: str
+) -> bool:
+    database_series = version_series(database_version)
+    application_series = version_series(application_version)
+
+    if database_series == application_series:
+        return True
+
+    return database_series in COMPATIBLE_DATABASE_SERIES.get(application_series, set())
+
 
 def get_or_create(session, model, defaults: Optional[Any] = None, **kwargs):
     """
@@ -247,7 +270,8 @@ class MapperBase(DeclarativeMeta):
                 # We’ll skip to honor NOT NULL on history.table_id
                 logger.warning(
                     "History: skipping %s for %s (no primary key available)",
-                    operation, instance.__tablename__
+                    operation,
+                    instance.__tablename__,
                 )
                 return
             user = current_user() or "unknown"
@@ -259,7 +283,7 @@ class MapperBase(DeclarativeMeta):
             table = History.__table__
             stmt = table.insert().values(
                 table_name=instance.__tablename__,
-                #table_id=getattr(instance, "id", None),
+                # table_id=getattr(instance, "id", None),
                 table_id=pk,
                 values=str(row),
                 operation=operation,
@@ -269,9 +293,12 @@ class MapperBase(DeclarativeMeta):
             connection.execute(stmt)
             logger.debug("History entry added: %s", stmt)
         except Exception as e:
-            logger.exception("History logging failed for %s on %s: %s",
-                            operation, instance.__tablename__, e)
-
+            logger.exception(
+                "History logging failed for %s on %s: %s",
+                operation,
+                instance.__tablename__,
+                e,
+            )
 
     @staticmethod
     def _register_event_listeners(cls) -> None:
@@ -332,7 +359,6 @@ class TypedBaseMixin:
         types.DateTime(), default=utc_now, onupdate=utc_now
     )
 
-
     @classmethod
     def query_with_default_order(cls):
         """
@@ -343,7 +369,8 @@ class TypedBaseMixin:
         if hasattr(cls, "order_by") and cls.order_by:
             stmt = stmt.order_by(*cls.order_by)
         return stmt
-    
+
+
 Base: Any = declarative_base(cls=TypedBaseMixin, metaclass=MapperBase)
 """
 All tables/mappers in Ghini which use the SQLAlchemy declarative
@@ -389,12 +416,13 @@ class History(history_base):
     __tablename__: str = "history"
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     table_name: Mapped[str] = mapped_column(sa.Text, nullable=False)
-    table_id: Mapped[int] = mapped_column(sa.Integer, nullable=False, autoincrement=False)
+    table_id: Mapped[int] = mapped_column(
+        sa.Integer, nullable=False, autoincrement=False
+    )
     values: Mapped[str] = mapped_column(sa.Text, nullable=False)
     operation: Mapped[str] = mapped_column(sa.Text, nullable=False)
     user: Mapped[Optional[str]] = mapped_column(sa.Text)
     timestamp: Mapped[datetime.datetime] = mapped_column(types.DateTime, nullable=False)
-
 
 
 def open(uri, verify: bool = True, show_error_dialogs: bool = False):
@@ -468,6 +496,7 @@ def open(uri, verify: bool = True, show_error_dialogs: bool = False):
         _bind()
 
         return engine
+
 
 # def create_triggers(connection) -> None:
 #     """
@@ -744,8 +773,10 @@ def create_triggers(connection: Connection) -> None:
 
     # Other backends: no-op (or you could add your own normalization here)
 
+
 # --- Relationship wiring (idempotent) ---
 _REL_WIRED = False
+
 
 def ensure_relationships_wired() -> None:
     """
@@ -781,11 +812,13 @@ def ensure_relationships_wired() -> None:
 
     # Wire relationships once all classes exist
     import bauble.plugins.garden.models as garden_models
+
     garden_models.wire_relationships()
 
     # Finalize ORM mappings
     configure_mappers()
     _REL_WIRED = True
+
 
 def create(import_defaults: bool = True) -> None:
     """
@@ -812,6 +845,7 @@ def create(import_defaults: bool = True) -> None:
         pluginmgr.load()  # <— add this call
 
         from bauble.db import ensure_relationships_wired
+
         ensure_relationships_wired()
 
         with engine.begin() as connection:
@@ -996,9 +1030,8 @@ def verify_connection(engine, show_error_dialogs: bool = False):
                 )
 
             try:
-                major, minor, _ = map(int, version_row.value.split("."))
-                if (str(major), str(minor)) != tuple(
-                    map(str, bauble.version_tuple[:2])
+                if not database_version_is_compatible(
+                    version_row.value, bauble.version
                 ):
                     handle_error(
                         error.VersionError,
@@ -1106,13 +1139,16 @@ def make_note_class(
             if name.lower() in keys or "code" in keys or f"{name.lower()}_id" in keys:
                 # Join to related_class if we need to filter by its code
                 if "code" in keys or name.lower() in keys:
-                    stmt = (
-                        stmt.join(related_class, related_class.id == getattr(cls, f"{name.lower()}_id"))
-                        .where(related_class.code == keys.get("code") or keys.get(name.lower()))
+                    stmt = stmt.join(
+                        related_class,
+                        related_class.id == getattr(cls, f"{name.lower()}_id"),
+                    ).where(
+                        related_class.code == keys.get("code") or keys.get(name.lower())
                     )
                 elif f"{name.lower()}_id" in keys:
-                    stmt = stmt.where(getattr(cls, f"{name.lower()}_id") == keys[f"{name.lower()}_id"])
-
+                    stmt = stmt.where(
+                        getattr(cls, f"{name.lower()}_id") == keys[f"{name.lower()}_id"]
+                    )
 
             # Add filters for `date`
             if "date" in keys:
@@ -1150,7 +1186,8 @@ def make_note_class(
         "category": mapped_column(sa.Unicode(32), default=""),
         "type": mapped_column(sa.Unicode(32), default=""),
         "note": mapped_column(sa.UnicodeText, nullable=False),
-        name.lower() + "_id": mapped_column(
+        name.lower()
+        + "_id": mapped_column(
             sa.Integer, sa.ForeignKey(name.lower() + ".id"), nullable=False
         ),
         name.lower(): sa.orm.relationship(
@@ -1257,8 +1294,6 @@ class WithNotes:
         except json.JSONDecodeError as e:
             logger.debug("JSON parsing failed: %s. Returning raw text: %s", e, text)
             return text
-
-
 
 
 class DefiningPictures:

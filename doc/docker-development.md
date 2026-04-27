@@ -96,9 +96,9 @@ scripts/docker-dev format bauble/_version.py setup.py
 scripts/docker-dev check bauble/_version.py tests/test_version.py setup.py
 ```
 
-`check` also runs the lightweight version tests. It is intentionally narrower
-than the full legacy test suite, so use `scripts/docker-dev pytest` when you
-need broader application coverage.
+`check` also runs the lightweight version and database-version tests. It is
+intentionally narrower than the full legacy test suite, so use
+`scripts/docker-dev pytest` when you need broader application coverage.
 
 These commands use `GHINI_TOOL_CONTAINER`, defaulting to a short-lived
 `ghini-dev-check-<pid>` name, so they can run while the main
