@@ -377,9 +377,9 @@ class Accession(Base, Serializable, WithNotes):
         default=None,
     )
 
-    date_accd: Mapped[DbDate] = mapped_column(DbDate)
-    date_recvd: Mapped[DbDate] = mapped_column(DbDate)
-    quantity_recvd: Mapped[int] = mapped_column(Integer, autoincrement=False)
+    date_accd: Mapped[Optional[datetime.date]] = mapped_column(DbDate)
+    date_recvd: Mapped[Optional[datetime.date]] = mapped_column(DbDate)
+    quantity_recvd: Mapped[Optional[int]] = mapped_column(Integer, autoincrement=False)
     recvd_type: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(recvd_type_values.keys()),
@@ -392,7 +392,7 @@ class Accession(Base, Serializable, WithNotes):
     # ITF2 - C24 - Rank Qualified Flag - Transfer code: rkql
     # B: Below Family; F: Family; G: Genus; S: Species; I: first
     # Infraspecific Epithet; J: second Infraspecific Epithet; C: Cultivar;
-    id_qual_rank: Mapped[str] = mapped_column(Unicode(10))
+    id_qual_rank: Mapped[Optional[str]] = mapped_column(Unicode(10))
 
     # ITF2 - C25 - Identification Qualifier - Transfer code: idql
     id_qual: Mapped[Optional[str]] = mapped_column(
@@ -411,10 +411,10 @@ class Accession(Base, Serializable, WithNotes):
     )
 
     # intended location
-    intended_location_id: Mapped[int] = mapped_column(
+    intended_location_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("location.id")
     )
-    intended2_location_id: Mapped[int] = mapped_column(
+    intended2_location_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("location.id")
     )
 

@@ -434,61 +434,61 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     # columns
     sp = synonym("epithet")
-    sp2: Mapped[str] = mapped_column(Unicode(64), index=True)  # in case hybrid=True
+    sp2: Mapped[Optional[str]] = mapped_column(Unicode(64), index=True)  # in case hybrid=True
     author: Mapped[Optional[str]] = mapped_column(Unicode(128))
     order_by: Any = [asc(epithet), asc(author)]
     hybrid: Mapped[bool] = mapped_column(Boolean, default=False)
-    sp_qual: Mapped[str] = mapped_column(
+    sp_qual: Mapped[Optional[str]] = mapped_column(
         types.Enum(values=["agg.", "s. lat.", "s. str.", None], omit_aliases=False),
         default=None,
     )
-    cv_group: Mapped[str] = mapped_column(Unicode(50))
-    trade_name: Mapped[str] = mapped_column(Unicode(64))
+    cv_group: Mapped[Optional[str]] = mapped_column(Unicode(50))
+    trade_name: Mapped[Optional[str]] = mapped_column(Unicode(64))
 
-    infrasp1: Mapped[str] = mapped_column(Unicode(64))
-    infrasp1_rank: Mapped[str] = mapped_column(
+    infrasp1: Mapped[Optional[str]] = mapped_column(Unicode(64))
+    infrasp1_rank: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(infrasp_rank_values.keys()),
             translations=infrasp_rank_values,
             omit_aliases=False,
         )
     )
-    infrasp1_author: Mapped[str] = mapped_column(Unicode(64))
+    infrasp1_author: Mapped[Optional[str]] = mapped_column(Unicode(64))
 
-    infrasp2: Mapped[str] = mapped_column(Unicode(64))
-    infrasp2_rank: Mapped[str] = mapped_column(
+    infrasp2: Mapped[Optional[str]] = mapped_column(Unicode(64))
+    infrasp2_rank: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(infrasp_rank_values.keys()),
             translations=infrasp_rank_values,
             omit_aliases=False,
         )
     )
-    infrasp2_author: Mapped[str] = mapped_column(Unicode(64))
+    infrasp2_author: Mapped[Optional[str]] = mapped_column(Unicode(64))
 
-    infrasp3: Mapped[str] = mapped_column(Unicode(64))
-    infrasp3_rank: Mapped[str] = mapped_column(
+    infrasp3: Mapped[Optional[str]] = mapped_column(Unicode(64))
+    infrasp3_rank: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(infrasp_rank_values.keys()),
             translations=infrasp_rank_values,
             omit_aliases=False,
         )
     )
-    infrasp3_author: Mapped[str] = mapped_column(Unicode(64))
+    infrasp3_author: Mapped[Optional[str]] = mapped_column(Unicode(64))
 
-    infrasp4: Mapped[str] = mapped_column(Unicode(64))
-    infrasp4_rank: Mapped[str] = mapped_column(
+    infrasp4: Mapped[Optional[str]] = mapped_column(Unicode(64))
+    infrasp4_rank: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(infrasp_rank_values.keys()),
             translations=infrasp_rank_values,
             omit_aliases=False,
         )
     )
-    infrasp4_author: Mapped[str] = mapped_column(Unicode(64))
+    infrasp4_author: Mapped[Optional[str]] = mapped_column(Unicode(64))
 
     # the Species.genus property is defined as back_populates in Genus.species
 
-    label_distribution : Mapped[str] = mapped_column(UnicodeText)
-    bc_distribution: Mapped[str] = mapped_column(UnicodeText)
+    label_distribution : Mapped[Optional[str]] = mapped_column(UnicodeText)
+    bc_distribution: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     # relations
     synonyms = association_proxy("_synonyms", "synonym")
@@ -540,12 +540,12 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         or []
     )
 
-    habit_id: Mapped[int] = mapped_column(Integer, ForeignKey("habit.id"), default=None)
+    habit_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("habit.id"), default=None)
     habit: Mapped[Optional["Habit"]] = relationship(
         "Habit", uselist=False, back_populates="species", active_history=True
     )
 
-    flower_color_id: Mapped[int] = mapped_column(Integer, ForeignKey("color.id"), default=None)
+    flower_color_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("color.id"), default=None)
     flower_color: Mapped[Optional["Color"]] = relationship(
         "Color", uselist=False, back_populates="species", active_history=True
     )
@@ -569,7 +569,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     )
     # hardiness_zone : Mapped[str] = mapped_column(Unicode(4))
 
-    awards : Mapped[str] = mapped_column(UnicodeText)
+    awards : Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

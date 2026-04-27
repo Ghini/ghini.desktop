@@ -22,7 +22,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, ClassVar, List
+from typing import Any, ClassVar, List, Optional
 
 import bauble.utils as utils
 from bauble.db import Base, Serializable, WithNotes, make_note_class
@@ -68,7 +68,7 @@ class Location(Base, Serializable, WithNotes):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     code: Mapped[str] = mapped_column(Unicode(12), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(Unicode(80))
-    description: Mapped[str] = mapped_column(UnicodeText)
+    description: Mapped[Optional[str]] = mapped_column(UnicodeText)
     order_by: ClassVar[list[Any]] = [asc(name)]
 
     def search_view_markup_pair(self):

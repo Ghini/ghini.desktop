@@ -210,7 +210,7 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
             return None
         return value.strip()
 
-    acc_type: Mapped[str] = mapped_column(
+    acc_type: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(acc_type_values.keys()),
             translations=acc_type_values,
