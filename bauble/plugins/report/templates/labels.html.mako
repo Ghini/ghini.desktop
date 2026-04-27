@@ -88,7 +88,7 @@
 </head>
 <body>
 <%
-   from bauble.plugins.garden import Plant
+   from bauble.plugins.garden.plant import Plant
    import bauble.db as db
    session = db.Session()
    delimiter = ','

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2018 Mario Frasca <mario@anche.no>
@@ -19,95 +18,110 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
 import logging
-logger = logging.getLogger(__name__)
-
 import os
+from typing import Any
 
-# TURN OFF desktop.open for this module so that the test doesn't open
-# the report
-import bauble.utils.desktop as desktop
-desktop.open = lambda x: x
-
-import bauble
-from bauble.test import BaubleTestCase
-from unittest import TestCase
-from bauble.plugins.plants import Family, Genus, Species, \
-    SpeciesDistribution, VernacularName, GeographicArea
-from bauble.plugins.garden import Accession, Plant, Location
-from bauble.plugins.report.jinja2 import Jinja2FormatterPlugin
+import pytest
 from bauble.plugins.report import get_pertinent_objects
-from bauble import utils as butils
+from bauble.plugins.report.jinja2 import Jinja2FormatterPlugin
+from bauble.utils import natsort_key
+from sqlalchemy import select
 
-class Jinja2FormatterTests(BaubleTestCase):
+logger: Any = logging.getLogger(__name__)
 
-    def __init__(self, *args):
-        super().__init__(*args)
 
-    def setUp(self, *args):
-        super().setUp()
-        fctr = gctr = sctr = actr = pctr = 0
-        for f in range(2):
-            fctr+=1
-            family = Family(id=fctr, family='fam%s' % fctr)
-            self.session.add(family)
-            for g in range(2):
-                gctr+=1
-                genus = Genus(id=gctr, family=family, genus='gen%s' % gctr)
-                self.session.add(genus)
-                for s in range(2):
-                    sctr+=1
-                    sp = Species(id=sctr, genus=genus, sp='sp%s' % sctr)
-                    # TODO: why doesn't this geographic_area, species
-                    # distribution stuff seem to work
-                    geo = GeographicArea(id=sctr, name='Mexico%s' % sctr)
-                    dist = SpeciesDistribution(geographic_area_id=sctr)
-                    sp.distribution.append(dist)
-                    vn = VernacularName(id=sctr, species=sp,
-                                        name='name%s' % sctr)
-                    self.session.add_all([sp, geo, dist, vn])
-                    for a in range(2):
-                        actr+=1
-                        acc = Accession(id=actr, species=sp, code='%s' % actr)
-                        self.session.add(acc)
-                        for p in range(2):
-                            pctr+=1
-                            loc = Location(id=pctr, code='%s' % pctr,
-                                           name='site%s' % pctr)
-                            plant = Plant(id=pctr, accession=acc, location=loc,
-                                          code='%s' % pctr, quantity=1)
-                            #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
-                            #      % (fctr, gctr, actr, pctr))
-                            self.session.add_all([loc, plant])
-        self.session.commit()
+# Centralize delayed imports
+def dynamic_import(module_name, class_name):
+    module = __import__(module_name, fromlist=[class_name])
+    return getattr(module, class_name)
 
-    def tearDown(self, *args):
-        super().tearDown(*args)
 
-    def test_format_all_templates(self):
-        selection = self.session.query(Plant).all()
-        # td is this module name, minus mako/test, plus templates
-        td = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
-        for i, tn in enumerate(os.listdir(td)):
-            if not tn.endswith('.jj2'):
-                continue
-            filename = os.path.join(td, tn)
-            domain = Jinja2FormatterPlugin.get_iteration_domain(filename)
-            if domain == '':
-                self.assertEquals(tn[:5], 'base.')
-                continue
-            try:
-                cls = {
-                    'plant': Plant,
-                    'accession': Accession,
-                    'species': Species,
-                    'location': Location,
-                }[domain]
-                todo = sorted(get_pertinent_objects(cls, selection),
-                              key=butils.natsort_key)
-            except KeyError:
-                todo = selection
-            logger.debug('formatting ›%s‹' % filename)
-            report = Jinja2FormatterPlugin.format(todo, template=filename)
-            self.assertEquals((i, filename, type(report)), (i, filename, bytes))
+@pytest.fixture(scope="module")
+def populate_test_data(session) -> None:
+    """
+    Populates the database with test data.
+    """
+    Family = dynamic_import("bauble.plugins.plants", "Family")
+    Genus = dynamic_import("bauble.plugins.plants", "Genus")
+    Species = dynamic_import("bauble.plugins.plants", "Species")
+    GeographicArea = dynamic_import("bauble.plugins.plants", "GeographicArea")
+    SpeciesDistribution = dynamic_import("bauble.plugins.plants", "SpeciesDistribution")
+    VernacularName = dynamic_import("bauble.plugins.plants", "VernacularName")
+    Accession = dynamic_import("bauble.plugins.garden.models", "Accession")
+    Location = dynamic_import("bauble.plugins.garden.models", "Location")
+    Plant = dynamic_import("bauble.plugins.garden.models", "Plant")
+
+    fctr = gctr = sctr = actr = pctr = 0
+    for _f in range(2):
+        fctr += 1
+        family = Family(id=fctr, family=f"fam{fctr}")
+        session.add(family)
+        for _g in range(2):
+            gctr += 1
+            genus = Genus(id=gctr, family=family, genus=f"gen{gctr}")
+            session.add(genus)
+            for _s in range(2):
+                sctr += 1
+                sp = Species(id=sctr, genus=genus, sp=f"sp{sctr}")
+                geo = GeographicArea(id=sctr, name=f"Mexico{sctr}")
+                dist = SpeciesDistribution(geographic_area_id=sctr)
+                sp.distribution.append(dist)
+                vn = VernacularName(id=sctr, species=sp, name=f"name{sctr}")
+                session.add_all([sp, geo, dist, vn])
+                for _a in range(2):
+                    actr += 1
+                    acc = Accession(id=actr, species=sp, code=f"{actr}")
+                    session.add(acc)
+                    for _p in range(2):
+                        pctr += 1
+                        loc = Location(id=pctr, code=f"{pctr}", name=f"site{pctr}")
+                        plant = Plant(
+                            id=pctr,
+                            accession=acc,
+                            location=loc,
+                            code=f"{pctr}",
+                            quantity=1,
+                        )
+                        session.add_all([loc, plant])
+    if session.in_transaction():
+        session.commit()
+
+
+@pytest.mark.usefixtures("populate_test_data")
+def test_format_all_templates(session):
+    """
+    Tests the formatting of all Jinja2 templates.
+    """
+    Plant = dynamic_import("bauble.plugins.garden.models", "Plant")
+    selection = session.execute(select(Plant)).scalars().all()
+
+    templates_dir = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "templates"
+    )
+    template_files = filter(lambda x: x.endswith(".jj2"), os.listdir(templates_dir))
+
+    for template_name in template_files:
+        template_path = os.path.join(templates_dir, template_name)
+        domain = Jinja2FormatterPlugin.get_iteration_domain(template_path)
+
+        if domain == "":
+            assert template_name.startswith("base.")
+            continue
+
+        cls = {
+            "plant": Plant,
+            "accession": dynamic_import("bauble.plugins.garden", "Accession"),
+            "species": dynamic_import("bauble.plugins.plants", "Species"),
+            "location": dynamic_import("bauble.plugins.garden", "Location"),
+        }.get(domain, Plant)
+
+        if cls:
+            todo = sorted(get_pertinent_objects(cls, selection), key=natsort_key)
+        else:
+            todo = selection
+
+        logger.debug(f"Formatting template: {template_path}")
+        report = Jinja2FormatterPlugin.format(todo, template=template_path)
+
+        assert isinstance(report, bytes)

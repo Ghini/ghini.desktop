@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2018 Mario Frasca <mario@anche.no>.
 # Copyright 2018 Tanager Botanical Garden <tanagertourism@gmail.com>
@@ -20,54 +19,74 @@
 #
 # report/jinja2/
 #
-
 import logging
-logger = logging.getLogger(__name__)
 
+# import math
 import os
-import shutil
-import tempfile
-import math
 import re
 
-from gi.repository import Gtk
+# import shutil
+# import tempfile
+from gettext import gettext as _
+from typing import Any
 
-from bauble.plugins.report import TemplateFormatterPlugin, PS, SVG
-from bauble import utils
-from bauble import paths
+from bauble import paths, utils
+from bauble.gtkinit import Gtk
+from bauble.plugins.report import PS, SVG, TemplateFormatterPlugin
+
+logger: Any = logging.getLogger(__name__)
 
 
 class Jinja2FormatterPlugin(TemplateFormatterPlugin):
 
-    title = 'Jinja2'
-    extension = '.jj2'
-    domain_pattern = re.compile(r"^\{#\s*DOMAIN\s+([a-z_]*)\s*#\}$")
-    option_pattern = re.compile(r"^{#\s*OPTION ([a-z_]*): \("
-                                r"type: ([a-z_]*), "
-                                r"default: '(.*)', "
-                                r"tooltip: '(.*)'\)\s*#}$")
+    title: str = "Jinja2"
+    extension: str = ".jj2"
+    domain_pattern: Any = re.compile(r"^\{#\s*DOMAIN\s+([a-z_]*)\s*#\}$")
+    option_pattern: Any = re.compile(
+        r"^{#\s*OPTION ([a-z_]*): \("
+        r"type: ([a-z_]*), "
+        r"default: '(.*)', "
+        r"tooltip: '(.*)'\)\s*#}$"
+    )
 
+    @classmethod
     def get_template(name):
+        """Load a Jinja2 template from available paths."""
         if not name:
-            msg = _('Please select a template.')
+            msg = _("Please select a template.")
             utils.idle_message(msg, Gtk.MessageType.WARNING)
-            return False
+            return None
         try:
             path, name = os.path.split(name)
-            from jinja2 import Environment, PackageLoader, ChoiceLoader, FileSystemLoader
-            env = Environment(
-                loader=ChoiceLoader([FileSystemLoader(path),
-                                     FileSystemLoader(os.path.join(paths.user_dir(), 'templates')),
-                                     PackageLoader('bauble.plugins.report', 'templates')])
+            from jinja2 import (
+                ChoiceLoader,
+                Environment,
+                FileSystemLoader,
+                PackageLoader,
             )
-            env.globals['PS'] = PS
-            env.globals['SVG'] = SVG
-            env.globals['enumerate'] = enumerate
+
+            env = Environment(
+                loader=ChoiceLoader(
+                    [
+                        FileSystemLoader(path),
+                        FileSystemLoader(os.path.join(paths.user_dir(), "templates")),
+                        PackageLoader("bauble.plugins.report", "templates"),
+                    ]
+                )
+            )
+            env.globals["PS"] = PS
+            env.globals["SVG"] = SVG
+            env.globals["enumerate"] = enumerate
             template = env.get_template(name)
         except RuntimeError as e:
             import traceback
-            utils.idle_message("Reading template %s\n%s(%s)\n%s" % (name, type(e).__name__, e, traceback.format_exc()), type=Gtk.MessageType.ERROR)
-            return False
+
+            utils.idle_message(
+                f"Reading template {name}\n{type(e).__name__}({e})\n{traceback.format_exc()}",
+                type=Gtk.MessageType.ERROR,
+            )
+            logger.error(f"Failed to load Jinja2 template {name}: {e}")
+            return None
 
         return template
 
