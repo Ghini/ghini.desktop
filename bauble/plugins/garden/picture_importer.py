@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2018 Mario Frasca <mario@anche.no>.
 #
@@ -16,29 +15,32 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
-
 import logging
-logger = logging.getLogger(__name__)
-
-from gi.repository import Gtk
-from gi.repository import GObject
-from gi.repository import GdkPixbuf
-from gi.repository import GLib
-import threading
-import re
 import os.path
-from bauble import pluginmgr, db, utils
-from sqlalchemy.orm.exc import NoResultFound
+import re
+import threading
+from gettext import gettext as _
+from typing import Any, Optional
 
-from bauble.editor import (GenericEditorView, GenericEditorPresenter)
+from bauble import db as db
+from bauble import pluginmgr as pluginmgr
+from bauble import utils as utils
+from bauble.editor import GenericEditorPresenter, GenericEditorView
+from bauble.gtkinit import GdkPixbuf, GLib, Gtk
+from sqlalchemy import select
 
-accno_re = re.compile(r'([12][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9])(?:\.([0-9]+))?')
-species_re = re.compile(r'([A-Z][a-z]+(?: [a-z-]*)?)')
-picname_re = re.compile(r'([A-Z]+[0-9]+)')
-number_re = re.compile(r'([0-9]+)')
+logger: Any = logging.getLogger(__name__)
 
-def decode_parts(name, acc_format=None):
+
+accno_re: Any = re.compile(
+    r"([12][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9])(?:\.([0-9]+))?"
+)
+species_re: Any = re.compile(r"([A-Z][a-z]+(?: [a-z-]*)?)")
+picname_re: Any = re.compile(r"([A-Z]+[0-9]+)")
+number_re: Any = re.compile(r"([0-9]+)")
+
+
+def decode_parts(name, acc_format: Optional[Any] = None):
     """return the dictionary of parts in name
 
     name is matched against the basic concepts in a plant description, like
@@ -56,52 +58,55 @@ def decode_parts(name, acc_format=None):
     # accession number with optional plant number, original picture name,
     # some other number overruling the original picture name.
 
-    #only scan name part, ignore location
+    # only scan name part, ignore location
     path, name = os.path.split(name)
 
-    result = {'accession': None,
-              'plant': '1',
-              'seq': '1',
-              'species': 'Zzz'}
+    result = {"accession": None, "plant": "1", "seq": "1", "species": "Zzz"}
 
     if acc_format is None:
         use_accno_re = accno_re
     else:
-        exp_str = acc_format.replace('.', '\.').replace('#', "[0-9]")
-        exp_str = "(%s)(?:\.([0-9]+))?" % exp_str
+        exp_str = acc_format.replace(".", r"\.").replace("#", "[0-9]")
+        exp_str = rf"({exp_str})(?:\.([0-9]+))?"
         use_accno_re = re.compile(exp_str)
-    for key, exp in [('accession', use_accno_re),
-                     ('species', species_re),
-                     ('seq', picname_re),
-                     ('seq', number_re)]:
+    for key, exp in [
+        ("accession", use_accno_re),
+        ("species", species_re),
+        ("seq", picname_re),
+        ("seq", number_re),
+    ]:
         match = exp.search(name)
         if match:
             value = match.group(1)
             if not value:
                 continue
-            if key == 'seq':
-                value = re.sub(r'([A-Z]+0*)', '', value)
+            if key == "seq":
+                value = re.sub(r"([A-Z]+0*)", "", value)
             result[key] = value
-            if key == 'accession' and match.group(2):
-                result['plant'] = match.groups()[1]
-            name = name.replace(match.group(0), '')
-    if result['accession'] is None:
+            if key == "accession" and match.group(2):
+                result["plant"] = match.groups()[1]
+            name = name.replace(match.group(0), "")
+    if result["accession"] is None:
         return None
     return result
 
 
 class ListStoreHandler(logging.Handler):
-    def __init__(self, container, *args, **kwargs):
+    container: Any
+
+    def __init__(self, container, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.container = container
-        GObject.idle_add(utils.none, self.container.clear)
+        GLib.idle_add(utils.none, self.container.clear)
 
-    def emit(self, record):
+    def emit(self, record) -> None:
         msg = self.format(record)
-        stock = {11: 'gtk-directory',
-                 12: 'gtk-file',
-                 13: 'gtk-new', }[record.levelno]
-        GObject.idle_add(utils.none, self.container.append, [stock, msg])
+        stock = {
+            11: "gtk-directory",
+            12: "gtk-file",
+            13: "gtk-new",
+        }[record.levelno]
+        GLib.idle_add(utils.none, self.container.append, [stock, msg])
 
 
 def query_session_new(session, cls, **kwargs):
@@ -116,31 +121,65 @@ def query_session_new(session, cls, **kwargs):
             return i
 
 
-use_me_col = 0
-filename_col = 1
-accno_col = 2
-binomial_col = 3
-thumbnail_col = 4
-iseditable_col = 5
-orig_accno_col = 6
-edited_accno_col = 7
-full_filename_col = 8
-orig_binomial_col = 9
-edited_binomial_col = 10
+use_me_col: int = 0
+filename_col: int = 1
+accno_col: int = 2
+binomial_col: int = 3
+thumbnail_col: int = 4
+iseditable_col: int = 5
+orig_accno_col: int = 6
+edited_accno_col: int = 7
+full_filename_col: int = 8
+orig_binomial_col: int = 9
+edited_binomial_col: int = 10
+
+from bauble.gtkinit import Gio
+
+
+def get_first_or_none(session, stmt):
+    """Return the first result from a scalars() query, or None if no results."""
+    results = list(session.execute(stmt).scalars())
+    return results[0] if results else None
 
 
 class PictureImporterPresenter(GenericEditorPresenter):
-    widget_to_field_map = {
-        'accno_entry': 'accno_format',
-        'filepath_entry': 'filepath',
-        'recurse_checkbutton': 'recurse'}
+    panes: Any
+    review_liststore: Any
+    running_thread: Any
+    keep_running: Any
+    should_commit: bool
+    pixbufs_to_load: Any
+    lock: Any
+    widget_to_field_map: Any = {
+        "accno_entry": "accno_format",
+        "filepath_entry": "filepath",
+        "recurse_checkbutton": "recurse",
+    }
 
-    def __init__(self, model, view, **kwargs):
-        kwargs['refresh_view'] = True
+    def create_actions(self) -> None:
+        actions = {
+            "cancel": self.on_action_cancel_activate,
+            "ok": self.on_action_ok_activate,
+            "browse": self.on_action_browse_activate,
+            "next": self.on_action_next_activate,
+            "prev": self.on_action_prev_activate,
+        }
+
+        for action_name, callback in actions.items():
+            action = Gio.SimpleAction.new(action_name, None)
+            action.connect("activate", callback)
+            # Actions are added to the application or window
+            self.view.get_window().add_action(action)
+
+    def __init__(self, model, view, **kwargs) -> None:
+        kwargs["refresh_view"] = True
         super().__init__(model, view, **kwargs)
-        self.panes = [getattr(self.view.widgets, 'box_define'),
-                      getattr(self.view.widgets, 'box_review'),
-                      getattr(self.view.widgets, 'box_log'),]
+
+        self.panes = [
+            self.view.widgets.box_define,
+            self.view.widgets.box_review,
+            self.view.widgets.box_log,
+        ]
         self.review_liststore = self.view.widgets.review_liststore
         self.running_thread = None
         self.keep_running = None
@@ -151,30 +190,38 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.binomial_tvc.set_sort_column_id(binomial_col)
         self.view.widgets.iseditable_tvc.set_sort_column_id(iseditable_col)
 
-        from bauble.plugins.garden import init_location_comboentry, Location
+        from bauble.plugins.garden import init_location_comboentry
+
         def on_location_select(location):
             self.model.location = location.code
 
-        init_location_comboentry(self, self.view.widgets.location_combobox,
-                                 on_location_select)
+        init_location_comboentry(
+            self, self.view.widgets.location_combobox, on_location_select
+        )
 
-    def show_visible_pane(self):
+        # Gio.SimpleActions setup:
+        self.create_actions()
+
+    def show_visible_pane(self) -> None:
         for n, i in enumerate(self.panes):
             i.set_visible(n == self.model.visible_pane)
         self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
-        self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
+        self.view.widgets.button_next.set_sensitive(
+            self.model.visible_pane < len(self.panes) - 1
+        )
         self.view.widgets.button_ok.set_sensitive(False)
         self.should_commit = False  # reset inconditionally when changing pane
         if self.running_thread:
             self.keep_running = False
-            if self.running_thread.name == 'do_import':
+            if self.running_thread.name == "do_import":
                 self.lock.release()
             self.running_thread.join()
             self.running_thread = None
         if self.model.visible_pane == 1:
-            self.session.rollback()  # clean up session
+            if self.session.in_transaction():
+                self.session.rollback()  # clean up session
 
-    def load_pixbufs(self):
+    def load_pixbufs(self) -> None:
         # to be run in different thread - or you're blocking the gui
         for fname, path in self.pixbufs_to_load:
             if not self.keep_running:
@@ -188,63 +235,103 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 x = int(pixbuf.get_width() / scale)
                 y = int(pixbuf.get_height() / scale)
                 pixbuf = pixbuf.scale_simple(x, y, GdkPixbuf.InterpType.BILINEAR)
+
                 def set_thumbnail(store, path, col, value):
                     store[path][col] = value
-                GObject.idle_add(set_thumbnail, self.review_liststore, path, thumbnail_col, pixbuf)
-            except GLib.GError as e:
-                logger.debug("picture %s caused GLib.GError %s" %
-                             (fname, e))
-            except Exception as e:
-                logger.warning("picture %s caused Exception %s:%s" %
-                               (fname, type(e), e))
 
-    def add_rows(self, arg, dirname, fnames):
+                GLib.idle_add(
+                    set_thumbnail,
+                    self.review_liststore,
+                    path,
+                    thumbnail_col,
+                    pixbuf,
+                )
+            except GLib.GError as e:
+                logger.debug(f"picture {fname} caused GLib.GError {e}")
+            except Exception as e:
+                logger.warning(f"picture {fname} caused Exception {type(e)}:{e}")
+
+    def add_rows(self, arg, dirname, fnames) -> None:
         for name in fnames:
             d = decode_parts(name, self.model.accno_format)
             if d is None:
                 continue
-            from bauble.plugins.garden import Plant
-            complete_plant_code = d['accession'] + Plant.get_delimiter() + d['plant']
-            row = [True, name, complete_plant_code, d['species'], None, False, complete_plant_code, complete_plant_code,
-                   os.path.join(dirname, name), d['species'], d['species']]
-            self.pixbufs_to_load.append((os.path.join(dirname, name), (len(self.review_liststore), )))
+            from bauble.plugins.garden.models import Plant
+
+            complete_plant_code = d["accession"] + Plant.get_delimiter() + d["plant"]
+            row = [
+                True,
+                name,
+                complete_plant_code,
+                d["species"],
+                None,
+                False,
+                complete_plant_code,
+                complete_plant_code,
+                os.path.join(dirname, name),
+                d["species"],
+                d["species"],
+            ]
+            self.pixbufs_to_load.append(
+                (os.path.join(dirname, name), (len(self.review_liststore),))
+            )
             self.review_liststore.append(row)
 
-    def on_cellrenderertext_edited(self, widget, path, new_text, *args, **kwargs):
+    def on_cellrenderertext_edited(
+        self, widget, path, new_text, *args, **kwargs
+    ) -> None:
         if widget == self.view.widgets.accno_crtext:
-            self.review_liststore[path][accno_col] = self.review_liststore[path][edited_accno_col] = new_text
+            self.review_liststore[path][accno_col] = self.review_liststore[path][
+                edited_accno_col
+            ] = new_text
         elif widget == self.view.widgets.binomial_crtext:
-            self.review_liststore[path][binomial_col] = self.review_liststore[path][edited_binomial_col] = new_text
+            self.review_liststore[path][binomial_col] = self.review_liststore[path][
+                edited_binomial_col
+            ] = new_text
 
-    def on_use_crtoggle_toggled(self, column_widget, path):
-        self.review_liststore[path][use_me_col] = not self.review_liststore[path][use_me_col]
+    def on_use_crtoggle_toggled(self, column_widget, path) -> None:
+        self.review_liststore[path][use_me_col] = not self.review_liststore[path][
+            use_me_col
+        ]
 
-    def on_edit_crtoggle_toggled(self, column_widget, path):
-        self.review_liststore[path][iseditable_col] = not self.review_liststore[path][iseditable_col]
+    def on_edit_crtoggle_toggled(self, column_widget, path) -> None:
+        self.review_liststore[path][iseditable_col] = not self.review_liststore[path][
+            iseditable_col
+        ]
         if not self.review_liststore[path][iseditable_col]:  # let's restore original
-            self.review_liststore[path][accno_col] = self.review_liststore[path][orig_accno_col]
-            self.review_liststore[path][binomial_col] = self.review_liststore[path][orig_binomial_col]
+            self.review_liststore[path][accno_col] = self.review_liststore[path][
+                orig_accno_col
+            ]
+            self.review_liststore[path][binomial_col] = self.review_liststore[path][
+                orig_binomial_col
+            ]
         else:  # otherwise: restore last edit
-            self.review_liststore[path][accno_col] = self.review_liststore[path][edited_accno_col]
-            self.review_liststore[path][binomial_col] = self.review_liststore[path][edited_binomial_col]
+            self.review_liststore[path][accno_col] = self.review_liststore[path][
+                edited_accno_col
+            ]
+            self.review_liststore[path][binomial_col] = self.review_liststore[path][
+                edited_binomial_col
+            ]
 
-    def do_import(self):  # step 2
+    def do_import(self) -> None:  # step 2
         session = db.Session()
         handler = ListStoreHandler(self.view.widgets.log_liststore)
         logger.addHandler(handler)
         self.view.widgets.log_treeview.scroll_to_point(0, 0)
-        from bauble.plugins.plants import (Genus, Species)
-        from bauble.plugins.garden import (Location, Accession, Plant, PlantNote)
+        from bauble.plugins.garden.models import Accession, Location, Plant, PlantNote
+        from bauble.plugins.plants import Genus, Species
+
         # make sure selected location exists
         if self.model.location is None:
-            self.model.location = 'imported'
-        location = session.query(Location).filter_by(code=self.model.location).first()
-        if location is not None:
-            logger.log(11, 'location %s already in database' % (location, ))
+            self.model.location = "imported"
+        location_stmt = Location.query_with_default_order().where(Location.code == self.model.location)
+        location = get_first_or_none(session, location_stmt)
+        if location:
+            logger.log(11, f"location {location} already in database")
         else:
             location = Location(code=self.model.location)
             session.add(location)
-            logger.log(13, 'created new location %s' % (location, ))
+            logger.log(13, f"created new location {location}")
 
         # iterate over liststore content
         for row in self.review_liststore:
@@ -253,83 +340,140 @@ class PictureImporterPresenter(GenericEditorPresenter):
             if not row[use_me_col]:
                 continue
             # get unicode strings from row
-            epgn, epsp = str(row[binomial_col] + ' sp').split(' ')[:2]
+            epgn, epsp = str(row[binomial_col] + " sp").split(" ")[:2]
             filename = str(row[filename_col])
             complete_plant_code = str(row[accno_col])
-            accession_code, plant_code = complete_plant_code.rsplit(Plant.get_delimiter(), 1)
+            accession_code, plant_code = complete_plant_code.rsplit(
+                Plant.get_delimiter(), 1
+            )
 
             # create or retrieve genus and species
-            genus = session.query(Genus).filter_by(epithet=epgn).one()
-            species = session.query(Species).filter_by(genus=genus, epithet=epsp).first()
-            if species is not None:
-                logger.log(11, 'species %s %s already in database' % (epgn, epsp))
+            genus_stmt = Genus.query_with_default_order().where(Genus.epithet == epgn)
+            genus = get_first_or_none(session, genus_stmt)
+            if not genus:
+                raise ValueError(f"Genus {epgn} not found in database")
+
+            species_stmt = Species.query_with_default_order().where(
+                Species.genus == genus, Species.epithet == epsp
+            )
+            species = get_first_or_none(session, species_stmt)
+            if species:
+                logger.log(11, f"species {epgn} {epsp} already in database")
             else:
                 species = query_session_new(session, Species, genus=genus, epithet=epsp)
                 if species is None:
                     species = Species(genus=genus, epithet=epsp)
                     session.add(species)
-                    logger.log(13, 'created species %s %s' % (epgn, epsp))
+                    logger.log(13, f"created species {epgn} {epsp}")
                 else:
-                    logger.log(12, 'reusing new species %s %s' % (epgn, epsp))
+                    logger.log(12, f"reusing new species {epgn} {epsp}")
 
             # create or retrieve accession (needs species)
-            accession = session.query(Accession).filter_by(code=accession_code).first()
-            if accession is not None:
-                logger.log(11, 'accession %s already in database' % (accession_code))
+            accession_stmt = Accession.query_with_default_order().where(Accession.code == accession_code)
+            accession = get_first_or_none(session, accession_stmt)
+            if accession:
+                logger.log(11, f"accession {accession_code} already in database")
             else:
                 accession = query_session_new(session, Accession, code=accession_code)
                 if accession is None:
-                    accession = Accession(species=species, code=accession_code, quantity_recvd=1)
+                    accession = Accession(
+                        species=species, code=accession_code, quantity_recvd=1
+                    )
                     session.add(accession)
-                    logger.log(13, 'created accession %s for species %s %s' % (accession_code, epgn, epsp))
+                    logger.log(
+                        13,
+                        f"created accession {accession_code} for species {epgn} {epsp}",
+                    )
                 else:
-                    logger.log(12, 'reusing new accession %s' % (accession_code))
+                    logger.log(12, f"reusing new accession {accession_code}")
 
             # create or retrieve plant (needs: accession, location)
-            plant = session.query(Plant).filter_by(accession=accession, code=plant_code).first()
-            if plant is not None:
-                logger.log(11, 'plant %s already in database' % (complete_plant_code))
+            plant = get_first_or_none(
+                session,
+                select(Plant)
+                .where(Plant.accession == accession)
+                .where(Plant.code == plant_code),
+            )
+
+            if plant:
+                logger.log(11, f"plant {complete_plant_code} already in database")
             else:
-                plant = query_session_new(session, Plant, accession=accession, code=plant_code)
+                plant = query_session_new(
+                    session, Plant, accession=accession, code=plant_code
+                )
                 if plant is None:
-                    plant = Plant(accession=accession, quantity=1, location=location, code=plant_code)
+                    plant = Plant(
+                        accession=accession,
+                        quantity=1,
+                        location=location,
+                        code=plant_code,
+                    )
                     session.add(plant)
-                    logger.log(13, 'created plant %s' % (complete_plant_code))
+                    logger.log(13, f"created plant {complete_plant_code}")
                 else:
-                    logger.log(12, 'reusing new plant %s' % (complete_plant_code))
+                    logger.log(12, f"reusing new plant {complete_plant_code}")
 
             # copy picture file - possibly renaming it
             utils.copy_picture_with_thumbnail(self.model.filepath, filename)
 
             # add picture note
-            note = session.query(PlantNote).filter_by(plant=plant, note=filename, category='<picture>').first()
-            if note is not None:
-                logger.log(11, 'picture %s already in plant %s' % (filename, complete_plant_code))
+            note = get_first_or_none(
+                session,
+                select(PlantNote)
+                .where(PlantNote.plant == plant)
+                .where(PlantNote.note == filename)
+                .where(PlantNote.category == "<picture>"),
+            )
+
+            if note:
+                logger.log(
+                    11, f"picture {filename} already in plant {complete_plant_code}"
+                )
             else:
-                note = query_session_new(session, PlantNote, plant=plant, note=filename, category='<picture>')
+                note = query_session_new(
+                    session,
+                    PlantNote,
+                    plant=plant,
+                    note=filename,
+                    category="<picture>",
+                )
                 if note is None:
-                    note = PlantNote(plant=plant, note=filename, category='<picture>', user='initial-import')
+                    note = PlantNote(
+                        plant=plant,
+                        note=filename,
+                        category="<picture>",
+                        user="initial-import",
+                    )
                     session.add(note)
-                    logger.log(13, 'picture %s added to plant %s' % (filename, complete_plant_code))
+                    logger.log(
+                        13,
+                        f"picture {filename} added to plant {complete_plant_code}",
+                    )
                 else:
-                    logger.log(12, 'reusing new picture %s in plant %s' % (filename, complete_plant_code))
+                    logger.log(
+                        12,
+                        f"reusing new picture {filename} in plant {complete_plant_code}",
+                    )
         logger.removeHandler(handler)
         self.view.widgets.button_ok.set_sensitive(self.keep_running is True)
         self.lock.acquire()
         if self.should_commit:
-            session.commit()
+            if session.in_transaction():
+                session.commit()
         else:
-            session.rollback()
+            if session.in_transaction():
+                if session.in_transaction():
+                    session.rollback()
         self.lock.release()
 
-    def on_picture_importer_dialog_response(self, widget, response, **kwargs):
+    def on_picture_importer_dialog_response(self, widget, response, **kwargs) -> None:
         self.keep_running = None
 
-    def on_action_prev_activate(self, *args, **kwargs):
+    def on_action_prev_activate(self, action, parameter) -> None:
         self.model.visible_pane -= 1
         self.show_visible_pane()
 
-    def on_action_next_activate(self, *args, **kwargs):
+    def on_action_next_activate(self, action, parameter) -> None:
         self.model.visible_pane += 1
         self.show_visible_pane()
         if self.model.visible_pane == 1:  # let user review import
@@ -338,64 +482,84 @@ class PictureImporterPresenter(GenericEditorPresenter):
             self.pixbufs_to_load = []
             os.path.walk(self.model.filepath, self.add_rows, None)
             self.keep_running = True
-            self.running_thread = threading.Thread(target=self.load_pixbufs, name='load_pixbufs')
+            self.running_thread = threading.Thread(
+                target=self.load_pixbufs, name="load_pixbufs"
+            )
             self.running_thread.start()
         elif self.model.visible_pane == 2:  # import as specified
             self.keep_running = True
             self.should_commit = False
             self.lock = threading.Lock()
             self.lock.acquire()
-            self.running_thread = threading.Thread(target=self.do_import, name='do_import')
+            self.running_thread = threading.Thread(
+                target=self.do_import, name="do_import"
+            )
             self.running_thread.start()
 
-    def show_gtk_stock_icons(self):
-        '''this is just some code to show an overview of gtk stock name/image'''
+    def show_gtk_stock_icons(self) -> None:
+        """this is just some code to show an overview of gtk stock name/image"""
         for i in Gtk.stock_list_ids():
             self.view.widgets.log_liststore.append([i, i])
 
-    def on_action_cancel_activate(self, *args, **kwargs):
+    def on_action_cancel_activate(self, action, parameter) -> None:
         if self.running_thread:
             self.keep_running = None  # any running thread will return soon
-            if self.running_thread.name == 'do_import':
+            if self.running_thread.name == "do_import":
                 self.lock.release()  # don't stop `do_import` at the lock
             self.running_thread.join()
             self.running_thread = None
-        self.view.get_window().emit('response', Gtk.ResponseType.DELETE_EVENT)
+        self.view.get_window().emit("response", Gtk.ResponseType.DELETE_EVENT)
 
-    def on_action_ok_activate(self, *args, **kwargs):
+    def on_action_ok_activate(self, action, parameter) -> None:
         # OK is set active only in do_import.  if we're here, means that
         # do_import has been running and is now waiting for us at the lock.
         self.should_commit = True
         self.lock.release()
         self.running_thread.join()  # do_import is now committing
         self.running_thread = None
-        self.view.get_window().emit('response', Gtk.ResponseType.OK)
+        self.view.get_window().emit("response", Gtk.ResponseType.OK)
 
-    def on_action_browse_activate(self, *args, **kwargs):
-        text = _('Select pictures source directory')
+    def on_action_browse_activate(self, action, parameter) -> None:
+        text = _("Select pictures source directory")
         parent = None
-        action = Gtk.FileChooserAction.SELECT_FOLDER
-        buttons = (_('Cancel'), Gtk.ResponseType.CANCEL, _('Ok'), Gtk.ResponseType.ACCEPT, )
+        action_type = Gtk.FileChooserAction.SELECT_FOLDER
+        buttons = [
+            _("Cancel"),
+            Gtk.ResponseType.CANCEL,
+            _("Ok"),
+            Gtk.ResponseType.ACCEPT,
+        ]
         last_folder = self.model.filepath
-        target = 'filepath_entry'
-        self.view.run_file_chooser_dialog(text, parent, action, buttons, last_folder, target)
+        target = "filepath_entry"
+        self.view.run_file_chooser_dialog(
+            text, parent, action_type, buttons, last_folder, target
+        )
+
 
 class PictureImporterTool(pluginmgr.Tool):
-    category = _('Import')
-    label = _('Picture Collection')
-    icon_name = 'emblem-photos'
-    model = type('Model', (object,),
-                 {'visible_pane': 0,
-                  'filepath': '',
-                  'accno_format': '####.####',
-                  'recurse': False,
-                  'location': None,
-                  'rows': [],
-                  'log': []})
+    category: Any = _("Import")
+    label: Any = _("Picture Collection")
+    icon_name: str = "emblem-photos"
+    model: Any = type(
+        "Model",
+        (object,),
+        {
+            "visible_pane": 0,
+            "filepath": "",
+            "accno_format": "####.####",
+            "recurse": False,
+            "location": None,
+            "rows": [],
+            "log": [],
+        },
+    )
     import os.path
+
     from bauble import paths
-    glade_path = os.path.join(paths.lib_dir(), "plugins", "garden",
-                              "picture_importer.glade")
+
+    glade_path: Any = os.path.join(
+        paths.lib_dir(), "plugins", "garden", "picture_importer.glade"
+    )
 
     @classmethod
     def start(cls):
@@ -403,12 +567,14 @@ class PictureImporterTool(pluginmgr.Tool):
         view = GenericEditorView(
             cls.glade_path,
             parent=None,
-            root_widget_name='picture_importer_dialog')
+            root_widget_name="picture_importer_dialog",
+        )
         presenter = PictureImporterPresenter(cls.model, view)
-        result = presenter.start()
+        presenter.start()
         try:
             from bauble import gui
+
             gui.get_view().update()
-        except Exception as e:
+        except Exception:
             pass
         return True
