@@ -57,6 +57,18 @@ and development/test packages. Rebuild the image after changing the locks:
 scripts/docker-dev build
 ```
 
+## Legacy Dependency Notes
+
+Some older runtime packages are still intentionally present:
+
+- `fibra` drives Ghini's cooperative task runner in `bauble.task`.
+- `PyQRCode` is used by the Mako report templates for QR label rendering.
+- `raven` is used by the optional legacy Sentry logging integration.
+
+`gdata-python3` is referenced by older installer metadata but is not imported
+by the application runtime and is not installed in the Docker development
+environment.
+
 ## Run The Application
 
 ```sh
