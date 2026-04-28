@@ -34,10 +34,10 @@ from pyparsing import (
     alphanums,
     alphas,
     alphas8bit,
-    delimitedList,
-    oneOf,
-    quotedString,
-    removeQuotes,
+    DelimitedList,
+    one_of,
+    quoted_string,
+    remove_quotes,
 )
 
 
@@ -56,10 +56,10 @@ class BuiltQuery:
 
     numeric_value: Any = Regex(r"[-]?\d+(\.\d*)?([eE]\d+)?")
     unquoted_string: Any = Word(alphanums + alphas8bit + "%.-_*;:")
-    string_value: Any = quotedString.setParseAction(removeQuotes) | unquoted_string
-    fieldname: Any = Group(delimitedList(Word(alphas + "_", alphanums + "_"), "."))
+    string_value: Any = quoted_string.set_parse_action(remove_quotes) | unquoted_string
+    fieldname: Any = Group(DelimitedList(Word(alphas + "_", alphanums + "_"), "."))
     value: Any = numeric_value | string_value
-    binop: Any = oneOf("= == != <> < <= > >= has like contains", caseless=True)
+    binop: Any = one_of("= == != <> < <= > >= has like contains", caseless=True)
     clause: Any = fieldname + binop + value
     unparseable_clause: Any = (fieldname + BETWEEN_ + value + AND_ + value) | (
         Word(alphanums) + "(" + fieldname + ")" + binop + value
@@ -77,7 +77,7 @@ class BuiltQuery:
         self.parsed = None
         self.__clauses = None
         try:
-            self.parsed = self.query.parseString(s)
+            self.parsed = self.query.parse_string(s)
             self.is_valid = True
         except:
             self.is_valid = False

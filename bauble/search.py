@@ -61,8 +61,8 @@ from pyparsing import (
     alphas8bit,
     infix_notation,
     one_of,
-    quotedString,
-    removeQuotes,
+    quoted_string,
+    remove_quotes,
     srange,
     stringEnd,
 )
@@ -87,8 +87,6 @@ from sqlalchemy.sql.selectable import Select
 logger: logging.Logger = logging.getLogger(__name__)
 wordStart: ParserElement
 wordEnd: ParserElement
-
-
 
 
 logger.setLevel(logging.INFO)
@@ -154,13 +152,13 @@ def resolve_relationships(
     return stmt, current_cls
 
 
-
 def _accepts_seed(strategy):
     try:
         sig = inspect.signature(strategy.search)
-        return 'seed' in sig.parameters
+        return "seed" in sig.parameters
     except Exception:
         return False
+
 
 def search(text: str, session: Optional[Session] = None) -> List[Any]:
     results: Set[Any] = set()
@@ -182,7 +180,7 @@ def search(text: str, session: Optional[Session] = None) -> List[Any]:
             else:
                 out = strategy.search(text, session)
             if out:
-                results.update(out)       
+                results.update(out)
         except Exception:
             logger.exception("Search strategy %s failed", strategy.__class__.__name__)
 
@@ -590,8 +588,6 @@ class IdentExpression:
     def __repr__(self) -> str:
         return f"({self.operands[0]} {self.op} {self.operands[1]})"
 
-
-
     def evaluate(self, env: Dict[str, Any]) -> Tuple[Select, Any]:
         """
         Evaluate and return the filtered query result.
@@ -877,9 +873,6 @@ class BetweenExpressionAction:
 
     def needs_join(self, env: Dict[str, Any]) -> List[Any]:
         return [self.operands[0].needs_join(env)]
-
-
-
 
 
 @runtime_checkable
@@ -1286,8 +1279,6 @@ class StatementAction:
             raise RuntimeError(f"Statement execution failed: {e}")
 
 
-
-
 class BinomialNameAction:
     """created when the parser hits a binomial_name token.
 
@@ -1625,7 +1616,14 @@ class ValueListAction:
                 # show a peek of identity keys
                 try:
                     from sqlalchemy import inspect as _insp
-                    print("   ids:", [getattr(o, _insp(o).mapper.primary_key[0].key) for o in query_result[:5]])
+
+                    print(
+                        "   ids:",
+                        [
+                            getattr(o, _insp(o).mapper.primary_key[0].key)
+                            for o in query_result[:5]
+                        ],
+                    )
                 except Exception:
                     pass
             result.update(query_result)
@@ -1671,7 +1669,7 @@ class SearchParser:
         )("number")
         unquoted_string = Word(alphanums + alphas8bit + "%.-_*;:")
         string_value = (
-            (quotedString.set_parse_action(removeQuotes) | unquoted_string)
+            (quoted_string.set_parse_action(remove_quotes) | unquoted_string)
             .set_parse_action(self.debug_parse_action("string_value"))
             .set_parse_action(StringToken)("string")
         )
@@ -1769,9 +1767,9 @@ class SearchParser:
             + "]"
             + "."
             + atomic_identifier
-        ).setParseAction(FilteredIdentifierAction) | Group(
+        ).set_parse_action(FilteredIdentifierAction) | Group(
             atomic_identifier + ZeroOrMore("." + atomic_identifier)
-        ).setParseAction(
+        ).set_parse_action(
             IdentifierAction
         )
         aggregated = (
@@ -1843,7 +1841,12 @@ class SearchStrategy:
     Interface for adding search strategies to a view.
     """
 
-    def search(self, text: str, session: Optional[Session] = None, **kwargs,) -> Set[Any]:
+    def search(
+        self,
+        text: str,
+        session: Optional[Session] = None,
+        **kwargs,
+    ) -> Set[Any]:
         """
         :param text: the search string
         :param session: the session to use for the search
@@ -1927,7 +1930,9 @@ class MapperSearch(SearchStrategy):
             d.setdefault(domain, item[0])
         return d
 
-    def search(self, text: str, session: Optional[Session] = None, **kwargs) -> Set[Any]:
+    def search(
+        self, text: str, session: Optional[Session] = None, **kwargs
+    ) -> Set[Any]:
         """
         Perform a text-based search on the database using the MapperSearch strategy.
 

@@ -45,9 +45,6 @@ from sqlalchemy.sql import select
 # Search Parser Fixture
 
 
-
-
-
 @pytest.fixture(scope="function")
 def parser():
     """Fixture for creating a SearchParser instance."""
@@ -111,7 +108,7 @@ class TestSearchParser:
         ],
     )
     def test_query_expression_token_UPPER(self, parser, query) -> None:
-        parser.query.parseString(query)
+        parser.query.parse_string(query)
 
     @pytest.mark.parametrize(
         "query",
@@ -120,7 +117,7 @@ class TestSearchParser:
         ],
     )
     def test_query_expression_token_LOWER(self, parser, query) -> None:
-        parser.query.parseString(query)
+        parser.query.parse_string(query)
 
     @pytest.mark.parametrize(
         "query, expected",
@@ -137,7 +134,7 @@ class TestSearchParser:
         ],
     )
     def test_domain_expression_token(self, parser, query, expected) -> None:
-        results = parser.domain_expression.parseString(query, parseAll=True)
+        results = parser.domain_expression.parse_string(query, parse_all=True)
         assert str(results) == expected
 
     @pytest.mark.parametrize(
@@ -148,7 +145,7 @@ class TestSearchParser:
         ],
     )
     def test_integer_token(self, parser, query, expected) -> None:
-        results = parser.value.parseString(query)
+        results = parser.value.parse_string(query)
         assert results.value.express() == expected
 
     @pytest.mark.parametrize(
@@ -159,7 +156,7 @@ class TestSearchParser:
     )
     def test_bool_typed_no_arguments(self, parser, query) -> None:
         with pytest.raises(ParseException):
-            parser.value.parseString(query)
+            parser.value.parse_string(query)
 
     @pytest.mark.parametrize(
         "query, expected",
@@ -185,25 +182,25 @@ class TestSearchParser:
         ],
     )
     def test_bool_typed_values(self, parser, query, expected) -> None:
-        results = parser.value.parseString(query)
-        assert results.getName() == "value"
+        results = parser.value.parse_string(query)
+        assert results.get_name() == "value"
         assert results.value.express() == expected
 
     def test_datetime_typed_values(self, parser) -> None:
-        results = parser.value.parseString("|datetime|1970,1,1|")
-        assert results.getName() == "value"
+        results = parser.value.parse_string("|datetime|1970,1,1|")
+        assert results.get_name() == "value"
         assert results.value.express() == datetime(1970, 1, 1)
 
     def test_datetime_typed_values_offset(self, parser) -> None:
         today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
         yesterday = today - timedelta(1)
 
-        results = parser.value.parseString("|datetime|0|")
-        assert results.getName() == "value"
+        results = parser.value.parse_string("|datetime|0|")
+        assert results.get_name() == "value"
         assert results.value.express() == today
 
-        results = parser.value.parseString("|datetime|-1|")
-        assert results.getName() == "value"
+        results = parser.value.parse_string("|datetime|-1|")
+        assert results.get_name() == "value"
         assert results.value.express() == yesterday
 
     @pytest.mark.parametrize(
@@ -225,8 +222,8 @@ class TestSearchParser:
         """
         value should return the first valid token
         """
-        results = parser.value.parseString(query, parseAll=True)
-        assert results.getName() == "value"
+        results = parser.value.parse_string(query, parse_all=True)
+        assert results.get_name() == "value"
         assert results.value.express() == expected
 
     @pytest.mark.parametrize(
@@ -243,7 +240,7 @@ class TestSearchParser:
         value should raise a parse exception for invalid queries
         """
         with pytest.raises(ParseException):
-            parser.value.parseString(query, parseAll=True)
+            parser.value.parse_string(query, parse_all=True)
 
     @pytest.mark.parametrize(
         "query, expected",
@@ -261,7 +258,7 @@ class TestSearchParser:
         Test the join steps generated from queries
         """
         env = None
-        results = parser.statement.parseString(query)
+        results = parser.statement.parse_string(query)
         assert results.statement.content.filter.needs_join(env) == expected
 
     @pytest.mark.parametrize(
@@ -282,8 +279,8 @@ class TestSearchParser:
         """
         value_list: should return all valid values
         """
-        results = parser.value_list.parseString(query, parseAll=True)
-        assert results.getName() == "value_list"
+        results = parser.value_list.parse_string(query, parse_all=True)
+        assert results.get_name() == "value_list"
         assert str(results) == str(expected)
 
     @pytest.mark.parametrize(
@@ -300,8 +297,7 @@ class TestSearchParser:
         value_list: should raise a parse exception for invalid queries
         """
         with pytest.raises(ParseException):
-            parser.value_list.parseString(query, parseAll=True)
-
+            parser.value_list.parse_string(query, parse_all=True)
 
 
 @pytest.mark.usefixtures("db_session", "setup_test_data")
@@ -1721,7 +1717,6 @@ class BuildingSQLStatements:
         )
 
 
-
 # Fixtures for shared setup
 @pytest.fixture(scope="function")
 def setup_filter_then_match(db_session):
@@ -1858,8 +1853,6 @@ class EmptySetEqualityTest:
         nt1 = NoneToken()
         assert str(nt1) == "(None<NoneType>)"
         assert nt1.express() is None
-
-
 
 
 @pytest.fixture(scope="function")
