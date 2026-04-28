@@ -5,6 +5,7 @@ usage() {
     cat <<'EOF'
 Usage:
   scripts/docker-dev build
+  scripts/docker-dev lock
   scripts/docker-dev app
   scripts/docker-dev debug
   scripts/docker-dev format [paths...]
@@ -215,9 +216,17 @@ run_check() {
         python -m pytest tests/test_version.py tests/test_database_version.py -q
 }
 
+run_lock() {
+    GHINI_XHOST=0 run_container shell \
+        bash -lc 'python -c "import piptools" 2>/dev/null || python -m pip install --no-cache-dir "pip-tools==7.5.3"; python scripts/compile-requirement-locks'
+}
+
 case "${command}" in
     build)
         build_image
+        ;;
+    lock)
+        run_lock
         ;;
     format)
         run_black format "$@"

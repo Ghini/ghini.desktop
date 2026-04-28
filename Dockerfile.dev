@@ -90,29 +90,17 @@ RUN existing_group="$(getent group "${GROUP_ID}" | cut -d: -f1 || true)" \
 
 WORKDIR /app
 
-COPY pyproject.toml /tmp/ghini-build/pyproject.toml
+COPY requirements/bootstrap.lock requirements/base.lock requirements/dev.lock /tmp/ghini-build/
 
 # Use system PyGObject from apt. The pinned PyGObject package in pyproject.toml
 # is intentionally excluded here because building PyGObject from pip is fragile
 # for a GTK/GI desktop container and duplicates the distro GI stack.
 RUN python3 -m venv --system-site-packages "${VIRTUAL_ENV}" \
-    && python -m pip install --upgrade pip wheel setuptools setuptools-scm debugpy
-
-RUN python - <<'PY'
-import tomllib
-from pathlib import Path
-
-project = tomllib.loads(Path("/tmp/ghini-build/pyproject.toml").read_text())["project"]
-deps = [d for d in project.get("dependencies", []) if not d.lower().startswith("pygobject")]
-dev = project.get("optional-dependencies", {}).get("dev", [])
-Path("/tmp/ghini-build/requirements.txt").write_text("\n".join(deps) + "\n")
-Path("/tmp/ghini-build/requirements-dev.txt").write_text("\n".join(dev) + "\n")
-PY
+    && python -m pip install --no-cache-dir -r /tmp/ghini-build/bootstrap.lock
 
 RUN python -m pip install --no-cache-dir \
-    -r /tmp/ghini-build/requirements.txt \
-    -r /tmp/ghini-build/requirements-dev.txt \
-    && python -m pip install --no-cache-dir pytest-mock pytest-sugar pytest-ordering pytest-dependency \
+    -r /tmp/ghini-build/base.lock \
+    -r /tmp/ghini-build/dev.lock \
     && chown -R ghini:ghini "${VIRTUAL_ENV}" "${HOME}"
 
 RUN cat > /usr/local/bin/ghini-dev-entrypoint <<'EOS' \

@@ -37,6 +37,26 @@ scripts/docker-dev build
 The build creates the `ghini-desktop-dev:latest` image by default. Override the
 image name with `GHINI_IMAGE` in `.env` or in the shell.
 
+The development image installs Python packages from committed lock files in
+`requirements/`. This keeps rebuilds deterministic for a given Git commit.
+
+## Updating Python Dependencies
+
+Edit the dependency declarations in `pyproject.toml`, then regenerate the Docker
+lock files:
+
+```sh
+scripts/docker-dev lock
+```
+
+Review and commit the `pyproject.toml` and `requirements/*.lock` changes
+together. The lock set includes bootstrap packaging tools, runtime packages,
+and development/test packages. Rebuild the image after changing the locks:
+
+```sh
+scripts/docker-dev build
+```
+
 ## Run The Application
 
 ```sh
@@ -170,7 +190,8 @@ keeps the repository mounted at `/app`.
 - The development image uses apt-provided PyGObject and GI typelibs rather
   than building PyGObject from pip.
 - The image pins the OS baseline to Ubuntu 24.04.
-- The Python dependency versions are declared in `pyproject.toml`.
+- The Python dependency versions are declared in `pyproject.toml` and locked
+  for Docker builds in `requirements/`.
 - Black is installed in the development image and is available through
   `scripts/docker-dev format` and `scripts/docker-dev check`.
 - `scripts/docker-dev` grants X11 access with
