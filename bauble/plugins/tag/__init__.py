@@ -159,7 +159,7 @@ class TagsMenuManager:
         for name in path:
             full_path += name
             if full_path not in submenu_dict:
-                item = Gtk.ImageMenuItem(name)
+                item = Gtk.MenuItem(label=name)
                 parent_menu.append(item)
                 submenu_dict[full_path] = [item, Gtk.Menu()]
                 item.set_submenu(submenu_dict[full_path][1])
@@ -221,9 +221,8 @@ class TagsMenuManager:
             for tag in tags:
                 *path, tail = tag.tag.split("/")
                 head = "/".join(path)
-                item = Gtk.ImageMenuItem(label=tail)
+                item = Gtk.MenuItem(label=tail)
                 submenu[tag.tag] = [item, None]
-                item.set_always_show_image(True)
                 self.item_list[tag.tag] = item
                 item.connect("activate", self.item_activated, tag.tag)
                 self.attach_path_to_menu(path, tags_menu, submenu)
@@ -580,7 +579,7 @@ class Tag(db.Base, db.WithNotes):
     __tablename__: str = "tag"
 
     # columns
-    id : Mapped[int]= mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tag: Mapped[str] = mapped_column(Unicode(64), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(UnicodeText)
 
@@ -765,7 +764,7 @@ class TaggedObj(db.Base):
     __tablename__: str = "tagged_obj"
 
     # columns
-    id : Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     obj_id: Mapped[int] = mapped_column(Integer, autoincrement=False)
     obj_class: Mapped[str] = mapped_column(String(128))
     tag_id: Mapped[int] = mapped_column(Integer, ForeignKey("tag.id"))
