@@ -30,6 +30,7 @@ from sqlalchemy import (
     Boolean,
     Column,
     delete,
+    event,
     ForeignKey,
     Integer,
     Unicode,
@@ -66,31 +67,9 @@ class VNList(list):
     """
     A Collection class for Species.vernacular_names
 
-    This makes it possible to automatically remove a
-    default_vernacular_name if the vernacular_name is removed from the
-    list.
+    The default vernacular name cleanup is handled by a SQLAlchemy collection
+    remove event below.
     """
-
-    def remove(self, vn) -> None:
-        species = vn.species
-        super().remove(vn)
-        try:
-            default_vn = species.default_vernacular_name if species else None
-            if species and default_vn and default_vn.id == vn.id:
-                del species.default_vernacular_name
-            elif species and species.id is not None and vn.id is not None:
-                session = object_session(species)
-                if session is not None:
-                    default = session.execute(
-                        select(DefaultVernacularName).where(
-                            DefaultVernacularName.species_id == species.id,
-                            DefaultVernacularName.vernacular_name_id == vn.id,
-                        )
-                    ).scalar_one_or_none()
-                    if default is not None:
-                        del species.default_vernacular_name
-        except Exception as e:
-            logger.debug(e)
 
 
 infrasp_rank_values: Any = {
@@ -606,12 +585,25 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return
         if vn not in self.vernacular_names:
             self.vernacular_names.append(vn)
-        if self._default_vernacular_name is not None:
+        session = object_session(self)
+        if session is not None and self.id is not None:
+            session.execute(
+                delete(DefaultVernacularName).where(
+                    DefaultVernacularName.species_id == self.id
+                ),
+                execution_options={"synchronize_session": "fetch"},
+            )
+            session.flush()
+            self._default_vernacular_name = None
+        elif self._default_vernacular_name is not None:
             utils.delete_or_expunge(self._default_vernacular_name)
             self._default_vernacular_name = None
         d = DefaultVernacularName()
         d.vernacular_name = vn
+        d.species = self
         self._default_vernacular_name = d
+        if session is not None:
+            session.add(d)
 
     def _del_default_vernacular_name(self) -> None:
         session = object_session(self)
@@ -639,6 +631,25 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         else:
             dist = [f"{d}" for d in self.distribution]
             return ", ".join(sorted(dist))
+
+    @staticmethod
+    def _vernacular_name_is_default(species, vn, session) -> bool:
+        default_vn = species.default_vernacular_name
+        if default_vn is vn:
+            return True
+        if default_vn is not None and vn.id is not None and default_vn.id == vn.id:
+            return True
+        if session is None or species.id is None or vn.id is None:
+            return False
+        return (
+            session.execute(
+                select(DefaultVernacularName).where(
+                    DefaultVernacularName.species_id == species.id,
+                    DefaultVernacularName.vernacular_name_id == vn.id,
+                )
+            ).scalar_one_or_none()
+            is not None
+        )
 
     def markup(self, authors: bool = False, genus: bool = True):
         """returns this object as a string with markup
@@ -1128,6 +1139,7 @@ class DefaultVernacularName(db.Base):
     """
 
     __tablename__: str = "default_vernacular_name"
+    __mapper_args__ = {"confirm_deleted_rows": False}
     __table_args__: Any = (
         UniqueConstraint("species_id", "vernacular_name_id", name="default_vn_index"),
         {},
@@ -1156,6 +1168,14 @@ class DefaultVernacularName(db.Base):
 
     def __str__(self) -> str:
         return str(self.vernacular_name)
+
+
+@event.listens_for(Species.vernacular_names, "remove")
+def _clear_default_vernacular_name(species, vn, initiator) -> None:
+    session = object_session(species)
+    if not Species._vernacular_name_is_default(species, vn, session):
+        return
+    del species.default_vernacular_name
 
 
 class SpeciesDistribution(db.Base):

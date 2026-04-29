@@ -782,9 +782,6 @@ class TestSpecies:
                 select(VernacularName).where(VernacularName.species_id == sp.id)
             ).scalar_one()
 
-    @pytest.mark.skip(
-        reason="default vernacular replacement cleanup needs model follow-up"
-    )
     def test_default_vernacular_name(self, session) -> None:
         """Comprehensive test for Species.default_vernacular_name."""
 
