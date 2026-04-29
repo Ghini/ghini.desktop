@@ -52,7 +52,9 @@ from sqlalchemy.orm.session import object_session
 # from sqlalchemy import text
 
 # right after the imports of constants, define a safe default
-DEFAULT_PROP_TYPE = "Unknown" if "Unknown" in prop_type_values else next(iter(prop_type_values.keys()))
+DEFAULT_PROP_TYPE = (
+    "Unknown" if "Unknown" in prop_type_values else next(iter(prop_type_values.keys()))
+)
 
 logger: Any = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -72,8 +74,8 @@ class Propagation(Base, WithNotes):
             omit_aliases=False,
         ),
         nullable=False,
-        default=DEFAULT_PROP_TYPE,              # <-- ORM default
-        server_default=text(f"'{DEFAULT_PROP_TYPE}'"),  # <-- DB default        
+        default=DEFAULT_PROP_TYPE,  # <-- ORM default
+        server_default=text(f"'{DEFAULT_PROP_TYPE}'"),  # <-- DB default
     )
     date: Mapped[Optional[datetime.date]] = mapped_column(types.Date)
     order_by: ClassVar[list[Any]] = [asc(date)]
@@ -113,10 +115,6 @@ class Propagation(Base, WithNotes):
         back_populates="plant_propagation",
         foreign_keys="Source.plant_propagation_id",
     )
-
-    # Lazy import for Source
-    def __init__(self) -> None:
-        pass
 
     @property
     def accessions(self):
@@ -265,7 +263,7 @@ class Propagation(Base, WithNotes):
         else:
             # Unknown / not yet specified: show something benign
             label = prop_type_values.get(self.prop_type, _("Propagation"))
-            values.append(str(label))                
+            values.append(str(label))
 
         s = "; ".join(values)
 

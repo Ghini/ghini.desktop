@@ -24,7 +24,7 @@ Defines the plant table and handled editing plants
 from __future__ import annotations
 
 import logging
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 import bauble.btypes as types
 from bauble.db import Base, utc_now
@@ -45,6 +45,7 @@ logger.setLevel(logging.INFO)
 plant_delimiter_key: str = "plant_delimiter"
 default_plant_delimiter: str = "."
 
+
 class PlantChange(Base):
     """ """
 
@@ -54,32 +55,39 @@ class PlantChange(Base):
     plant_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("plant.id"), nullable=False
     )
-    parent_plant_id: Mapped[int] = mapped_column(Integer, ForeignKey("plant.id"))
+    parent_plant_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("plant.id"), nullable=True
+    )
 
     # - if to_location_id is None changeis a removal
     # - if from_location_id is None then this change is a creation
     # - if to_location_id != from_location_id change is a transfer
-    from_location_id: Mapped[int] = mapped_column(Integer, ForeignKey("location.id"))
-    to_location_id: Mapped[int] = mapped_column(Integer, ForeignKey("location.id"))
+    from_location_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("location.id"), nullable=True
+    )
+    to_location_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("location.id"), nullable=True
+    )
 
     # the name of the person who made the change
-    person: Mapped[str] = mapped_column(Unicode(64))
+    person: Mapped[Optional[str]] = mapped_column(Unicode(64), nullable=True)
 
     quantity: Mapped[int] = mapped_column(Integer, autoincrement=False, nullable=False)
-    note_id: Mapped[int] = mapped_column(Integer, ForeignKey("plant_note.id"))
+    note_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("plant_note.id"), nullable=True
+    )
 
-    reason: Mapped[str] = mapped_column(
+    reason: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(change_reasons.keys()),
             translations=change_reasons,
             omit_aliases=False,
-        )
+        ),
+        nullable=True,
     )
 
     # date of change
-    date: Mapped[types.DateTime] = mapped_column(
-        types.DateTime, default=utc_now
-    )
+    date: Mapped[types.DateTime] = mapped_column(types.DateTime, default=utc_now)
     order_by: ClassVar[list[Any]] = [asc(date)]
 
     # Relationships

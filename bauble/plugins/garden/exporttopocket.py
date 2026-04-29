@@ -87,7 +87,7 @@ CREATE TABLE "plant" (
     cr = cn.cursor()
     for statement in create_sql:
         cr.execute(statement)
-    if cn.in_transaction():
+    if cn.in_transaction:
         cn.commit()
 
 
@@ -225,7 +225,7 @@ class ExportToPocketThread(threading.Thread):
                 )
             if not self.keep_running:
                 break
-        if cn.in_transaction():
+        if cn.in_transaction:
             cn.commit()
         session.close()
         if self.callback:

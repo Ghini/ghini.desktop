@@ -67,11 +67,12 @@ if TYPE_CHECKING:
 
 
 # at module load time
-utils._install_css("""
+utils._install_css(
+    """
 .entry-error { background-color: rgba(255, 235, 235, 1); }
 .entry-error:focus { background-color: rgba(255, 217, 217, 1); }
-""")
-
+"""
+)
 
 
 # if TYPE_CHECKING:
@@ -109,6 +110,7 @@ def branch_callback(plants):
 
 def remove_callback(plants):
     from bauble.plugins.garden import Plant
+
     s = ", ".join([str(p) for p in plants])
     msg = _(
         "Are you sure you want to remove the following plants?\n\n%s"
@@ -197,9 +199,6 @@ def get_next_code(acc):
     return utils.to_unicode(next)
 
 
-
-
-
 def is_code_unique(plant, code):
     """
     Return True/False if the code is a unique Plant code for accession.
@@ -207,7 +206,7 @@ def is_code_unique(plant, code):
     This method will also take range values for code that can be passed
     to utils.range_builder().
     """
-    from bauble.plugins.garden import Plant
+    from bauble.plugins.garden import Accession, Plant
 
     # if the range builder only creates one number then we assume the
     # code is not a range and so we test against the string version of
@@ -328,6 +327,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         :param view: should be an instance of PlantEditorView
         """
         from bauble.plugins.garden.models import PlantChange
+
         super().__init__(model, view)
         self.create_toolbar()
         self.session = object_session(model)
@@ -599,6 +599,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def on_loc_button_clicked(self, button, cmd: Optional[Any] = None) -> None:
         from bauble.plugins.garden import LocationEditor as LocationEditor
+
         location = self.model.location
         combo = self.view.widgets.plant_loc_comboentry
         if cmd == "edit" and location:
@@ -697,6 +698,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         :param branch_mode:
         """
         from bauble.plugins.garden.models import Plant as Plant
+
         if branch_mode:
             if model is None:
                 raise CheckConditionError("branch_mode requires a model")
@@ -824,6 +826,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
     def handle_response(self, response):
         from bauble.plugins.garden.models import Plant as Plant
+
         not_ok_msg = _("Are you sure you want to lose your changes?")
         if response == Gtk.ResponseType.OK or response in self.ok_responses:
             if self.presenter.dirty():
@@ -864,6 +867,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         from bauble.plugins.garden import LocationEditor as LocationEditor
         from bauble.plugins.garden.models import Accession as Accession
         from bauble.plugins.garden.models import Location as Location
+
         sub_editor = None
         from sqlalchemy import func
 
@@ -896,7 +900,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if self.branched_plant:
             # set title if in branch mode
             current_title = self.presenter.view.get_window().get_title()
-            new_title = current_title + utils.to_unicode(" - {}".format(_("Split Mode")))
+            new_title = current_title + utils.to_unicode(
+                " - {}".format(_("Split Mode"))
+            )
             self.presenter.view.get_window().set_title(new_title)
             message_box_parent = self.presenter.view.widgets.message_box_parent
             list(
@@ -1108,7 +1114,6 @@ class ChangesExpander(InfoExpander):
 
 def label_size_allocate(widget, rect) -> None:
     widget.set_size_request(rect.width, -1)
-
 
 
 class PropagationExpander(InfoExpander):

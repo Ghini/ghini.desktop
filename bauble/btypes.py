@@ -197,8 +197,17 @@ class Enum(types.TypeDecorator):
         if value is None:
             return None
         if isinstance(value, str):
-            # map aliases → canonical
-            val = self._translations_map.get(value, value)
+            # Keep canonical stored values stable.  Translation dictionaries
+            # are usually canonical -> display label, but inbound UI values may
+            # also arrive as display labels from older code paths.
+            if value in self.values:
+                val = value
+            else:
+                reverse_translations = {
+                    display: canonical
+                    for canonical, display in self._translations_map.items()
+                }
+                val = reverse_translations.get(value, value)
             if self.empty_to_none and val == "":
                 return None
             return val
@@ -356,7 +365,7 @@ class Date(types.TypeDecorator):
         """
         Initialize dayfirst and yearfirst preferences if not already set.
         """
-        #global _prefs_lock
+        # global _prefs_lock
         with _prefs_lock:
             if self._dayfirst is None or self._yearfirst is None:
                 from bauble import prefs

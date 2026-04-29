@@ -269,7 +269,10 @@ def compute_accession_note_serializable_fields(cls, session, keys):
     acc_keys.update(keys)
     acc_keys["code"] = keys["accession"]
     accession = Accession.retrieve_or_create(
-        session, acc_keys, create=("taxon" in acc_keys and "rank" in acc_keys)
+        session,
+        acc_keys,
+        create=("taxon" in acc_keys and "rank" in acc_keys),
+        update=False,
     )
 
     result["accession"] = accession
@@ -650,7 +653,7 @@ class Accession(Base, Serializable, WithNotes):
     def retrieve(cls, session, keys):
         stmt = cls.query_with_default_order().where(cls.code == keys["code"])
 
-        return session.execute(stmt).scalars.one_or_none()
+        return session.execute(stmt).scalars().one_or_none()
 
     def top_level_count(self):
         sd = self.source and self.source.source_detail

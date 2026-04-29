@@ -63,8 +63,10 @@ class Source(Base):
     #    from .propagation import Propagation
 
     # who donated it
-    source_detail_id: Mapped[int] = mapped_column(ForeignKey("contact.id"))
-    source_detail: Mapped["Contact"] = relationship(
+    source_detail_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("contact.id"), nullable=True
+    )
+    source_detail: Mapped[Optional["Contact"]] = relationship(
         "Contact",
         uselist=False,
         back_populates="sources",
@@ -160,30 +162,32 @@ class Collection(Base):
     # columns
     id: Mapped[int] = mapped_column(primary_key=True)
     # ITF2 - F24 - Primary Collector's Name
-    collector: Mapped[str] = mapped_column(Unicode(64))
+    collector: Mapped[Optional[str]] = mapped_column(Unicode(64), nullable=True)
     # ITF2 - F.25 - Collector's Identifier
-    collectors_code: Mapped[str] = mapped_column(Unicode(50))
+    collectors_code: Mapped[Optional[str]] = mapped_column(Unicode(50), nullable=True)
     # ITF2 - F.27 - Collection Date
-    date: Mapped[types.Date] = mapped_column(types.Date)
+    date: Mapped[Optional[types.Date]] = mapped_column(types.Date, nullable=True)
     locale: Mapped[str] = mapped_column(UnicodeText, nullable=False)
     # ITF2 - F1, F2, F3, F4 - Latitude, Degrees, Minutes, Seconds, Direction
-    latitude: Mapped[str] = mapped_column(Unicode(15))
+    latitude: Mapped[Optional[str]] = mapped_column(Unicode(15), nullable=True)
     # ITF2 - F5, F6, F7, F8 - Longitude, Degrees, Minutes, Seconds, Direction
-    longitude: Mapped[str] = mapped_column(Unicode(15))
-    gps_datum: Mapped[str] = mapped_column(Unicode(32))
+    longitude: Mapped[Optional[str]] = mapped_column(Unicode(15), nullable=True)
+    gps_datum: Mapped[Optional[str]] = mapped_column(Unicode(32), nullable=True)
     # ITF2 - F9 - Accuracy of Geographical Referencing Data
-    geo_accy: Mapped[float] = mapped_column(Float)
+    geo_accy: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     # ITF2 - F17 - Altitude
-    elevation: Mapped[float] = mapped_column(Float)
+    elevation: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     # ITF2 - F18 - Accuracy of Altitude
-    elevation_accy: Mapped[float] = mapped_column(Float)
+    elevation_accy: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     # ITF2 - F22 - Habitat
-    habitat: Mapped[str] = mapped_column(UnicodeText)
+    habitat: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
     # ITF2 - F18 - Collection Notes
-    notes: Mapped[str] = mapped_column(UnicodeText)
+    notes: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
 
-    geographic_area_id: Mapped[int] = mapped_column(ForeignKey("geographic_area.id"))
-    region: Mapped["GeographicArea"] = relationship(
+    geographic_area_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("geographic_area.id"), nullable=True
+    )
+    region: Mapped[Optional["GeographicArea"]] = relationship(
         "GeographicArea", uselist=False, active_history=True
     )
 

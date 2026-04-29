@@ -62,8 +62,6 @@ plant_delimiter_key: str = "plant_delimiter"
 default_plant_delimiter: str = "."
 
 
-
-
 class PlantSearch(SearchStrategy):
 
     def __init__(self) -> None:
@@ -75,6 +73,7 @@ class PlantSearch(SearchStrategy):
         special search strategy, can't be obtained in MapperSearch
         """
         from bauble.plugins.garden.models import Accession
+
         super().search(text, session)
 
         if text[0] == text[-1] and text[0] in ['"', "'"]:
@@ -116,6 +115,7 @@ def as_dict(self):
 def retrieve(cls, session, keys):
 
     from bauble.plugins.garden import Accession
+
     stmt = cls.query_with_default_order()
     if "plant" in keys:
         acc_code, plant_code = keys["plant"].rsplit(Plant.get_delimiter(), 1)
@@ -138,6 +138,7 @@ def retrieve(cls, session, keys):
 def compute_serializable_fields(cls, session, keys):
     "plant is given as text, should be object"
     from bauble.plugins.garden import Accession
+
     result = {"plant": None}
 
     acc_code, plant_code = keys["plant"].rsplit(Plant.get_delimiter(), 1)
@@ -253,7 +254,7 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
             return located_counted, sp_str
 
     @classmethod
-    def get_delimiter(cls, refresh: bool = False):
+    def get_delimiter(cls, refresh: bool = False, session: Optional[Any] = None):
         """
         Get the plant delimiter from the BaubleMeta table.
 
@@ -263,7 +264,7 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
         """
         if cls._delimiter is None or refresh:
             cls._delimiter = meta.get_default(
-                plant_delimiter_key, default_plant_delimiter
+                plant_delimiter_key, default_plant_delimiter, session=session
             ).value
         return cls._delimiter
 
@@ -277,7 +278,7 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
             return None
 
     def _get_delimiter(self):
-        return Plant.get_delimiter()
+        return Plant.get_delimiter(session=object_session(self))
 
     delimiter: Any = property(lambda self: self._get_delimiter())
 
@@ -318,6 +319,7 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
     def compute_serializable_fields(cls, session, keys):
 
         from bauble.plugins.garden import Accession, Location
+
         result = {"accession": None, "location": None}
 
         acc_keys = {}
@@ -355,6 +357,7 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
             )
         )
         return session.execute(stmt).scalars().one_or_none()
+
     def top_level_count(self):
         sd = self.accession.source and self.accession.source.source_detail
         return {

@@ -1107,9 +1107,7 @@ def make_note_class(
 
         # Call the parent class's retrieve_or_create
         try:
-            result = super(globals()[class_name], cls).retrieve_or_create(
-                session, keys, create, update
-            )
+            result = super(cls, cls).retrieve_or_create(session, keys, create, update)
             keys["category"] = original_category
             if result:
                 result.category = original_category
@@ -1139,12 +1137,11 @@ def make_note_class(
             if name.lower() in keys or "code" in keys or f"{name.lower()}_id" in keys:
                 # Join to related_class if we need to filter by its code
                 if "code" in keys or name.lower() in keys:
+                    related_code = keys.get("code") or keys.get(name.lower())
                     stmt = stmt.join(
                         related_class,
                         related_class.id == getattr(cls, f"{name.lower()}_id"),
-                    ).where(
-                        related_class.code == keys.get("code") or keys.get(name.lower())
-                    )
+                    ).where(related_class.code == related_code)
                 elif f"{name.lower()}_id" in keys:
                     stmt = stmt.where(
                         getattr(cls, f"{name.lower()}_id") == keys[f"{name.lower()}_id"]
