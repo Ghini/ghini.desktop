@@ -68,11 +68,7 @@ def compile_lock(
 
 def main() -> int:
     project = project_metadata()
-    base_deps = [
-        dependency
-        for dependency in project.get("dependencies", [])
-        if not dependency.lower().startswith("pygobject")
-    ]
+    base_deps = project.get("dependencies", [])
     dev_deps = project.get("optional-dependencies", {}).get("dev", [])
 
     REQUIREMENTS.mkdir(exist_ok=True)

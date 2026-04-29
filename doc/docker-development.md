@@ -199,8 +199,9 @@ keeps the repository mounted at `/app`.
 
 ## Notes
 
-- The development image uses apt-provided PyGObject and GI typelibs rather
-  than building PyGObject from pip.
+- The development image uses apt-provided PyGObject (`python3-gi`) and GI
+  typelibs rather than building PyGObject from pip. This keeps the Python GTK
+  bindings aligned with Ubuntu's introspection libraries.
 - The image pins the OS baseline to Ubuntu 24.04.
 - The Python dependency versions are declared in `pyproject.toml` and locked
   for Docker builds in `requirements/`.

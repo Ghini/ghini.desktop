@@ -92,9 +92,8 @@ WORKDIR /app
 
 COPY requirements/bootstrap.lock requirements/base.lock requirements/dev.lock /tmp/ghini-build/
 
-# Use system PyGObject from apt. The pinned PyGObject package in pyproject.toml
-# is intentionally excluded here because building PyGObject from pip is fragile
-# for a GTK/GI desktop container and duplicates the distro GI stack.
+# Use system PyGObject from apt. Building PyGObject from pip is fragile for a
+# GTK/GI desktop container and duplicates the distro GI stack.
 RUN python3 -m venv --system-site-packages "${VIRTUAL_ENV}" \
     && python -m pip install --no-cache-dir -r /tmp/ghini-build/bootstrap.lock
 
