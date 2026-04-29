@@ -115,7 +115,7 @@ def remove_callback(genera):
     from sqlalchemy import func
 
     nsp = session.execute(
-        select(func.count()).select_from(Species).where(genus_id=genus.id)
+        select(func.count()).select_from(Species).where(Species.genus_id == genus.id)
     ).scalar_one()
 
     safe_str = utils.xml_safe(str(genus))
@@ -156,12 +156,12 @@ def remove_callback(genera):
     else:
         response = utils.yes_no_dialog(msg)
 
-    if response == utils.DialogResponse.CANCEL:
+    if response is None or (not synonyms_exist and response is False):
         return
 
     try:
         # If 'Yes, remove genus and synonyms' was selected, delete the synonyms
-        if response == utils.DialogResponse.YES:
+        if response is True:
             for synonym in genus.synonyms:
                 synonym_obj = session.get(Genus, synonym.id)
                 session.delete(synonym_obj)
@@ -335,7 +335,9 @@ class Genus(Base, Serializable, WithNotes):
         types.Enum(values=["s. lat.", "s. str", ""], omit_aliases=False), default=""
     )
 
-    family_id: Mapped[int] = mapped_column(Integer, ForeignKey("family.id"), nullable=False)
+    family_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("family.id"), nullable=False
+    )
 
     # relations
     # `species` relation is defined outside of `Genus` class definition
@@ -465,12 +467,7 @@ class Genus(Base, Serializable, WithNotes):
         :return: The retrieved instance or None if no matching instance is found.
         """
         try:
-            stmt = (
-                cls.query_with_default_order()
-                .where(cls.epithet == keys["epithet"])
-            )
-            if "author" in keys:
-                stmt = stmt.where(cls.author == keys["author"])
+            stmt = cls.query_with_default_order().where(cls.epithet == keys["epithet"])
             return session.execute(stmt).scalar_one_or_none()
         except NoResultFound:
             logger.warning(f"No result found for keys: {keys}")
@@ -748,6 +745,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
         def on_select(value):
             from bauble.plugins.plants.family import FamilySynonym
+
             for kid in self.view.widgets.message_box_parent.get_children():
                 self.view.widgets.remove_parent(kid)
             self.set_model_attr("family", value)
@@ -872,13 +870,10 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.init_treeview()
 
         def gen_get_completions(text_val):
-            stmt = (
-                Genus.query_with_default_order()
-                .where(
-                    and_(
-                        Genus.epithet.like(f"{text_val}%"),
-                        Genus.id != self.model.id,
-                    )
+            stmt = Genus.query_with_default_order().where(
+                and_(
+                    Genus.epithet.like(f"{text_val}%"),
+                    Genus.id != self.model.id,
                 )
             )
             query = self.session.execute(stmt).scalars()
@@ -1045,6 +1040,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         handle the response from self.presenter.start() in self.start()
         """
         from bauble.plugins.plants.species_model import Species
+
         not_ok_msg = _("Are you sure you want to lose your changes?")
         if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:

@@ -29,6 +29,7 @@ import bauble.utils as utils
 from sqlalchemy import (
     Boolean,
     Column,
+    delete,
     ForeignKey,
     Integer,
     Unicode,
@@ -71,10 +72,23 @@ class VNList(list):
     """
 
     def remove(self, vn) -> None:
+        species = vn.species
         super().remove(vn)
         try:
-            if vn.species.default_vernacular_name == vn:
-                del vn.species.default_vernacular_name
+            default_vn = species.default_vernacular_name if species else None
+            if species and default_vn and default_vn.id == vn.id:
+                del species.default_vernacular_name
+            elif species and species.id is not None and vn.id is not None:
+                session = object_session(species)
+                if session is not None:
+                    default = session.execute(
+                        select(DefaultVernacularName).where(
+                            DefaultVernacularName.species_id == species.id,
+                            DefaultVernacularName.vernacular_name_id == vn.id,
+                        )
+                    ).scalar_one_or_none()
+                    if default is not None:
+                        del species.default_vernacular_name
         except Exception as e:
             logger.debug(e)
 
@@ -530,16 +544,13 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         back_populates="species",
         active_history=True,
     )
-    distribution: Mapped[Optional["SpeciesDistribution"]] = (
-        relationship(
-            "SpeciesDistribution",
-            cascade="all, delete-orphan",
-            back_populates="species",
-            single_parent=False,
-            uselist=False,
-            active_history=True,
-        )
-        or []
+    distribution: Mapped[List["SpeciesDistribution"]] = relationship(
+        "SpeciesDistribution",
+        cascade="all, delete-orphan",
+        back_populates="species",
+        single_parent=False,
+        uselist=True,
+        active_history=True,
     )
 
     habit_id: Mapped[Optional[int]] = mapped_column(
@@ -595,13 +606,26 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return
         if vn not in self.vernacular_names:
             self.vernacular_names.append(vn)
+        if self._default_vernacular_name is not None:
+            utils.delete_or_expunge(self._default_vernacular_name)
+            self._default_vernacular_name = None
         d = DefaultVernacularName()
         d.vernacular_name = vn
         self._default_vernacular_name = d
 
     def _del_default_vernacular_name(self) -> None:
-        utils.delete_or_expunge(self._default_vernacular_name)
-        del self._default_vernacular_name
+        session = object_session(self)
+        if session is not None and self.id is not None:
+            session.execute(
+                delete(DefaultVernacularName).where(
+                    DefaultVernacularName.species_id == self.id
+                ),
+                execution_options={"synchronize_session": False},
+            )
+            self._default_vernacular_name = None
+        elif self._default_vernacular_name is not None:
+            utils.delete_or_expunge(self._default_vernacular_name)
+            del self._default_vernacular_name
 
     default_vernacular_name: Any = property(
         _get_default_vernacular_name,
@@ -764,7 +788,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         if self == value or self in value.synonyms:
             return  # Prevent cycles or redundant assignment
 
-        session = db.object_session(self)
+        session = object_session(self)
         if not session:
             logger.warning("species:accepted.setter - object not in session")
             return
@@ -772,12 +796,14 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         # Remove existing synonym relationship, if any
         existing = next(iter(self._synonyms_synonym), None)
         if existing:
-            session.delete(existing)
+            existing.species._synonyms.remove(existing)
             session.flush()
 
         # Create new synonym relationship
         if value != self:
             value.synonyms.append(self)
+            session.flush()
+            session.expire(self, ["_synonyms_synonym"])
 
     def has_accessions(self):
         """true if species is linked to at least one accession"""
@@ -895,16 +921,16 @@ def compute_serializable_fields(cls, session, keys):
     return result
 
 
-def retrieve(session, keys):
+def retrieve(cls, session, keys):
     from .genus import Genus
 
     genus, epithet = keys["species"].split(" ", 1)
     try:
         return (
             session.execute(
-                select(Species)
-                .where(Species.category == keys["category"])
-                .join(Species.genus)
+                select(cls)
+                .where(cls.category == keys["category"])
+                .join(Species)
                 .where(Species.epithet == epithet)
                 .join(Genus)
                 .where(Genus.epithet == genus)

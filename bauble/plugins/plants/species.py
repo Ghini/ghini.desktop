@@ -88,8 +88,10 @@ def remove_callback(values):
     from sqlalchemy import func
 
     nacc = session.execute(
-        select(func.count()).select_from(Accession).where(species_id=species.id)
-    )
+        select(func.count())
+        .select_from(Accession)
+        .where(Accession.species_id == species.id)
+    ).scalar_one()
     safe_str = utils.xml_safe(species)
     if nacc > 0:
         msg = _("The species <i>%(1)s</i> has %(2)s accessions." "\n\n") % {
@@ -149,6 +151,7 @@ remove_action: Any = Action(
 species_context_menu: Any = [edit_action, remove_action]
 vernname_context_menu: Any = [edit_action]
 
+
 class SynonymSearch(search.SearchStrategy):
     return_synonyms_pref: str = "bauble.search.return_synonyms"
 
@@ -183,8 +186,8 @@ class SynonymSearch(search.SearchStrategy):
 
         # Optional micro-optimization: batch synonym lookups
         species_ids = [o.id for o in base if isinstance(o, Species)]
-        genus_ids   = [o.id for o in base if isinstance(o, Genus)]
-        vname_sids  = [o.species.id for o in base if isinstance(o, VernacularName)]
+        genus_ids = [o.id for o in base if isinstance(o, Genus)]
+        vname_sids = [o.species.id for o in base if isinstance(o, VernacularName)]
 
         if species_ids:
             syns = session.scalars(
@@ -205,6 +208,7 @@ class SynonymSearch(search.SearchStrategy):
             synonyms.update(syn.species for syn in syns if syn.species is not None)
 
         return synonyms - base
+
 
 #
 # Species infobox for SearchView

@@ -1194,8 +1194,8 @@ def make_note_class(
             related_class.__name__,
             uselist=False,
             back_populates="notes",
-            cascade="all, delete-orphan",
-            single_parent=True,
+            cascade="save-update, merge",
+            single_parent=False,
             active_history=True,
         ),
         "retrieve": classmethod(retrieve),
@@ -1263,7 +1263,11 @@ class WithNotes:
         if not result:
             raise AttributeError(name)
 
-        return dict(result) if is_dict else result
+        if is_dict:
+            return dict(result)
+        if len(result) == 1:
+            return result[0]
+        return result
 
     @staticmethod
     def _parse_json_safe(text):
@@ -1283,6 +1287,10 @@ class WithNotes:
             normalized_text = re.sub(
                 r"(\w+)[ ]*(?=:)", r'"\g<1>"', text.replace(";", ",")
             )
+            if ":" in normalized_text and not normalized_text.strip().startswith(
+                ("{", "[")
+            ):
+                normalized_text = "{" + normalized_text + "}"
             return json.loads(normalized_text)
         except json.JSONDecodeError:
             pass

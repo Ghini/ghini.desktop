@@ -30,11 +30,12 @@ from typing import Any, ClassVar, List, Optional
 
 import bauble
 import bauble.btypes as types
+from bauble import db
 import bauble.editor as editor
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
-from bauble.db import Base, Serializable, WithNotes, engine, make_note_class
+from bauble.db import Base, Serializable, WithNotes, make_note_class
 from bauble.gtkinit import Gtk
 from bauble.prefs import prefs
 from bauble.shared import InfoExpander
@@ -61,7 +62,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import Mapped, Session, mapped_column, relationship, validates
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.orm.session import object_session
 
 view: Any = importlib.import_module("bauble.view")
@@ -80,7 +81,7 @@ def add_genera_callback(families):
     """
     Callback to add a genus to the first family in the provided list.
     """
-    with Session(engine) as session:  # Use SQLAlchemy 2.0 context manager
+    with db.Session() as session:
         family = session.merge(families[0])  # Ensure family is in the session
         genus_instance = get_genus_class()
         genus_editor = get_genus_editor()
@@ -96,7 +97,7 @@ def remove_callback(families):
     family = families[0]
     from bauble.plugins.plants.genus import Genus
 
-    with Session(engine) as session:  # Use SQLAlchemy 2.0 context manager
+    with db.Session() as session:
         family = session.merge(family)  # Ensure the family is in the session
 
         # Use SQLAlchemy 2.0-style query
@@ -196,6 +197,7 @@ class FamilySynonym(Base):
     synonym: Mapped["Family"] = relationship(
         "Family",
         primaryjoin="FamilySynonym.synonym_id==Family.id",
+        back_populates="_synonyms_synonym",
     )
     #                       back_populates='synonyms_relationship')  # Renamed for clarity
 
@@ -247,7 +249,9 @@ class Family(Base, Serializable, WithNotes):
     __tablename__: str = "family"
     __table_args__: Any = (UniqueConstraint("epithet"),)
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, nullable=False, autoincrement=True
+    )
     rank: str = "familia"
     link_keys: Any = ["accepted"]
 
@@ -286,12 +290,16 @@ class Family(Base, Serializable, WithNotes):
         return cls.epithet
 
     # use '' instead of None so that the constraints will work propertly
-    author: Mapped[Optional[str]] = mapped_column(Unicode(255), default="", nullable=True)
+    author: Mapped[Optional[str]] = mapped_column(
+        Unicode(255), default="", nullable=True
+    )
 
     # we use the blank string here instead of None so that the
     # contraints will work properly,
     qualifier: Mapped[Optional[str]] = mapped_column(
-        types.Enum(values=["s. lat.", "s. str.", ""], omit_aliases=False), default="", nullable=True
+        types.Enum(values=["s. lat.", "s. str.", ""], omit_aliases=False),
+        default="",
+        nullable=True,
     )
     order_by: ClassVar[list[Any]] = [asc(epithet), asc(qualifier)]
 
@@ -308,12 +316,13 @@ class Family(Base, Serializable, WithNotes):
         single_parent=True,
     )
 
-    # this is a dummy relation, it is only here to make cascading work
-    # correctly and to ensure that all synonyms related to this family
-    # get deleted if this family gets deleted
-    # synonyms_relationship = relationship('FamilySynonym',
-    #                 primaryjoin='Family.id==FamilySynonym.synonym_id',
-    #                 cascade='all, delete-orphan', uselist=True, single_parent=True)
+    _synonyms_synonym: Mapped[List["FamilySynonym"]] = relationship(
+        "FamilySynonym",
+        primaryjoin="Family.id==FamilySynonym.synonym_id",
+        cascade="all, delete-orphan",
+        uselist=True,
+        back_populates="synonym",
+    )
 
     def __repr__(self) -> str:
         return Family.str(self)

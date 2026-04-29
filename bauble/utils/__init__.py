@@ -505,6 +505,7 @@ class BuilderWidgets:
         if parent is not None:
             parent.remove(w)
 
+
 def tree_model_has(tree, value):
     """
     Return True or False if value is in the tree.
@@ -890,10 +891,10 @@ def yes_no_cancel_dialog(
     cancel_label,
     parent: Optional[Any] = None,
     callback: Optional[Any] = None,
-) -> None:
+) -> Optional[bool]:
     """
     Displays a dialog with Yes, No, and Cancel options.
-    Returns a DialogResponse enum value.
+    Returns True for Yes, False for No, and None for Cancel.
     """
     try:  # This might get called before bauble has started
         parent = parent or bauble.gui.window
@@ -914,18 +915,20 @@ def yes_no_cancel_dialog(
     dialog.add_button(no_label, Gtk.ResponseType.NO)
     dialog.add_button(cancel_label, Gtk.ResponseType.CANCEL)
 
-    def on_response(dlg, response):
-        dlg.destroy()
-        if callback:
-            if response == Gtk.ResponseType.YES:
-                callback(utils.DialogResponse.YES)
-            elif response == Gtk.ResponseType.NO:
-                callback(utils.DialogResponse.NO)
-            else:
-                callback(utils.DialogResponse.CANCEL)
-
-    dialog.connect("response", on_response)
     dialog.show_all()
+    response = dialog.run()
+    dialog.destroy()
+
+    if response == Gtk.ResponseType.YES:
+        result = True
+    elif response == Gtk.ResponseType.NO:
+        result = False
+    else:
+        result = None
+
+    if callback:
+        callback(result)
+    return result
 
 
 def yes_no_dialog(msg, parent: Optional[Any] = None, yes_delay: int = -1):
@@ -1060,7 +1063,9 @@ def message_details_dialog(
     return r
 
 
-def setup_text_combobox(combo, values=None, cell_data_func=None, *, use_markup=False, min_chars=3):
+def setup_text_combobox(
+    combo, values=None, cell_data_func=None, *, use_markup=False, min_chars=3
+):
     combo.clear()
 
     # model: one string column
@@ -1069,7 +1074,7 @@ def setup_text_combobox(combo, values=None, cell_data_func=None, *, use_markup=F
     else:
         model = Gtk.ListStore(str)
         seen = set()
-        for v in (values or []):
+        for v in values or []:
             s = to_unicode(v)  # ensure str
             if s in seen:
                 continue
@@ -1111,6 +1116,7 @@ def setup_text_combobox(combo, values=None, cell_data_func=None, *, use_markup=F
     # case-insensitive prefix, unicode-safe
     def match_func(_compl, key, itr, _data=None):
         return (model[itr][0] or "").casefold().startswith((key or "").casefold())
+
     completion.set_match_func(match_func)
 
     def on_match_select(_compl, mdl, itr):
@@ -1119,6 +1125,7 @@ def setup_text_combobox(combo, values=None, cell_data_func=None, *, use_markup=F
         entry.set_text(value)
         entry.set_position(-1)
         return True
+
     completion.connect("match-selected", on_match_select)
 
     entry.set_completion(completion)
@@ -1726,7 +1733,6 @@ class GenericMessageBox:  # identify_subclassing_issues (Consider using composit
     def get_parent(self):
         return self.event_box.get_parent()
 
-
     def hide(self):
         self.event_box.hide()
 
@@ -1769,28 +1775,28 @@ class GenericMessageBox:  # identify_subclassing_issues (Consider using composit
 
         # Gdk.RGBA
         if hasattr(value, "red") and hasattr(value, "alpha"):
-            r = int(round(value.red   * 255))
+            r = int(round(value.red * 255))
             g = int(round(value.green * 255))
-            b = int(round(value.blue  * 255))
+            b = int(round(value.blue * 255))
             a = float(value.alpha)
             return f"rgba({r},{g},{b},{a:.3f})"
 
         # Gdk.Color (GTK3 legacy)
         if hasattr(value, "red") and not hasattr(value, "alpha"):
-            r = int(round(value.red   / 257))   # 0..65535 → 0..255
+            r = int(round(value.red / 257))  # 0..65535 → 0..255
             g = int(round(value.green / 257))
-            b = int(round(value.blue  / 257))
+            b = int(round(value.blue / 257))
             return f"rgba({r},{g},{b},1.0)"
 
         # hex string
         if isinstance(value, str) and value.startswith("#"):
             hexv = value.lstrip("#")
             if len(hexv) == 6:
-                r, g, b = int(hexv[0:2],16), int(hexv[2:4],16), int(hexv[4:6],16)
+                r, g, b = int(hexv[0:2], 16), int(hexv[2:4], 16), int(hexv[4:6], 16)
                 return f"rgba({r},{g},{b},1.0)"
             if len(hexv) == 8:
-                r, g, b = int(hexv[0:2],16), int(hexv[2:4],16), int(hexv[4:6],16)
-                a = int(hexv[6:8],16) / 255.0
+                r, g, b = int(hexv[0:2], 16), int(hexv[2:4], 16), int(hexv[4:6], 16)
+                a = int(hexv[6:8], 16) / 255.0
                 return f"rgba({r},{g},{b},{a:.3f})"
 
         # tuple/list
@@ -1829,7 +1835,7 @@ class GenericMessageBox:  # identify_subclassing_issues (Consider using composit
             "disabled": ":disabled",
             "selected": ":selected",
         }.get(s, "")
-    
+
     def set_color(self, attr, state, color):
         """
         Backwards-compatible: attr in {'bg','background','fg','foreground'}
@@ -1856,14 +1862,13 @@ class GenericMessageBox:  # identify_subclassing_issues (Consider using composit
 
         _install_css(css)
 
-
     def show_all(self) -> None:
         """
         Displays the widget and adjusts size dynamically.
         """
         # Always show our subtree
         self.event_box.show_all()
-    
+
         parent = self.event_box.get_parent()
         if parent is not None:
             try:
@@ -1900,6 +1905,7 @@ class GenericMessageBox:  # identify_subclassing_issues (Consider using composit
     # As a last resort, forward unknown attributes to the underlying widget.
     def __getattr__(self, name):
         return getattr(self.event_box, name)
+
 
 class MessageBox(GenericMessageBox):
     """
