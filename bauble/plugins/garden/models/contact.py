@@ -78,9 +78,9 @@ class Contact(Base, Serializable, WithNotes):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(Unicode(75), unique=True)
     # extra description, not included in E6
-    description : Mapped[str] = mapped_column(UnicodeText)
+    description: Mapped[str] = mapped_column(UnicodeText, default="")
     # ITF2 - E5 - Donor Type Flag
-    source_type : Mapped[str] = mapped_column(
+    source_type: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=[i[0] for i in source_type_values],
             translations=dict(source_type_values),
@@ -113,6 +113,7 @@ class Contact(Base, Serializable, WithNotes):
     ) -> Optional["Contact"]:
         stmt = cls.query_with_default_order().where(cls.name == keys["name"])
         return session.execute(stmt).scalars().one_or_none()
+
 
 # hook up notes
 ContactNote: Any = make_note_class("Contact", Contact, compute_serializable_fields)

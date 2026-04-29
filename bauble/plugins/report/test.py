@@ -29,7 +29,7 @@ from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.report import get_pertinent_objects
 from bauble.plugins.tag import Tag, tag_objects
 from bauble.test import check_dupids
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 logger: Any = logging.getLogger(__name__)
 
@@ -93,8 +93,8 @@ def setup_test_data(session) -> Generator[None, None, None]:
         session.commit()
     yield
     # Cleanup after tests
-    session.execute(select(Family)).scalars().delete()
-    session.execute(select(Tag)).scalars().delete()
+    session.execute(delete(Tag))
+    session.execute(delete(Family))
     if session.in_transaction():
         session.commit()
 
@@ -119,6 +119,16 @@ def test_duplicate_ids() -> None:
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestReport:
+    @pytest.fixture(autouse=True)
+    def bind_session(self, session) -> None:
+        self.session = session
+
+    def get(self, model, identity):
+        return self.session.get(model, identity)
+
+    def execute(self, statement):
+        return self.session.execute(statement)
+
     def test_no_objects_in_family_note(self, session) -> None:
         family = session.execute(select(Family)).scalars().first()
         from bauble.error import BaubleError
@@ -238,7 +248,7 @@ class TestReport:
 
         # Test fetching from a tag
         tag_objects("test", [family, genus])
-        tag = self.execute(select(Tag)).scalars().where(Tag.tag == "test").one()
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Species, [tag]))
         assert ids == list(range(1, 5))
 
@@ -316,7 +326,7 @@ class TestReport:
 
         # Test fetching from a tag
         tag_objects("test", [family, genus])
-        tag = self.execute(select(Tag)).scalars().where(Tag.tag == "test").one()
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Accession, [tag]))
         assert ids == list(range(1, 9))
 
@@ -395,7 +405,7 @@ class TestReport:
 
         # Test getting plants from a tag
         tag_objects("test", [family, genus])
-        tag = self.execute(select(Tag)).scalars().where(Tag.tag == "test").one()
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Plant, tag))
         assert ids == list(range(1, 17))
 
@@ -473,7 +483,7 @@ class TestReport:
 
         # Test getting locations from a tag
         tag_objects("test", [family, genus])
-        tag = self.execute(select(Tag)).scalars().where(Tag.tag == "test").one()
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Location, tag))
         assert ids == list(range(1, 17))
 

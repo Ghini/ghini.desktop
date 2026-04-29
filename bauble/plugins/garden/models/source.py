@@ -22,7 +22,7 @@
 
 
 from gettext import gettext as _
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import bauble.btypes as types
 from bauble import utils as utils
@@ -36,7 +36,6 @@ if TYPE_CHECKING:
 
     from .contact import Contact
     from .propagation import Propagation
-
 
 
 class Source(Base):
@@ -54,13 +53,13 @@ class Source(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     # ITF2 - E7 - Donor's Accession Identifier - donacc
-    sources_code: Mapped[str] = mapped_column(Unicode(32))
+    sources_code: Mapped[Optional[str]] = mapped_column(Unicode(32))
 
     # 1-to-1 back to Accession
     accession_id: Mapped[int] = mapped_column(ForeignKey("accession.id"), unique=True)
 
-    #@classmethod
-    #def init(cls) -> None:
+    # @classmethod
+    # def init(cls) -> None:
     #    from .propagation import Propagation
 
     # who donated it
@@ -88,7 +87,7 @@ class Source(Base):
     # a propagation trial or source-related propagation activity
     # independent of the plant hierarchy.
     # propagation metadata
-    propagation_id: Mapped[int] = mapped_column(ForeignKey("propagation.id"))
+    propagation_id: Mapped[Optional[int]] = mapped_column(ForeignKey("propagation.id"))
     propagation: Mapped["Propagation"] = relationship(
         "Propagation",
         uselist=False,
@@ -104,7 +103,9 @@ class Source(Base):
     # Propagation points back to all Accessions that resulted from it, via
     # `used_source[i].accession`. Arguably not practical.
     # link back to a Plant-Propagation trial
-    plant_propagation_id: Mapped[int] = mapped_column(ForeignKey("propagation.id"))
+    plant_propagation_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("propagation.id")
+    )
     plant_propagation: Mapped["Propagation"] = relationship(
         "Propagation",
         primaryjoin="Source.plant_propagation_id==Propagation.id",

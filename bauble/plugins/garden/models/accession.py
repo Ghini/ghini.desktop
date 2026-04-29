@@ -203,8 +203,9 @@ def get_species_instance(
     sp = Species.retrieve(session, keys)
     if sp is not None or not create:
         return sp
-    
+
     return Species.retrieve_or_create(session=session, keys=keys, create=create)
+
 
 def longitude_to_dms(decimal):
     return decimal_to_dms(Decimal(decimal), "long")
@@ -423,8 +424,6 @@ class Accession(Base, Serializable, WithNotes):
         "Species",
         uselist=False,
         back_populates="accessions",
-        cascade="all, delete-orphan",
-        single_parent=True,
         active_history=True,
     )
 
@@ -465,9 +464,13 @@ class Accession(Base, Serializable, WithNotes):
             digits = len(format) - len(start)
             num_fmt = start + "%%0%dd" % digits
 
-            codes = session.execute(
-                select(Accession.code).where(Accession.code.like(f"{start}%"))
-            ).scalars().all()
+            codes = (
+                session.execute(
+                    select(Accession.code).where(Accession.code.like(f"{start}%"))
+                )
+                .scalars()
+                .all()
+            )
 
             if codes:
                 suffixes = [safe_int(c[len(start) :]) for c in codes]
@@ -476,7 +479,7 @@ class Accession(Base, Serializable, WithNotes):
                 next_number = 1
 
             return num_fmt % next_number
-        
+
         except Exception as e:
             logger.debug(e)
             return None
@@ -645,10 +648,7 @@ class Accession(Base, Serializable, WithNotes):
 
     @classmethod
     def retrieve(cls, session, keys):
-        stmt = (
-            cls.query_with_default_order()
-            .where(cls.code == keys["code"])
-            )
+        stmt = cls.query_with_default_order().where(cls.code == keys["code"])
 
         return session.execute(stmt).scalars.one_or_none()
 

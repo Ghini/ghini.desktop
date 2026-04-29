@@ -196,6 +196,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         The combination of epithet, author, hybrid, sp_qual,
         cv_group, trade_name, genus_id
     """
+
     label_distribution: Any
     synonyms: Any
     awards: Any
@@ -207,7 +208,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         UniqueConstraint("genus_id", "epithet", name="_genus_epithet_uc"),
     )
 
-
     # Define relationship to Genus
     genus: Mapped["Genus"] = relationship(
         "Genus",
@@ -216,7 +216,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         uselist=False,
         active_history=True,
     )
-    accessions: Mapped[List["Accession"]] = relationship("Accession", back_populates="species", uselist=True)
+    accessions: Mapped[List["Accession"]] = relationship(
+        "Accession", back_populates="species", uselist=True
+    )
 
     rank: ClassVar[str] = "species"
     link_keys: Any = ["accepted"]
@@ -244,11 +246,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         try:
             # Start from Species explicitly, then join Genus explicitly
-            stmt = (
-                select(cls)
-                .select_from(cls)
-                .join(Genus, cls.genus_id == Genus.id)
-            )
+            stmt = select(cls).select_from(cls).join(Genus, cls.genus_id == Genus.id)
 
             # Normalize inputs (strip zero-width spaces, casefold for case-insensitive compare)
             ep = keys.get("epithet")
@@ -257,7 +255,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             if ep:
                 stmt = stmt.where(func.lower(cls.epithet) == func.lower(func.trim(ep)))
             if ht:
-                stmt = stmt.where(func.lower(Genus.epithet) == func.lower(func.trim(ht)))
+                stmt = stmt.where(
+                    func.lower(Genus.epithet) == func.lower(func.trim(ht))
+                )
 
             # One row or None
             result = session.execute(stmt).scalars().one_or_none()
@@ -275,9 +275,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         except Exception as e:
             logger.error(f"Error retrieving Species with criteria {keys}: {e}")
             return None
-
-
-
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row."""
@@ -318,11 +315,14 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
             # --- synonym trail (accepted) ---
             trail = ""
-            accepted = self.accepted if (sess is not None) else self.__dict__.get("accepted")
+            accepted = (
+                self.accepted if (sess is not None) else self.__dict__.get("accepted")
+            )
             if accepted:
                 trail += (
                     '<span foreground="#555555" size="small" weight="light"> - '
-                    + _("synonym of %s") + "</span>"
+                    + _("synonym of %s")
+                    + "</span>"
                 ) % accepted.markup(authors=True)
 
             # --- main citation ---
@@ -337,9 +337,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return citation + trail, substring or ""
         except Exception:
             import traceback
+
             logger.warning(traceback.format_exc())
             return "...", "..."
-
 
     @property
     def cites(self):
@@ -434,7 +434,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     # columns
     sp = synonym("epithet")
-    sp2: Mapped[Optional[str]] = mapped_column(Unicode(64), index=True)  # in case hybrid=True
+    sp2: Mapped[Optional[str]] = mapped_column(
+        Unicode(64), index=True
+    )  # in case hybrid=True
     author: Mapped[Optional[str]] = mapped_column(Unicode(128))
     order_by: Any = [asc(epithet), asc(author)]
     hybrid: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -487,7 +489,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     # the Species.genus property is defined as back_populates in Genus.species
 
-    label_distribution : Mapped[Optional[str]] = mapped_column(UnicodeText)
+    label_distribution: Mapped[Optional[str]] = mapped_column(UnicodeText)
     bc_distribution: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     # relations
@@ -540,12 +542,16 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         or []
     )
 
-    habit_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("habit.id"), default=None)
+    habit_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("habit.id"), default=None
+    )
     habit: Mapped[Optional["Habit"]] = relationship(
         "Habit", uselist=False, back_populates="species", active_history=True
     )
 
-    flower_color_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("color.id"), default=None)
+    flower_color_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("color.id"), default=None
+    )
     flower_color: Mapped[Optional["Color"]] = relationship(
         "Color", uselist=False, back_populates="species", active_history=True
     )
@@ -569,7 +575,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     )
     # hardiness_zone : Mapped[str] = mapped_column(Unicode(4))
 
-    awards : Mapped[Optional[str]] = mapped_column(UnicodeText)
+    awards: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -628,7 +634,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         markup: bool = False,
         remove_zws: bool = False,
         genus: bool = True,
-        qualification: Optional[Any] = None
+        qualification: Optional[Any] = None,
     ):
         """
         returns a string for species
@@ -658,9 +664,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             escape = utils.xml_safe
 
             def italicize(s):
-                return "<i>{}</i>".format(escape(  # all but the multiplication signs
-                    s
-                ).replace("×", "</i>×<i>"))
+                return "<i>{}</i>".format(
+                    escape(s).replace(  # all but the multiplication signs
+                        "×", "</i>×<i>"
+                    )
+                )
 
             genus = italicize(genus)
             if epithet is not None:
@@ -925,13 +933,18 @@ class SpeciesSynonym(db.Base):
     """
     :Table name: species_synonym
     """
+
     id: Any
     __tablename__: str = "species_synonym"
 
     # columns
-    id : Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
-    species_id: Mapped[int] = mapped_column(Integer, ForeignKey("species.id"), nullable=False)
-    synonym_id: Mapped[int] = mapped_column(Integer, ForeignKey("species.id"), nullable=False, unique=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
+    species_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("species.id"), nullable=False
+    )
+    synonym_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("species.id"), nullable=False, unique=True
+    )
 
     # Relationship to the main Species entity
     species: Mapped["Species"] = relationship(
@@ -984,8 +997,10 @@ class VernacularName(db.Base, db.Serializable):
     __tablename__: str = "vernacular_name"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
     name: Mapped[str] = mapped_column(Unicode(128), nullable=False)
-    language: Mapped[str] = mapped_column(Unicode(128))
-    species_id: Mapped[int] = mapped_column(Integer, ForeignKey("species.id"), nullable=False)
+    language: Mapped[Optional[str]] = mapped_column(Unicode(128))
+    species_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("species.id"), nullable=False
+    )
     __table_args__: Any = (
         UniqueConstraint("name", "language", "species_id", name="vn_index"),
         {},
@@ -1094,13 +1109,17 @@ class DefaultVernacularName(db.Base):
 
     # columns
     id: Mapped[int] = mapped_column(primary_key=True)
-    species_id: Mapped[int] = mapped_column(Integer, ForeignKey("species.id"), nullable=False)
+    species_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("species.id"), nullable=False
+    )
     vernacular_name_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("vernacular_name.id"), nullable=False
     )
 
     # relations
-    vernacular_name: Mapped["VernacularName"] = relationship(VernacularName, uselist=False)
+    vernacular_name: Mapped["VernacularName"] = relationship(
+        VernacularName, uselist=False
+    )
     species: Mapped["Species"] = relationship(
         "Species",
         uselist=False,
@@ -1123,15 +1142,18 @@ class SpeciesDistribution(db.Base):
 
     :Constraints:
     """
+
     id: Any
     __tablename__: str = "species_distribution"
 
     # columns
-    id : Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     geographic_area_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("geographic_area.id"), nullable=False
     )
-    species_id: Mapped[int] = mapped_column(Integer, ForeignKey("species.id"), nullable=False)
+    species_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("species.id"), nullable=False
+    )
     species: Mapped["Species"] = relationship(
         "Species",
         back_populates="distribution",

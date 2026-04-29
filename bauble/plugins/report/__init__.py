@@ -78,7 +78,7 @@ def safe_set_text(gtk_widget, text) -> None:
 def get_plant_query(obj, session):
     """ """
     # .order_by(None) is needed for the later union() to work properly
-    q = session.execute(select(Plant)).scalars()
+    q = select(Plant)
     if isinstance(obj, Family):
         return (
             q.join(Accession, Plant.accession)
@@ -142,7 +142,7 @@ def get_plant_query(obj, session):
 
 def get_accession_query(obj, session):
     """ """
-    q = session.execute(select(Accession)).scalars()
+    q = select(Accession)
     if isinstance(obj, Family):
         return (
             q.join(Species, Accession.species)
@@ -197,7 +197,7 @@ def get_accession_query(obj, session):
 
 def get_species_query(obj, session):
     """ """
-    q = session.execute(select(Species)).scalars()
+    q = select(Species)
     if isinstance(obj, Family):
         return (
             q.join(Genus, Species.genus)
@@ -215,17 +215,24 @@ def get_species_query(obj, session):
         return q.join(Species.vernacular_names).where(VernacularName.id == obj.id)
 
     elif isinstance(obj, Plant):
-        return q.join(Accession.plants).where(Plant.id == obj.id)
+        return (
+            q.join(Species.accessions).join(Accession.plants).where(Plant.id == obj.id)
+        )
 
     elif isinstance(obj, Accession):
-        return q.where(Accession.id == obj.id)
+        return q.join(Species.accessions).where(Accession.id == obj.id)
 
     elif isinstance(obj, Location):
-        return q.join(Accession.plants).where(Plant.location_id == obj.id)
+        return (
+            q.join(Species.accessions)
+            .join(Accession.plants)
+            .where(Plant.location_id == obj.id)
+        )
 
     elif isinstance(obj, Contact):
         return (
-            q.join(Accession.source)
+            q.join(Species.accessions)
+            .join(Accession.source)
             .join(Source.source_detail)
             .where(Contact.id == obj.id)
         )
@@ -250,14 +257,15 @@ def get_location_query(obj, session):
         stmt = stmt.where(Location.id == obj.id)
 
     elif isinstance(obj, Plant):
-        stmt = stmt.join(Plant.accession).where(Plant.id == obj.id)
+        stmt = stmt.join(Location.plants).where(Plant.id == obj.id)
 
     elif isinstance(obj, Accession):
-        stmt = stmt.join(Plant.accession).where(Accession.id == obj.id)
+        stmt = stmt.join(Location.plants).where(Plant.accession_id == obj.id)
 
     elif isinstance(obj, Family):
         stmt = (
-            stmt.join(Plant.accession)
+            stmt.join(Location.plants)
+            .join(Plant.accession)
             .join(Accession.species)
             .join(Species.genus)
             .join(Genus.family)
@@ -266,7 +274,8 @@ def get_location_query(obj, session):
 
     elif isinstance(obj, Genus):
         stmt = (
-            stmt.join(Plant.accession)
+            stmt.join(Location.plants)
+            .join(Plant.accession)
             .join(Accession.species)
             .join(Species.genus)
             .where(Genus.id == obj.id)
@@ -274,14 +283,16 @@ def get_location_query(obj, session):
 
     elif isinstance(obj, Species):
         stmt = (
-            stmt.join(Plant.accession)
+            stmt.join(Location.plants)
+            .join(Plant.accession)
             .join(Accession.species)
             .where(Species.id == obj.id)
         )
 
     elif isinstance(obj, VernacularName):
         stmt = (
-            stmt.join(Plant.accession)
+            stmt.join(Location.plants)
+            .join(Plant.accession)
             .join(Accession.species)
             .join(Species.vernacular_names)
             .where(VernacularName.id == obj.id)
@@ -289,7 +300,8 @@ def get_location_query(obj, session):
 
     elif isinstance(obj, Contact):
         stmt = (
-            stmt.join(Plant.accession)
+            stmt.join(Location.plants)
+            .join(Plant.accession)
             .join(Accession.source)
             .join(Source.source_detail)
             .where(Contact.id == obj.id)
@@ -306,8 +318,7 @@ def get_location_query(obj, session):
     else:
         raise BaubleError(_("Can't get Location from a %s") % type(obj).__name__)
 
-    # Now execute and scalars at the end
-    return session.execute(stmt).scalars()
+    return stmt
 
 
 def get_pertinent_objects(cls, objs):
@@ -330,7 +341,7 @@ def get_pertinent_objects(cls, objs):
     }[cls]
 
     queries = [get_query_func(o, session) for o in objs]
-    unions = union(*[q.statement for q in queries])
+    unions = union(*queries)
     return session.execute(select(cls).from_statement(unions)).scalars()
 
 
