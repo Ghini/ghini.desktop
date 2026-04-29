@@ -344,8 +344,7 @@ class SettingsBox:
     vbox: Any
 
     def __init__(self) -> None:
-        # Create an instance of Gtk.VBox instead of subclassing it
-        self.vbox = Gtk.VBox()
+        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
     def get_settings(self) -> None:
         """
@@ -363,7 +362,7 @@ class SettingsBox:
 
     def get_vbox(self):
         """
-        Returns the Gtk.VBox instance managed by this class.
+        Returns the vertical settings container managed by this class.
         """
         return self.vbox
 
@@ -1038,7 +1037,8 @@ class ReportTool(pluginmgr.Tool):
         except Exception as e:
             logger.debug(traceback.format_exc())
             butils.message_details_dialog(
-                _("Formatting Error\n\n" "%s(%s)") % (type(e).__name__, butils.to_unicode(e)),
+                _("Formatting Error\n\n" "%s(%s)")
+                % (type(e).__name__, butils.to_unicode(e)),
                 traceback.format_exc(),
                 Gtk.MessageType.ERROR,
             )
