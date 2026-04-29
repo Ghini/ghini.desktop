@@ -1011,6 +1011,12 @@ class SpeciesSynonym(db.Base):
         return str(self.synonym)
 
 
+@event.listens_for(Species._synonyms, "remove")
+def _clear_transient_species_synonym(species, synonym_link, initiator) -> None:
+    if synonym_link.id is None:
+        synonym_link.synonym = None
+
+
 class VernacularName(db.Base, db.Serializable):
     """
     :Table name: vernacular_name
