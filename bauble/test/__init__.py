@@ -79,13 +79,17 @@ class MockLoggingHandler(logging.Handler):
 
 
 def mockfunc(
+    *args: Any,
     msg: Optional[str] = None,
     name: Optional[str] = None,
     caller: Optional[Any] = None,
     result: bool = False,
-    *args: Any,
     **kwargs: Any,
 ) -> bool:
+    if msg is None and args:
+        msg = args[0]
     if caller is not None and hasattr(caller, "invoked"):
         caller.invoked.append((name, msg))
+    elif caller is not None and hasattr(caller, "append"):
+        caller.append((name, msg))
     return result
