@@ -581,7 +581,7 @@ class Tag(db.Base, db.WithNotes):
     # columns
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tag: Mapped[str] = mapped_column(Unicode(64), unique=True, nullable=False)
-    description: Mapped[str] = mapped_column(UnicodeText)
+    description: Mapped[str] = mapped_column(UnicodeText, default="")
 
     # relations
     _objects: Mapped[list["TaggedObj"]] = relationship(
@@ -612,52 +612,40 @@ class Tag(db.Base, db.WithNotes):
 
     def tag_objects(self, objects) -> None:
         """Add tags to the provided objects."""
-        with db.Session() as session:
+        session = object_session(self) or db.Session()
+        owns_session = object_session(self) is None
+        try:
+            if self not in session:
+                session.add(self)
+            session.flush()
             for obj in objects:
                 cls = and_(
-                    TaggedObj.obj_class == type(obj).__name__,
+                    TaggedObj.obj_class == _classname(obj),
                     TaggedObj.obj_id == obj.id,
                     TaggedObj.tag_id == self.id,
                 )
                 from sqlalchemy import func
 
-                ntagged = session.execute(
+                ntagged = session.scalar(
                     select(func.count()).select_from(TaggedObj).where(cls)
                 )
                 if ntagged == 0:
-                    tagged_obj = TaggedObj(
-                        obj_class=type(obj).__name__, obj_id=obj.id, tag=self
+                    session.add(
+                        TaggedObj(
+                            obj_class=_classname(obj),
+                            obj_id=obj.id,
+                            tag=self,
+                        )
                     )
-                    session.add(tagged_obj)
+            type(self)._Tag__last_objects = None
+        finally:
+            if owns_session:
+                session.close()
 
     @property
     def objects(self) -> list:
-        """Return all tagged objects, using a cache if possible."""
-        # Check if the cached list is valid based on the database's latest history timestamp
-        if self.__my_own_timestamp is not None:
-            with db.Session() as session:
-                last_history = (
-                    session.execute(
-                        select(db.History.timestamp)
-                        .order_by(db.History.timestamp.desc())
-                        .limit(1)
-                    )
-                ).scalars()
-                if last_history and last_history > self.__my_own_timestamp:
-                    # Invalidate the cache if the database has changed
-                    self.__last_objects = None
-
-        # If the cache is invalid or uninitialized, update it
-        if self.__last_objects is None:
-            from datetime import datetime
-
-            self.__my_own_timestamp = datetime.now()  # Update the timestamp
-            self.__last_objects = (
-                self.get_tagged_objects()
-            )  # Refresh the cached objects
-
-        # Return the cached objects
-        return self.__last_objects
+        """Return all objects currently tagged by this tag."""
+        return self.get_tagged_objects()
 
     def is_tagging(self, obj: "BaseModelProtocol") -> bool:
         """tell whether self tags obj"""
@@ -698,14 +686,14 @@ class Tag(db.Base, db.WithNotes):
     @classmethod
     def attached_to(cls, obj: "BaseModelProtocol") -> list:
         """Return the list of tags attached to the given object."""
-        with db.Session() as session:
-            qto = session.execute(
-                select(TaggedObj).where(
-                    TaggedObj.obj_class == type(obj).__name__,
-                    TaggedObj.obj_id == obj.id,
-                )
-            ).scalars()
-            return [i.tag for i in qto.all()]
+        session = object_session(obj) or db.Session()
+        qto = session.execute(
+            select(TaggedObj).where(
+                TaggedObj.obj_class == _classname(obj),
+                TaggedObj.obj_id == obj.id,
+            )
+        ).scalars()
+        return [i.tag for i in qto.all()]
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row."""
@@ -770,9 +758,7 @@ class TaggedObj(db.Base):
     tag_id: Mapped[int] = mapped_column(Integer, ForeignKey("tag.id"))
     tag: Mapped["Tag"] = relationship(
         "Tag",
-        cascade="all, delete-orphan",
         back_populates="_objects",
-        single_parent=True,
     )
 
     def __str__(self) -> str:
@@ -816,19 +802,16 @@ def create_named_empty_tag(name: str) -> None:
 
     :param name: The name of the tag to create or verify.
     """
-    with db.Session() as session:
-        try:
-            # Check if the tag already exists
-            tag = session.execute(select(Tag).where(tag=name)).scalars().one()
-        except orm_exc.NoResultFound:
-            # Create the tag if it doesn't exist
-            logger.debug(f"Tag '{name}' not found, creating it.")
-            tag = Tag(tag=name)
-            session.add(tag)
-            if session.in_transaction():
-                session.commit()
-        except Exception as e:
-            logger.error(f"An error occurred while creating tag '{name}': {e}")
+    session = db.Session()
+    try:
+        session.execute(select(Tag).where(Tag.tag == name)).scalars().one()
+    except orm_exc.NoResultFound:
+        logger.debug(f"Tag '{name}' not found, creating it.")
+        session.add(Tag(tag=name))
+        if session.in_transaction():
+            session.commit()
+    except Exception as e:
+        logger.error(f"An error occurred while creating tag '{name}': {e}")
 
 
 def untag_objects(name: str, objs: list) -> None:
@@ -852,7 +835,7 @@ def untag_objects(name: str, objs: list) -> None:
 
     try:
         # Retrieve the tag
-        tag = session.execute(select(Tag).where(tag=name)).scalars().one()
+        tag = session.execute(select(Tag).where(Tag.tag == name)).scalars().one()
     except orm_exc.NoResultFound:
         logger.info(f"Tag '{name}' does not exist. Nothing to remove.")
         return
@@ -898,7 +881,7 @@ def tag_objects(name: str, objects: list) -> None:
     name = utils.to_unicode(name)
     session = object_session(objects[0])
     try:
-        tag = session.execute(select(Tag).where(tag=name)).scalars().one()
+        tag = session.execute(select(Tag).where(Tag.tag == name)).scalars().one()
     except orm_exc.NoResultFound:
         logger.debug(f"Tag '{name}' not found, creating it.")
         tag = Tag(tag=name)

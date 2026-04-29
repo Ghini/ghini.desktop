@@ -239,20 +239,33 @@ class TestTag:
         if session.in_transaction():
             session.commit()
 
-        invoked = []
-        partial(mockfunc, name="yes_no_dialog", caller=invoked, result=False)
-        partial(mockfunc, name="message_details_dialog", caller=invoked)
+        class Caller:
+            invoked = []
 
-        result = remove_callback([tag])
-        if session.in_transaction():
-            session.commit()
+        caller = Caller()
+        save_yes_no_dialog = tag_plugin.utils.yes_no_dialog
+        save_message_details_dialog = tag_plugin.utils.message_details_dialog
+        tag_plugin.utils.yes_no_dialog = partial(
+            mockfunc, name="yes_no_dialog", caller=caller, result=False
+        )
+        tag_plugin.utils.message_details_dialog = partial(
+            mockfunc, name="message_details_dialog", caller=caller
+        )
+
+        try:
+            result = remove_callback([tag])
+            if session.in_transaction():
+                session.commit()
+        finally:
+            tag_plugin.utils.yes_no_dialog = save_yes_no_dialog
+            tag_plugin.utils.message_details_dialog = save_message_details_dialog
 
         # Assertions
-        assert "message_details_dialog" not in [func for func, _ in invoked]
+        assert "message_details_dialog" not in [func for func, _ in caller.invoked]
         assert (
             "yes_no_dialog",
             "Are you sure you want to remove Tag: Arecaceae?",
-        ) in invoked
+        ) in caller.invoked
         assert result is None
 
         matching = (
@@ -267,24 +280,33 @@ class TestTag:
         if session.in_transaction():
             session.commit()
 
-        invoked = []
+        class Caller:
+            invoked = []
+
+        caller = Caller()
         save_reset = tag_plugin.tags_menu_manager.reset
-        partial(mockfunc, name="yes_no_dialog", caller=invoked, result=True)
+        save_yes_no_dialog = tag_plugin.utils.yes_no_dialog
+        tag_plugin.utils.yes_no_dialog = partial(
+            mockfunc, name="yes_no_dialog", caller=caller, result=True
+        )
         tag_plugin.tags_menu_manager.reset = partial(
-            mockfunc, name="_reset_tags_menu", caller=invoked
+            mockfunc, name="_reset_tags_menu", caller=caller
         )
 
-        result = remove_callback([tag])
-        tag_plugin.tags_menu_manager.reset = save_reset
-        if session.in_transaction():
-            session.commit()
+        try:
+            result = remove_callback([tag])
+            if session.in_transaction():
+                session.commit()
+        finally:
+            tag_plugin.utils.yes_no_dialog = save_yes_no_dialog
+            tag_plugin.tags_menu_manager.reset = save_reset
 
         # Assertions
-        assert "_reset_tags_menu" in [func for func, _ in invoked]
+        assert "_reset_tags_menu" in [func for func, _ in caller.invoked]
         assert (
             "yes_no_dialog",
             "Are you sure you want to remove Tag: Arecaceae?",
-        ) in invoked
+        ) in caller.invoked
         assert result is True
 
         matching = (
@@ -597,10 +619,12 @@ def test_on_add_tag_activated_search_view_empty_selection(fake_gui, monkeypatch)
     monkeypatch.setattr(utils, "message_dialog", fake_gui.show_message_box)
 
     # Modify the MockView to simulate no selected values
-    def mock_get_selected_values():
+    def mock_get_selected_values(self):
         return []
 
-    monkeypatch.setattr(MockView, "get_selected_values", mock_get_selected_values)
+    monkeypatch.setattr(
+        MockView, "get_selected_values", mock_get_selected_values, raising=False
+    )
 
     # Invoke the actual method being tested
     tag_plugin._on_add_tag_activated()
