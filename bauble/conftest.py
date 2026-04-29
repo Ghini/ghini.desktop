@@ -76,6 +76,18 @@ def db_session(init_bauble) -> Generator[Any, None, None]:
         db.Session.remove()
 
 
+@pytest.fixture(scope="function")
+def session(db_session) -> Any:
+    """Compatibility alias for legacy plugin tests."""
+    return db_session
+
+
+@pytest.fixture(scope="function")
+def setup_session(db_session) -> Any:
+    """Compatibility alias for legacy tests that request setup_session."""
+    return db_session
+
+
 @pytest.fixture(autouse=True)
 def clean_db(db_session) -> None:
     """Drop and recreate all tables for a clean database before each test."""
