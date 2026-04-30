@@ -601,14 +601,11 @@ class IdentExpression:
         # Ensure correct column name from the ORM model
         column_name = getattr(attr, "key", None) or attr.name
 
-        # Debugging step
-        print(f"🔍 Evaluating Column: {column_name} in table {attr.parent}")
-
         session = getattr(env, "session", None) or env.get("session", None)
 
         if session and session.bind:
-            print(
-                "IdentExpression stmt:",
+            logger.debug(
+                "IdentExpression stmt: %s",
                 stmt.compile(
                     dialect=session.bind.dialect, compile_kwargs={"literal_binds": True}
                 ),
@@ -617,18 +614,13 @@ class IdentExpression:
         # Ensure self.operands[1] contains a valid value
         comparison_value = self.operands[1].express()
 
-        # 🔍 Fix: Unwrap None if it's inside a list
+        # Unwrap None if it's inside a list.
         if isinstance(comparison_value, list) and len(comparison_value) == 1:
             comparison_value = comparison_value[0]
 
-        # ✅ Normalize None and empty strings (for cross-database compatibility)
-        # if isinstance(comparison_value, str) and comparison_value.lower().strip() in {"", "none"}:
-        #    print(f"🔍 Normalizing '{comparison_value}' to None (Cross-DB Compatibility)")
-        #    comparison_value = None  # Convert empty strings and "none" to None
+        # Normalize empty strings with None for cross-database compatibility.
         if isinstance(comparison_value, str) and comparison_value.strip() == "":
-            print(
-                f"🔍 Normalizing '{comparison_value}' to both '' and None (Cross-DB Compatibility)"
-            )
+            logger.debug("Normalizing empty search value to both '' and None")
             is_null_check = (
                 True  # Mark that we need to check both NULL and empty string
             )
@@ -641,36 +633,13 @@ class IdentExpression:
         ):
             raise ValueError(f"Invalid comparison value: {comparison_value}")
 
-        print(
-            f"\n🔍 Evaluating: {attr} {self.op} {comparison_value} ({type(comparison_value)})"
+        logger.debug(
+            "Evaluating search expression: %s %s %r (%s)",
+            attr,
+            self.op,
+            comparison_value,
+            type(comparison_value).__name__,
         )
-
-        # Debug: Fetch & Print Database Column Values Before Filtering
-        print("\n🔍 Fetching Current Column Values Before Filtering:")
-
-        # Instead of `attr.parent.table.name`, use the correct mapped class
-        parent_cls = inspect(attr.parent).class_
-        parent_inspect = inspect(parent_cls)
-        table_name = (
-            parent_inspect.persist_selectable.name
-            if hasattr(parent_inspect, "persist_selectable")
-            and parent_inspect.persist_selectable is not None
-            else None
-        )
-        from sqlalchemy import text
-
-        if session and table_name:
-            try:
-                dbg_stmt = text(f"SELECT id, {column_name} FROM {table_name}")
-                query_result = (
-                    session.execute(dbg_stmt).mappings().all()
-                )  # ⬅️ Use .mappings()
-                for row in query_result:
-                    print(
-                        f"🔍 DB Check: {column_name} = {row[column_name]} (Type: {type(row[column_name])})"
-                    )
-            except Exception as e:
-                print(f"⚠️ Error fetching column data for debugging: {e}")
 
         # Check if the attribute is a relationship (i.e., a foreign key relationship)
         if isinstance(attr.property, RelationshipProperty):
@@ -733,12 +702,14 @@ class IdentExpression:
                 return op(attr, x)
 
             stmt = stmt.filter(clause(comparison_value))
-        print(
-            "Updated IdentExpression stmt:",
-            stmt.compile(
-                dialect=session.bind.dialect, compile_kwargs={"literal_binds": True}
-            ),
-        )
+        if session and session.bind:
+            logger.debug(
+                "Updated IdentExpression stmt: %s",
+                stmt.compile(
+                    dialect=session.bind.dialect,
+                    compile_kwargs={"literal_binds": True},
+                ),
+            )
         return stmt, attr
 
     def needs_join(self, env: Dict[str, Any]) -> List[Any]:
@@ -1130,11 +1101,14 @@ class QueryAction:
         # ✅ Pass the correct `env` format
         stmt, attr = self.filter.evaluate(env)
 
-        # Debugging: Print the compiled SQL query
-        compiled_sql = stmt.compile(
-            dialect=session.bind.dialect, compile_kwargs={"literal_binds": True}
-        )
-        print(f"DEBUG: Compiled SQL Query:\n{compiled_sql}")
+        if session.bind:
+            logger.debug(
+                "Compiled SQL Query: %s",
+                stmt.compile(
+                    dialect=session.bind.dialect,
+                    compile_kwargs={"literal_binds": True},
+                ),
+            )
 
         # ✅ Ensure only primary key (`id`) is selected
         inspect(domain_class).primary_key[0]  # Get the primary key column
@@ -1552,7 +1526,7 @@ class ValueListAction:
 
     def express(self) -> List[Any]:
         result = [i.express() for i in self.values]
-        print(f"🔍 DEBUG: ValueListAction.express() -> {result} ({type(result)})")
+        logger.debug("ValueListAction.express() -> %s (%s)", result, type(result))
         return result
 
     from sqlalchemy import or_, select
@@ -1604,21 +1578,24 @@ class ValueListAction:
             # Execute the query for the current class
             query = select(cls).where(or_(*filters))
 
-            # Print the compiled SQL query for debugging
-            compiled_sql = query.compile(
-                dialect=session.bind.dialect, compile_kwargs={"literal_binds": True}
-            )
-            print(f"DEBUG: Generated SQL Query: {compiled_sql}")
+            if session.bind:
+                logger.debug(
+                    "Generated SQL Query: %s",
+                    query.compile(
+                        dialect=session.bind.dialect,
+                        compile_kwargs={"literal_binds": True},
+                    ),
+                )
 
             query_result = search_strategy._session.scalars(query).all()
-            print(f"→ {cls.__name__}: {len(query_result)} hits")
+            logger.debug("%s: %d hits", cls.__name__, len(query_result))
             if query_result:
-                # show a peek of identity keys
                 try:
                     from sqlalchemy import inspect as _insp
 
-                    print(
-                        "   ids:",
+                    logger.debug(
+                        "%s ids: %s",
+                        cls.__name__,
                         [
                             getattr(o, _insp(o).mapper.primary_key[0].key)
                             for o in query_result[:5]
@@ -1653,13 +1630,11 @@ class SearchParser:
     def debug_parse_action(
         self, name: str
     ) -> Callable[[str, int, ParseResults], ParseResults]:
-        """Returns a parse action that prints the parsed tokens with a label."""
+        """Returns a parse action that logs parsed tokens with a label."""
 
         def action(s: str, loc: int, tokens: ParseResults) -> Any:
-            print(
-                f"🔍 {name} parsed:", tokens.dump()
-            )  # Print structured result with a label
-            return tokens  # Ensure the original tokens are returned
+            logger.debug("%s parsed: %s", name, tokens.dump())
+            return tokens
 
         return action
 
@@ -1788,18 +1763,14 @@ class SearchParser:
         between_expression = Group(
             identifier + BETWEEN_ + value + AND_ + value
         ).set_parse_action(BetweenExpressionAction)
-        query_expression <<= (
-            infix_notation(
-                (ident_expression | between_expression),
-                [
-                    (NOT_, 1, OpAssoc.RIGHT, SearchNotAction),
-                    (AND_, 2, OpAssoc.LEFT, SearchAndAction),
-                    (OR_, 2, OpAssoc.LEFT, SearchOrAction),
-                ],
-            )
-            .set_debug(True, False)
-            .set_parse_action(self.debug_parse_action("query_expression"))
-        )
+        query_expression <<= infix_notation(
+            (ident_expression | between_expression),
+            [
+                (NOT_, 1, OpAssoc.RIGHT, SearchNotAction),
+                (AND_, 2, OpAssoc.LEFT, SearchAndAction),
+                (OR_, 2, OpAssoc.LEFT, SearchOrAction),
+            ],
+        ).set_parse_action(self.debug_parse_action("query_expression"))
         query = (
             (
                 domain
@@ -1831,8 +1802,7 @@ class SearchParser:
 
         result = self.statement.parse_string(text)
 
-        # ✅ Debugging Step: Print the raw parse result
-        print("🔍 PARSE RESULT:", result.dump())
+        logger.debug("Parse result: %s", result.dump())
         return result
 
 
@@ -1970,9 +1940,7 @@ class MapperSearch(SearchStrategy):
         )  # Convert search text into an actionable statement
         statement = parse_result.statement  # Extract the parsed statement object
         logger.debug(f"statement : {type(statement)}({statement})")
-        print(
-            f"DEBUG: MapperSearch.search() - Parsed statement type: {type(statement)}"
-        )
+        logger.debug("MapperSearch.search parsed statement type: %s", type(statement))
 
         # Step 2: Ensure `invoke()` returns a valid statement
         # select_stmt, attr = statement.invoke(self)
@@ -2009,11 +1977,14 @@ class MapperSearch(SearchStrategy):
                 # ✅ Fetch full ORM objects
                 stmt = select(domain_class).where(domain_class.id.in_(raw_results))
 
-                # ✅ Print raw SQL for debugging
-                compiled_sql = stmt.compile(
-                    self._session.bind, compile_kwargs={"literal_binds": True}
-                )
-                print("\n🔍 GENERATED SQL:\n", compiled_sql)
+                if self._session.bind:
+                    logger.debug(
+                        "Generated SQL: %s",
+                        stmt.compile(
+                            self._session.bind,
+                            compile_kwargs={"literal_binds": True},
+                        ),
+                    )
 
                 full_results = set(self._session.execute(stmt).scalars().all())
                 self._results.update(full_results)
