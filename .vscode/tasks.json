@@ -44,6 +44,16 @@
             "problemMatcher": []
         },
         {
+            "label": "Docker: Run Warning-Gated Pytest",
+            "type": "shell",
+            "command": "scripts/docker-dev warnings",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
             "label": "Docker: Debug Pytest",
             "type": "shell",
             "command": "scripts/docker-dev pytest-debug",

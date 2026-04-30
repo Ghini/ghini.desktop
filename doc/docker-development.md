@@ -106,6 +106,27 @@ PYTEST_ARGS='bauble/test_querybuilderparser.py -q' scripts/docker-dev pytest
 Shell environment values take precedence over `.env`, which makes one-off test
 runs possible without editing local configuration.
 
+## Warning-Gated Tests
+
+Run the full test suite with migration-related warnings promoted to errors:
+
+```sh
+scripts/docker-dev warnings
+```
+
+This command currently treats Python deprecations, PyGObject/GTK deprecations,
+and SQLAlchemy deprecations as failures. Use it before pushing migration work
+or opening a merge request, especially when changing database, GTK, or shared
+test infrastructure.
+
+You can still pass extra pytest arguments through `PYTEST_ARGS` or positional
+arguments. For example:
+
+```sh
+PYTEST_ARGS='bauble/test/test_search.py -q' scripts/docker-dev warnings
+scripts/docker-dev warnings bauble/plugins/garden/test.py -q
+```
+
 ## Formatting And Checks
 
 Format changed Python files with Black:
@@ -135,6 +156,24 @@ intentionally narrower than the full legacy test suite, so use
 These commands use `GHINI_TOOL_CONTAINER`, defaulting to a short-lived
 `ghini-dev-check-<pid>` name, so they can run while the main
 `GHINI_CONTAINER` application container is still open.
+
+## Common Development Loop
+
+For normal development, use this sequence:
+
+```sh
+scripts/docker-dev build
+scripts/docker-dev app
+scripts/docker-dev format
+scripts/docker-dev check
+scripts/docker-dev pytest
+scripts/docker-dev warnings
+```
+
+`format` and `check` are quick changed-file checks. `pytest` gives full
+behavioral coverage. `warnings` repeats the full suite with deprecation
+warnings promoted to errors, which is the final gate for dependency migration
+work.
 
 ## Private Hostnames
 
@@ -173,6 +212,7 @@ Open this repository in VS Code and use the Docker tasks:
 - `Docker: Run Ghini`
 - `Docker: Debug Ghini`
 - `Docker: Run Pytest`
+- `Docker: Run Warning-Gated Pytest`
 - `Docker: Debug Pytest`
 - `Docker: Format Changed Python`
 - `Docker: Check Changed Python`
