@@ -199,8 +199,8 @@ def init(force: bool = False) -> None:
                 from bauble.db import MapperBase
                 from sqlalchemy.orm import configure_mappers
 
-                print(
-                    "Mapped class names seen so far:",
+                logger.debug(
+                    "Mapped class names seen so far: %s",
                     sorted(MapperBase._class_registry.keys()),
                 )
                 # Ensure all mappers are configured before creating tables
@@ -208,17 +208,19 @@ def init(force: bool = False) -> None:
                 import bauble.plugins.garden.models.plant as pl
                 from bauble.db import MapperBase, metadata
 
-                print("accession in shared metadata? ", "accession" in metadata.tables)
-                print(
-                    "Accession uses shared metadata? ",
+                logger.debug(
+                    "accession in shared metadata? %s", "accession" in metadata.tables
+                )
+                logger.debug(
+                    "Accession uses shared metadata? %s",
                     acc.Accession.__table__.metadata is metadata,
                 )
-                print(
-                    "Plant uses shared metadata? ",
+                logger.debug(
+                    "Plant uses shared metadata? %s",
                     pl.Plant.__table__.metadata is metadata,
                 )
-                print(
-                    "Mapped class names seen so far:",
+                logger.debug(
+                    "Mapped class names seen so far: %s",
                     sorted(MapperBase._class_registry.keys()),
                 )
 
@@ -234,30 +236,38 @@ def init(force: bool = False) -> None:
                 dbmod = sys.modules[
                     __name__
                 ]  # since this code is running inside bauble.db
-                print("db module path:", pyinspect.getfile(dbmod), "id:", id(dbmod))
-                print(
-                    "Garden model modules loaded:",
+                logger.debug(
+                    "db module path: %s id: %s", pyinspect.getfile(dbmod), id(dbmod)
+                )
+                logger.debug(
+                    "Garden model modules loaded: %s",
                     [k for k in sys.modules if "bauble.plugins.garden.models" in k],
                 )
 
-                print("db module path:", pyinspect.getfile(dbmod), "id:", id(dbmod))
-                print("Accession Base is db.Base? ", acc.Base is dbmod.Base)
+                logger.debug(
+                    "db module path: %s id: %s", pyinspect.getfile(dbmod), id(dbmod)
+                )
+                logger.debug("Accession Base is db.Base? %s", acc.Base is dbmod.Base)
                 # if plant.py still uses "from bauble.db import Base", this will exist:
-                print("Plant module has 'db' alias? ", hasattr(pl, "db"))
+                logger.debug("Plant module has 'db' alias? %s", hasattr(pl, "db"))
                 if hasattr(pl, "db"):
-                    print("pl.db is dbmod? ", pl.db is dbmod)
+                    logger.debug("pl.db is dbmod? %s", pl.db is dbmod)
 
-                print(
-                    "Accession uses shared metadata? ",
+                logger.debug(
+                    "Accession uses shared metadata? %s",
                     acc.Accession.__table__.metadata is metadata,
                 )
-                print(
-                    "Plant uses shared metadata? ",
+                logger.debug(
+                    "Plant uses shared metadata? %s",
                     pl.Plant.__table__.metadata is metadata,
                 )
-                print("Tables in shared metadata:", sorted(metadata.tables.keys()))
-                print("accession in shared metadata? ", "accession" in metadata.tables)
-                print("plant in shared metadata? ", "plant" in metadata.tables)
+                logger.debug(
+                    "Tables in shared metadata: %s", sorted(metadata.tables.keys())
+                )
+                logger.debug(
+                    "accession in shared metadata? %s", "accession" in metadata.tables
+                )
+                logger.debug("plant in shared metadata? %s", "plant" in metadata.tables)
                 configure_mappers()
                 install([p for p in not_installed], import_defaults=force)
 
@@ -301,7 +311,9 @@ def init(force: bool = False) -> None:
     from bauble.db import MapperBase
     from sqlalchemy.orm import configure_mappers
 
-    print("Mapped class names seen so far:", sorted(MapperBase._class_registry.keys()))
+    logger.debug(
+        "Mapped class names seen so far: %s", sorted(MapperBase._class_registry.keys())
+    )
     configure_mappers()
 
     # call init() for each ofthe plugins
@@ -371,7 +383,9 @@ def install(
     from bauble.db import MapperBase
     from sqlalchemy.orm import configure_mappers
 
-    print("Mapped class names seen so far:", sorted(MapperBase._class_registry.keys()))
+    logger.debug(
+        "Mapped class names seen so far: %s", sorted(MapperBase._class_registry.keys())
+    )
     configure_mappers()
 
     logger.debug(f"pluginmgr.install({str(plugins_to_install)})")
@@ -463,7 +477,9 @@ class PluginRegistry(Base):
         decoded_name = name.decode() if isinstance(name, bytes) else name
 
         with Session() as session:
-            stmt = PluginRegistry.query_with_default_order().where(PluginRegistry.name == decoded_name)
+            stmt = PluginRegistry.query_with_default_order().where(
+                PluginRegistry.name == decoded_name
+            )
             p = session.execute(stmt).scalar_one_or_none()
             if p:
                 session.delete(p)
@@ -504,7 +520,9 @@ class PluginRegistry(Base):
             try:
                 logger.debug(f"not using value of version ({version}).")
                 # Apply the where clause to the select object
-                stmt = PluginRegistry.query_with_default_order().where(PluginRegistry.name == name)
+                stmt = PluginRegistry.query_with_default_order().where(
+                    PluginRegistry.name == name
+                )
                 session.execute(stmt).scalar_one()
                 return True
             except orm_exc.NoResultFound as e:
@@ -724,8 +742,8 @@ def _find_plugins(path):
             mod = sys.modules[name]
         else:
             try:
-                print("DEBUG: bauble =", bauble)
-                print("DEBUG: type(bauble) =", type(bauble))
+                logger.debug("bauble = %s", bauble)
+                logger.debug("type(bauble) = %s", type(bauble))
                 mod = importlib.import_module(name, package="bauble.plugins")
             except Exception as e:
                 msg = _("Could not import the %(module)s module.\n\n" "%(error)s") % {

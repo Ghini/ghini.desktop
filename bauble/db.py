@@ -855,16 +855,19 @@ def create(import_defaults: bool = True) -> None:
             from bauble.db import MapperBase, metadata
             from sqlalchemy.orm import configure_mappers
 
-            print("accession in shared metadata? ", "accession" in metadata.tables)
-            print(
-                "Accession uses shared metadata? ",
+            logger.debug(
+                "accession in shared metadata? %s", "accession" in metadata.tables
+            )
+            logger.debug(
+                "Accession uses shared metadata? %s",
                 acc.Accession.__table__.metadata is metadata,
             )
-            print(
-                "Plant uses shared metadata? ", pl.Plant.__table__.metadata is metadata
+            logger.debug(
+                "Plant uses shared metadata? %s",
+                pl.Plant.__table__.metadata is metadata,
             )
-            print(
-                "Mapped class names seen so far:",
+            logger.debug(
+                "Mapped class names seen so far: %s",
                 sorted(MapperBase._class_registry.keys()),
             )
 
@@ -878,29 +881,38 @@ def create(import_defaults: bool = True) -> None:
             metadata = Base.metadata
 
             dbmod = sys.modules[__name__]  # since this code is running inside bauble.db
-            print("db module path:", pyinspect.getfile(dbmod), "id:", id(dbmod))
-            print(
-                "Garden model modules loaded:",
+            logger.debug(
+                "db module path: %s id: %s", pyinspect.getfile(dbmod), id(dbmod)
+            )
+            logger.debug(
+                "Garden model modules loaded: %s",
                 [k for k in sys.modules if "bauble.plugins.garden.models" in k],
             )
 
-            print("db module path:", pyinspect.getfile(dbmod), "id:", id(dbmod))
-            print("Accession Base is db.Base? ", acc.Base is dbmod.Base)
+            logger.debug(
+                "db module path: %s id: %s", pyinspect.getfile(dbmod), id(dbmod)
+            )
+            logger.debug("Accession Base is db.Base? %s", acc.Base is dbmod.Base)
             # if plant.py still uses "from bauble.db import Base", this will exist:
-            print("Plant module has 'db' alias? ", hasattr(pl, "db"))
+            logger.debug("Plant module has 'db' alias? %s", hasattr(pl, "db"))
             if hasattr(pl, "db"):
-                print("pl.db is dbmod? ", pl.db is dbmod)
+                logger.debug("pl.db is dbmod? %s", pl.db is dbmod)
 
-            print(
-                "Accession uses shared metadata? ",
+            logger.debug(
+                "Accession uses shared metadata? %s",
                 acc.Accession.__table__.metadata is metadata,
             )
-            print(
-                "Plant uses shared metadata? ", pl.Plant.__table__.metadata is metadata
+            logger.debug(
+                "Plant uses shared metadata? %s",
+                pl.Plant.__table__.metadata is metadata,
             )
-            print("Tables in shared metadata:", sorted(metadata.tables.keys()))
-            print("accession in shared metadata? ", "accession" in metadata.tables)
-            print("plant in shared metadata? ", "plant" in metadata.tables)
+            logger.debug(
+                "Tables in shared metadata: %s", sorted(metadata.tables.keys())
+            )
+            logger.debug(
+                "accession in shared metadata? %s", "accession" in metadata.tables
+            )
+            logger.debug("plant in shared metadata? %s", "plant" in metadata.tables)
             configure_mappers()
 
             # Drop and recreate all tables

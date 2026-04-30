@@ -53,7 +53,7 @@ logger.setLevel(logging.INFO)
 
 display: Any
 _substr_tmpl: str
- 
+
 # Ensure GTK is initialized and get the display
 display = Gdk.Display.get_default()
 if not display:
@@ -112,6 +112,7 @@ if sys.platform == "win32":
 else:
     _substr_tmpl = "<small>%s</small>"
 
+
 class Action:
     """
     An Action allows a label, tooltip, callback, and accelerator to be called
@@ -119,6 +120,7 @@ class Action:
 
     Updated to use `Gio.SimpleAction` instead of deprecated `Gtk.Action`.
     """
+
     name: Any
     label: Any
     tooltip: Any
@@ -128,6 +130,7 @@ class Action:
     singleselect: Any
     accelerator: Any
     action: Any
+
     def __init__(
         self,
         name,
@@ -137,7 +140,7 @@ class Action:
         callback: Optional[Any] = None,
         accelerator: Optional[Any] = None,
         multiselect: bool = False,
-        singleselect: bool = True
+        singleselect: bool = True,
     ) -> None:
         """
         :param name: Unique action name (e.g., "open").
@@ -208,6 +211,7 @@ class PropertiesExpander(InfoExpander):
     type_data: Any
     created_data: Any
     updated_data: Any
+
     def __init__(self) -> None:
         super().__init__(_("Properties"))
         table = Gtk.Grid()
@@ -280,9 +284,11 @@ class MapInfoExpander(InfoExpander):
     """
     Displays a location on a map using Champlain.
     """
+
     map_widget: Any
     get_points: Any
     layer: Any
+
     def __init__(self, get_points: Optional[Any] = None) -> None:
         super().__init__(_("Location on map"))
 
@@ -333,9 +339,11 @@ class InfoBoxPage:
     Container for :class:`bauble.view.InfoExpander` objects.
     Uses composition instead of subclassing Gtk.ScrolledWindow.
     """
+
     container: Any
     vbox: Any
     expanders: Any
+
     def __init__(self) -> None:
         self.container = Gtk.ScrolledWindow()
         self.container.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -397,8 +405,10 @@ class InfoBox:
     use `InfoBox(tabbed=True)`. When using tabs, expanders can be added
     directly to the `InfoBoxPage` or via `InfoBox.add_expander(page_num)`.
     """
+
     notebook: Any
     row: Any
+
     def __init__(self, tabbed: bool = False) -> None:
         self.notebook = Gtk.Notebook()
         self.row = None
@@ -445,10 +455,14 @@ class LinksExpander(InfoExpander):
     """
     Displays external links and notes associated with a row.
     """
+
     dynamic_box: Any
     notes: Any
     buttons: Any
-    def __init__(self, notes: Optional[Any] = None, links: Optional[Any] = None) -> None:
+
+    def __init__(
+        self, notes: Optional[Any] = None, links: Optional[Any] = None
+    ) -> None:
         """
         :param notes: The name of the notes property on the row.
         """
@@ -505,8 +519,6 @@ class LinksExpander(InfoExpander):
             self.dynamic_box.show_all()
 
 
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -514,10 +526,12 @@ class AddOneDot(threading.Thread):
     """
     Adds dots to the status bar to indicate loading progress.
     """
+
     __stopped: Any
     dotno: int
     statusbar: Any
     sbcontext_id: Any
+
     def __init__(self) -> None:
         super().__init__()
         self.__stopped = threading.Event()
@@ -543,12 +557,14 @@ class CountResultsTask(threading.Thread):
     """
     Counts top-level results and updates the status bar.
     """
+
     klass: Any
     ids: Any
     dots_thread: Any
     __cancel: Any
     statusbar: Any
     sbcontext_id: Any
+
     def __init__(self, klass, ids, dots_thread) -> None:
         super().__init__()
         self.klass = klass
@@ -602,11 +618,13 @@ class PopulateResults(threading.Thread):
     """
     Populates search results asynchronously.
     """
+
     view: Any
     results: Any
     __stopped: Any
     statusbar: Any
     sbcontext_id: Any
+
     def __init__(self, view, results) -> None:
         super().__init__()
         self.view = view
@@ -692,6 +710,7 @@ class SearchView(pluginmgr.View):
     The SearchView is the main view for Ghini. It manages search results
     when text is entered into the main text entry.
     """
+
     widgets: Any
     view: Any
     context_menu_cache: Any
@@ -704,6 +723,7 @@ class SearchView(pluginmgr.View):
     accel_group: Any
     pane: Any
     picpane: Any
+
     class ViewMeta(dict):
         """
         This class shouldn't need to be instantiated directly.
@@ -716,6 +736,7 @@ class SearchView(pluginmgr.View):
             markup_func: Any
             actions: Any
             context_menu: Any
+
             def __init__(self) -> None:
                 self.children = None
                 self.infobox = None
@@ -723,7 +744,11 @@ class SearchView(pluginmgr.View):
                 self.actions = []
 
             def set(
-                self, children: Optional[Any] = None, infobox: Optional[Any] = None, context_menu: Optional[Any] = None, markup_func: Optional[Any] = None
+                self,
+                children: Optional[Any] = None,
+                infobox: Optional[Any] = None,
+                context_menu: Optional[Any] = None,
+                markup_func: Optional[Any] = None,
             ) -> None:
                 """
                 Set metadata properties for the ViewMeta class.
@@ -868,9 +893,7 @@ class SearchView(pluginmgr.View):
 
         self.view.widget_set_visible("bottom_notebook", True)
         row = values[0]  # the selected row
-        logger.debug(
-            f"update_bottom_notebook - for {type(row).__name__}({row})"
-        )
+        logger.debug(f"update_bottom_notebook - for {type(row).__name__}({row})")
 
         # loop over bottom_info plugin classes (eg: Tag)
         for klass, bottom_info in list(self.bottom_info.items()):
@@ -1060,13 +1083,16 @@ class SearchView(pluginmgr.View):
         try:
             # Perform the search query
             results = search.search(text, self.session)
-            from collections import Counter
-            print("🔎 UI received", len(results), "results")
-            print("🔎 by class:", Counter(type(r).__name__ for r in results))
+            logger.debug("UI received %d search results", len(results))
             if results:
                 first = next(iter(results))
-                print("🔎 sample:", type(first), getattr(first, "id", None), getattr(first, "epithet", None))
-                
+                logger.debug(
+                    "Search result sample: %s id=%s epithet=%s",
+                    type(first),
+                    getattr(first, "id", None),
+                    getattr(first, "epithet", None),
+                )
+
         except ParseException as err:
             error_msg = _("Error in search string at column %s") % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError) as e:
@@ -1115,6 +1141,7 @@ class SearchView(pluginmgr.View):
 
         # Initialize a tree model for results
         model = Gtk.TreeStore(object)
+
         def cmp(model, it1, it2, _data):
             a = model.get_value(it1, 0)
             b = model.get_value(it2, 0)
@@ -1123,8 +1150,9 @@ class SearchView(pluginmgr.View):
             return (a > b) - (a < b)
 
         model.set_default_sort_func(cmp)
-        model.set_sort_column_id(Gtk.TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID,
-                         Gtk.SortType.ASCENDING)
+        model.set_sort_column_id(
+            Gtk.TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, Gtk.SortType.ASCENDING
+        )
 
         # Clear the model and update the results view
         utils.clear_model(self.results_view)
@@ -1194,7 +1222,9 @@ class SearchView(pluginmgr.View):
                 model.append(i, ["_dummy"])
         return model
 
-    def cell_data_func(self, col, cell, model, treeiter, data: Optional[Any] = None) -> None:
+    def cell_data_func(
+        self, col, cell, model, treeiter, data: Optional[Any] = None
+    ) -> None:
         # start with a (redundant) check, whether the cell is visible.
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
@@ -1390,13 +1420,13 @@ class SearchView(pluginmgr.View):
         self.expand_to_all_refs(expanded_rows)
         self.results_view.set_cursor(path)
 
-    def on_view_row_activated(self, view, path, column, data: Optional[Any] = None) -> None:
+    def on_view_row_activated(
+        self, view, path, column, data: Optional[Any] = None
+    ) -> None:
         """
         expand the row on activation
         """
-        logger.debug(
-            f"SearchView::on_view_row_activated {view} {path} {column} {data}"
-        )
+        logger.debug(f"SearchView::on_view_row_activated {view} {path} {column} {data}")
         view.expand_row(path, False)
 
     def create_gui(self):
@@ -1505,6 +1535,7 @@ class AppendThousandRows(threading.Thread):
 
     __stopped: Any
     view: Any
+
     def callback(self, rows) -> None:
         for row in rows:
             self.view.add_row(row)
@@ -1514,7 +1545,9 @@ class AppendThousandRows(threading.Thread):
         row[4] = "** " + _("interrupted") + " **"
         self.view.liststore.append(row)
 
-    def __init__(self, view, group: Optional[Any] = None, verbose: Optional[Any] = None, **kwargs) -> None:
+    def __init__(
+        self, view, group: Optional[Any] = None, verbose: Optional[Any] = None, **kwargs
+    ) -> None:
         super().__init__(group=group, target=None, name=None)
         self.__stopped = threading.Event()
         self.view = view
@@ -1544,6 +1577,7 @@ class AppendThousandRows(threading.Thread):
 
 class HistoryView(pluginmgr.View):
     """Show the tables row in the order they were last updated"""
+
     liststore: Any
     TVC_TIMESTAMP: int = 0
     TVC_OPERATION: int = 1
@@ -1663,9 +1697,7 @@ def select_in_search_results(obj):
     view = bauble.gui.get_view()
     if not isinstance(view, SearchView):
         return None
-    logger.debug(
-        f"select_in_search_results {obj} is in session {obj in view.session}"
-    )
+    logger.debug(f"select_in_search_results {obj} is in session {obj in view.session}")
     model = view.results_view.get_model()
     found = utils.search_tree_model(model, obj)
     row_iter = None
