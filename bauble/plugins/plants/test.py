@@ -1011,14 +1011,10 @@ class TestSpecies:
         self.assertEqual([i.epithet for i in sp1.synonyms], [sp3.epithet])
         sp1.synonyms.append(sp2)  # (1 3 2), (4)
         self.session.flush()
-        print(("synonyms of 1", [i.epithet[-1] for i in sp1.synonyms]))
-        print(("synonyms of 4", [i.epithet[-1] for i in sp4.synonyms]))
         self.assertEqual(sp2.accepted.epithet, sp1.epithet)  # just added
         self.assertEqual(sp3.accepted.epithet, sp1.epithet)  # no change
         sp2.accepted = sp4  # (1 3), (4 2)
         self.session.flush()
-        print(("synonyms of 1", [i.epithet[-1] for i in sp1.synonyms]))
-        print(("synonyms of 4", [i.epithet[-1] for i in sp4.synonyms]))
         self.assertEqual([i.epithet for i in sp4.synonyms], [sp2.epithet])
         self.assertEqual([i.epithet for i in sp1.synonyms], [sp3.epithet])
         self.assertEqual(sp1.accepted, None)
@@ -1054,7 +1050,6 @@ class TestSpecies:
 
         # effect
         self.assertFalse("message_details_dialog" in [f for (f, m) in self.invoked])
-        print(self.invoked)
         self.assertTrue(
             (
                 "yes_no_dialog",
@@ -1091,7 +1086,6 @@ class TestSpecies:
         self.session.flush()
 
         # effect
-        print(self.invoked)
         self.assertFalse("message_details_dialog" in [f for (f, m) in self.invoked])
         self.assertTrue(
             (
@@ -1136,7 +1130,6 @@ class TestSpecies:
         self.session.flush()
 
         # effect
-        print(self.invoked)
         self.assertFalse("message_details_dialog" in [f for (f, m) in self.invoked])
         self.assertTrue(
             (

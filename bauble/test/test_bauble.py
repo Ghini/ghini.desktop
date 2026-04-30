@@ -35,7 +35,7 @@ import pytest
 from bauble import db, meta, prefs
 from bauble.plugins.plants import Family
 from bauble.test import check_dupids
-from sqlalchemy import Integer, select, text
+from sqlalchemy import Integer, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 logger: Any = logging.getLogger(__name__)
@@ -118,30 +118,6 @@ class TestEnumModel:
     """
 
     def test_insert_low_level(self, db_session, clean_enum_table) -> None:
-        # ✅ Get database dialect (SQLite, PostgreSQL, etc.)
-        dialect_name = db_session.bind.dialect.name
-
-        # Check if the table exists before inserting
-        if dialect_name == "sqlite":
-            query = text("SELECT name FROM sqlite_master WHERE type='table';")
-        else:
-            query = text(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema='public';"
-            )
-
-        table_names = db_session.execute(query).all()
-        print(f"Existing tables: {table_names}")
-        # Debug: Ensure the row does not already exist
-        existing_row = (
-            db_session.execute(select(clean_enum_table).where(clean_enum_table.id == 1))
-            .scalars()
-            .first()
-        )
-        if existing_row:
-            print(f"Row already exists before test: {existing_row}")
-        else:
-            print("No existing row, inserting...")
-
         # Perform the raw insert
         db_session.execute(clean_enum_table.__table__.insert().values(id=1))
 
@@ -450,11 +426,6 @@ class TestHistory:
         """
         from bauble.plugins.plants import Family
 
-        print(f"Family Base: {Family.__bases__}")
-        print(f"db.Base class: {db.Base.__class__}")
-        print(f"Family table: {Family.__table__}")
-        print(f"Base metadata tables: {db.Base.metadata.tables.keys()}")
-        print(f"Engine metadata bind: {db.Base.metadata.bind}")
         # Verify Base metadata binding
         assert (
             db.Base.metadata.bind == db.engine

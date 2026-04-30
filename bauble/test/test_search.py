@@ -393,8 +393,6 @@ class TestSearch:
         # Register domains
         self.setup_test_domains(mapper_search)
         results = mapper_search.search(query, db_session)
-        # Add a debug statement inside `setup_test_domains`
-        print(f"Registered domains: {mapper_search._properties}")
         assert len(results) == expected_len
 
         # Use objects from setup_test_data for validation
@@ -526,27 +524,16 @@ class TestSearch:
 
         # ✅ Step 3: Run SQL query
         stmt = select(Family).filter(condition)
-        compiled_stmt = stmt.compile(
-            dialect=db.engine.dialect, compile_kwargs={"literal_binds": True}
-        )
-        print(f"Executing SQL: {compiled_stmt}")
-
         db_session.execute(stmt).scalars().all()
 
         # ✅ Step 4: Ensure at least one known family exists
         stmt = select(Family).where(Family.family == "fam4")
         row = db_session.execute(stmt).scalars().one_or_none()
-        stmt = select(Family)
-        for fam in db_session.execute(stmt).scalars():
-            print("Family row in DB:", fam.id, fam.family)
         assert row is not None, "No row has family='fam4'!"
 
         # ✅ Step 5: Run MapperSearch
         mapper_search = get_strategy("MapperSearch")
         results = mapper_search.search(query, db_session)
-
-        # ✅ Debug: Print actual results
-        print("Returned Families:", {r.family for r in results})
 
         # ✅ Step 6: Validate expected count
         assert (
@@ -593,25 +580,12 @@ class TestSearch:
         db_session.add_all([family2, genus2])
         db_session.flush()
 
-        from sqlalchemy.inspection import inspect
-
-        mapper = inspect(Genus)
-        for column in mapper.all_orm_descriptors:
-            print(column)
-
         mapper_search = get_strategy("MapperSearch")
         assert isinstance(mapper_search, search.MapperSearch)
 
         # ✅ Pass `mapper_search` instead of `db_session`
         query = "genus where genus=genus1"
         results = mapper_search.search(query, session=db_session)
-
-        # Log the compiled SQL
-        stmt = select(Genus).where(Genus.genus == "genus1")
-        compiled_stmt = stmt.compile(
-            dialect=db_session.bind.dialect, compile_kwargs={"literal_binds": True}
-        )
-        print(f"Executing SQL: {compiled_stmt}")
 
         assert len(results) == 1
 
@@ -649,13 +623,6 @@ class TestSearch:
         assert isinstance(mapper_search, search.MapperSearch)
 
         from bauble.plugins.plants.genus import Genus
-        from sqlalchemy import select
-
-        stmt_direct = select(Genus)
-        direct_objs = db_session.scalars(stmt_direct).all()
-        print("Direct ORM objects:", direct_objs)
-        for obj in direct_objs:
-            print("Type of direct obj:", type(obj))
 
         results = mapper_search.search(query, session=db_session)
 
@@ -875,14 +842,6 @@ class TestSearch:
         g3 = Genus(family=f3, genus="genus3")
         db_session.add_all([family2, f3, g2, g3])
         db_session.flush()
-        for row in (
-            db_session.execute(text("SELECT id, epithet, qualifier FROM family"))
-            .mappings()
-            .all()
-        ):
-            print(
-                f"DB Check: id={row.id}, family={row.epithet}, qualifier={row.qualifier} ({type(row.qualifier)})"
-            )
 
         # Perform the query
         mapper_search = search.get_strategy("MapperSearch")

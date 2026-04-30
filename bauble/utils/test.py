@@ -29,7 +29,7 @@ import pytest
 from bauble.error import CheckConditionError
 from bauble.gtkinit import Gtk
 from bauble.utils import topological_sort
-from sqlalchemy import Column, ForeignKey, Integer, Sequence, Table
+from sqlalchemy import Column, ForeignKey, Integer, MetaData, Sequence, Table, text
 
 
 def test_create_message_details_dialog() -> None:
@@ -155,7 +155,7 @@ def dependent_tables_metadata(db_session) -> Generator[Any, None, None]:
     Fixture to set up the test metadata and tables for dependency tests.
     Cleans up after the test.
     """
-    metadata = db_session.bind.metadata
+    metadata = MetaData()
 
     # table1 does not depend on any tables
     table1 = Table("table1", metadata, Column("id", Integer, primary_key=True))
@@ -196,8 +196,8 @@ def test_find_dependent_tables(db_session, dependent_tables_metadata) -> None:
     """
     Test `utils.find_dependent_tables` for various table dependency scenarios.
     """
-    metadata = db_session.bind.metadata
     table1, table2, table3, table4 = dependent_tables_metadata
+    metadata = table1.metadata
 
     # Tables that depend on table1: table2, table4, table3
     depends = list(utils.find_dependent_tables(table1, metadata))
@@ -228,10 +228,10 @@ def get_currval(session, col):
     if engine.name == "postgresql":
         name = f"{col.table.name}_{col.name}_seq"
         stmt = f"SELECT currval('{name}');"
-        return session.execute(stmt).scalar()
+        return session.execute(text(stmt)).scalar()
     elif engine.name == "sqlite":
         stmt = f"SELECT max({col.name}) FROM {col.table.name}"
-        return session.execute(stmt).scalar() + 1
+        return session.execute(text(stmt)).scalar() + 1
     else:
         raise NotImplementedError("Unsupported database engine.")
 
@@ -241,9 +241,10 @@ def test_table(db_session) -> Generator[Any, None, None]:
     """
     Fixture to provide a simple test table for sequence-related operations.
     """
+    metadata = MetaData()
     table = Table(
         "test_reset_sequence",
-        db_session.bind.metadata,
+        metadata,
         Column("id", Integer, primary_key=True),
     )
     table.create(bind=db_session.bind, checkfirst=True)
@@ -256,9 +257,10 @@ def test_table_with_sequence(db_session) -> Generator[Any, None, None]:
     """
     Fixture to provide a test table with an explicit sequence for the primary key.
     """
+    metadata = MetaData()
     table = Table(
         "test_reset_sequence",
-        db_session.bind.metadata,
+        metadata,
         Column(
             "id",
             Integer,
@@ -330,7 +332,6 @@ def test_full_dependencies() -> None:
 
 def test_partial_dependencies() -> None:
     r = topological_sort(["b", "e"], [("a", "b"), ("b", "c"), ("b", "d")])
-    print(r)
     assert "e" in r
     r.remove("e")
     any_set = {r.pop(), r.pop()}
