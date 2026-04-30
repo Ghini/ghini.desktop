@@ -839,8 +839,7 @@ def create(import_defaults: bool = True) -> None:
     from bauble import pluginmgr
 
     try:
-        # 1) Load plugins so their models are imported and mapped classes exist
-        pluginmgr.load()  # <— add this call
+        pluginmgr.load()
 
         from bauble.db import ensure_relationships_wired
 
@@ -850,9 +849,10 @@ def create(import_defaults: bool = True) -> None:
             # Ensure all mappers are configured before creating tables
             import bauble.plugins.garden.models.accession as acc
             import bauble.plugins.garden.models.plant as pl
-            from bauble.db import MapperBase, metadata
+            from bauble.db import Base, MapperBase
             from sqlalchemy.orm import configure_mappers
 
+            metadata = Base.metadata
             logger.debug(
                 "accession in shared metadata? %s", "accession" in metadata.tables
             )
@@ -868,47 +868,8 @@ def create(import_defaults: bool = True) -> None:
                 "Mapped class names seen so far: %s",
                 sorted(MapperBase._class_registry.keys()),
             )
-
-            import inspect as pyinspect
-            import sys
-
-            import bauble.plugins.garden.models.accession as acc
-            import bauble.plugins.garden.models.plant as pl
-            from bauble.db import Base
-
-            metadata = Base.metadata
-
-            dbmod = sys.modules[__name__]  # since this code is running inside bauble.db
-            logger.debug(
-                "db module path: %s id: %s", pyinspect.getfile(dbmod), id(dbmod)
-            )
-            logger.debug(
-                "Garden model modules loaded: %s",
-                [k for k in sys.modules if "bauble.plugins.garden.models" in k],
-            )
-
-            logger.debug(
-                "db module path: %s id: %s", pyinspect.getfile(dbmod), id(dbmod)
-            )
-            logger.debug("Accession Base is db.Base? %s", acc.Base is dbmod.Base)
-            # if plant.py still uses "from bauble.db import Base", this will exist:
-            logger.debug("Plant module has 'db' alias? %s", hasattr(pl, "db"))
-            if hasattr(pl, "db"):
-                logger.debug("pl.db is dbmod? %s", pl.db is dbmod)
-
-            logger.debug(
-                "Accession uses shared metadata? %s",
-                acc.Accession.__table__.metadata is metadata,
-            )
-            logger.debug(
-                "Plant uses shared metadata? %s",
-                pl.Plant.__table__.metadata is metadata,
-            )
             logger.debug(
                 "Tables in shared metadata: %s", sorted(metadata.tables.keys())
-            )
-            logger.debug(
-                "accession in shared metadata? %s", "accession" in metadata.tables
             )
             logger.debug("plant in shared metadata? %s", "plant" in metadata.tables)
             configure_mappers()
@@ -918,7 +879,7 @@ def create(import_defaults: bool = True) -> None:
             metadata.drop_all(bind=connection, checkfirst=True)
             metadata.create_all(bind=connection)
 
-            # 🛠️ Add triggers or column constraints for ALL TEXT columns
+            # Add triggers or column constraints for text columns.
             create_triggers(connection)
 
             # Populate the Bauble meta table
