@@ -203,15 +203,16 @@ class GeographicArea(Base):
     __tablename__: str = "geographic_area"
 
     # columns
-    id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    tdwg_code: Mapped[str] = mapped_column(String(6))
+    tdwg_code: Mapped[Optional[str]] = mapped_column(String(6), nullable=True)
     iso_code: Mapped[Optional[str]] = mapped_column(String(7), nullable=True)
     parent_id: Mapped[Optional[int]] = mapped_column(
         Integer,
         ForeignKey("geographic_area.id"),
-        nullable=True,          # ← allow NULL for roots
+        nullable=True,
     )
+
     def __str__(self) -> str:
         return self.name
 

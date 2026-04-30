@@ -1227,6 +1227,15 @@ class TestGeographicArea:
             sp3.id,
         ], "North America species mismatch"
 
+    def test_tdwg_code_is_optional(self) -> None:
+        """Geographic areas imported from legacy data may not include a TDWG code."""
+        area = GeographicArea(name="Somewhere")
+        self.session.add(area)
+        self.session.commit()
+
+        assert area.id is not None
+        assert area.tdwg_code is None
+
     def test_species_distribution_str(self) -> None:
         """Test the string representation of species distribution."""
         sp1 = Species(genus=self.genus, epithet="sp1")
