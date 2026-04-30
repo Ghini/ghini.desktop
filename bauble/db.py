@@ -143,8 +143,7 @@ def get_or_create(session, model, defaults: Optional[Any] = None, **kwargs):
     except IntegrityError:
         # Handle potential race conditions in a multi-threaded or concurrent environment
         if session.in_transaction():
-            if session.in_transaction():
-                session.rollback()
+            session.rollback()
         instance = session.scalars(stmt).first()
         return instance, False
 
