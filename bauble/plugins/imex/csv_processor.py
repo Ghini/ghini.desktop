@@ -291,8 +291,10 @@ class CSVProcessor:
         foreign key points to, e.g ('parent_id', 'id')
         :return: Path to the sorted CSV file
         """
-        print(
-            f"🔍 Performing topological sorting for {filename} using key pairs: {key_pairs}"
+        logger.debug(
+            "Performing topological sorting for %s using key pairs: %s",
+            filename,
+            key_pairs,
         )
 
         with open(filename) as f:
@@ -327,20 +329,19 @@ class CSVProcessor:
                     # Track parent-child dependencies
                     dependency_graph.setdefault(parent_key, []).append(child_key)
 
-        # 🔎 Debug: Check all root nodes
-        print(
-            f"✅ Found {len(root_nodes)} root nodes (should include continents like Europe, Africa, etc.)"
+        logger.debug(
+            "Found %d root nodes while sorting self-referencing CSV rows",
+            len(root_nodes),
         )
         root_ids = [node["id"] for node in root_nodes]
-        print(f"🟢 Root node IDs: {root_ids}")
+        logger.debug("Root node IDs: %s", root_ids)
 
         # Ensure all parents exist
         missing_parents = set(dependency_graph.keys()) - set(all_nodes.keys())
         if missing_parents:
-            print(
-                f"❌ ERROR: The following parent IDs are missing from the dataset: {missing_parents}"
+            raise InvalidDataError(
+                f"The following parent IDs are missing from the dataset: {missing_parents}"
             )
-            exit(1)  # Stop execution
 
         # Create dependency pairs
         pairs = []
@@ -349,16 +350,16 @@ class CSVProcessor:
                 if parent_key in all_nodes and child_key in all_nodes:
                     pairs.append((parent_key, child_key))
 
-        print(f"🔗 Dependency pairs (first 20): {pairs[:20]}")
+        logger.debug("Dependency pairs (first 20): %s", pairs[:20])
 
         # Perform topological sorting
         sorted_keys = utils.topological_sort(list(all_nodes.keys()), pairs)
 
-        # 🔥 Ensure root nodes come first
+        # Ensure root nodes come first.
         sorted_keys = [int(k) for k in sorted_keys]  # Ensure sorting by int
         sorted_keys = sorted(root_ids) + [k for k in sorted_keys if k not in root_ids]
 
-        print(f"✅ Final sorted order of keys (first 10): {sorted_keys[:10]}")
+        logger.debug("Final sorted order of keys (first 10): %s", sorted_keys[:10])
 
         # Build sorted file
         sorted_lines = [all_nodes[k] for k in sorted_keys if k in all_nodes]
@@ -377,7 +378,7 @@ class CSVProcessor:
             )
             writer.writerows(sorted_lines)
 
-        print(f"✅ Sorted file saved as: {sorted_filename}")
+        logger.debug("Sorted file saved as: %s", sorted_filename)
         return sorted_filename
 
     def prepare_file(self) -> None:
@@ -458,11 +459,15 @@ class CSVProcessor:
             for fk in self.table.foreign_keys
             if fk.column.table == self.table
         ]
-        print(f"Sorting {self.filename} based on foreign key dependencies: {key_pairs}")
+        logger.debug(
+            "Sorting %s based on foreign key dependencies: %s",
+            self.filename,
+            key_pairs,
+        )
 
         sorted_filename = self._toposort_file(self.filename, key_pairs)
 
-        print(f"Sorted file saved as: {sorted_filename}")
+        logger.debug("Sorted file saved as: %s", sorted_filename)
 
         return sorted_filename
 

@@ -144,8 +144,6 @@ class _prefs(dict):
         # Populate attributes for module-level _pref constants
         for name, value in globals().items():
             if name.endswith("_pref") and isinstance(value, str):
-                if name == "date_format_pref":
-                    print(f"Date_format_pref = {date_format_pref}")
                 setattr(self, name, value)
 
     def __getattr__(self, name):

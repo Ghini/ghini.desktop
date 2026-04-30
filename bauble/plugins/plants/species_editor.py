@@ -177,12 +177,15 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             clause = utils.ilike(Genus.genus, f"{text}%")
             stmt = select(Genus).where(clause).order_by(Genus.genus)
 
-            print(
-                stmt.compile(compile_kwargs={"literal_binds": True})
-            )  # optional debug
+            logger.debug(
+                "Genus completion query: %s",
+                stmt.compile(compile_kwargs={"literal_binds": True}),
+            )
 
             result = list(self.session.scalars(stmt))
-            print("Completion query returned:", [g.genus for g in result])
+            logger.debug(
+                "Genus completion query returned: %s", [g.genus for g in result]
+            )
             return result
 
         def sp_species_TPL_callback(found, accepted):
@@ -249,7 +252,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     box.on_response = on_response_found
                     self.view.add_box(box)
                     self.species_check_messages.append(box)
-                    box.show()                    
+                    box.show()
                     msg_box_msg = None
 
                 if self.model.accepted is None and accepted is not None:
@@ -546,7 +549,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         try:
             entry.stop_emission("insert-text")
         except Exception as e:
-            print(f"Error: {e}")
+            logger.debug("Could not stop species entry insert-text emission: %s", e)
 
         return True
 

@@ -751,7 +751,9 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             stmt = select(Family).where(clause).order_by(Family.family)
 
             result = list(self.session.scalars(stmt))
-            print("Completion query returned:", [g.family for g in result])
+            logger.debug(
+                "Family completion query returned: %s", [g.family for g in result]
+            )
             return result
 
         #        def fam_get_completions(text_val):
