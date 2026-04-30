@@ -177,21 +177,16 @@ class JSONExporter(editor.GenericEditorPresenter):
         # export disregarding selection
         result = []
         if self.selection_based_on == "sbo_plants":
-            plant_query = (
-                self.session.execute(
-                    select(Plant)
-                    .order_by(Plant.code)
-                    .join(Plant.accession)
-                    .order_by(Accession.code)
-                )
-            ).scalars()
-
+            plant_stmt = (
+                select(Plant)
+                .order_by(Plant.code)
+                .join(Plant.accession)
+                .order_by(Accession.code)
+            )
             if self.include_private is False:
-                plant_query = plant_query.where(
-                    not Accession.private
-                )  # `is` does not work
+                plant_stmt = plant_stmt.where(Accession.private.is_(False))
 
-            plants = plant_query.all()
+            plants = self.session.execute(plant_stmt).scalars().all()
 
             # Plant notes with bindparam for dynamic expansion
             plantnotes = (
@@ -510,7 +505,6 @@ class JSONImporter(editor.GenericEditorPresenter):
         n = len(objects)
         for i, obj in enumerate(objects):
             try:
-                print(obj)
                 db.construct_from_dict(session, obj, self.create, self.update)
                 if session.in_transaction():
                     session.commit()
@@ -523,6 +517,7 @@ class JSONImporter(editor.GenericEditorPresenter):
             yield
         if session.in_transaction():
             session.commit()
+        session.close()
         try:
             from bauble import gui
 

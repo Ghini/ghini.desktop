@@ -86,6 +86,7 @@ import sqlalchemy as sa
 
 # bauble/plugins/imex/csv_.py
 
+
 def write_import_schema_markdown(metadata, out_path: str = "IMPORT_SCHEMA.md") -> str:
     """
     Emit a Markdown file that documents expected CSV columns/types/NULL rules.
@@ -115,7 +116,9 @@ def write_import_schema_markdown(metadata, out_path: str = "IMPORT_SCHEMA.md") -
     for table, cols in schema.items():
         lines.append(f"## Table `{table}`")
         lines.append("")
-        lines.append("| Column | Type | Nullable | Default | PK | Unique | FK | Enum Values | empty_to_none | strict |")
+        lines.append(
+            "| Column | Type | Nullable | Default | PK | Unique | FK | Enum Values | empty_to_none | strict |"
+        )
         lines.append("|---|---|:---:|---|:--:|:--:|---|---|:--:|:--:|")
 
         for c in cols:
@@ -126,33 +129,43 @@ def write_import_schema_markdown(metadata, out_path: str = "IMPORT_SCHEMA.md") -
 
             row = [
                 f"`{c['name']}`",
-                _pipe_escape(_s(c['type'])),
+                _pipe_escape(_s(c["type"])),
                 "Yes" if c.get("nullable") else "No",
                 _pipe_escape(_s(c.get("default"))),
                 "✓" if c.get("primary_key") else "",
                 "✓" if c.get("unique") else "",
                 _pipe_escape(_s(c.get("foreign_key") or "")),
                 _pipe_escape(enum_vals),
-                _s(c.get("enum_empty_to_none")) if c.get("enum_empty_to_none") is not None else "",
+                (
+                    _s(c.get("enum_empty_to_none"))
+                    if c.get("enum_empty_to_none") is not None
+                    else ""
+                ),
                 _s(c.get("enum_strict")) if c.get("enum_strict") is not None else "",
             ]
             lines.append("| " + " | ".join(row) + " |")
 
         lines.append("")
         lines.append("> **CSV expectations**")
-        lines.append("> - Header row should include the column names you plan to supply.")
-        lines.append("> - Missing headers fall back to Python-side defaults if defined; otherwise the column will be NULL (if allowed) or cause an error.")
+        lines.append(
+            "> - Header row should include the column names you plan to supply."
+        )
+        lines.append(
+            "> - Missing headers fall back to Python-side defaults if defined; otherwise the column will be NULL (if allowed) or cause an error."
+        )
         lines.append("> - Empty fields: see `Nullable` and Enum `empty_to_none` above.")
         lines.append("")
 
         # quick hint for likely problem columns
         nonnullable_text = [
-            c["name"] for c in cols
-            if not c.get("nullable")
-            and c.get("type") in ("Unicode", "String", "Text")
+            c["name"]
+            for c in cols
+            if not c.get("nullable") and c.get("type") in ("Unicode", "String", "Text")
         ]
         if nonnullable_text:
-            lines.append("> **Non-nullable text columns** that must be provided (or coerced to ''):")
+            lines.append(
+                "> **Non-nullable text columns** that must be provided (or coerced to ''):"
+            )
             lines.append("> " + ", ".join(f"`{n}`" for n in nonnullable_text))
             lines.append("")
 
@@ -199,8 +212,11 @@ def describe_metadata(metadata) -> Dict[str, List[Dict[str, Any]]]:
             if col.default is not None:
                 try:
                     from sqlalchemy import ColumnDefault
+
                     if isinstance(col.default, ColumnDefault):
-                        info["default"] = getattr(col.default.arg, "__name__", col.default.arg)
+                        info["default"] = getattr(
+                            col.default.arg, "__name__", col.default.arg
+                        )
                     else:
                         info["default"] = col.default
                 except Exception:
@@ -230,6 +246,9 @@ def describe_metadata(metadata) -> Dict[str, List[Dict[str, Any]]]:
 
 
 class Importer:
+    def on_error(self, exc) -> None:
+        """Handle import errors that are not otherwise surfaced."""
+        return None
 
     def start(self, *args, **kwargs):
         """
@@ -575,10 +594,11 @@ class CSVImporter(Importer):
         self.flush_count = 0
 
         self.__error_exc = BaubleError(_("Unknown Error."))
+        import_session = sessionmaker(bind=db.engine, autoflush=False, future=True)
 
         try:
             # Create a new session bound to the database engine
-            with db.Session() as session:
+            with import_session() as session:
                 with session.begin():
 
                     configure_mappers()  # Ensure mappers are configured
@@ -655,7 +675,7 @@ class CSVImporter(Importer):
                 bauble.task.set_message(msg)
                 yield  # allow progress bar update
 
-                with db.Session() as session:
+                with import_session() as session:
                     try:
 
                         # Prepare the table and file
@@ -686,14 +706,19 @@ class CSVImporter(Importer):
                             update_every=127,
                             flush_count=self.flush_count,
                             steps_so_far=self.steps_so_far,
-                            use_thread=False
+                            use_thread=False,
                         )
 
                         from bauble.plugins.imex.csv_processor import (
                             preflight_csv as preflight_csv,
                         )
+
                         issues = preflight_csv(filename, table)
-                        if issues["missing_headers"] or issues["empty_required_cells"] or issues["enum_violations"]:
+                        if (
+                            issues["missing_headers"]
+                            or issues["empty_required_cells"]
+                            or issues["enum_violations"]
+                        ):
                             # Log or show a dialog with a concise summary
                             logger.warning("Preflight for %s: %r", table.name, issues)
                             # Optionally abort early to let the user decide how to handle '' vs NULL
@@ -726,7 +751,6 @@ class CSVImporter(Importer):
                         # The commit/rollback is handled automatically when we leave the
                         # 'with' block.
 
-
                         # Important: Cleanup after processing each table
                         processor.cleanup()
                         # Surface any insert error captured in the processor (covers sync mode too)
@@ -737,11 +761,14 @@ class CSVImporter(Importer):
 
                         try:
                             import sqlalchemy as sa
-                            rc = session.execute(sa.select(sa.func.count()).select_from(table)).scalar_one()
+
+                            rc = session.execute(
+                                sa.select(sa.func.count()).select_from(table)
+                            ).scalar_one()
                             logger.info("Imported %s rows into %s", rc, table.name)
                         except Exception:
                             logger.debug("Could not count rows for %s", table.name)
-                                                    
+
                         session.commit()
                         logger.info(f"Successfully imported table: {table.name}")
 
@@ -750,6 +777,7 @@ class CSVImporter(Importer):
                         if session.in_transaction():
                             if session.in_transaction():
                                 session.rollback()  # Rollback to prevent partial imports
+                        self.on_error(e)
                         utils.message_dialog(
                             _("Data import failed due to integrity constraints."),
                             Gtk.MessageType.ERROR,
@@ -766,7 +794,7 @@ class CSVImporter(Importer):
                     # Update the GUI
                     self._update_gui()
 
-            with db.Session() as session:
+            with import_session() as session:
 
                 # TODO: need to get those tables from depends that need to
                 # be created but weren't created already
@@ -783,6 +811,7 @@ class CSVImporter(Importer):
             GLib.idle_add(pb_set_fraction, 1.0)
         except Exception as e:
             msg = _("Error during import process.\n\n%s") % utils.xml_safe(e)
+            self.on_error(e)
             utils.message_dialog(msg, Gtk.MessageType.ERROR)
 
             logger.error(e)
@@ -921,78 +950,84 @@ class CSVExporter:
 
     def __export_task(self, path) -> Generator[None, None, Any]:
         filename_template = os.path.join(path, "%s.txt")
-        self.steps_so_far = 0
-        ntables = 0
+        self.session = sessionmaker(bind=db.engine, autoflush=False, future=True)()
+        try:
+            self.steps_so_far = 0
+            ntables = 0
 
-        # Count the number of tables
-        for table in db.metadata.sorted_tables:
-            ntables += 1
-            filename = filename_template % table.name
-            if os.path.exists(filename):
-                msg = _(
-                    "Export file <b>%(filename)s</b> for "
-                    "<b>%(table)s</b> table already exists.\n\n<i>Would "
-                    "you like to continue?</i>"
-                ) % {"filename": filename, "table": table.name}
-                if not utils.yes_no_dialog(msg):  # if NO: return
-                    return
+            # Count the number of tables
+            for table in db.metadata.sorted_tables:
+                ntables += 1
+                filename = filename_template % table.name
+                if os.path.exists(filename):
+                    msg = _(
+                        "Export file <b>%(filename)s</b> for "
+                        "<b>%(table)s</b> table already exists.\n\n<i>Would "
+                        "you like to continue?</i>"
+                    ) % {"filename": filename, "table": table.name}
+                    if not utils.yes_no_dialog(msg):  # if NO: return
+                        return
 
-        def replace(s):
-            if isinstance(s, str):
-                s.replace("\n", "\\n")
-            return s
+            def replace(s):
+                if s is None:
+                    return ""
+                if isinstance(s, str):
+                    return s.replace("\n", "\\n")
+                return s
 
-        def write_csv(filename, rows):
-            with open_file_safe(filename, "w") as f:
-                writer = UnicodeWriter(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
-                writer.writerows(rows)
+            def write_csv(filename, rows):
+                with open_file_safe(filename, "w") as f:
+                    writer = UnicodeWriter(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
+                    writer.writerows(rows)
 
-        update_every = 30
-        # spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
-        spinner = "⡆⠇⠋⠙⠸⢰⣠⣄"
-        # spinner = ('⣀⡀', '⣄ ', '⡆ ', '⠇ ', '⠋ ', '⠉⠁',
-        #           '⠈⠉', ' ⠙', ' ⠸', ' ⢰', ' ⣠', '⢀⣀')
+            update_every = 30
+            # spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
+            spinner = "⡆⠇⠋⠙⠸⢰⣠⣄"
+            # spinner = ('⣀⡀', '⣄ ', '⡆ ', '⠇ ', '⠋ ', '⠉⠁',
+            #           '⠈⠉', ' ⠙', ' ⠸', ' ⢰', ' ⣠', '⢀⣀')
 
-        for table in db.metadata.sorted_tables:
-            filename = filename_template % table.name
-            self.steps_so_far += 1
-            fraction = float(self.steps_so_far) / float(ntables)
-            pb_set_fraction(fraction)
-            spinner_index = 0
-            msg = _("exporting %(table)s table to %(filename)s") % {
-                "table": table.name,
-                "filename": filename,
-            }
-            msg = msg + "  " + spinner[0]
-            bauble.task.set_message(msg)
-            logger.info(f"exporting {table.name}")
+            for table in db.metadata.sorted_tables:
+                filename = filename_template % table.name
+                self.steps_so_far += 1
+                fraction = float(self.steps_so_far) / float(ntables)
+                pb_set_fraction(fraction)
+                spinner_index = 0
+                msg = _("exporting %(table)s table to %(filename)s") % {
+                    "table": table.name,
+                    "filename": filename,
+                }
+                msg = msg + "  " + spinner[0]
+                bauble.task.set_message(msg)
+                logger.info(f"exporting {table.name}")
 
-            # Query the data
-            stmt = select(table)
-            # results = self.session.execute(stmt).fetchall()  # Use the session for execution
-            results = self.session.execute(stmt).mappings().all()
+                # Query the data
+                stmt = select(table)
+                # results = self.session.execute(stmt).fetchall()  # Use the session for execution
+                results = self.session.execute(stmt).mappings().all()
 
-            # create empty files with only the column names
-            if len(results) == 0:
-                write_csv(filename, [list(table.c.keys())])
-                yield
-                continue
-
-            rows = []
-            rows.append(list(table.c.keys()))  # append col names
-            ctr = 0
-            for row in results:
-                # values = list(map(replace, list(row)))
-                values = list(map(replace, [row[col] for col in table.c.keys()]))
-                rows.append(values)
-                if ctr == update_every:
-                    spinner_index = (spinner_index + 1) % len(spinner)
-                    msg = msg[: -len(spinner[0])] + spinner[spinner_index]
-                    bauble.task.set_message(msg)
+                # create empty files with only the column names
+                if len(results) == 0:
+                    write_csv(filename, [list(table.c.keys())])
                     yield
-                    ctr = 0
-                ctr += 1
-            write_csv(filename, rows)
+                    continue
+
+                rows = []
+                rows.append(list(table.c.keys()))  # append col names
+                ctr = 0
+                for row in results:
+                    # values = list(map(replace, list(row)))
+                    values = list(map(replace, [row[col] for col in table.c.keys()]))
+                    rows.append(values)
+                    if ctr == update_every:
+                        spinner_index = (spinner_index + 1) % len(spinner)
+                        msg = msg[: -len(spinner[0])] + spinner[spinner_index]
+                        bauble.task.set_message(msg)
+                        yield
+                        ctr = 0
+                    ctr += 1
+                write_csv(filename, rows)
+        finally:
+            self.session.close()
 
 
 class CSVImportCommandHandler(pluginmgr.CommandHandler):

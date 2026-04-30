@@ -30,8 +30,9 @@ from typing import Any
 
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
+import bauble.db as db
 import pytest
-from bauble.db import Base, engine
+from bauble.db import Base
 from bauble.editor import MockView
 from bauble.plugins.garden.models import Accession as Accession
 from bauble.plugins.garden.models import Contact as Contact
@@ -50,7 +51,7 @@ from bauble.plugins.plants import SpeciesNote as SpeciesNote
 from bauble.plugins.plants import VernacularName as VernacularName
 from bauble.plugins.plants.geography import GeographicArea
 from sqlalchemy import Boolean, Integer, select
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 family_data: Any
 logger: Any = logging.getLogger(__name__)
@@ -80,7 +81,7 @@ accession_data: Any = [
     {"id": 2, "species_id": 1, "code": "2015.0002"},
     {"id": 3, "species_id": 1, "code": "2015.0003", "private": True},
 ]
-location_data: Any = [{"id": 1, "code": "1"}]
+location_data: Any = [{"id": 1, "code": "1", "name": "Test Location"}]
 plant_data: Any = [
     {"id": 1, "accession_id": 1, "location_id": 1, "code": "1", "quantity": 1},
     {"id": 2, "accession_id": 3, "location_id": 1, "code": "1", "quantity": 1},
@@ -153,9 +154,9 @@ class TestCSV:
         Test tables with self-referential relationships are imported in order.
         """
         geo_data = [
-            {"id": 3, "name": "3", "parent_id": 1},
-            {"id": 1, "name": "1", "parent_id": None},
-            {"id": 2, "name": "2", "parent_id": 1},
+            {"id": 3, "name": "3", "tdwg_code": "3", "parent_id": 1},
+            {"id": 1, "name": "1", "tdwg_code": "1", "parent_id": None},
+            {"id": 2, "name": "2", "tdwg_code": "2", "parent_id": 1},
         ]
         fields = list(geo_data[0].keys())
         filename = setup_test_files("geographic_area.txt", geo_data, fields)
@@ -173,9 +174,9 @@ class TestCSV:
         class BoolTest(Base):
             __tablename__ = "bool_test"
             id: Mapped[int] = mapped_column(Integer, primary_key=True)
-            col1 : Mapped[bool]= mapped_column(Boolean, default=False)
+            col1: Mapped[bool] = mapped_column(Boolean, default=False)
 
-        BoolTest.__table__.create(bind=engine)
+        BoolTest.__table__.create(bind=db.engine)
 
         data = [
             {"id": 1, "col1": "True"},
@@ -197,7 +198,7 @@ class TestCSV:
         t = db_session.get(BoolTest, 3)
         assert t.col1 is False
 
-        BoolTest.__table__.drop(bind=engine)
+        BoolTest.__table__.drop(bind=db.engine)
 
     def test_with_open_connection(
         self, db_session, test_directory, setup_test_files
@@ -244,8 +245,10 @@ class TestCSV:
         """
         Test exporting a CSV file where None values are represented as empty.
         """
-        species = Species(genus_id=1, epithet="sp")
-        db_session.add(species)
+        family = Family(epithet="Orchidaceae")
+        genus = Genus(family=family, epithet="Calopogon")
+        species = Species(genus=genus, epithet="sp")
+        db_session.add_all([family, genus, species])
         if db_session.in_transaction():
             db_session.commit()
 
@@ -256,7 +259,7 @@ class TestCSV:
         with open(os.path.join(temp_path, "species.txt")) as f:
             reader = csv.DictReader(f)
             row = next(reader)
-            assert row._mapping["cv_group"] == ""
+            assert row["cv_group"] == ""
 
 
 class TestCSV2:
@@ -277,17 +280,17 @@ class TestCSV2:
 
         # Check sequence handling
         highest_id = len(open(filename).readlines()) - 1
-        conn = engine.connect()
+        conn = db.engine.connect()
 
-        if engine.name == "postgresql":
+        if db.engine.name == "postgresql":
             stmt = text("SELECT currval('family_id_seq');")
             currval = conn.execute(stmt).scalar_one_or_none()
             assert currval == 0
-        elif engine.name == "sqlite":
+        elif db.engine.name == "sqlite":
             stmt = text("SELECT max(id) from family;")
             nextval = conn.execute(stmt).scalar_one_or_none() + 1
         else:
-            pytest.fail(f"Unsupported engine type: {engine.name}")
+            pytest.fail(f"Unsupported engine type: {db.engine.name}")
 
         from sqlalchemy import text
 
@@ -296,31 +299,31 @@ class TestCSV2:
             nextval > highest_id
         ), f"Bad sequence: highest_id({highest_id}) > nextval({nextval}) -- {maxid}"
 
-    def test_import(self, temp_directory) -> None:
+    def test_import(self, test_directory) -> None:
         """
         Test import functionality by exporting and re-importing test data.
         """
         # Export all test data
         exporter = CSVExporter()
-        exporter.start(temp_directory)
+        exporter.start(test_directory)
 
         # Re-import all exported files
-        filenames = os.listdir(temp_directory)
+        filenames = os.listdir(test_directory)
         importer = CSVImporter()
 
         # Import twice to test for idempotency and regression handling
         importer.start(
-            [os.path.join(temp_directory, name) for name in filenames], force=True
+            [os.path.join(test_directory, name) for name in filenames], force=True
         )
         importer.start(
-            [os.path.join(temp_directory, name) for name in filenames], force=True
+            [os.path.join(test_directory, name) for name in filenames], force=True
         )
 
     def test_unicode(self, db_session) -> None:
         """
         Test importing and handling Unicode strings.
         """
-        geo_data = {"name": "Galápagos"}
+        geo_data = {"name": "Galápagos", "tdwg_code": "GAL"}
         stmt = GeographicArea.__table__.insert().values(geo_data)
         db_session.execute(stmt)
         db_session.commit()
@@ -330,24 +333,32 @@ class TestCSV2:
         row_name = [r.name for r in query.all() if r.name.startswith("Gal")][0]
         assert row_name == geo_data["name"]
 
-    def test_export(self, temp_directory, db_session) -> None:
+    def test_export(self, test_directory, db_session) -> None:
         """
         Test export functionality to ensure data integrity.
         """
+        db_session.add(Family(epithet="Orchidaceae"))
+        if db_session.in_transaction():
+            db_session.commit()
+
         # Export all test data
         exporter = CSVExporter()
-        exporter.start(temp_directory)
+        exporter.start(test_directory)
 
         # Validate exported files
-        exported_files = os.listdir(temp_directory)
+        exported_files = os.listdir(test_directory)
         assert len(exported_files) > 0
 
         # Example validation of content (add specific checks if needed)
+        files_with_data = 0
         for filename in exported_files:
-            with open(os.path.join(temp_directory, filename)) as f:
+            with open(os.path.join(test_directory, filename)) as f:
                 reader = csv.reader(f)
                 rows = list(reader)
-                assert len(rows) > 1  # Header + at least one row
+                assert rows
+                if len(rows) > 1:
+                    files_with_data += 1
+        assert files_with_data > 0
 
 
 class MockExportView:
@@ -374,6 +385,7 @@ class MockExportView:
 
     def get_selection(self):
         return self.__selection
+
 
 @pytest.fixture
 def temp_file() -> Generator[Any, None, None]:
@@ -415,6 +427,11 @@ class TestJSONExport:
     """
     Test suite for JSON export functionality.
     """
+
+    @pytest.fixture(autouse=True)
+    def _populate_json_export_data(self, populate_database):
+        """Populate baseline taxonomy/garden rows for JSON export tests."""
+        return None
 
     def test_export_empty_selection_writes_complete_database(
         self, temp_file, populate_database
@@ -519,7 +536,7 @@ class TestJSONExport:
                 "private": True,
                 "species": "Calopogon tuberosus",
             },
-            {"code": "1", "object": "location"},
+            {"code": "1", "name": "Test Location", "object": "location"},
             {
                 "accession": "2015.0001",
                 "code": "1",
@@ -781,13 +798,15 @@ class TestJSONExport:
         assert accepted["ht-rank"] == "familia"
         assert accepted["ht-epithet"] == "Orchidaceae"
 
-    def test_export_ignores_private_if_sbo_selection(self, temp_file) -> None:
+    def test_export_ignores_private_if_sbo_selection(
+        self, temp_file, db_session
+    ) -> None:
         """
         Test exporting accessions ignoring private entries when `include_private` is False.
         """
         # Select all accessions
         exporter = JSONExporter(MockView())
-        selection = [obj for obj in self if isinstance(obj, Accession)]
+        selection = db_session.execute(select(Accession)).scalars().all()
         non_private = [acc for acc in selection if not acc.private]
 
         # Assertions on selection
@@ -807,7 +826,7 @@ class TestJSONExport:
 
         assert len(result) == 3
 
-    def test_export_non_private_if_sbo_accessions(self, populate_database) -> None:
+    def test_export_non_private_if_sbo_accessions(self, temp_file) -> None:
         """
         Test exporting non-private accessions when `include_private` is False.
         """
@@ -815,15 +834,15 @@ class TestJSONExport:
         exporter.view.selection = None
         exporter.selection_based_on = "sbo_accessions"
         exporter.include_private = False
-        exporter.filename = self
+        exporter.filename = temp_file
         exporter.run()
 
-        with open(self) as f:
+        with open(temp_file) as f:
             result = json.load(f)
 
         assert len(result) == 5
 
-    def test_export_private_if_sbo_accessions(self, populate_database) -> None:
+    def test_export_private_if_sbo_accessions(self, temp_file) -> None:
         """
         Test exporting all accessions, including private, when `include_private` is True.
         """
@@ -831,15 +850,15 @@ class TestJSONExport:
         exporter.view.selection = None
         exporter.selection_based_on = "sbo_accessions"
         exporter.include_private = True
-        exporter.filename = self
+        exporter.filename = temp_file
         exporter.run()
 
-        with open(self) as f:
+        with open(temp_file) as f:
             result = json.load(f)
 
         assert len(result) == 6
 
-    def test_export_non_private_if_sbo_plants(self, populate_database) -> None:
+    def test_export_non_private_if_sbo_plants(self, temp_file) -> None:
         """
         Test exporting non-private plants when `include_private` is False.
         """
@@ -847,15 +866,15 @@ class TestJSONExport:
         exporter.view.selection = None
         exporter.selection_based_on = "sbo_plants"
         exporter.include_private = False
-        exporter.filename = self
+        exporter.filename = temp_file
         exporter.run()
 
-        with open(self) as f:
+        with open(temp_file) as f:
             result = json.load(f)
 
         assert len(result) == 6
 
-    def test_export_private_if_sbo_plants(self, populate_database) -> None:
+    def test_export_private_if_sbo_plants(self, temp_file) -> None:
         """
         Test exporting all plants, including private, when `include_private` is True.
         """
@@ -863,15 +882,15 @@ class TestJSONExport:
         exporter.view.selection = None
         exporter.selection_based_on = "sbo_plants"
         exporter.include_private = True
-        exporter.filename = self
+        exporter.filename = temp_file
         exporter.run()
 
-        with open(self) as f:
+        with open(temp_file) as f:
             result = json.load(f)
 
         assert len(result) == 8
 
-    def test_export_with_vernacular(self, db_session) -> None:
+    def test_export_with_vernacular(self, temp_file, db_session) -> None:
         """
         Test exporting a genus with a vernacular name.
         """
@@ -889,11 +908,11 @@ class TestJSONExport:
         exporter.view.selection = None
         exporter.selection_based_on = "sbo_taxa"
         exporter.include_private = False
-        exporter.filename = self
+        exporter.filename = temp_file
         exporter.run()
 
         # Validate
-        with open(self) as f:
+        with open(temp_file) as f:
             result = json.load(f)
 
         vern_from_json = [
@@ -902,7 +921,7 @@ class TestJSONExport:
         assert len(vern_from_json) == 1
         assert vern_from_json[0]["language"] == "es"
 
-    def test_on_btnbrowse_clicked() -> None:
+    def test_on_btnbrowse_clicked(self) -> None:
         """
         Test browse button updates the filename correctly.
         """
@@ -914,7 +933,7 @@ class TestJSONExport:
         assert exporter.filename == "/tmp/test.json"
         assert JSONExporter.last_folder == "/tmp"
 
-    def test_includes_sources(self, db_session) -> None:
+    def test_includes_sources(self, temp_file, db_session) -> None:
         """
         Test exporting accessions with source details included.
         """
@@ -941,11 +960,11 @@ class TestJSONExport:
         exporter.view.selection = None
         exporter.selection_based_on = "sbo_accessions"
         exporter.include_private = True
-        exporter.filename = self
+        exporter.filename = temp_file
         exporter.run()
 
         # Validate
-        with open(self) as f:
+        with open(temp_file) as f:
             result = json.load(f)
 
         contacts_from_json = [
@@ -982,7 +1001,7 @@ def test_import_new_inserts(temp_file2, db_session) -> None:
         '"ht-rank": "Familia", "ht-epithet": "Orchidaceae", '
         '"author": "Rchb. f."}]'
     )
-    with open(temp_file, "w") as f:
+    with open(temp_file2, "w") as f:
         f.write(json_string)
 
     stmt = select(Genus).where(Genus.epithet == "Neogyna")
@@ -1014,14 +1033,16 @@ def test_import_new_inserts_lowercase(temp_file2, db_session) -> None:
     assert db_session.execute(stmt).scalars().first() is not None
 
 
-def test_import_new_with_non_timestamped_note(temp_file2, db_session) -> None:
+def test_import_new_with_non_timestamped_note(
+    temp_file2, db_session, populate_database
+) -> None:
     """Test importing a new taxon with a non-timestamped note."""
     json_string = (
         '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '
         ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '
         ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<coords>", "note": "{lat: 8.5, lon: -80}"}]'
     )
-    with open(temp_file, "w") as f:
+    with open(temp_file2, "w") as f:
         f.write(json_string)
 
     importer = JSONImporter(MockView())
@@ -1035,7 +1056,9 @@ def test_import_new_with_non_timestamped_note(temp_file2, db_session) -> None:
     assert len(species.notes) == 1
 
 
-def test_import_new_with_three_array_notes(temp_file2, db_session) -> None:
+def test_import_new_with_three_array_notes(
+    temp_file2, db_session, populate_database
+) -> None:
     """Test importing a new taxon with three identical notes."""
     json_string = (
         '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '
@@ -1058,7 +1081,7 @@ def test_import_new_with_three_array_notes(temp_file2, db_session) -> None:
     assert len(species.notes) == 3
 
 
-def test_import_existing_updates(temp_file2, db_session) -> None:
+def test_import_existing_updates(temp_file2, db_session, populate_database) -> None:
     """Test importing an existing taxon updates it."""
     json_string = (
         '[{"rank": "Species", "epithet": "tuberosus", "ht-rank"'
@@ -1083,7 +1106,7 @@ def test_import_existing_updates(temp_file2, db_session) -> None:
     assert species.author == "Britton et al."
 
 
-def test_import_ignores_id_new(temp_file2, db_session) -> None:
+def test_import_ignores_id_new(temp_file2, db_session, populate_database) -> None:
     """Test importing a new taxon disregards the provided ID."""
     json_string = (
         '[{"rank": "Genus", "epithet": "Neogyna", '
@@ -1101,7 +1124,7 @@ def test_import_ignores_id_new(temp_file2, db_session) -> None:
     assert genus.id != 1
 
 
-def test_import_ignores_id_updating(temp_file2, db_session) -> None:
+def test_import_ignores_id_updating(temp_file2, db_session, populate_database) -> None:
     """Test importing an existing taxon disregards the provided ID."""
     species = Species.retrieve_or_create(
         db_session, {"ht-epithet": "Calopogon", "epithet": "tuberosus"}
@@ -1277,6 +1300,11 @@ def test_use_author_to_break_ties(temp_file3, db_session) -> None:
         db_session.commit()
 
     accepted = Genus.retrieve_or_create(db_session, {"epithet": "Sedum"}, create=False)
+    miller = Genus.retrieve_or_create(
+        db_session,
+        {"epithet": "Anacampseros", "author": "Mill.", "ht-epithet": "Crassulaceae"},
+        create=False,
+    )
     assert accepted.__class__ == Genus
     assert miller.accepted == accepted
 

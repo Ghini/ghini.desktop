@@ -67,7 +67,8 @@ _OMIT = object()
 _TEXT_TYPES = (sa.String, sa.Text, sa.Unicode, sa.CHAR, sa.VARCHAR)
 _NUMERIC_TYPES = (sa.Integer, sa.BigInteger, sa.SmallInteger, sa.Numeric, sa.Float)
 _TEMPORAL_TYPES = (sa.Date, sa.DateTime, sa.Time)
-_BINARY_TYPES = (sa.LargeBinary, )
+_BINARY_TYPES = (sa.LargeBinary,)
+
 
 def preflight_csv(filename, table, max_report=50):
     """
@@ -80,6 +81,7 @@ def preflight_csv(filename, table, max_report=50):
     required = {c.name for c in table.c if not c.nullable}
     enums = {}
     import sqlalchemy as sa
+
     try:
         from bauble.btypes import Enum as BaubleEnum
     except Exception:
@@ -88,7 +90,11 @@ def preflight_csv(filename, table, max_report=50):
     for c in table.c:
         if isinstance(c.type, sa.Enum):
             enums[c.name] = set(getattr(c.type, "enums", []) or [])
-        elif BaubleEnum and isinstance(c.type, BaubleEnum) and getattr(c.type, "strict", True):
+        elif (
+            BaubleEnum
+            and isinstance(c.type, BaubleEnum)
+            and getattr(c.type, "strict", True)
+        ):
             enums[c.name] = set(getattr(c.type, "values", []) or [])
 
     results = {
@@ -115,11 +121,18 @@ def preflight_csv(filename, table, max_report=50):
                             results["empty_required_cells"].append((i, col))
             # enum checks
             for col, allowed in enums.items():
-                if col in row and row[col] not in allowed and str(row[col]).strip() != "":
+                if (
+                    col in row
+                    and row[col] not in allowed
+                    and str(row[col]).strip() != ""
+                ):
                     if len(results["enum_violations"]) < max_report:
-                        results["enum_violations"].append((i, col, row[col], sorted(allowed)))
+                        results["enum_violations"].append(
+                            (i, col, row[col], sorted(allowed))
+                        )
 
     return results
+
 
 def _as_mapping(row) -> Mapping:
     """
@@ -157,7 +170,6 @@ class CSVProcessor:
     use_thread: bool
     worker_error: Optional[Exception]
 
-
     def __init__(
         self,
         table,
@@ -166,7 +178,7 @@ class CSVProcessor:
         update_every,
         flush_count: int = 0,
         steps_so_far: int = 0,
-        use_thread: bool = False,   # 🔴 default to synchronous for now
+        use_thread: bool = False,  # 🔴 default to synchronous for now
     ) -> None:
         """
         Initialize the CSV processor.
@@ -199,12 +211,14 @@ class CSVProcessor:
             self.batch_queue = queue.Queue()
 
             # 🆕 **Start a worker thread to process inserts in order**
-            self.worker_thread = threading.Thread(target=self._batch_worker, daemon=True)
+            self.worker_thread = threading.Thread(
+                target=self._batch_worker, daemon=True
+            )
             self.worker_thread.start()
         else:
             self.batch_queue = None
             self.worker_thread = None
-            
+
     # @staticmethod
     # def _toposort_file(filename, key_pairs):
     #     """
@@ -377,7 +391,9 @@ class CSVProcessor:
         # Keep only columns that actually exist on the table; append defaults that are real cols.
         table_cols = set(self.table.c.keys())
         ordered = [c for c in csv_columns if c in table_cols]
-        default_only = [c for c in self.defaults.keys() if c in table_cols and c not in ordered]
+        default_only = [
+            c for c in self.defaults.keys() if c in table_cols and c not in ordered
+        ]
         self.column_keys = ordered + default_only
 
         # Core insert for the table
@@ -421,8 +437,8 @@ class CSVProcessor:
         """
         with open(self.filename) as f:
             reader = UnicodeReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
-            #next(reader)  # Skip the header
-            #return set(reader.reader.fieldnames)
+            # next(reader)  # Skip the header
+            # return set(reader.reader.fieldnames)
             dict_reader = getattr(reader, "reader", reader)
             fieldnames = getattr(dict_reader, "fieldnames", None)
             if not fieldnames:
@@ -432,7 +448,7 @@ class CSVProcessor:
             # keep behavior compatible with existing code that expects a set,
             # but do not mutate/advance the reader.
             return [fn.strip() if isinstance(fn, str) else fn for fn in fieldnames]
-        
+
     def _has_self_referencing_keys(self):
         return any(fk.column.table == self.table for fk in self.table.foreign_keys)
 
@@ -481,7 +497,7 @@ class CSVProcessor:
         #     raise RuntimeError(
         #         f"Background insert failed for table {self.table.name}"
         #     ) from self.worker_error
-        #return
+        # return
 
     def _process_row(self, row):
         """
@@ -507,29 +523,40 @@ class CSVProcessor:
 
         col = self.table.c[column]
         column_type = col.type
-        is_empty = (value is None) or (isinstance(value, str) and value.strip() in ("", "None"))
+        is_empty = (value is None) or (
+            isinstance(value, str) and value.strip() in ("", "None")
+        )
 
         if is_empty:
-            if hasattr(self, "Defaults")and column in self.defaults:
+            if column in self.defaults:
                 return self.defaults[column]
             autoinc = getattr(col, "autoincrement", None)
-            if col.primary_key or autoinc not in (False, None) or isinstance(column_type, _NUMERIC_TYPES + _TEMPORAL_TYPES + (Boolean,) + _BINARY_TYPES):
+            if (
+                col.primary_key
+                or autoinc not in (False, None)
+                or isinstance(
+                    column_type,
+                    _NUMERIC_TYPES + _TEMPORAL_TYPES + (Boolean,) + _BINARY_TYPES,
+                )
+            ):
                 return _OMIT
- 
-            if isinstance(column_type, Enum) and getattr(column_type, "empty_to_none", False):
+
+            if isinstance(column_type, Enum) and getattr(
+                column_type, "empty_to_none", False
+            ):
                 return None
-            
+
             if not col.nullable:
                 if isinstance(column_type, _TEXT_TYPES):
                     return ""
-                raise InvalidDataError(f"Column '{column}' is NOT NULL but CSV provides empty/blank.")
+                raise InvalidDataError(
+                    f"Column '{column}' is NOT NULL but CSV provides empty/blank."
+                )
             return None
 
-
-
-#            if (not col.nullable) and isinstance(column_type, _TEXT_TYPES):
-#                return ""
-#            return _OMIT
+        #            if (not col.nullable) and isinstance(column_type, _TEXT_TYPES):
+        #                return ""
+        #            return _OMIT
 
         try:
 
@@ -540,7 +567,7 @@ class CSVProcessor:
                         return True
                     if v in ("false", "f", "0", "no", "n"):
                         return False
-                return bool(value)                    
+                return bool(value)
 
             elif isinstance(column_type, sa.Integer):
                 return int(value)
@@ -571,7 +598,7 @@ class CSVProcessor:
             raise InvalidDataError(f"Invalid value for column '{column}': {value}")
 
         return value  # Return as-is for any other data types
-    
+
     def _execute_batch_now(self, values: list[dict]) -> None:
         """Synchronous insert path (same thread).  Minimal hardening + proper executemany."""
         if not values:
@@ -602,16 +629,19 @@ class CSVProcessor:
         for r in fixed:
             for k in all_keys:
                 r.setdefault(k, None)
-                
+
         # ---- executemany: statement + list-of-dicts (no .values(...)) ----
         from sqlalchemy.exc import SQLAlchemyError
+
         with Session() as s:
             try:
                 s.execute(self.insert_stmt, fixed)
                 if s.in_transaction():
                     s.commit()
                 self.flush_count += 1
-                logger.debug("Flushed batch #%s for %s (sync)", self.flush_count, self.table.name)
+                logger.debug(
+                    "Flushed batch #%s for %s (sync)", self.flush_count, self.table.name
+                )
             except SQLAlchemyError as e:
                 logger.exception("Batch insert failed for %s", self.table.name)
                 if s.in_transaction():
@@ -619,7 +649,6 @@ class CSVProcessor:
                 if self.worker_error is None:
                     self.worker_error = e
                 raise
-
 
     def _batch_worker(self) -> None:
         while True:
@@ -637,8 +666,6 @@ class CSVProcessor:
             finally:
                 self.batch_queue.task_done()
 
-
-
     from typing import Any, Iterable, Mapping, Optional
 
     def _insert_batch(
@@ -653,6 +680,7 @@ class CSVProcessor:
         def convert_enum(value: Any) -> Any:
             # Use the Enum from this codebase (not sqlalchemy.Enum)
             from bauble.btypes import Enum as BaubleEnum
+
             return value.value if isinstance(value, BaubleEnum) else value
 
         values_to_insert = batch_values if batch_values is not None else self.values
@@ -692,4 +720,3 @@ class CSVProcessor:
             self.values.clear()
 
             self.values.clear()
-

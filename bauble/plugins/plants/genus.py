@@ -468,7 +468,24 @@ class Genus(Base, Serializable, WithNotes):
         """
         try:
             stmt = cls.query_with_default_order().where(cls.epithet == keys["epithet"])
-            return session.execute(stmt).scalar_one_or_none()
+            if "ht-epithet" in keys:
+                from .family import Family
+
+                stmt = stmt.join(Family).where(Family.epithet == keys["ht-epithet"])
+            matches = session.execute(stmt).scalars().all()
+            if not matches:
+                return None
+            if len(matches) == 1:
+                return matches[0]
+
+            if "author" in keys:
+                author_matches = [
+                    genus for genus in matches if genus.author == keys["author"]
+                ]
+                if len(author_matches) == 1:
+                    return author_matches[0]
+
+            raise MultipleResultsFound()
         except NoResultFound:
             logger.warning(f"No result found for keys: {keys}")
             return None

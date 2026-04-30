@@ -890,9 +890,12 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         result = {"genus": None}
         # retrieve genus object
         specifies_family = keys.get("familia")
+        genus_keys = {"epithet": keys["ht-epithet"]}
+        if specifies_family is not None:
+            genus_keys["ht-epithet"] = specifies_family
         result["genus"] = Genus.retrieve_or_create(
             session,
-            {"epithet": keys["ht-epithet"], "ht-epithet": specifies_family},
+            genus_keys,
             create=(specifies_family is not None),
         )
         if result["genus"] is None:

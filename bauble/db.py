@@ -1429,18 +1429,20 @@ class Serializable:
         logger.debug("4 value of keys: %s", keys)
 
         if not is_in_session and create:
-            # Handle recursive creation of linked objects
+            # Create a new object if it doesn't exist
+            logger.debug("Creating new %s with %s", cls, keys)
+            result = cls(**keys)
+            session.add(result)
+            session.flush()
+
+            # Assign linked objects after adding result to the session so
+            # relationship-backed properties can create association rows.
             for key, link_value in link_values.items():
                 if link_value:
                     logger.debug(
                         "Recursive call to construct_from_dict for %s", link_value
                     )
-                    keys[key] = construct_from_dict(session, link_value)
-
-            # Create a new object if it doesn't exist
-            logger.debug("Creating new %s with %s", cls, keys)
-            result = cls(**keys)
-            session.add(result)
+                    setattr(result, key, construct_from_dict(session, link_value))
         elif is_in_session and update:
             result = is_in_session
 
@@ -1481,15 +1483,38 @@ def construct_from_dict(session, obj, create: bool = True, update: bool = True):
     """
     logger.debug("construct_from_dict %s", obj)
 
+    obj = dict(obj)
+    obj.pop("id", None)
+
     klass = None
 
     # Determine the class of the object
-    if "object" in obj:
+    if obj.get("object") == "taxon" and "rank" in obj:
+        klass_name = {
+            "familia": "Family",
+            "family": "Family",
+            "genus": "Genus",
+            "species": "Species",
+        }.get(str(obj["rank"]).lower())
+        if klass_name:
+            from bauble import pluginmgr
+
+            klass = globals().get(klass_name) or pluginmgr.provided.get(klass_name)
+        obj.pop("object", None)
+        obj.pop("rank", None)
+    elif "object" in obj:
         klass = class_of_object(obj["object"])
     if klass is None and "rank" in obj:
-        klass_name = obj["rank"].capitalize()
-        klass = globals().get(klass_name)
-        del obj["rank"]  # Explicitly remove 'rank' after extracting its value
+        klass_name = {
+            "familia": "Family",
+            "family": "Family",
+            "genus": "Genus",
+            "species": "Species",
+        }.get(str(obj["rank"]).lower(), str(obj["rank"]).capitalize())
+        from bauble import pluginmgr
+
+        klass = globals().get(klass_name) or pluginmgr.provided.get(klass_name)
+        obj.pop("rank", None)
 
     if not klass:
         raise ValueError(f"Unable to determine class for object: {obj}")
