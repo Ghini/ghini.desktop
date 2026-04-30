@@ -477,7 +477,6 @@ def open(uri, verify: bool = True, show_error_dialogs: bool = False):
         if engine is not None:
             engine.dispose()
         engine = new_engine
-        metadata.bind = engine
         Session.remove()
         Session.configure(bind=engine, future=True)
 

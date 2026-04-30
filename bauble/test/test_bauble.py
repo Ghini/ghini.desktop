@@ -426,10 +426,11 @@ class TestHistory:
         """
         from bauble.plugins.plants import Family
 
-        # Verify Base metadata binding
+        # Verify models use the shared metadata without relying on the
+        # SQLAlchemy 1.x MetaData.bind pattern.
         assert (
-            db.Base.metadata.bind == db.engine
-        ), "Base metadata is not bound to the correct engine!"
+            Family.__table__.metadata is db.Base.metadata
+        ), "Family is not registered on the shared metadata!"
 
         # Verify session binding
         assert (
