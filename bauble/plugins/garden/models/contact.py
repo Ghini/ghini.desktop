@@ -76,9 +76,11 @@ class Contact(Base, Serializable, WithNotes):
 
     # ITF2 - E6 - Donor
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(Unicode(75), unique=True)
+    name: Mapped[Optional[str]] = mapped_column(Unicode(75), unique=True, nullable=True)
     # extra description, not included in E6
-    description: Mapped[str] = mapped_column(UnicodeText, default="")
+    description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, default="", nullable=True
+    )
     # ITF2 - E5 - Donor Type Flag
     source_type: Mapped[Optional[str]] = mapped_column(
         types.Enum(

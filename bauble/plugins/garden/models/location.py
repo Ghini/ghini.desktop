@@ -67,7 +67,7 @@ class Location(Base, Serializable, WithNotes):
     # refers to beds by unique codes
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     code: Mapped[str] = mapped_column(Unicode(12), unique=True, nullable=False)
-    name: Mapped[str] = mapped_column(Unicode(80))
+    name: Mapped[Optional[str]] = mapped_column(Unicode(80), nullable=True)
     description: Mapped[Optional[str]] = mapped_column(UnicodeText)
     order_by: ClassVar[list[Any]] = [asc(name)]
 

@@ -33,7 +33,7 @@ from bauble.plugins.garden.exporttopocket import ExportToPocketThread, create_po
 from bauble.plugins.garden.institution import Institution, InstitutionPresenter
 from bauble.plugins.garden.models import Accession as Accession
 from bauble.plugins.garden.models import AccessionNote as AccessionNote
-from bauble.plugins.garden.models import Collection, Location
+from bauble.plugins.garden.models import Collection, Contact, Location, Verification
 from bauble.plugins.garden.models import Plant as Plant
 from bauble.plugins.garden.models import PlantChange as PlantChange
 from bauble.plugins.garden.models import PlantNote as PlantNote
@@ -557,6 +557,30 @@ def test_voucher_management2(db_session, setup_accession2):
     if db_session.in_transaction():
         db_session.commit()
     assert db_session.execute(select(Voucher).filter_by(id=voucher_id)).first() is None
+
+
+def test_legacy_nullable_garden_fields(db_session, setup_accession2) -> None:
+    """SQLAlchemy 2 annotations should preserve legacy nullable columns."""
+    accession = setup_accession2["accession"]
+    species = setup_accession2["species"]
+    location = Location(code="NULLABLE")
+    contact = Contact()
+    verification = Verification(
+        verifier="tester",
+        date=date.today(),
+        accession=accession,
+        species=species,
+        prev_species=species,
+        level=0,
+    )
+    db_session.add_all([location, contact, verification])
+    db_session.commit()
+
+    assert location.name is None
+    assert contact.name is None
+    assert contact.description == ""
+    assert verification.reference is None
+    assert verification.notes is None
 
 
 @pytest.mark.skip(reason="opens the interactive Location Editor dialog")

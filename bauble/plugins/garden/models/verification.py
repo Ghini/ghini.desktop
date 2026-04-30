@@ -2,7 +2,7 @@
 
 import logging
 from gettext import gettext as _
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
 from bauble.btypes import Date as DbDate
 from bauble.db import Base
@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from bauble.plugins.plants.species_model import Species
-    
+
 logger = logging.getLogger(__name__)
 
 ver_level_descriptions: dict[int, str] = {
@@ -69,7 +69,7 @@ class Verification(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     verifier: Mapped[str] = mapped_column(Unicode(64), nullable=False)
     date: Mapped[DbDate] = mapped_column(DbDate, nullable=False)
-    reference: Mapped[str] = mapped_column(UnicodeText)
+    reference: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
     accession_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("accession.id"), nullable=False
     )
@@ -106,4 +106,4 @@ class Verification(Base):
         overlaps="verifications",
         active_history=True,
     )
-    notes: Mapped[str] = mapped_column(UnicodeText)
+    notes: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
