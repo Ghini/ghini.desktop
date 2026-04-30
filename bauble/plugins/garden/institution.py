@@ -38,6 +38,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
 from bauble.gtkinit import Champlain, Clutter, Gdk, Gtk, GtkChamplain, GtkClutter
 from sqlalchemy import insert, select, update
+from sqlalchemy.orm import sessionmaker
 
 # from sqlalchemy.orm import Session
 
@@ -58,6 +59,10 @@ logger: Any = logging.getLogger(__name__)
 
 
 PADDING: int = 6
+
+
+def _metadata_session():
+    return sessionmaker(bind=db.engine, autoflush=False, future=True)()
 
 
 def safe_set_text(gtk_widget, text) -> None:
@@ -435,7 +440,7 @@ class Institution:
 
         # Use a scoped session for querying the database
         db_prop_prefix = "inst_"
-        with db.Session() as session:
+        with _metadata_session() as session:
             for prop in self.__properties:
                 db_prop = db_prop_prefix + prop
                 stmt = select(self.table.c.value).where(self.table.c.name == db_prop)
@@ -446,7 +451,7 @@ class Institution:
     def write(self) -> None:
         """Write the current property values to the database."""
         db_prop_prefix = "inst_"
-        with db.Session() as session:
+        with _metadata_session() as session:
             for prop in self.__properties:
                 value = getattr(self, prop)
                 db_prop = db_prop_prefix + prop
@@ -459,7 +464,7 @@ class Institution:
                     exists = session.execute(stmt).scalar_one_or_none()
                     if not exists:
                         continue
-                    
+
                 # Check if the property already exists in the database
                 stmt = select(self.table).where(self.table.c.name == db_prop)
                 row = session.execute(stmt).scalar_one_or_none()

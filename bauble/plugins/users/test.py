@@ -76,6 +76,13 @@ def test_connection() -> Generator[Any, None, None]:
     conn.close()
 
 
+@pytest.fixture
+def require_postgresql(init_bauble) -> None:
+    """Skip tests that require PostgreSQL database roles."""
+    if db.engine.name != "postgresql":
+        pytest.skip("Requires PostgreSQL")
+
+
 def test_duplicate_ids() -> None:
     """Test for duplicate IDs in .glade files within the users plugin."""
     import bauble.plugins.users as mod
@@ -86,8 +93,7 @@ def test_duplicate_ids() -> None:
         assert not check_dupids(f)
 
 
-@pytest.mark.skipif(db.engine.name != "postgresql", reason="Requires PostgreSQL")
-def test_group_members(test_user, test_group) -> None:
+def test_group_members(require_postgresql, test_user, test_group) -> None:
     """Test adding and removing a user from a group."""
     # Add the user to the group
     users.add_member(test_user, [test_group])
@@ -100,8 +106,7 @@ def test_group_members(test_user, test_group) -> None:
     assert test_user not in members
 
 
-@pytest.mark.skipif(db.engine.name != "postgresql", reason="Requires PostgreSQL")
-def test_has_privileges(test_user) -> None:
+def test_has_privileges(require_postgresql, test_user) -> None:
     """Test setting and checking user privileges."""
     # Grant admin privileges
     users.set_privilege(test_user, "admin")

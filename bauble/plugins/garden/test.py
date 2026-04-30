@@ -23,7 +23,7 @@ import logging
 import os
 import sqlite3
 import tempfile
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Any
 
@@ -865,7 +865,7 @@ def test_location_retrieve_or_create_with_timestamps(db_session) -> None:
         db_session, {"code": "1", "name": "Test Site", "_created": "2001-12-10"}
     )
     location = Location.retrieve_or_create(db_session, {"code": "1"})
-    assert location._created == datetime(2001, 12, 10)
+    assert location._created == datetime(2001, 12, 10, tzinfo=timezone.utc)
 
 
 @pytest.fixture

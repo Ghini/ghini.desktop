@@ -88,7 +88,7 @@
 </head>
 <body>
 <%
-   from bauble.plugins.garden.plant import Plant
+   from bauble.plugins.garden.models import Plant
    import bauble.db as db
    session = db.Session()
    delimiter = ','
@@ -128,4 +128,3 @@
        ${make_label(p)}
    % endfor
 </body>
-

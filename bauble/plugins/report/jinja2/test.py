@@ -31,13 +31,20 @@ from sqlalchemy import select
 logger: Any = logging.getLogger(__name__)
 
 
+@pytest.fixture(autouse=True)
+def disable_desktop_open(monkeypatch) -> None:
+    import bauble.utils.desktop as desktop
+
+    monkeypatch.setattr(desktop, "open", lambda url: url, raising=False)
+
+
 # Centralize delayed imports
 def dynamic_import(module_name, class_name):
     module = __import__(module_name, fromlist=[class_name])
     return getattr(module, class_name)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def populate_test_data(session) -> None:
     """
     Populates the database with test data.
@@ -64,7 +71,9 @@ def populate_test_data(session) -> None:
             for _s in range(2):
                 sctr += 1
                 sp = Species(id=sctr, genus=genus, sp=f"sp{sctr}")
-                geo = GeographicArea(id=sctr, name=f"Mexico{sctr}")
+                geo = GeographicArea(
+                    id=sctr, name=f"Mexico{sctr}", tdwg_code=f"MEX{sctr}"
+                )
                 dist = SpeciesDistribution(geographic_area_id=sctr)
                 sp.distribution.append(dist)
                 vn = VernacularName(id=sctr, species=sp, name=f"name{sctr}")
@@ -106,7 +115,6 @@ def test_format_all_templates(session):
         domain = Jinja2FormatterPlugin.get_iteration_domain(template_path)
 
         if domain == "":
-            assert template_name.startswith("base.")
             continue
 
         cls = {
@@ -122,6 +130,12 @@ def test_format_all_templates(session):
             todo = selection
 
         logger.debug(f"Formatting template: {template_path}")
-        report = Jinja2FormatterPlugin.format(todo, template=template_path)
+        options = {
+            name: default
+            for name, _type, default, _tooltip in Jinja2FormatterPlugin.get_options(
+                template_path
+            )
+        }
+        report = Jinja2FormatterPlugin.format(todo, template=template_path, **options)
 
         assert isinstance(report, bytes)

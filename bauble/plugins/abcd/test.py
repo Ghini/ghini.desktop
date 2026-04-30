@@ -29,11 +29,10 @@ import tempfile
 from typing import Any
 
 import bauble.paths as paths
-import bauble.plugins.garden.test as garden_test
-import bauble.plugins.plants.test as plants_test
 import pytest
 from bauble.plugins.abcd import ABCDElement, ABCDExporter, DataSets, plants_to_abcd
-from bauble.plugins.garden.models import Accession, Collection, Plant, Source
+from bauble.plugins.garden.models import Accession, Collection, Location, Plant, Source
+from bauble.plugins.plants import Family, Genus, GeographicArea, Species
 from lxml import etree
 from sqlalchemy import select
 
@@ -51,18 +50,26 @@ def abcd_schema():
 
 
 @pytest.fixture
-def setup_test_data(db_session) -> None:
+def setup_test_data(clean_db, db_session) -> None:
     """
     Fixture to set up test data for plants and gardens.
     """
-    plants_test.setUp_data()
-    garden_test.setUp_data()
-
     from bauble.plugins.garden import Institution
 
     inst = Institution()
     inst.name = inst.code = inst.contact = inst.technical_contact = inst.email = "test"
     inst.write()
+
+    family = Family(epithet="Cactaceae")
+    genus = Genus(family=family, epithet="Echinocactus")
+    species = Species(genus=genus, epithet="grusonii")
+    accession = Accession(species=species, code="1")
+    location = Location(name="site", code="STE")
+    plant = Plant(accession=accession, location=location, code="1", quantity=1)
+    geographic_area = GeographicArea(id=1, name="Somewhere", tdwg_code="SOM")
+    db_session.add_all(
+        [family, genus, species, accession, location, plant, geographic_area]
+    )
     if db_session.in_transaction():
         db_session.commit()
 
@@ -105,7 +112,9 @@ def test_abcd_export(db_session, setup_test_data) -> None:
     """
     from sqlalchemy import func
 
-    plants_count = db_session.execute(select(func.count())).select_from(Plant)
+    plants_count = db_session.execute(
+        select(func.count()).select_from(Plant)
+    ).scalar_one()
     assert plants_count > 0, "No plants available for export."
 
     accession = db_session.execute(select(Accession)).scalars().first()
@@ -126,6 +135,8 @@ def test_abcd_export(db_session, setup_test_data) -> None:
         notes="some notes",
     )
     source.collection = collection
+    if db_session.in_transaction():
+        db_session.commit()
 
     dummy, filename = tempfile.mkstemp()
     try:
