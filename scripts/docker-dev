@@ -12,6 +12,7 @@ Usage:
   scripts/docker-dev check [paths...]
   scripts/docker-dev pytest
   scripts/docker-dev pytest-debug
+  scripts/docker-dev warnings
   scripts/docker-dev shell
   scripts/docker-dev run -- <command> [args...]
 
@@ -216,6 +217,19 @@ run_check() {
         python -m pytest tests/test_version.py tests/test_database_version.py -q
 }
 
+run_warning_check() {
+    local -a warning_args=(
+        -q
+        --maxfail=5
+        -W error::sqlalchemy.exc.SADeprecationWarning
+        -W error::sqlalchemy.exc.LegacyAPIWarning
+        -W error::sqlalchemy.exc.MovedIn20Warning
+    )
+
+    GHINI_XHOST=0 PYTEST_ARGS="${warning_args[*]} ${PYTEST_ARGS:-}" \
+        run_container pytest "$@"
+}
+
 run_lock() {
     GHINI_XHOST=0 run_container shell \
         bash -lc 'python -c "import piptools" 2>/dev/null || python -m pip install --no-cache-dir "pip-tools==7.5.3"; python scripts/compile-requirement-locks'
@@ -233,6 +247,9 @@ case "${command}" in
         ;;
     check)
         run_check "$@"
+        ;;
+    warnings)
+        run_warning_check "$@"
         ;;
     app|debug|pytest|pytest-debug|shell)
         run_container "${command}" "$@"
