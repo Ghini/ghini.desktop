@@ -221,6 +221,9 @@ run_warning_check() {
     local -a warning_args=(
         -q
         --maxfail=5
+        -W error::DeprecationWarning
+        -W error::PendingDeprecationWarning
+        -W error::gi.PyGIDeprecationWarning
         -W error::sqlalchemy.exc.SADeprecationWarning
         -W error::sqlalchemy.exc.LegacyAPIWarning
         -W error::sqlalchemy.exc.MovedIn20Warning
