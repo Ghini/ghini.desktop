@@ -94,7 +94,7 @@ plant_data: Any = [
 ]
 
 
-class TestImporter(CSVImporter):
+class CSVTestImporter(CSVImporter):
     """
     Custom CSVImporter with enhanced error handling.
     """
@@ -167,7 +167,7 @@ class TestCSV:
         fields = list(geo_data[0].keys())
         filename = setup_test_files("geographic_area.txt", geo_data, fields)
 
-        importer = TestImporter()
+        importer = CSVTestImporter()
         importer.start([filename], force=True)
 
     def test_import_legacy_nullable_fields(
@@ -260,7 +260,7 @@ class TestCSV:
             ),
         ]
 
-        importer = TestImporter()
+        importer = CSVTestImporter()
         importer.start(files, force=True)
 
         assert db_session.get(Genus, 1).author in (None, "")
@@ -298,7 +298,7 @@ class TestCSV:
         fields = list(data[0].keys())
         filename = setup_test_files("bool_test.txt", data, fields)
 
-        importer = TestImporter()
+        importer = CSVTestImporter()
         importer.start([filename], force=True)
 
         t = db_session.get(BoolTest, 1)
@@ -327,7 +327,7 @@ class TestCSV:
         fields = list(family_data[0].keys())
         filename = setup_test_files("family.txt", family_data, fields)
 
-        importer = TestImporter()
+        importer = CSVTestImporter()
         importer.start([filename], force=True)
 
         db_session.execute(select(Family)).scalars()
@@ -345,7 +345,7 @@ class TestCSV:
         fields = list(family_data[0].keys())
         filename = setup_test_files("family.txt", family_data, fields)
 
-        importer = TestImporter()
+        importer = CSVTestImporter()
         importer.start([filename], force=True)
 
         family = (
