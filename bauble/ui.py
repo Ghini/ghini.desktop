@@ -372,7 +372,7 @@ class GUI:
         if text == "":
             return
         self.add_to_history(text)
-        tokens = self.cmd_parser.parseString(text)
+        tokens = self.cmd_parser.parse_string(text)
         cmd = None
         arg = None
         try:

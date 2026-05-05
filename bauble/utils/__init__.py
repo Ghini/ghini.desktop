@@ -1569,20 +1569,20 @@ def ilike(col, val, engine: Optional[Any] = None):
 def range_builder(text):
     """Return a list of numbers from a string range of the form 1-3,4,5"""
     from pyparsing import (
+        DelimitedList,
         Group,
         ParseException,
         ParseResults,
         Suppress,
         Word,
-        delimitedList,
         nums,
     )
 
     rng = Group(Word(nums) + Suppress("-") + Word(nums))
-    range_list = delimitedList(rng | Word(nums))
+    range_list = DelimitedList(rng | Word(nums))
 
     try:
-        tokens = range_list.parseString(text)
+        tokens = range_list.parse_string(text)
     except (AttributeError, ParseException) as e:
         logger.debug(e)
         return []
