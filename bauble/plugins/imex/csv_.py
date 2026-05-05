@@ -495,8 +495,10 @@ class CSVImporter(Importer):
             return False
 
         # don't do anything if the file is empty:
+        bind = session.get_bind()
+
         if filesizes[filename] <= 1:  # Handle empty files
-            if table.name not in inspect(session.bind).get_table_names():
+            if table.name not in inspect(bind).get_table_names():
                 self._create_table(table, session, created_tables)
             return False
 
@@ -504,10 +506,7 @@ class CSVImporter(Importer):
         # could have been dropped whereas table.exists() can
         # return true for a dropped table if the transaction
         # hasn't been committed
-        if (
-            table in depends
-            or table.name not in inspect(session.bind).get_table_names()
-        ):
+        if table in depends or table.name not in inspect(bind).get_table_names():
             logger.info(f"{table.name} does not exist. creating.")
             self._create_table(table, session, created_tables)
         elif table.name not in created_tables and table not in depends:
@@ -530,7 +529,7 @@ class CSVImporter(Importer):
                 )
                 if not utils.yes_no_dialog(msg):
                     return False
-            table.drop(bind=session.bind)
+            table.drop(bind=bind)
             self._create_table(table, session, created_tables)
         return True
 
@@ -543,9 +542,10 @@ class CSVImporter(Importer):
         :param created_tables: List of created tables.
         """
         configure_mappers()
-        #        print(str(table.compile(bind=session.bind)))
+        bind = session.get_bind()
+        #        print(str(table.compile(bind=bind)))
         #        print([fk.column for fk in table.foreign_keys])
-        table.create(bind=session.bind)
+        table.create(bind=bind)
         if table.name not in created_tables:
             created_tables.append(table.name)
 
@@ -561,7 +561,8 @@ class CSVImporter(Importer):
         :param session: SQLAlchemy session object.
         """
         # Inspect existing tables
-        inspector = inspect(session.bind)
+        bind = session.get_bind()
+        inspector = inspect(bind)
         existing_tables = set(inspector.get_table_names())
 
         # Ensure tables are created in dependency order
@@ -569,7 +570,7 @@ class CSVImporter(Importer):
             if table.name not in existing_tables:
                 logger.info(f"Creating missing table: {table.name}")
                 try:
-                    table.create(bind=session.bind)
+                    table.create(bind=bind)
                     existing_tables.add(table.name)
                 except Exception as e:
                     logger.error(f"Error creating table {table.name}: {e}")
