@@ -71,7 +71,7 @@ from pyparsing import (
 from sqlalchemy import and_, func, inspect, or_, select
 
 # Errors
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, UnboundExecutionError
 
 # ORM-specific
 from sqlalchemy.orm import (
@@ -87,6 +87,15 @@ from sqlalchemy.sql.selectable import Select
 logger: logging.Logger = logging.getLogger(__name__)
 wordStart: ParserElement
 wordEnd: ParserElement
+
+
+def _get_session_bind(session: Optional[Session]):
+    if session is None:
+        return None
+    try:
+        return session.get_bind()
+    except UnboundExecutionError:
+        return None
 
 
 logger.setLevel(logging.INFO)
@@ -603,11 +612,13 @@ class IdentExpression:
 
         session = getattr(env, "session", None) or env.get("session", None)
 
-        if session and session.bind:
+        bind = _get_session_bind(session)
+
+        if bind is not None:
             logger.debug(
                 "IdentExpression stmt: %s",
                 stmt.compile(
-                    dialect=session.bind.dialect, compile_kwargs={"literal_binds": True}
+                    dialect=bind.dialect, compile_kwargs={"literal_binds": True}
                 ),
             )
 
@@ -702,11 +713,11 @@ class IdentExpression:
                 return op(attr, x)
 
             stmt = stmt.filter(clause(comparison_value))
-        if session and session.bind:
+        if bind is not None:
             logger.debug(
                 "Updated IdentExpression stmt: %s",
                 stmt.compile(
-                    dialect=session.bind.dialect,
+                    dialect=bind.dialect,
                     compile_kwargs={"literal_binds": True},
                 ),
             )
@@ -923,10 +934,11 @@ class SearchAndAction(BinaryLogical):
 #     result = self.operands[0].evaluate(env)
 #     for operand in self.operands[1:]:
 #         first_stmt = self.operands[0].evaluate(env)
-#         print("First operand stmt:", first_stmt.compile(dialect=env.session.bind.dialect, compile_kwargs={"literal_binds": True}))
+#         bind = _get_session_bind(env.session)
+#         print("First operand stmt:", first_stmt.compile(dialect=bind.dialect, compile_kwargs={"literal_binds": True}))
 #         result = result.union(operand.evaluate(env))
 #         union_stmt = result  # after union
-#         print("After union, SQL:", select(env.domain).select_from(union_stmt).compile(dialect=env.session.bind.dialect, compile_kwargs={"literal_binds": True}))
+#         print("After union, SQL:", select(env.domain).select_from(union_stmt).compile(dialect=bind.dialect, compile_kwargs={"literal_binds": True}))
 #     return result
 
 #    def evaluate(self, env):
@@ -1101,11 +1113,13 @@ class QueryAction:
         # ✅ Pass the correct `env` format
         stmt, attr = self.filter.evaluate(env)
 
-        if session.bind:
+        bind = _get_session_bind(session)
+
+        if bind is not None:
             logger.debug(
                 "Compiled SQL Query: %s",
                 stmt.compile(
-                    dialect=session.bind.dialect,
+                    dialect=bind.dialect,
                     compile_kwargs={"literal_binds": True},
                 ),
             )
@@ -1578,11 +1592,13 @@ class ValueListAction:
             # Execute the query for the current class
             query = select(cls).where(or_(*filters))
 
-            if session.bind:
+            bind = _get_session_bind(session)
+
+            if bind is not None:
                 logger.debug(
                     "Generated SQL Query: %s",
                     query.compile(
-                        dialect=session.bind.dialect,
+                        dialect=bind.dialect,
                         compile_kwargs={"literal_binds": True},
                     ),
                 )
@@ -1977,11 +1993,13 @@ class MapperSearch(SearchStrategy):
                 # ✅ Fetch full ORM objects
                 stmt = select(domain_class).where(domain_class.id.in_(raw_results))
 
-                if self._session.bind:
+                bind = _get_session_bind(self._session)
+
+                if bind is not None:
                     logger.debug(
                         "Generated SQL: %s",
                         stmt.compile(
-                            self._session.bind,
+                            dialect=bind.dialect,
                             compile_kwargs={"literal_binds": True},
                         ),
                     )
