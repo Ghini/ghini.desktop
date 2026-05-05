@@ -163,8 +163,6 @@ def define_location_relationships(
         foreign_keys=lambda pc=plant_change: [pc.plant_id],
         back_populates="changes",
         uselist=False,
-        cascade="all, delete-orphan",
-        single_parent=True,
         overlaps="changes",
     )
 
@@ -174,8 +172,6 @@ def define_location_relationships(
         foreign_keys=lambda pc=plant_change: [pc.parent_plant_id],
         back_populates="branches",
         uselist=False,
-        cascade="delete, delete-orphan",
-        single_parent=True,
         overlaps="branches",
         active_history=True,
     )
@@ -220,8 +216,6 @@ def define_propagation_relationships(
         plant,
         secondary=plant_propagation,
         back_populates="propagations",
-        cascade="all, delete-orphan",
-        single_parent=True,
     )
 
 

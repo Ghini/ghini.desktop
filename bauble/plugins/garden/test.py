@@ -270,6 +270,61 @@ def test_setting_quantity_to_zero_defines_date_of_death(db_session, plant_data) 
     assert plant.date_of_death is not None
 
 
+def test_deleting_plant_change_does_not_delete_plant(db_session, plant_data) -> None:
+    """Plant changes are owned by plants, not the other way around."""
+    plant = plant_data["plant"]
+    change = PlantChange(plant=plant, from_location=plant.location, quantity=1)
+    db_session.add(change)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    plant_id = plant.id
+    change_id = change.id
+    db_session.delete(change)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    assert db_session.get(PlantChange, change_id) is None
+    assert db_session.get(Plant, plant_id) is not None
+
+
+def test_deleting_source_does_not_delete_contact(db_session, setup_accession) -> None:
+    """Sources may refer to reusable contacts without owning them."""
+    accession = setup_accession["accession"]
+    contact = Contact(name="Reusable contact")
+    source = Source(accession=accession, source_detail=contact)
+    db_session.add(source)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    contact_id = contact.id
+    source_id = source.id
+    db_session.delete(source)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    assert db_session.get(Source, source_id) is None
+    assert db_session.get(Contact, contact_id) is not None
+
+
+def test_deleting_propagation_does_not_delete_plant(db_session, setup_plants) -> None:
+    """Propagations may be deleted without deleting their source plant."""
+    plant = setup_plants[0]
+    propagation = Propagation(plants=[plant], prop_type="UnrootedCutting")
+    db_session.add(propagation)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    plant_id = plant.id
+    propagation_id = propagation.id
+    db_session.delete(propagation)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    assert db_session.get(Propagation, propagation_id) is None
+    assert db_session.get(Plant, plant_id) is not None
+
+
 # Constants for test data
 default_cutting_values = {
     "cutting_type": "Nodal",

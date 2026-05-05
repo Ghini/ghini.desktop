@@ -70,8 +70,6 @@ class Source(Base):
         "Contact",
         uselist=False,
         back_populates="sources",
-        cascade="all, delete-orphan",
-        single_parent=True,
         active_history=True,
     )
 
