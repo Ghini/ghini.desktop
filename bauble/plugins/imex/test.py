@@ -35,9 +35,13 @@ import pytest
 from bauble.db import Base
 from bauble.editor import MockView
 from bauble.plugins.garden.models import Accession as Accession
+from bauble.plugins.garden.models import Collection as Collection
 from bauble.plugins.garden.models import Contact as Contact
 from bauble.plugins.garden.models import Location as Location
 from bauble.plugins.garden.models import Plant as Plant
+from bauble.plugins.garden.models import Propagation as Propagation
+from bauble.plugins.garden.models import PropCutting as PropCutting
+from bauble.plugins.garden.models import PropSeed as PropSeed
 from bauble.plugins.garden.models import Source as Source
 from bauble.plugins.imex.csv_ import QUOTE_CHAR as QUOTE_CHAR
 from bauble.plugins.imex.csv_ import QUOTE_STYLE as QUOTE_STYLE
@@ -50,6 +54,8 @@ from bauble.plugins.plants import Species as Species
 from bauble.plugins.plants import SpeciesNote as SpeciesNote
 from bauble.plugins.plants import VernacularName as VernacularName
 from bauble.plugins.plants.geography import GeographicArea
+from bauble.plugins.plants.species_model import Color, Habit
+from bauble.plugins.tag import Tag, TaggedObj
 from sqlalchemy import Boolean, Integer, select
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -163,6 +169,112 @@ class TestCSV:
 
         importer = TestImporter()
         importer.start([filename], force=True)
+
+    def test_import_legacy_nullable_fields(
+        self, db_session, test_directory, setup_test_files
+    ) -> None:
+        """
+        Test importing legacy CSV rows with blank or omitted nullable fields.
+        """
+        files = [
+            setup_test_files(
+                "family.txt",
+                [{"id": 1, "epithet": "Nullableaceae"}],
+                ["id", "epithet"],
+            ),
+            setup_test_files(
+                "genus.txt",
+                [
+                    {
+                        "id": 1,
+                        "epithet": "Nullablegenus",
+                        "family_id": 1,
+                        "author": "",
+                        "qualifier": "",
+                    }
+                ],
+                ["id", "epithet", "family_id", "author", "qualifier"],
+            ),
+            setup_test_files(
+                "species.txt",
+                [{"id": 1, "genus_id": 1, "epithet": "", "hybrid": ""}],
+                ["id", "genus_id", "epithet", "hybrid"],
+            ),
+            setup_test_files(
+                "geographic_area.txt",
+                [{"id": 1, "name": "Somewhere"}],
+                ["id", "name"],
+            ),
+            setup_test_files("habit.txt", [{"id": 1}], ["id"]),
+            setup_test_files("color.txt", [{"id": 1}], ["id"]),
+            setup_test_files(
+                "location.txt", [{"id": 1, "code": "NULL"}], ["id", "code"]
+            ),
+            setup_test_files("contact.txt", [{"id": 1}], ["id"]),
+            setup_test_files(
+                "accession.txt",
+                [{"id": 1, "code": "2026.0001", "species_id": 1}],
+                ["id", "code", "species_id"],
+            ),
+            setup_test_files(
+                "source.txt",
+                [{"id": 1, "accession_id": 1}],
+                ["id", "accession_id"],
+            ),
+            setup_test_files(
+                "collection.txt",
+                [{"id": 1, "source_id": 1, "locale": "Somewhere"}],
+                ["id", "source_id", "locale"],
+            ),
+            setup_test_files(
+                "propagation.txt",
+                [{"id": 1, "prop_type": "Seed"}],
+                ["id", "prop_type"],
+            ),
+            setup_test_files(
+                "prop_cutting.txt",
+                [{"id": 1, "propagation_id": 1}],
+                ["id", "propagation_id"],
+            ),
+            setup_test_files(
+                "prop_seed.txt",
+                [
+                    {
+                        "id": 1,
+                        "propagation_id": 1,
+                        "nseeds": 1,
+                        "date_sown": "2026-05-05",
+                    }
+                ],
+                ["id", "propagation_id", "nseeds", "date_sown"],
+            ),
+            setup_test_files(
+                "tag.txt",
+                [{"id": 1, "tag": "nullable-tag", "description": ""}],
+                ["id", "tag", "description"],
+            ),
+            setup_test_files(
+                "tagged_obj.txt",
+                [{"id": 1, "obj_id": "", "obj_class": "", "tag_id": ""}],
+                ["id", "obj_id", "obj_class", "tag_id"],
+            ),
+        ]
+
+        importer = TestImporter()
+        importer.start(files, force=True)
+
+        assert db_session.get(Genus, 1).author in (None, "")
+        assert db_session.get(Species, 1).epithet in (None, "")
+        assert db_session.get(GeographicArea, 1).tdwg_code is None
+        assert db_session.get(Habit, 1).name is None
+        assert db_session.get(Color, 1).code is None
+        assert db_session.get(Location, 1).name is None
+        assert db_session.get(Contact, 1).name is None
+        assert db_session.get(Collection, 1).geographic_area_id is None
+        assert db_session.get(PropCutting, 1).tip is None
+        assert db_session.get(PropSeed, 1).pretreatment is None
+        assert db_session.get(Tag, 1).description in (None, "")
+        assert db_session.get(TaggedObj, 1).tag_id is None
 
     def test_import_bool_column(
         self, db_session, test_directory, setup_test_files
