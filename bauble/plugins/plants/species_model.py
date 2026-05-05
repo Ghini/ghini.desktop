@@ -195,7 +195,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     awards: Any
     __tablename__: str = "species"
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    epithet: Mapped[str] = mapped_column(Unicode(64), index=True)
+    epithet: Mapped[Optional[str]] = mapped_column(
+        Unicode(64), index=True, nullable=True
+    )
     genus_id: Mapped[int] = mapped_column(ForeignKey("genus.id"), nullable=False)
     __table_args__: Any = (
         UniqueConstraint("genus_id", "epithet", name="_genus_epithet_uc"),
@@ -432,7 +434,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     )  # in case hybrid=True
     author: Mapped[Optional[str]] = mapped_column(Unicode(128))
     order_by: Any = [asc(epithet), asc(author)]
-    hybrid: Mapped[bool] = mapped_column(Boolean, default=False)
+    hybrid: Mapped[Optional[bool]] = mapped_column(
+        Boolean, default=False, nullable=True
+    )
     sp_qual: Mapped[Optional[str]] = mapped_column(
         types.Enum(values=["agg.", "s. lat.", "s. str.", None], omit_aliases=False),
         default=None,

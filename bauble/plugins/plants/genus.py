@@ -322,7 +322,9 @@ class Genus(Base, Serializable, WithNotes):
         return cls.epithet
 
     # use '' instead of None so that the constraints will work propertly
-    author: Mapped[str] = mapped_column(Unicode(255), default="")
+    author: Mapped[Optional[str]] = mapped_column(
+        Unicode(255), default="", nullable=True
+    )
     order_by: ClassVar[list[Any]] = [asc(epithet), asc(author)]
 
     @validates("epithet", "author")
@@ -331,8 +333,10 @@ class Genus(Base, Serializable, WithNotes):
             return None
         return value.strip()
 
-    qualifier: Mapped[str] = mapped_column(
-        types.Enum(values=["s. lat.", "s. str", ""], omit_aliases=False), default=""
+    qualifier: Mapped[Optional[str]] = mapped_column(
+        types.Enum(values=["s. lat.", "s. str", ""], omit_aliases=False),
+        default="",
+        nullable=True,
     )
 
     family_id: Mapped[int] = mapped_column(

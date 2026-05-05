@@ -1251,6 +1251,40 @@ class TestGeographicArea:
         assert color.name is None
         assert color.code is None
 
+    def test_taxonomy_nullable_fields_match_legacy_schema(self) -> None:
+        """Typed taxonomy mappings should preserve nullable legacy columns."""
+        family = Family(epithet="Nullableaceae")
+        self.session.add(family)
+        self.session.flush()
+        genus_insert = Genus.__table__.insert().values(
+            family_id=family.id,
+            epithet="Nullablegenus",
+            author=None,
+            qualifier=None,
+        )
+        genus_id = self.session.execute(genus_insert).inserted_primary_key[0]
+        species_insert = Species.__table__.insert().values(
+            genus_id=genus_id,
+            epithet=None,
+            hybrid=None,
+        )
+        species_id = self.session.execute(species_insert).inserted_primary_key[0]
+        self.session.commit()
+
+        genus_row = self.session.execute(
+            select(Genus.author, Genus.qualifier).where(Genus.id == genus_id)
+        ).one()
+        species_row = self.session.execute(
+            select(Species.epithet, Species.hybrid).where(Species.id == species_id)
+        ).one()
+
+        assert Genus.__table__.c.author.nullable is True
+        assert Genus.__table__.c.qualifier.nullable is True
+        assert Species.__table__.c.epithet.nullable is True
+        assert Species.__table__.c.hybrid.nullable is True
+        assert genus_row == (None, None)
+        assert species_row == (None, None)
+
     def test_species_distribution_str(self) -> None:
         """Test the string representation of species distribution."""
         sp1 = Species(genus=self.genus, epithet="sp1")
