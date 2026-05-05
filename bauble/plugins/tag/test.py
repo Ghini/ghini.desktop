@@ -31,6 +31,7 @@ from bauble.gtkinit import Gtk
 from bauble.plugins.plants import Family
 from bauble.plugins.tag import Tag as Tag
 from bauble.plugins.tag import TagEditorPresenter as TagEditorPresenter
+from bauble.plugins.tag import TaggedObj
 from bauble.plugins.tag import create_named_empty_tag as create_named_empty_tag
 from bauble.plugins.tag import remove_callback as remove_callback
 from bauble.plugins.tag import tag_objects as tag_objects
@@ -58,6 +59,34 @@ def test_duplicate_ids() -> None:
     files = glob.glob(os.path.join(head, "*.glade"))
     for file in files:
         assert not check_dupids(file), f"Duplicate IDs found in {file}"
+
+
+def test_legacy_nullable_tag_fields(session) -> None:
+    """Typed tag mappings should preserve nullable legacy columns."""
+    tag_insert = Tag.__table__.insert().values(tag="nullable-tag", description=None)
+    tag_id = session.execute(tag_insert).inserted_primary_key[0]
+    tagged_obj_insert = TaggedObj.__table__.insert().values(
+        obj_id=None,
+        obj_class=None,
+        tag_id=None,
+    )
+    tagged_obj_id = session.execute(tagged_obj_insert).inserted_primary_key[0]
+    session.commit()
+
+    assert Tag.__table__.c.description.nullable is True
+    assert TaggedObj.__table__.c.obj_id.nullable is True
+    assert TaggedObj.__table__.c.obj_class.nullable is True
+    assert TaggedObj.__table__.c.tag_id.nullable is True
+    tag_row = session.execute(
+        select(Tag.description).where(Tag.id == tag_id)
+    ).scalar_one()
+    tagged_obj_row = session.execute(
+        select(TaggedObj.obj_id, TaggedObj.obj_class, TaggedObj.tag_id).where(
+            TaggedObj.id == tagged_obj_id
+        )
+    ).one()
+    assert tag_row is None
+    assert tagged_obj_row == (None, None, None)
 
 
 @pytest.mark.usefixtures("setup_tags")

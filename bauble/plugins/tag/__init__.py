@@ -581,7 +581,9 @@ class Tag(db.Base, db.WithNotes):
     # columns
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tag: Mapped[str] = mapped_column(Unicode(64), unique=True, nullable=False)
-    description: Mapped[str] = mapped_column(UnicodeText, default="")
+    description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, default="", nullable=True
+    )
 
     # relations
     _objects: Mapped[list["TaggedObj"]] = relationship(
@@ -753,10 +755,14 @@ class TaggedObj(db.Base):
 
     # columns
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    obj_id: Mapped[int] = mapped_column(Integer, autoincrement=False)
-    obj_class: Mapped[str] = mapped_column(String(128))
-    tag_id: Mapped[int] = mapped_column(Integer, ForeignKey("tag.id"))
-    tag: Mapped["Tag"] = relationship(
+    obj_id: Mapped[Optional[int]] = mapped_column(
+        Integer, autoincrement=False, nullable=True
+    )
+    obj_class: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    tag_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("tag.id"), nullable=True
+    )
+    tag: Mapped[Optional["Tag"]] = relationship(
         "Tag",
         back_populates="_objects",
     )
