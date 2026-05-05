@@ -54,6 +54,13 @@ def utc_now() -> datetime.datetime:
     return datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
 
 
+def _parse_timestamp(value):
+    timestamp = parse_date(value)
+    if timestamp.tzinfo is None:
+        return timestamp.replace(tzinfo=datetime.timezone.utc)
+    return timestamp
+
+
 try:
     import sqlalchemy as sa
 
@@ -1384,7 +1391,7 @@ class Serializable:
         # Parse timestamps in keys
         for timestamp_key in ["_created", "_last_updated"]:
             if timestamp_key in keys:
-                keys[timestamp_key] = parse_date(keys[timestamp_key])
+                keys[timestamp_key] = _parse_timestamp(keys[timestamp_key])
 
         logger.debug("3½ value of keys: %s", keys)
 
