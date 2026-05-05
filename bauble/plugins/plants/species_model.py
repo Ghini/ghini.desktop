@@ -1233,8 +1233,8 @@ class Habit(db.Base):
     __tablename__: str = "habit"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(Unicode(64))
-    code: Mapped[str] = mapped_column(Unicode(8), unique=True)
+    name: Mapped[Optional[str]] = mapped_column(Unicode(64), nullable=True)
+    code: Mapped[Optional[str]] = mapped_column(Unicode(8), unique=True, nullable=True)
     species: Mapped[List["Species"]] = relationship(
         "Species",
         back_populates="habit",
@@ -1252,8 +1252,8 @@ class Color(db.Base):
     __tablename__: str = "color"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(Unicode(32))
-    code: Mapped[str] = mapped_column(Unicode(8), unique=True)
+    name: Mapped[Optional[str]] = mapped_column(Unicode(32), nullable=True)
+    code: Mapped[Optional[str]] = mapped_column(Unicode(8), unique=True, nullable=True)
     species: Mapped[List["Species"]] = relationship(
         "Species",
         back_populates="flower_color",

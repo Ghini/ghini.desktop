@@ -49,6 +49,7 @@ from bauble.plugins.plants.species import SpeciesNote as SpeciesNote
 from bauble.plugins.plants.species import SpeciesSynonym as SpeciesSynonym
 from bauble.plugins.plants.species import VernacularName as VernacularName
 from bauble.plugins.plants.species import edit_species as edit_species
+from bauble.plugins.plants.species_model import Color, Habit
 from bauble.plugins.plants.species_editor import SpeciesEditorPresenter
 from bauble.plugins.plants.species_model import _remove_zws as remove_zws
 from bauble.test import check_dupids, mockfunc
@@ -1235,6 +1236,20 @@ class TestGeographicArea:
 
         assert area.id is not None
         assert area.tdwg_code is None
+
+    def test_lookup_names_and_codes_are_optional(self) -> None:
+        """Habit and color lookup rows should preserve legacy nullable columns."""
+        habit = Habit()
+        color = Color()
+        self.session.add_all([habit, color])
+        self.session.commit()
+
+        assert habit.id is not None
+        assert habit.name is None
+        assert habit.code is None
+        assert color.id is not None
+        assert color.name is None
+        assert color.code is None
 
     def test_species_distribution_str(self) -> None:
         """Test the string representation of species distribution."""

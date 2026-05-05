@@ -583,6 +583,30 @@ def test_legacy_nullable_garden_fields(db_session, setup_accession2) -> None:
     assert verification.notes is None
 
 
+def test_legacy_nullable_propagation_fields(db_session) -> None:
+    """Propagation detail records should preserve legacy nullable columns."""
+    propagation = Propagation(prop_type="Seed")
+    cutting = PropCutting(propagation=propagation)
+    seed = PropSeed(
+        propagation=propagation,
+        nseeds=1,
+        date_sown=date.today(),
+    )
+    db_session.add_all([propagation, cutting, seed])
+    db_session.commit()
+
+    assert cutting.id is not None
+    assert cutting.tip is None
+    assert cutting.fungicide is None
+    assert cutting.bottom_heat_temp is None
+    assert cutting.rooted_pct is None
+    assert seed.id is not None
+    assert seed.pretreatment is None
+    assert seed.container is None
+    assert seed.moved_date is None
+    assert seed.nseedlings is None
+
+
 @pytest.mark.skip(reason="opens the interactive Location Editor dialog")
 def test_location_editor_interactions(db_session, setup_location) -> None:
     """Test interactions with the location editor."""

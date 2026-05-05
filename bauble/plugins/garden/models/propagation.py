@@ -325,66 +325,82 @@ class PropCutting(Base):
     bottom_heat_unit: Any
     __tablename__: str = "prop_cutting"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    cutting_type: Mapped[str] = mapped_column(
+    cutting_type: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(cutting_type_values.keys()),
             translations=cutting_type_values,
             omit_aliases=False,
         ),
         default="Other",
+        nullable=True,
     )
-    tip: Mapped[str] = mapped_column(
+    tip: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(tip_values.keys()), translations=tip_values, omit_aliases=False
-        )
+        ),
+        nullable=True,
     )
-    leaves: Mapped[str] = mapped_column(
+    leaves: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(leaves_values.keys()),
             translations=leaves_values,
             omit_aliases=False,
-        )
+        ),
+        nullable=True,
     )
-    leaves_reduced_pct: Mapped[int] = mapped_column(Integer, autoincrement=False)
-    length: Mapped[int] = mapped_column(Integer, autoincrement=False)
-    length_unit: Mapped[str] = mapped_column(
+    leaves_reduced_pct: Mapped[Optional[int]] = mapped_column(
+        Integer, autoincrement=False, nullable=True
+    )
+    length: Mapped[Optional[int]] = mapped_column(
+        Integer, autoincrement=False, nullable=True
+    )
+    length_unit: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(length_unit_values.keys()),
             translations=length_unit_values,
             omit_aliases=False,
-        )
+        ),
+        nullable=True,
     )
 
     # single/double/slice
-    wound: Mapped[str] = mapped_column(
+    wound: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(wound_values.keys()),
             translations=wound_values,
             omit_aliases=False,
-        )
+        ),
+        nullable=True,
     )
 
     # removed/None
-    flower_buds: Mapped[str] = mapped_column(
+    flower_buds: Mapped[Optional[str]] = mapped_column(
         types.Enum(
             values=list(flower_buds_values.keys()),
             translations=flower_buds_values,
             omit_aliases=False,
-        )
+        ),
+        nullable=True,
     )
 
-    fungicide: Mapped[str] = mapped_column(UnicodeText)  # fungal soak
-    hormone: Mapped[str] = mapped_column(UnicodeText)  # powder/liquid/None....solution
+    fungicide: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, nullable=True
+    )  # fungal soak
+    hormone: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, nullable=True
+    )  # powder/liquid/None....solution
 
-    media: Mapped[str] = mapped_column(UnicodeText)
-    container: Mapped[str] = mapped_column(UnicodeText)
-    location: Mapped[str] = mapped_column(UnicodeText)
-    cover: Mapped[str] = mapped_column(
-        UnicodeText
+    media: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
+    container: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
+    location: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
+    cover: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, nullable=True
     )  # vispore, poly, plastic dome, poly bag
 
     # temperature of bottom heat
-    bottom_heat_temp: Mapped[int] = mapped_column(Integer, autoincrement=False)
+    bottom_heat_temp: Mapped[Optional[int]] = mapped_column(
+        Integer, autoincrement=False, nullable=True
+    )
 
     # TODO: make the bottom heat unit required if bottom_heat_temp is
     # not null
@@ -398,7 +414,9 @@ class PropCutting(Base):
         ),
         nullable=True,
     )
-    rooted_pct: Mapped[int] = mapped_column(Integer, autoincrement=False)
+    rooted_pct: Mapped[Optional[int]] = mapped_column(
+        Integer, autoincrement=False, nullable=True
+    )
 
     propagation_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("propagation.id"), nullable=False
@@ -424,33 +442,39 @@ class PropSeed(Base):
     moved_from: Any
     __tablename__: str = "prop_seed"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    pretreatment: Mapped[str] = mapped_column(UnicodeText)
+    pretreatment: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
     nseeds: Mapped[int] = mapped_column(Integer, nullable=False, autoincrement=False)
     date_sown: Mapped[types.Date] = mapped_column(types.Date, nullable=False)
-    container: Mapped[str] = mapped_column(UnicodeText)  # 4" pot plug tray, other
-    media: Mapped[str] = mapped_column(UnicodeText)  # seedling media, sphagnum, other
+    container: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, nullable=True
+    )  # 4" pot plug tray, other
+    media: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, nullable=True
+    )  # seedling media, sphagnum, other
 
     # covered with #2 granite grit: no, yes, lightly heavily
-    covered: Mapped[str] = mapped_column(UnicodeText)
+    covered: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
 
     # not same as location table, glasshouse(bottom heat, no bottom
     # heat), polyhouse, polyshade house, fridge in polybag
-    location: Mapped[str] = mapped_column(UnicodeText)
+    location: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
 
     # TODO: do we need multiple moved to->moved from and date fields
-    moved_from: Mapped[str] = mapped_column(UnicodeText)
-    moved_to: Mapped[str] = mapped_column(UnicodeText)
-    moved_date: Mapped[types.Date] = mapped_column(types.Date)
+    moved_from: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
+    moved_to: Mapped[Optional[str]] = mapped_column(UnicodeText, nullable=True)
+    moved_date: Mapped[Optional[types.Date]] = mapped_column(types.Date, nullable=True)
 
-    germ_date: Mapped[types.Date] = mapped_column(types.Date)
+    germ_date: Mapped[Optional[types.Date]] = mapped_column(types.Date, nullable=True)
 
-    nseedlings: Mapped[int] = mapped_column(
-        Integer, autoincrement=False
+    nseedlings: Mapped[Optional[int]] = mapped_column(
+        Integer, autoincrement=False, nullable=True
     )  # number of seedling
-    germ_pct: Mapped[int] = mapped_column(
-        Integer, autoincrement=False
+    germ_pct: Mapped[Optional[int]] = mapped_column(
+        Integer, autoincrement=False, nullable=True
     )  # % of germination
-    date_planted: Mapped[types.Date] = mapped_column(types.Date)
+    date_planted: Mapped[Optional[types.Date]] = mapped_column(
+        types.Date, nullable=True
+    )
 
     propagation_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("propagation.id"), nullable=False
