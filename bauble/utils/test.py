@@ -32,6 +32,11 @@ from bauble.utils import topological_sort
 from sqlalchemy import Column, ForeignKey, Integer, MetaData, Sequence, Table, text
 
 
+def _session_engine(session):
+    bind = session.get_bind()
+    return getattr(bind, "engine", bind)
+
+
 def test_create_message_details_dialog() -> None:
     pytest.skip("Not Implemented")  # Skip the test with pytest's skip functionality
     details = """these are the lines that i want to test
@@ -185,11 +190,12 @@ def dependent_tables_metadata(db_session) -> Generator[Any, None, None]:
         Column("table2", Integer, ForeignKey("table2.id")),
     )
 
-    metadata.create_all(bind=db_session.bind)
+    engine = _session_engine(db_session)
+    metadata.create_all(bind=engine)
 
     yield table1, table2, table3, table4
 
-    metadata.drop_all(bind=db_session.bind)
+    metadata.drop_all(bind=engine)
 
 
 def test_find_dependent_tables(db_session, dependent_tables_metadata) -> None:
@@ -224,7 +230,7 @@ def get_currval(session, col):
     """
     Helper function to get the current sequence value for a column.
     """
-    engine = session.bind
+    engine = _session_engine(session)
     if engine.name == "postgresql":
         name = f"{col.table.name}_{col.name}_seq"
         stmt = f"SELECT currval('{name}');"
@@ -247,9 +253,10 @@ def test_table(db_session) -> Generator[Any, None, None]:
         metadata,
         Column("id", Integer, primary_key=True),
     )
-    table.create(bind=db_session.bind, checkfirst=True)
+    engine = _session_engine(db_session)
+    table.create(bind=engine, checkfirst=True)
     yield table
-    table.drop(bind=db_session.bind, checkfirst=True)
+    table.drop(bind=engine, checkfirst=True)
 
 
 @pytest.fixture
@@ -269,9 +276,10 @@ def test_table_with_sequence(db_session) -> Generator[Any, None, None]:
             unique=True,
         ),
     )
-    table.create(bind=db_session.bind, checkfirst=True)
+    engine = _session_engine(db_session)
+    table.create(bind=engine, checkfirst=True)
     yield table
-    table.drop(bind=db_session.bind, checkfirst=True)
+    table.drop(bind=engine, checkfirst=True)
 
 
 def test_no_col_sequence(db_session, test_table) -> None:

@@ -44,31 +44,6 @@ logger.setLevel(logging.INFO)
 prefs.testing = True
 
 
-# @pytest.fixture
-# def clean_enum_table(db_session):
-#     """
-#     Fixture to clean and create the Enum test table for each test.
-#     """
-# #    metadata = db.Base.metadata
-# #    if "test_enum_type" in metadata.tables:
-# #        del metadata.tables["test_enum_type"]  # Remove existing table definition
-
-#     class _TestEnum(db.Base):
-#         __tablename__ = "test_enum_type"
-#         id = Column(Integer, primary_key=True)
-#         value = Column(types.Enum(values=["1", "2", ""]), default="")
-
-#     metadata = db.Base.metadata
-#     if "test_enum_type" in metadata.tables:
-#         metadata.remove(_TestEnum.__table__)
-
-#     _TestEnum.__table__.drop(bind=db_session.bind, checkfirst=True)
-#     _TestEnum.__table__.create(bind=db_session.bind)
-
-#     yield _TestEnum
-
-
-#     _TestEnum.__table__.drop(bind=db_session.bind, checkfirst=True)
 class _TestEnum(db.Base):
     __tablename__: str = "test_enum_type"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -87,8 +62,11 @@ def clean_enum_table(db_session) -> Generator[Any, None, None]:
     if db_session.in_transaction():
         db_session.rollback()  # Clear pending transactions
 
+    bind = db_session.get_bind()
+    engine = getattr(bind, "engine", bind)
+
     # Drop the table if it exists
-    _TestEnum.__table__.drop(bind=db_session.bind, checkfirst=True)
+    _TestEnum.__table__.drop(bind=engine, checkfirst=True)
 
     # Remove the table from SQLAlchemy metadata to prevent caching issues
     metadata = db.Base.metadata
@@ -100,14 +78,14 @@ def clean_enum_table(db_session) -> Generator[Any, None, None]:
         db_session.commit()
 
     # Recreate the table
-    _TestEnum.__table__.create(bind=db_session.bind)
+    _TestEnum.__table__.create(bind=engine)
     if db_session.in_transaction():
         db_session.commit()
 
     yield _TestEnum  # Provide the table for the test
 
     # Drop the table after the test
-    _TestEnum.__table__.drop(bind=db_session.bind, checkfirst=True)
+    _TestEnum.__table__.drop(bind=engine, checkfirst=True)
     if db_session.in_transaction():
         db_session.commit()
 
@@ -434,7 +412,7 @@ class TestHistory:
 
         # Verify session binding
         assert (
-            self.session.bind == db.engine
+            self.session.get_bind() == db.engine
         ), "Session is not bound to the correct engine!"
 
         # Verify the model's Base
