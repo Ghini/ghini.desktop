@@ -213,8 +213,7 @@ class TestFamily:
             if session.in_transaction():
                 session.commit()
         if session.in_transaction():
-            if session.in_transaction():
-                session.rollback()
+            session.rollback()
 
         # Clear all synonyms
         family.synonyms.clear()
@@ -256,8 +255,7 @@ class TestFamily:
                 if session.in_transaction():
                     session.commit()
             if session.in_transaction():
-                if session.in_transaction():
-                    session.rollback()
+                session.rollback()
 
         # Family epithet cannot be null
         session.add(Family(epithet=None))
@@ -265,8 +263,7 @@ class TestFamily:
             if session.in_transaction():
                 session.commit()
         if session.in_transaction():
-            if session.in_transaction():
-                session.rollback()
+            session.rollback()
 
     def test_str(self) -> None:
         f = Family()
@@ -403,8 +400,7 @@ class TestGenus:
             if session.in_transaction():
                 session.commit()
         if session.in_transaction():
-            if session.in_transaction():
-                session.rollback()
+            session.rollback()
 
         # Clear synonyms
         genus.synonyms.clear()
@@ -450,8 +446,7 @@ class TestGenus:
                 if session.in_transaction():
                     session.commit()
             if session.in_transaction():
-                if session.in_transaction():
-                    session.rollback()
+                session.rollback()
 
     def test_remove_callback_no_species_no_confirm(self, session) -> None:
         family = Family(epithet="Caricaceae")
