@@ -395,43 +395,48 @@ class JSONExporter(editor.GenericEditorPresenter):
         objects = self.get_objects()
         # if objects is None then export all objects under classes Familia,
         # Genus, Species, Accession, Plant, Location.
+        session = None
         if objects is None:
-            s = db.Session()
-            objects = s.execute(select(Familia)).scalars().all()
-            objects.extend(s.execute(select(Genus)).scalars().all())
-            objects.extend(s.execute(select(Species)).scalars().all())
-            objects.extend(s.execute(select(VernacularName)).scalars().all())
-            objects.extend(s.execute(select(Accession)).scalars().all())
-            objects.extend(s.execute(select(Plant)).scalars().all())
-            objects.extend(s.execute(select(Location)).scalars().all())
+            session = db.Session()
+            objects = session.execute(select(Familia)).scalars().all()
+            objects.extend(session.execute(select(Genus)).scalars().all())
+            objects.extend(session.execute(select(Species)).scalars().all())
+            objects.extend(session.execute(select(VernacularName)).scalars().all())
+            objects.extend(session.execute(select(Accession)).scalars().all())
+            objects.extend(session.execute(select(Plant)).scalars().all())
+            objects.extend(session.execute(select(Location)).scalars().all())
 
-        count = len(objects)
-        if count > 3000:
-            msg = _(
-                "You are exporting %(nplants)s objects to JSON format.  "
-                "Exporting this many objects may take several minutes.  "
-                "\n\n<i>Would you like to continue?</i>"
-            ) % ({"nplants": count})
-            if not self.view.run_yes_no_dialog(msg):
-                return
+        try:
+            count = len(objects)
+            if count > 3000:
+                msg = _(
+                    "You are exporting %(nplants)s objects to JSON format.  "
+                    "Exporting this many objects may take several minutes.  "
+                    "\n\n<i>Would you like to continue?</i>"
+                ) % ({"nplants": count})
+                if not self.view.run_yes_no_dialog(msg):
+                    return
 
-        import codecs
+            import codecs
 
-        with codecs.open(filename, "wb", "utf-8") as output:
-            output.write("[")
-            output.write(
-                ",\n ".join(
-                    [
-                        json.dumps(
-                            obj.as_dict(),
-                            default=serializedatetime,
-                            sort_keys=True,
-                        )
-                        for obj in objects
-                    ]
+            with codecs.open(filename, "wb", "utf-8") as output:
+                output.write("[")
+                output.write(
+                    ",\n ".join(
+                        [
+                            json.dumps(
+                                obj.as_dict(),
+                                default=serializedatetime,
+                                sort_keys=True,
+                            )
+                            for obj in objects
+                        ]
+                    )
                 )
-            )
-            output.write("]")
+                output.write("]")
+        finally:
+            if session is not None:
+                session.close()
 
 
 class JSONImporter(editor.GenericEditorPresenter):
@@ -541,7 +546,6 @@ class JSONImportTool(pluginmgr.Tool):
         Start the JSON importer.  This tool will also reinitialize the
         plugins after importing.
         """
-        s = db.Session()
         filename = os.path.join(
             paths.lib_dir(), "plugins", "imex", "select_export.glade"
         )
@@ -552,7 +556,6 @@ class JSONImportTool(pluginmgr.Tool):
         )
         presenter.start()  # interact && run
         presenter.cleanup()
-        s.close()
 
 
 class JSONExportTool(pluginmgr.Tool):
@@ -564,7 +567,6 @@ class JSONExportTool(pluginmgr.Tool):
     def start(cls) -> None:
         # the presenter uses the view to interact with user then
         # performs the export, if this is the case.
-        s = db.Session()
         filename = os.path.join(
             paths.lib_dir(), "plugins", "imex", "select_export.glade"
         )
@@ -575,4 +577,3 @@ class JSONExportTool(pluginmgr.Tool):
         )
         presenter.start()  # interact && run
         presenter.cleanup()
-        s.close()

@@ -505,38 +505,37 @@ class PlantsPlugin(pluginmgr.Plugin):
         """Set up default stored queries if not already initialized."""
         import bauble.meta as meta
 
-        session = db.Session()
-        default = "false"
-        q = session.execute(
-            select(bauble.meta.BaubleMeta).where(
-                bauble.meta.BaubleMeta.name.startswith("stqr-")
-            )
-        ).scalars()
-        for i in q.all():
-            default = i.name
-            session.delete(i)
-            if session.in_transaction():
-                session.commit()
-        init_marker = meta.get_default("stqv_initialized", default, session)
-        if init_marker.value == "false":
-            init_marker.value = "true"
-            for index, name, tooltip, query in [
-                (
-                    9,
-                    _("history"),
-                    _("the history in this database"),
-                    ":history",
-                ),
-                (10, _("preferences"), _("your user preferences"), ":prefs"),
-            ]:
-                meta.get_default(
-                    "stqr_%02d" % index,
-                    f"{name}:{tooltip}:{query}",
-                    session,
+        with db.Session() as session:
+            default = "false"
+            q = session.execute(
+                select(bauble.meta.BaubleMeta).where(
+                    bauble.meta.BaubleMeta.name.startswith("stqr-")
                 )
-            if session.in_transaction():
-                session.commit()
-        session.close()
+            ).scalars()
+            for i in q.all():
+                default = i.name
+                session.delete(i)
+                if session.in_transaction():
+                    session.commit()
+            init_marker = meta.get_default("stqv_initialized", default, session)
+            if init_marker.value == "false":
+                init_marker.value = "true"
+                for index, name, tooltip, query in [
+                    (
+                        9,
+                        _("history"),
+                        _("the history in this database"),
+                        ":history",
+                    ),
+                    (10, _("preferences"), _("your user preferences"), ":prefs"),
+                ]:
+                    meta.get_default(
+                        "stqr_%02d" % index,
+                        f"{name}:{tooltip}:{query}",
+                        session,
+                    )
+                if session.in_transaction():
+                    session.commit()
 
     @classmethod
     def install(cls, import_defaults: bool = True) -> None:
