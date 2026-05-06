@@ -116,121 +116,126 @@ class ExportToPocketThread(threading.Thread):
         from bauble.plugins.plants import Species
 
         session = db.Session()
-        stmt = select(Plant).join(Accession).order_by(Plant.code, Plant.id)
+        cn = None
+        try:
+            stmt = select(Plant).join(Accession).order_by(Plant.code, Plant.id)
 
-        if self.include_private is False:
-            # no private accessions: add a filter to only keep non-private
-            stmt = stmt.where(not Accession.private)  # `is` does not work
+            if self.include_private is False:
+                # no private accessions: add a filter to only keep non-private
+                stmt = stmt.where(not Accession.private)  # `is` does not work
 
-        plant_query = session.execute(stmt).scalars()
-        plants = plant_query.all()
+            plant_query = session.execute(stmt).scalars()
+            plants = plant_query.all()
 
-        accessions = (
-            session.execute(
-                select(Accession)
-                .where(Accession.id.in_(bindparam("accession_ids", expanding=True)))
-                .params(accession_ids=[j.accession_id for j in plants])
-                .order_by(Accession.id)
-            )
-            .scalars()
-            .all()
-        )
-        species = (
-            session.execute(
-                select(Species)
-                .where(Species.id.in_(bindparam("species_ids", expanding=True)))
-                .params(species_ids=[j.species_id for j in accessions])
-                .order_by(Species.id)
-            )
-            .scalars()
-            .all()
-        )
-        import sqlite3
-
-        cn = sqlite3.connect(self.filename)
-        cr = cn.cursor()
-        count = 1
-        for i in species:
-            try:
-                cr.execute(
-                    'INSERT INTO "species" '
-                    '(_id, family, genus, epithet, "sub-rank", "sub-epithet", author) '
-                    "VALUES (?, ?, ?, ?, ?, ?, ?);",
-                    (
-                        i.id,
-                        i.genus.family.epithet,
-                        i.genus.epithet,
-                        i.epithet,
-                        i.infraspecific_rank,
-                        i.infraspecific_epithet,
-                        i.infraspecific_author or i.author or "",
-                    ),
+            accessions = (
+                session.execute(
+                    select(Accession)
+                    .where(Accession.id.in_(bindparam("accession_ids", expanding=True)))
+                    .params(accession_ids=[j.accession_id for j in plants])
+                    .order_by(Accession.id)
                 )
-            except Exception as e:
-                logger.info(f"error exporting species {i.id}: {type(e)} {e}")
-            count += 1
-            if self.progressbar:
-                GLib.idle_add(
-                    self.progressbar.set_fraction, 0.05 * count / len(species)
+                .scalars()
+                .all()
+            )
+            species = (
+                session.execute(
+                    select(Species)
+                    .where(Species.id.in_(bindparam("species_ids", expanding=True)))
+                    .params(species_ids=[j.species_id for j in accessions])
+                    .order_by(Species.id)
                 )
-            if not self.keep_running:
-                break
-        count = 1
-        for i in accessions:
-            try:
+                .scalars()
+                .all()
+            )
+            import sqlite3
+
+            cn = sqlite3.connect(self.filename)
+            cr = cn.cursor()
+            count = 1
+            for i in species:
                 try:
-                    source_name = i.source.source_detail.name or ""
-                except AttributeError:
-                    source_name = ""
-                cr.execute(
-                    'INSERT INTO "accession" '
-                    "(_id, code, species_id, source, start_date) "
-                    "VALUES (?, ?, ?, ?, ?);",
-                    (i.id, i.code, i.species_id, source_name, i.date_accd),
-                )
-            except Exception as e:
-                logger.info(f"error exporting accession {i.id}: {type(e)} {e}")
-            count += 1
-            if self.progressbar:
-                GLib.idle_add(
-                    self.progressbar.set_fraction,
-                    0.05 + 0.40 * count / len(accessions),
-                )
-            if not self.keep_running:
-                break
-        count = 1
-        for i in plants:
-            try:
-                cr.execute(
-                    'INSERT INTO "plant" '
-                    "(_id, accession_id, code, location, end_date, n_of_pics, quantity) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?);",
-                    (
-                        i.id,
-                        i.accession_id,
-                        "." + i.code,
-                        i.location.code,
-                        i.date_of_death,
-                        len(i.pictures),
-                        i.quantity,
-                    ),
-                )
-            except Exception as e:
-                logger.info(f"error exporting plant {i.id}: {type(e)} {e}")
-            count += 1
-            if self.progressbar:
-                GLib.idle_add(
-                    self.progressbar.set_fraction,
-                    0.45 + 0.55 * count / len(plants),
-                )
-            if not self.keep_running:
-                break
-        if cn.in_transaction:
-            cn.commit()
-        session.close()
-        if self.callback:
-            GLib.idle_add(self.callback)
-        return True
+                    cr.execute(
+                        'INSERT INTO "species" '
+                        '(_id, family, genus, epithet, "sub-rank", "sub-epithet", author) '
+                        "VALUES (?, ?, ?, ?, ?, ?, ?);",
+                        (
+                            i.id,
+                            i.genus.family.epithet,
+                            i.genus.epithet,
+                            i.epithet,
+                            i.infraspecific_rank,
+                            i.infraspecific_epithet,
+                            i.infraspecific_author or i.author or "",
+                        ),
+                    )
+                except Exception as e:
+                    logger.info(f"error exporting species {i.id}: {type(e)} {e}")
+                count += 1
+                if self.progressbar:
+                    GLib.idle_add(
+                        self.progressbar.set_fraction, 0.05 * count / len(species)
+                    )
+                if not self.keep_running:
+                    break
+            count = 1
+            for i in accessions:
+                try:
+                    try:
+                        source_name = i.source.source_detail.name or ""
+                    except AttributeError:
+                        source_name = ""
+                    cr.execute(
+                        'INSERT INTO "accession" '
+                        "(_id, code, species_id, source, start_date) "
+                        "VALUES (?, ?, ?, ?, ?);",
+                        (i.id, i.code, i.species_id, source_name, i.date_accd),
+                    )
+                except Exception as e:
+                    logger.info(f"error exporting accession {i.id}: {type(e)} {e}")
+                count += 1
+                if self.progressbar:
+                    GLib.idle_add(
+                        self.progressbar.set_fraction,
+                        0.05 + 0.40 * count / len(accessions),
+                    )
+                if not self.keep_running:
+                    break
+            count = 1
+            for i in plants:
+                try:
+                    cr.execute(
+                        'INSERT INTO "plant" '
+                        "(_id, accession_id, code, location, end_date, n_of_pics, quantity) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?);",
+                        (
+                            i.id,
+                            i.accession_id,
+                            "." + i.code,
+                            i.location.code,
+                            i.date_of_death,
+                            len(i.pictures),
+                            i.quantity,
+                        ),
+                    )
+                except Exception as e:
+                    logger.info(f"error exporting plant {i.id}: {type(e)} {e}")
+                count += 1
+                if self.progressbar:
+                    GLib.idle_add(
+                        self.progressbar.set_fraction,
+                        0.45 + 0.55 * count / len(plants),
+                    )
+                if not self.keep_running:
+                    break
+            if cn.in_transaction:
+                cn.commit()
+            if self.callback:
+                GLib.idle_add(self.callback)
+            return True
+        finally:
+            if cn is not None:
+                cn.close()
+            session.close()
 
     def cancel(self) -> None:
         self.keep_running = False

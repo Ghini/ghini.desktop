@@ -157,15 +157,20 @@ class PocketServer(Thread):
                 elif not isinstance(client_id, str) or not isinstance(log_lines, list):
                     return self.WRONG_TYPE_IN_PARAMETERS
                 session = db.Session()
-                db.current_user.override(user_name)
-                for line in log_lines:
-                    process_line(session, line, baseline)
-                db.current_user.override()
-                if session.in_transaction():
-                    session.commit()
-                if self.presenter.model.autorefresh:
-                    self.presenter.on_new_snapshot_button_clicked()
-                return self.OK
+                try:
+                    db.current_user.override(user_name)
+                    try:
+                        for line in log_lines:
+                            process_line(session, line, baseline)
+                    finally:
+                        db.current_user.override()
+                    if session.in_transaction():
+                        session.commit()
+                    if self.presenter.model.autorefresh:
+                        self.presenter.on_new_snapshot_button_clicked()
+                    return self.OK
+                finally:
+                    session.close()
 
             def put_picture(self, client_id, name, base64_content):
                 self.log.append((f"put_picture ›{client_id}‹ ›{name}‹",))
