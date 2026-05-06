@@ -547,24 +547,26 @@ class TagItemGUI(editor.GenericEditorView):
         model = Gtk.ListStore(bool, str, bool)
         tag_all, tag_some, tag_none = get_tag_ids(self.values)
         session = db.Session()  # we need close it
-        tag_query = session.execute(select(Tag)).scalars()
-        for tag in tag_query:
-            model.append([tag.id in tag_all, tag.tag, tag.id in tag_some])
-        self.tag_tree.set_model(model)
+        try:
+            tag_query = session.execute(select(Tag)).scalars()
+            for tag in tag_query:
+                model.append([tag.id in tag_all, tag.tag, tag.id in tag_some])
+            self.tag_tree.set_model(model)
 
-        self.tag_tree.add_events(Gdk.EventMask.KEY_RELEASE_MASK)
-        self.connect(self.tag_tree, "key-release-event", self.on_key_released)
+            self.tag_tree.add_events(Gdk.EventMask.KEY_RELEASE_MASK)
+            self.connect(self.tag_tree, "key-release-event", self.on_key_released)
 
-        response = self.get_window().run()
-        while (
-            response != Gtk.ResponseType.OK
-            and response != Gtk.ResponseType.DELETE_EVENT
-        ):
             response = self.get_window().run()
+            while (
+                response != Gtk.ResponseType.OK
+                and response != Gtk.ResponseType.DELETE_EVENT
+            ):
+                response = self.get_window().run()
 
-        self.get_window().hide()
-        self.disconnect_all()
-        session.close()
+            self.get_window().hide()
+            self.disconnect_all()
+        finally:
+            session.close()
 
 
 class Tag(db.Base, db.WithNotes):

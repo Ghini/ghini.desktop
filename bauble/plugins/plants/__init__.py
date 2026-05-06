@@ -222,12 +222,11 @@ class SplashInfoBox(pluginmgr.View):
         statusbar.pop(sbcontext_id)
         safe_set_text(bauble.gui.widgets.main_comboentry.get_child(), "")
 
-        ssn = db.Session()
-        stmt = select(bauble.meta.BaubleMeta).where(
-            bauble.meta.BaubleMeta.name.startswith("stqr")
-        )
-        records = ssn.execute(stmt).scalars().all()
-        ssn.close()
+        with db.Session() as session:
+            stmt = select(bauble.meta.BaubleMeta).where(
+                bauble.meta.BaubleMeta.name.startswith("stqr")
+            )
+            records = session.execute(stmt).scalars().all()
 
         name_tooltip_query = {int(i.name[5:]): (i.value.split(":", 2)) for i in records}
 
