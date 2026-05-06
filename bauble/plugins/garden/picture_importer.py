@@ -317,154 +317,177 @@ class PictureImporterPresenter(GenericEditorPresenter):
         session = db.Session()
         handler = ListStoreHandler(self.view.widgets.log_liststore)
         logger.addHandler(handler)
-        self.view.widgets.log_treeview.scroll_to_point(0, 0)
-        from bauble.plugins.garden.models import Accession, Location, Plant, PlantNote
-        from bauble.plugins.plants import Genus, Species
-
-        # make sure selected location exists
-        if self.model.location is None:
-            self.model.location = "imported"
-        location_stmt = Location.query_with_default_order().where(Location.code == self.model.location)
-        location = get_first_or_none(session, location_stmt)
-        if location:
-            logger.log(11, f"location {location} already in database")
-        else:
-            location = Location(code=self.model.location)
-            session.add(location)
-            logger.log(13, f"created new location {location}")
-
-        # iterate over liststore content
-        for row in self.review_liststore:
-            if not self.keep_running:
-                break
-            if not row[use_me_col]:
-                continue
-            # get unicode strings from row
-            epgn, epsp = str(row[binomial_col] + " sp").split(" ")[:2]
-            filename = str(row[filename_col])
-            complete_plant_code = str(row[accno_col])
-            accession_code, plant_code = complete_plant_code.rsplit(
-                Plant.get_delimiter(), 1
+        failed = False
+        try:
+            self.view.widgets.log_treeview.scroll_to_point(0, 0)
+            from bauble.plugins.garden.models import (
+                Accession,
+                Location,
+                Plant,
+                PlantNote,
             )
+            from bauble.plugins.plants import Genus, Species
 
-            # create or retrieve genus and species
-            genus_stmt = Genus.query_with_default_order().where(Genus.epithet == epgn)
-            genus = get_first_or_none(session, genus_stmt)
-            if not genus:
-                raise ValueError(f"Genus {epgn} not found in database")
-
-            species_stmt = Species.query_with_default_order().where(
-                Species.genus == genus, Species.epithet == epsp
+            # make sure selected location exists
+            if self.model.location is None:
+                self.model.location = "imported"
+            location_stmt = Location.query_with_default_order().where(
+                Location.code == self.model.location
             )
-            species = get_first_or_none(session, species_stmt)
-            if species:
-                logger.log(11, f"species {epgn} {epsp} already in database")
+            location = get_first_or_none(session, location_stmt)
+            if location:
+                logger.log(11, f"location {location} already in database")
             else:
-                species = query_session_new(session, Species, genus=genus, epithet=epsp)
-                if species is None:
-                    species = Species(genus=genus, epithet=epsp)
-                    session.add(species)
-                    logger.log(13, f"created species {epgn} {epsp}")
-                else:
-                    logger.log(12, f"reusing new species {epgn} {epsp}")
+                location = Location(code=self.model.location)
+                session.add(location)
+                logger.log(13, f"created new location {location}")
 
-            # create or retrieve accession (needs species)
-            accession_stmt = Accession.query_with_default_order().where(Accession.code == accession_code)
-            accession = get_first_or_none(session, accession_stmt)
-            if accession:
-                logger.log(11, f"accession {accession_code} already in database")
-            else:
-                accession = query_session_new(session, Accession, code=accession_code)
-                if accession is None:
-                    accession = Accession(
-                        species=species, code=accession_code, quantity_recvd=1
-                    )
-                    session.add(accession)
-                    logger.log(
-                        13,
-                        f"created accession {accession_code} for species {epgn} {epsp}",
-                    )
-                else:
-                    logger.log(12, f"reusing new accession {accession_code}")
-
-            # create or retrieve plant (needs: accession, location)
-            plant = get_first_or_none(
-                session,
-                select(Plant)
-                .where(Plant.accession == accession)
-                .where(Plant.code == plant_code),
-            )
-
-            if plant:
-                logger.log(11, f"plant {complete_plant_code} already in database")
-            else:
-                plant = query_session_new(
-                    session, Plant, accession=accession, code=plant_code
+            # iterate over liststore content
+            for row in self.review_liststore:
+                if not self.keep_running:
+                    break
+                if not row[use_me_col]:
+                    continue
+                # get unicode strings from row
+                epgn, epsp = str(row[binomial_col] + " sp").split(" ")[:2]
+                filename = str(row[filename_col])
+                complete_plant_code = str(row[accno_col])
+                accession_code, plant_code = complete_plant_code.rsplit(
+                    Plant.get_delimiter(), 1
                 )
-                if plant is None:
-                    plant = Plant(
-                        accession=accession,
-                        quantity=1,
-                        location=location,
-                        code=plant_code,
-                    )
-                    session.add(plant)
-                    logger.log(13, f"created plant {complete_plant_code}")
-                else:
-                    logger.log(12, f"reusing new plant {complete_plant_code}")
 
-            # copy picture file - possibly renaming it
-            utils.copy_picture_with_thumbnail(self.model.filepath, filename)
-
-            # add picture note
-            note = get_first_or_none(
-                session,
-                select(PlantNote)
-                .where(PlantNote.plant == plant)
-                .where(PlantNote.note == filename)
-                .where(PlantNote.category == "<picture>"),
-            )
-
-            if note:
-                logger.log(
-                    11, f"picture {filename} already in plant {complete_plant_code}"
+                # create or retrieve genus and species
+                genus_stmt = Genus.query_with_default_order().where(
+                    Genus.epithet == epgn
                 )
-            else:
-                note = query_session_new(
+                genus = get_first_or_none(session, genus_stmt)
+                if not genus:
+                    raise ValueError(f"Genus {epgn} not found in database")
+
+                species_stmt = Species.query_with_default_order().where(
+                    Species.genus == genus, Species.epithet == epsp
+                )
+                species = get_first_or_none(session, species_stmt)
+                if species:
+                    logger.log(11, f"species {epgn} {epsp} already in database")
+                else:
+                    species = query_session_new(
+                        session, Species, genus=genus, epithet=epsp
+                    )
+                    if species is None:
+                        species = Species(genus=genus, epithet=epsp)
+                        session.add(species)
+                        logger.log(13, f"created species {epgn} {epsp}")
+                    else:
+                        logger.log(12, f"reusing new species {epgn} {epsp}")
+
+                # create or retrieve accession (needs species)
+                accession_stmt = Accession.query_with_default_order().where(
+                    Accession.code == accession_code
+                )
+                accession = get_first_or_none(session, accession_stmt)
+                if accession:
+                    logger.log(11, f"accession {accession_code} already in database")
+                else:
+                    accession = query_session_new(
+                        session, Accession, code=accession_code
+                    )
+                    if accession is None:
+                        accession = Accession(
+                            species=species, code=accession_code, quantity_recvd=1
+                        )
+                        session.add(accession)
+                        logger.log(
+                            13,
+                            f"created accession {accession_code} for species {epgn} {epsp}",
+                        )
+                    else:
+                        logger.log(12, f"reusing new accession {accession_code}")
+
+                # create or retrieve plant (needs: accession, location)
+                plant = get_first_or_none(
                     session,
-                    PlantNote,
-                    plant=plant,
-                    note=filename,
-                    category="<picture>",
+                    select(Plant)
+                    .where(Plant.accession == accession)
+                    .where(Plant.code == plant_code),
                 )
-                if note is None:
-                    note = PlantNote(
+
+                if plant:
+                    logger.log(11, f"plant {complete_plant_code} already in database")
+                else:
+                    plant = query_session_new(
+                        session, Plant, accession=accession, code=plant_code
+                    )
+                    if plant is None:
+                        plant = Plant(
+                            accession=accession,
+                            quantity=1,
+                            location=location,
+                            code=plant_code,
+                        )
+                        session.add(plant)
+                        logger.log(13, f"created plant {complete_plant_code}")
+                    else:
+                        logger.log(12, f"reusing new plant {complete_plant_code}")
+
+                # copy picture file - possibly renaming it
+                utils.copy_picture_with_thumbnail(self.model.filepath, filename)
+
+                # add picture note
+                note = get_first_or_none(
+                    session,
+                    select(PlantNote)
+                    .where(PlantNote.plant == plant)
+                    .where(PlantNote.note == filename)
+                    .where(PlantNote.category == "<picture>"),
+                )
+
+                if note:
+                    logger.log(
+                        11,
+                        f"picture {filename} already in plant {complete_plant_code}",
+                    )
+                else:
+                    note = query_session_new(
+                        session,
+                        PlantNote,
                         plant=plant,
                         note=filename,
                         category="<picture>",
-                        user="initial-import",
                     )
-                    session.add(note)
-                    logger.log(
-                        13,
-                        f"picture {filename} added to plant {complete_plant_code}",
-                    )
-                else:
-                    logger.log(
-                        12,
-                        f"reusing new picture {filename} in plant {complete_plant_code}",
-                    )
-        logger.removeHandler(handler)
-        self.view.widgets.button_ok.set_sensitive(self.keep_running is True)
-        self.lock.acquire()
-        if self.should_commit:
-            if session.in_transaction():
-                session.commit()
-        else:
-            if session.in_transaction():
-                if session.in_transaction():
+                    if note is None:
+                        note = PlantNote(
+                            plant=plant,
+                            note=filename,
+                            category="<picture>",
+                            user="initial-import",
+                        )
+                        session.add(note)
+                        logger.log(
+                            13,
+                            f"picture {filename} added to plant {complete_plant_code}",
+                        )
+                    else:
+                        logger.log(
+                            12,
+                            f"reusing new picture {filename} in plant {complete_plant_code}",
+                        )
+        except Exception:
+            failed = True
+            raise
+        finally:
+            logger.removeHandler(handler)
+            self.view.widgets.button_ok.set_sensitive(self.keep_running is True)
+            self.lock.acquire()
+            try:
+                if self.should_commit and not failed:
+                    if session.in_transaction():
+                        session.commit()
+                elif session.in_transaction():
                     session.rollback()
-        self.lock.release()
+            finally:
+                self.lock.release()
+                session.close()
 
     def on_picture_importer_dialog_response(self, widget, response, **kwargs) -> None:
         self.keep_running = None
