@@ -12,13 +12,13 @@ Accounting decisions in this file:
 
 - `Closed ...`: the current branch either ports the intent or intentionally supersedes the original implementation.
 - `... review`: the commit still needs an explicit functional comparison before it can be closed.
-- `Detailed functional review required`: the commit does not fit a closed or theme-specific bucket and must be inspected directly.
+- `Detailed functional review required`: no commits currently remain in this state.
 
 ## Current Counts
 
 - Total marked commits: 237
-- Closed by accounting decision: 182
-- Still requiring review: 55
+- Closed by accounting decision: 185
+- Still requiring review: 52
 - Ported marker (`D`): 9
 - Partial marker (`P`): 228
 - Todo marker (`T`): 0
@@ -51,7 +51,8 @@ Accounting decisions in this file:
 - Closed by current code check: 27
 - Closed by current test suite: 9
 - Closed by current documentation workflow: 3
-- Detailed functional review required: 3
+- Closed by broad direct review: 3
+- Detailed functional review required: 0
 - Documentation review: 0
 - GTK 3.24 compatibility review: 52
 
@@ -75,10 +76,10 @@ The second accounting pass closed narrow rows whose original diffs were directly
 - Test/search/csv rows: originals `1f842efbd3b4`, `6a3fdc5c43a2`, and `0cddcc136ba3` are closed by current focused import/export and search tests plus the warning-gated suite.
 - Documentation rows: old GitLab issue-template and standalone pytest README work is intentionally superseded by the current Docker development documentation.
 
-Remaining open review is now concentrated in two categories:
+Remaining open review is now concentrated in one category:
 
 - GTK/manual smoke: 52 commits, mostly glade/editor/menu behavior. These are not rejected; they need manual GUI confirmation on GTK 3.24.
-- Broad direct review: 3 commits (`db6d2b2b3405`, `54a77332ec19`, `02d820d01801`) were WIP-style text/misc sweeps. They need explicit diff extraction before we either port, close, or reject individual subchanges.
+- Broad direct review: closed. The remaining WIP-style commits were decomposed and mapped to current code, superseded workflow decisions, or the GTK/manual-smoke bucket.
 
 ## Commit Ledger
 
@@ -138,7 +139,7 @@ Remaining open review is now concentrated in two categories:
 | 52 | P | Closed as superseded by current formatting/check tooling | `db76ff4a` | `6feedde05a60` | `core` | refactor(core): [P] remove unnecessary import | 6112fa77 | No remaining migration work. The old mechanical churn is intentionally not ported line-for-line; use `scripts/docker-dev format` and `scripts/docker-dev check`. |
 | 53 | P | Closed as superseded by current formatting/check tooling | `2f99a0cb` | `5d30d0a9c737` | `core` | refactor(core): [P] minor updates for Python 3.10 | 9e209ad3 | No remaining migration work. The old mechanical churn is intentionally not ported line-for-line; use `scripts/docker-dev format` and `scripts/docker-dev check`. |
 | 54 | P | Closed by SQLAlchemy 2 audit | `bf0b22ec` | `1de6e2aef96b` | `core` | refactor(core): [P] sqla: Allow caching on Enum, DateTime, and Date types | f335ddfb, 6112fa77 | No remaining migration work currently identified. Covered by nullable-schema audit, import/export regression pass, SQLAlchemy runtime-pattern scan, relationship audit, and warning-gated suite. |
-| 55 | P | Detailed functional review required | `5440d216` | `db6d2b2b3405` | `core` | refactor(core): [P] modernize text handling in VS Code tasks, editors | 74e1d9f7, 635a7d8f, 6112fa77, 54ba0dd8 | Inspect original diff and compare to `ghini-4-dev-clean` before deciding. |
+| 55 | P | Closed by broad direct review | `5440d216` | `db6d2b2b3405` | `core` | refactor(core): [P] modernize text handling in VS Code tasks, editors | 74e1d9f7, 635a7d8f, 6112fa77, 54ba0dd8 | Reviewed original `db6d2b2b3405` directly. Durable intent is already present or intentionally superseded: centralized safe text/property setters, bytes-to-string conversion, completion text handling, and GTK/editor compatibility. Remaining UI behavior is covered by the GTK 3.24 manual-smoke bucket. |
 | 56 | P | Closed as superseded by pyproject and Docker lock workflow | `f94fb61e` | `c79030cb832c` | `core` | refactor(core): [P] update versions | 7ee0fe3f | No remaining migration work. Dependencies and version behavior are handled by `pyproject.toml`, git-derived versioning, and Docker lock files; obsolete setup/Dockerfile pinning is intentionally not preserved. |
 | 57 | P | Closed as superseded by current formatting/check tooling | `4b0570e7` | `c262dfca7d25` | `core` | refactor(core): [P] modernize Python codebase using pyupgrade (--py39-plus) | 6112fa77, 9e209ad3, 635a7d8f, 54ba0dd8 | No remaining migration work. The old mechanical churn is intentionally not ported line-for-line; use `scripts/docker-dev format` and `scripts/docker-dev check`. |
 | 58 | P | Closed as superseded by current formatting/check tooling | `990ddcfe` | `c027d423c550` | `core` | refactor(core): [P] organize imports across the codebase using isort | 6112fa77, 9e209ad3, 74e1d9f7, 635a7d8f | No remaining migration work. The old mechanical churn is intentionally not ported line-for-line; use `scripts/docker-dev format` and `scripts/docker-dev check`. |
@@ -147,8 +148,8 @@ Remaining open review is now concentrated in two categories:
 | 61 | P | Closed as superseded by current formatting/check tooling | `3b5a6d97` | `6d150018a01f` | `core` | refactor(core): [P] update formatting | 6112fa77, 9e209ad3, 635a7d8f, 54ba0dd8 | No remaining migration work. The old mechanical churn is intentionally not ported line-for-line; use `scripts/docker-dev format` and `scripts/docker-dev check`. |
 | 62 | P | Closed as superseded by current formatting/check tooling | `43f0c067` | `8ef9bd12fc6e` | `core` | refactor(core): [P] remove unneeded pass statements | 6112fa77, 74e1d9f7, 635a7d8f, 54ba0dd8 | No remaining migration work. The old mechanical churn is intentionally not ported line-for-line; use `scripts/docker-dev format` and `scripts/docker-dev check`. |
 | 63 | P | Closed by current code check | `3ca1d044` | `24b8a5c19012` | `core` | refactor(core): [P] remove cyclic import | f335ddfb, 6112fa77, 54ba0dd8 | Current garden source and family modules use `importlib.import_module("bauble.view")`; full warning-gated tests cover the cyclic-import concern. |
-| 64 | P | Detailed functional review required | `44189546` | `54a77332ec19` | `core` | refactor(core): [P] missed in rebase | 635a7d8f, 74e1d9f7, 6112fa77, 54ba0dd8 | Inspect original diff and compare to `ghini-4-dev-clean` before deciding. |
-| 65 | P | Detailed functional review required | `d3d28b13` | `02d820d01801` | `core` | refactor(core): [P] lots of misc fixes | 9e209ad3, 74e1d9f7, 6112fa77, 54ba0dd8 | Inspect original diff and compare to `ghini-4-dev-clean` before deciding. |
+| 64 | P | Closed by broad direct review | `44189546` | `54a77332ec19` | `core` | refactor(core): [P] missed in rebase | 635a7d8f, 74e1d9f7, 6112fa77, 54ba0dd8 | Reviewed original `54a77332ec19` directly. Most changes were formatting/import cleanup plus GTK/map/editor compatibility. Current code already contains the useful import cleanup and helper patterns; UI behavior remains covered by the GTK 3.24 manual-smoke bucket. |
+| 65 | P | Closed by broad direct review | `d3d28b13` | `02d820d01801` | `core` | refactor(core): [P] lots of misc fixes | 9e209ad3, 74e1d9f7, 6112fa77, 54ba0dd8 | Reviewed original `02d820d01801` directly. Durable intent is already present or intentionally superseded: SQLAlchemy inspector-based database verification, `Serializable.as_dict()` note serialization, shared `InfoExpander`, script/import cleanup, and safe text helpers. Remaining UI behavior is covered by the GTK 3.24 manual-smoke bucket. |
 | 66 | P | GTK 3.24 compatibility review | `c7be4f3b` | `dc0e8a0238ea` | `core` | refactor(core): [P] update GUI, no insert submenu | 74e1d9f7, 6112fa77, 635a7d8f, 54ba0dd8 | Manual GUI smoke still needs to confirm this behavior. Keep GTK 3.24; do not migrate to GTK 4. |
 | 67 | P | GTK 3.24 compatibility review | `2e3dbd4f` | `08f1d89329fa` | `core` | refactor(core): [P] upgrade changes: Reaches primary window | 74e1d9f7, 635a7d8f, 6112fa77, 54ba0dd8 | Manual GUI smoke still needs to confirm this specific editor/UI behavior. Keep GTK 3.24; do not migrate to GTK 4. |
 | 68 | P | GTK 3.24 compatibility review | `02cb007b` | `cbce773256af` | `core` | refactor(core): [P] insert menu displays properly | 74e1d9f7, 635a7d8f, 6112fa77, 54ba0dd8 | Manual GUI smoke still needs to confirm this behavior. Keep GTK 3.24; do not migrate to GTK 4. |
