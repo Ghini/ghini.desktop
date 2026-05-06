@@ -65,6 +65,14 @@ def _metadata_session():
     return sessionmaker(bind=db.engine, autoflush=False, future=True)()
 
 
+def _testing_mode() -> bool:
+    from bauble.prefs import prefs
+
+    return bool(
+        getattr(prefs, "testing", False) or os.environ.get("PYTEST_CURRENT_TEST")
+    )
+
+
 def safe_set_text(gtk_widget, text) -> None:
     """
     Sets the text of a Gtk widget replacing None with an empty string.
@@ -547,9 +555,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         )
 
     def get_sentry_handler(self):
-        from bauble import prefs
-
-        if prefs.testing:
+        if _testing_mode():
             from bauble.test import MockLoggingHandler
 
             return MockLoggingHandler()
@@ -616,10 +622,9 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
 
 def start_institution_editor():
     glade_path = os.path.join(paths.lib_dir(), "plugins", "garden", "institution.glade")
-    from bauble import prefs
     from bauble.editor import GenericEditorView, MockView
 
-    if prefs.testing:
+    if _testing_mode():
         view = MockView()
     else:
         view = GenericEditorView(
