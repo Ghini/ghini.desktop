@@ -268,7 +268,7 @@ class FlatFileExporter(GenericEditorPresenter):
                 quotechar='"',
                 quoting=csv.QUOTE_MINIMAL,
             )
-            session = db.Session()
+            session = None
             if self.active_ls == self.view.widgets.searchable_ls:
                 model = bauble.gui.get_results_model()
                 objs = [row[0] for row in model]
@@ -276,35 +276,42 @@ class FlatFileExporter(GenericEditorPresenter):
 
                 todo = get_pertinent_objects(self.domain_map[self.domain], objs)
             else:
+                session = db.Session()
                 todo = session.execute(select(self.mapper)).scalars().all()
-            for obj in todo:
-                row = []
-                for j in self.view.widgets.exported_fields_ls:
-                    # values is the list of the objects from which to read fields
-                    values = [obj]
-                    single_valued = True
-                    *steps, field = j[0].split(".")
-                    for step in steps:
-                        values = [getattr(value, step) for value in values]
-                        if values and isinstance(values[0], InstrumentedList):
-                            values = [item for sublist in values for item in sublist]
-                            single_valued = False
-                    if field == "<str>":
-                        value = str(values[0]).replace("\u200b", "")
-                    else:
-                        values = [getattr(value, field) for value in values]
-                        if single_valued:
-                            value = values[0]
+            try:
+                for obj in todo:
+                    row = []
+                    for j in self.view.widgets.exported_fields_ls:
+                        # values is the list of the objects from which to read fields
+                        values = [obj]
+                        single_valued = True
+                        *steps, field = j[0].split(".")
+                        for step in steps:
+                            values = [getattr(value, step) for value in values]
+                            if values and isinstance(values[0], InstrumentedList):
+                                values = [
+                                    item for sublist in values for item in sublist
+                                ]
+                                single_valued = False
+                        if field == "<str>":
+                            value = str(values[0]).replace("\u200b", "")
                         else:
-                            if field == "id":
-                                value = len(values)
+                            values = [getattr(value, field) for value in values]
+                            if single_valued:
+                                value = values[0]
                             else:
-                                value = sum(x or 0 for x in values)
-                    row.append(value)
-                spamwriter.writerow(row)
-                rows_count += 1
-            if session.in_transaction():
-                session.rollback()
+                                if field == "id":
+                                    value = len(values)
+                                else:
+                                    value = sum(x or 0 for x in values)
+                        row.append(value)
+                    spamwriter.writerow(row)
+                    rows_count += 1
+            finally:
+                if session is not None:
+                    if session.in_transaction():
+                        session.rollback()
+                    session.close()
         return {"count": rows_count, "filename": filename}
 
 

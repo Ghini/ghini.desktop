@@ -455,14 +455,16 @@ class TagItemGUI(editor.GenericEditorView):
         create a new tag
         """
         session = db.Session()
-        tag = Tag(description="")
-        session.add(tag)
-        error_state = edit_callback([tag])
-        if not error_state:
-            model = self.tag_tree.get_model()
-            model.append([False, tag.tag, False])
-            tags_menu_manager.reset(tag)
-        session.close()
+        try:
+            tag = Tag(description="")
+            session.add(tag)
+            error_state = edit_callback([tag])
+            if not error_state:
+                model = self.tag_tree.get_model()
+                model.append([False, tag.tag, False])
+                tags_menu_manager.reset(tag)
+        finally:
+            session.close()
 
     def on_toggled(self, renderer, path, data: Optional[Any] = None) -> None:
         """

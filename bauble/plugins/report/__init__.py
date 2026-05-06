@@ -525,10 +525,9 @@ class TemplateFormatterPlugin(FormatterPlugin):
 
         from bauble import db
 
-        session = db.Session()
-        values = list(map(session.merge, objs))
-        report = template.render(values=values, options=kwargs)
-        session.close()
+        with db.Session() as session:
+            values = list(map(session.merge, objs))
+            report = template.render(values=values, options=kwargs)
         # Template name is guaranteed in the form
         # ›<name>.<dotless-extension><cls.extension>‹.  Get the dotless
         # extension from the template file name, produce output with that
@@ -991,17 +990,17 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         from bauble import db
 
         session = db.Session()
-        todo = [session.merge(i) for i in todo]
         try:
+            todo = [session.merge(i) for i in todo]
             formatter.format(todo, **settings)
         except Exception as e:
             butils.idle_message(
                 f"formatting {len(todo)} objects of type {type((todo + [None])[0]).__name__}\n{type(e).__name__}({e})\n{traceback.format_exc()}",
                 type=Gtk.MessageType.ERROR,
             )
-
-        session.close()
-        GLib.idle_add(self.stop_progress)
+        finally:
+            session.close()
+            GLib.idle_add(self.stop_progress)
 
     def stop_progress(self) -> None:
         self.running = False
