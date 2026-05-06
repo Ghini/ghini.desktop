@@ -144,20 +144,31 @@ def get_groups():
         return [r[0] for r in conn.execute(stmt)]
 
 
+def _quote_identifier(conn, identifier) -> str:
+    return conn.dialect.identifier_preparer.quote(str(identifier))
+
+
+def _execute_ddl(conn, stmt: str, params: Optional[dict[str, Any]] = None) -> None:
+    conn.execute(text(stmt), params or {})
+
+
 def _create_role(
     name, password: Optional[Any] = None, login: bool = False, admin: bool = False
 ) -> None:
     """Internal helper to create a role."""
     try:
         with db.engine.begin() as conn:
-            stmt = f"create role {name} INHERIT"
+            role = _quote_identifier(conn, name)
+            stmt = f"create role {role} INHERIT"
             if login:
                 stmt += " LOGIN"
             if admin:
                 stmt += " CREATEROLE"
+            params = {}
             if password:
-                stmt += f" PASSWORD '{password}'"
-            conn.execute(stmt)
+                stmt += " PASSWORD :password"
+                params["password"] = password
+            _execute_ddl(conn, stmt, params)
     except Exception as e:
         logger.error("users._create_role(): %s %s", type(e), utils.to_unicode(e))
         raise
@@ -177,15 +188,11 @@ def create_user(
 
     try:
         with db.engine.begin() as conn:
-            from sqlalchemy import text
-
+            role = _quote_identifier(conn, name)
+            database = _quote_identifier(conn, db.engine.url.database)
             for group in groups:
-                conn.execute(text(f"grant {group} to {name}"))
-            conn.execute(
-                text(
-                    f"grant connect on database {bauble.db.engine.url.database} to {name}"
-                )
-            )
+                _execute_ddl(conn, f"grant {_quote_identifier(conn, group)} to {role}")
+            _execute_ddl(conn, f"grant connect on database {database} to {role}")
     except Exception as e:
         logger.error("users.create_user(): %s %s", type(e), utils.to_unicode(e))
         raise
@@ -204,10 +211,9 @@ def add_member(name, groups: Optional[Any] = None) -> None:
         groups = []
     try:
         with db.engine.begin() as conn:
-            from sqlalchemy import text
-
+            role = _quote_identifier(conn, name)
             for group in groups:
-                conn.execute(text(f'grant "{group}" to {name}'))
+                _execute_ddl(conn, f"grant {_quote_identifier(conn, group)} to {role}")
     except Exception as e:
         logger.error("users.add_member(): %s %s", type(e), utils.to_unicode(e))
 
@@ -218,15 +224,13 @@ def remove_member(name, groups: Optional[Any] = None) -> None:
         groups = []
     try:
         with db.engine.begin() as conn:
-            from sqlalchemy import text
-
+            role = _quote_identifier(conn, name)
             for group in groups:
-                conn.execute(text(f"revoke {group} from {name}"))
+                _execute_ddl(
+                    conn, f"revoke {_quote_identifier(conn, group)} from {role}"
+                )
     except Exception as e:
         logger.error("users.remove_member(): %s %s", type(e), utils.to_unicode(e))
-
-
-from sqlalchemy import text
 
 
 def get_members(group):
@@ -262,9 +266,8 @@ def drop(role, revoke: bool = False) -> None:
         with db.engine.begin() as conn:
             if revoke:
                 set_privilege(role, None)
-            from sqlalchemy import text
 
-            conn.execute(text(f"drop role {role};"))
+            _execute_ddl(conn, f"drop role {_quote_identifier(conn, role)};")
     except Exception as e:
         logger.error("users.drop(): %s %s", type(e), utils.to_unicode(e))
         raise
@@ -328,8 +331,6 @@ def has_privileges(role, privilege):
     - `role`:
     - `privileges`:
     """
-    from sqlalchemy import text
-
     # if the user has all on database with grant privileges and he has
     # the grant privilege on the database then he has admin and he can
     # create roles
@@ -409,55 +410,63 @@ def set_privilege(role, privilege) -> None:
         privs = _privileges[privilege]
 
     try:
-        from sqlalchemy import text
-
         with db.engine.begin() as conn:
+            role_name = _quote_identifier(conn, role)
+            database = _quote_identifier(conn, db.engine.url.database)
             # revoke everything first
             for table in db.metadata.sorted_tables:
-                conn.execute(text(f"revoke all on table {table.name} from {role};"))
+                table_name = conn.dialect.identifier_preparer.format_table(table)
+                _execute_ddl(
+                    conn, f"revoke all on table {table_name} from {role_name};"
+                )
                 for col in table.c:
                     if hasattr(col, "sequence"):
-                        conn.execute(
-                            text(
-                                f"revoke all on sequence {col.sequence.name} from {role};"
-                            )
+                        sequence_name = _quote_identifier(conn, col.sequence.name)
+                        _execute_ddl(
+                            conn,
+                            f"revoke all on sequence {sequence_name} from {role_name};",
                         )
 
-            conn.execute(
-                text(
-                    f"revoke all on database {bauble.db.engine.url.database} from {role}"
-                )
-            )
-            conn.execute(text(f"alter role {role} with nocreaterole"))
+            _execute_ddl(conn, f"revoke all on database {database} from {role_name}")
+            _execute_ddl(conn, f"alter role {role_name} with nocreaterole")
 
             if not privilege:
                 return
 
             # Grant privileges on the database
             if privilege == "admin":
-                stmt = f"grant all on database {bauble.db.engine.url.database} to {role} with grant option"
-                conn.execute(stmt)
-                conn.execute(text(f"alter role {role} with createuser"))
+                stmt = (
+                    f"grant all on database {database} to {role_name} "
+                    "with grant option"
+                )
+                _execute_ddl(conn, stmt)
+                _execute_ddl(conn, f"alter role {role_name} with createuser")
 
             # Grant on tables and sequences
             for table in bauble.db.metadata.sorted_tables:
                 logger.debug("granting privileges on table %s", table)
+                table_name = conn.dialect.identifier_preparer.format_table(table)
                 for priv in [x for x in privs if x.lower() in _table_privs]:
-                    stmt = f"grant {priv} on {table.name} to {role}"
+                    stmt = f"grant {priv} on {table_name} to {role_name}"
                     if privilege == "admin":
                         stmt += " with grant option"
                     logger.debug(stmt)
-                    conn.execute(stmt)
+                    _execute_ddl(conn, stmt)
 
                 for col in table.c:
                     for priv in [x for x in privs if x.lower() in __sequence_privs]:
                         if has_implicit_sequence(col):
-                            sequence_name = f"{table.name}_{col.name}_seq"
-                            stmt = f"grant {priv} on sequence {sequence_name} to {role}"
+                            sequence_name = _quote_identifier(
+                                conn, f"{table.name}_{col.name}_seq"
+                            )
+                            stmt = (
+                                f"grant {priv} on sequence {sequence_name} "
+                                f"to {role_name}"
+                            )
                             if privilege == "admin":
                                 stmt += " with grant option"
                             logger.debug(stmt)
-                            conn.execute(stmt)
+                            _execute_ddl(conn, stmt)
 
     except Exception as e:
         logger.error("users.set_privilege(): %s %s", type(e), utils.to_unicode(e))
@@ -476,8 +485,11 @@ def set_password(password, user: Optional[Any] = None) -> None:
 
     try:
         with db.engine.begin() as conn:
-            stmt = f"alter role {user} with encrypted password '{password}'"
-            conn.execute(stmt)
+            stmt = (
+                f"alter role {_quote_identifier(conn, user)} "
+                "with encrypted password :password"
+            )
+            _execute_ddl(conn, stmt, {"password": password})
     except Exception as e:
         logger.error("users.set_password(): %s %s", type(e), utils.to_unicode(e))
 
@@ -544,8 +556,7 @@ class UsersEditor(editor.GenericEditorView):
 
         # only superusers can toggle the admin flag
         stmt = text(
-            "select rolname from pg_roles "
-            "where rolsuper is true and rolname = :role"
+            "select rolname from pg_roles " "where rolsuper is true and rolname = :role"
         )
         with db.engine.connect() as conn:
             r = conn.execute(stmt, {"role": current_user()}).fetchone()
