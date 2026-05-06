@@ -96,8 +96,7 @@ class Contact(Base, Serializable, WithNotes):
         "Source",
         uselist=True,
         back_populates="source_detail",
-        cascade="all, delete-orphan",
-        single_parent=True,
+        cascade="save-update, merge",
         active_history=True,
     )
 

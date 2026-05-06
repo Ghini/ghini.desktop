@@ -307,6 +307,27 @@ def test_deleting_source_does_not_delete_contact(db_session, setup_accession) ->
     assert db_session.get(Contact, contact_id) is not None
 
 
+def test_deleting_contact_does_not_delete_source(db_session, setup_accession) -> None:
+    """Contacts are reusable source details and do not own source rows."""
+    accession = setup_accession["accession"]
+    contact = Contact(name="Reusable contact")
+    source = Source(accession=accession, source_detail=contact)
+    db_session.add(source)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    contact_id = contact.id
+    source_id = source.id
+    db_session.delete(contact)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    source = db_session.get(Source, source_id)
+    assert db_session.get(Contact, contact_id) is None
+    assert source is not None
+    assert source.source_detail is None
+
+
 def test_deleting_propagation_does_not_delete_plant(db_session, setup_plants) -> None:
     """Propagations may be deleted without deleting their source plant."""
     plant = setup_plants[0]
