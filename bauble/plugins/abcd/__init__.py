@@ -383,7 +383,8 @@ class ABCDExporter:
             from sqlalchemy import func, select
 
             stmt = select(func.count()).select_from(Plant)
-            nplants = db.Session().execute(stmt).scalar_one()
+            with db.Session() as session:
+                nplants = session.execute(stmt).scalar_one()
 
         if nplants > 3000:
             msg = _(
@@ -397,6 +398,7 @@ class ABCDExporter:
 
     def run(self, filename, plants: Optional[Any] = None) -> None:
         from bauble.plugins.garden.models import Plant
+
         if filename is None:
             raise ValueError("filename can not be None")
 
@@ -406,11 +408,17 @@ class ABCDExporter:
         # if plants is None then export all plants, this could be huge
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
+        session = None
         if plants is None:
             stmt = select(Plant)
-            plants = db.Session().execute(stmt).scalars().all()
+            session = db.Session()
+            plants = session.execute(stmt).scalars().all()
 
-        data = plants_to_abcd(plants)
+        try:
+            data = plants_to_abcd(plants)
+        finally:
+            if session is not None:
+                session.close()
 
         data.write_c14n(filename)
 
