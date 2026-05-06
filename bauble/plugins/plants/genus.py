@@ -417,8 +417,7 @@ class Genus(Base, Serializable, WithNotes):
 
         except Exception as e:
             if session.in_transaction():
-                if session.in_transaction():
-                    session.rollback()  # Rollback on failure
+                session.rollback()  # Rollback on failure
             logger.error(f"Error setting accepted synonym: {e}")
 
     @staticmethod

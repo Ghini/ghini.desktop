@@ -864,8 +864,7 @@ def untag_objects(name: str, objs: list) -> None:
     except Exception as e:
         logger.error(f"Failed to commit changes while untagging objects: {e}")
         if session.in_transaction():
-            if session.in_transaction():
-                session.rollback()
+            session.rollback()
 
 
 # create the classname stored in the tagged_obj table
@@ -903,8 +902,7 @@ def tag_objects(name: str, objects: list) -> None:
     except Exception as e:
         logger.error(f"An error occurred while tagging objects: {e}")
         if session.in_transaction():
-            if session.in_transaction():
-                session.rollback()
+            session.rollback()
 
 
 def get_tag_ids(objs):

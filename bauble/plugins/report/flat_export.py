@@ -304,8 +304,7 @@ class FlatFileExporter(GenericEditorPresenter):
                 spamwriter.writerow(row)
                 rows_count += 1
             if session.in_transaction():
-                if session.in_transaction():
-                    session.rollback()
+                session.rollback()
         return {"count": rows_count, "filename": filename}
 
 

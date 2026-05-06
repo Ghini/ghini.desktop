@@ -510,8 +510,7 @@ class JSONImporter(editor.GenericEditorPresenter):
                     session.commit()
             except Exception as e:
                 if session.in_transaction():
-                    if session.in_transaction():
-                        session.rollback()
+                    session.rollback()
                 logger.warning(f"could not import {obj} ({type(e).__name__}: {e.args})")
             pb_set_fraction(float(i) / n)
             yield
