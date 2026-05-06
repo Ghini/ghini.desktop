@@ -207,8 +207,7 @@ def define_propagation_relationships(
         propagation,
         secondary=plant_propagation,
         back_populates="plants",
-        cascade="all, delete-orphan",
-        single_parent=True,
+        cascade="save-update, merge",
     )
 
     propagation.plants: List["Plant"] = relationship(  # type: ignore[assignment]

@@ -325,6 +325,44 @@ def test_deleting_propagation_does_not_delete_plant(db_session, setup_plants) ->
     assert db_session.get(Plant, plant_id) is not None
 
 
+def test_propagation_can_reference_multiple_plants(db_session, setup_plants) -> None:
+    """A propagation may use material from more than one source plant."""
+    plants = setup_plants[:2]
+    propagation = Propagation(plants=plants, prop_type="UnrootedCutting")
+    db_session.add(propagation)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    propagation_id = propagation.id
+    db_session.expire_all()
+
+    propagation = db_session.get(Propagation, propagation_id)
+    assert {plant.id for plant in propagation.plants} == {plant.id for plant in plants}
+
+
+def test_deleting_source_plant_does_not_delete_shared_propagation(
+    db_session, setup_plants
+) -> None:
+    """Plants do not own shared propagation records through the association table."""
+    plants = setup_plants[:2]
+    propagation = Propagation(plants=plants, prop_type="UnrootedCutting")
+    db_session.add(propagation)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    propagation_id = propagation.id
+    deleted_plant_id = plants[0].id
+    remaining_plant_id = plants[1].id
+    db_session.delete(plants[0])
+    if db_session.in_transaction():
+        db_session.commit()
+
+    propagation = db_session.get(Propagation, propagation_id)
+    assert db_session.get(Plant, deleted_plant_id) is None
+    assert propagation is not None
+    assert {plant.id for plant in propagation.plants} == {remaining_plant_id}
+
+
 # Constants for test data
 default_cutting_values = {
     "cutting_type": "Nodal",
@@ -484,6 +522,7 @@ def test_propagation_get_summary_cutting(db_session, setup_plants) -> None:
     prop = Propagation(plants=[plant], prop_type="UnrootedCutting")
     cutting = PropCutting(**default_cutting_values)
     cutting.propagation = prop
+    db_session.add(prop)
     if db_session.in_transaction():
         db_session.commit()
 
