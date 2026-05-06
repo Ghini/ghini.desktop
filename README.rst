@@ -82,6 +82,14 @@ then download and run `devinstall.bat <https://raw.githubusercontent.com/Ghini/g
 
 Or also read the rest.
 
+Linux Docker development
+------------------------
+
+For current Linux development, use the Ubuntu 24.04 Docker workflow documented
+in ``doc/docker-development.md``. It provides deterministic Python dependency
+locks, GTK 3.24/PyGObject runtime packages, X11 GUI launching, VS Code tasks,
+debugpy support, formatting, pytest, and warning-gated migration checks.
+
 Further info
 ------------
 

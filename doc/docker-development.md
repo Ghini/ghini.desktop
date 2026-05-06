@@ -40,6 +40,33 @@ image name with `GHINI_IMAGE` in `.env` or in the shell.
 The development image installs Python packages from committed lock files in
 `requirements/`. This keeps rebuilds deterministic for a given Git commit.
 
+`Dockerfile.dev` and `scripts/docker-dev` are the supported development
+workflow. The root `Dockerfile` is older experimental packaging work and should
+not be used as the source of truth for local development, testing, or merge
+request validation.
+
+## Branch Workflow
+
+Use `ghini-4-dev-clean` as the current integration branch for the Python,
+SQLAlchemy, GTK 3.24, Docker, and developer tooling work. Keep feature and fix
+branches small, then merge or cherry-pick them back to `ghini-4-dev-clean` once
+their focused tests and warning-gated suite pass.
+
+The `search` branch is preserved as a fallback branch. Do not use it as the
+integration base for new work.
+
+The `search-clean-history` branch is a tracking branch for the old `search`
+work. Its commit subjects use state markers:
+
+- `[D]`: the intent is already ported to `ghini-4-dev-clean`.
+- `[P]`: the intent is partially ported and should remain on the migration
+  checklist.
+- `[T]`: the intent is still todo.
+
+When additional old work is ported, update `search-clean-history` so the
+corresponding commit body records the `ghini-4-dev-clean` commit hash with
+`(ported: ...)` or `(partial: ...)`.
+
 ## Updating Python Dependencies
 
 Edit the dependency declarations in `pyproject.toml`, then regenerate the Docker
@@ -174,6 +201,35 @@ scripts/docker-dev warnings
 behavioral coverage. `warnings` repeats the full suite with deprecation
 warnings promoted to errors, which is the final gate for dependency migration
 work.
+
+## SQLAlchemy Migration Policy
+
+The migration target is SQLAlchemy 2.x. Current development should use
+SQLAlchemy 2 style APIs and keep legacy deprecations out of new code:
+
+- Prefer `select(...)`, `session.execute(...)`, `scalars()`, `mappings()`, and
+  `session.get(...)` over legacy `Query` APIs.
+- Wrap textual SQL in `sqlalchemy.text(...)`.
+- Preserve the legacy database schema unless a change is intentional and
+  documented. In particular, typed ORM annotations must not accidentally turn
+  legacy nullable columns into `NOT NULL` columns.
+- Keep relationship ownership explicit. Use `delete-orphan` only where the
+  parent truly owns the child row, and add focused tests for scalar/list and
+  cascade behavior.
+- Run `scripts/docker-dev warnings` before pushing SQLAlchemy migration work.
+
+When auditing model changes, compare the intended schema against the upstream
+3.1 development baseline and fix only accidental schema changes. Existing user
+databases must remain connectable during the migration.
+
+## GTK Policy
+
+Ghini Desktop stays on GTK 3.24. Do not migrate the application to GTK 4.
+
+Compatibility helpers may be written in a way that does not make a future GTK 4
+migration harder, but GTK 4 should not drive current design decisions, Glade UI
+changes, or dependency choices. Use Ubuntu 24.04's GTK 3, PyGObject, and GI
+typelib packages from the Docker image as the reference runtime.
 
 ## Private Hostnames
 
