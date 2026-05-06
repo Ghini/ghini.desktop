@@ -180,23 +180,26 @@ def get_next_code(acc):
     session = db.Session()
     from bauble.plugins.garden.models import Accession
 
-    codes = (
-        session.execute(
-            select(Plant.code)
-            .join(Accession, Plant.accession_id == Accession.id)
-            .where(Accession.id == acc.id)
+    try:
+        codes = (
+            session.execute(
+                select(Plant.code)
+                .join(Accession, Plant.accession_id == Accession.id)
+                .where(Accession.id == acc.id)
+            )
+            .scalars()
+            .all()
         )
-        .scalars()
-        .all()
-    )
-    next = 1
-    if codes:
-        try:
-            next = max([int(code[0]) for code in codes]) + 1
-        except Exception as e:
-            logger.debug(e)
-            return None
-    return utils.to_unicode(next)
+        next = 1
+        if codes:
+            try:
+                next = max([int(code[0]) for code in codes]) + 1
+            except Exception as e:
+                logger.debug(e)
+                return None
+        return utils.to_unicode(next)
+    finally:
+        session.close()
 
 
 def is_code_unique(plant, code):
@@ -232,9 +235,11 @@ def is_code_unique(plant, code):
         .subquery()
     )
 
-    count = session.execute(stmt, {"codes": codes}).scalar_one()
-    session.close()
-    return count == 0
+    try:
+        count = session.execute(stmt, {"codes": codes}).scalar_one()
+        return count == 0
+    finally:
+        session.close()
 
 
 class PlantEditorView(GenericEditorView):

@@ -70,6 +70,7 @@ def add_plants_callback(locations):
 
 def remove_callback(locations):
     from bauble.plugins.garden import Location
+
     loc = locations[0]
     s = f"{loc.__class__.__name__}: {str(loc)}"
     if len(loc.plants) > 0:
@@ -82,11 +83,11 @@ def remove_callback(locations):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = db.Session()
-        obj = session.get(Location, loc.id)
-        session.delete(obj)
-        if session.in_transaction():
-            session.commit()
+        with db.Session() as session:
+            obj = session.get(Location, loc.id)
+            session.delete(obj)
+            if session.in_transaction():
+                session.commit()
     except Exception as e:
         msg = _("Could not delete.\n\n%s") % utils.xml_safe(e)
         utils.message_details_dialog(
@@ -270,7 +271,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         stmt = Plant.query_with_default_order().where(Plant.location == self.merger_candidate)
         for p in (self.session.execute(stmt).scalars().all()):
             p.location = self.model
-        
+
         stmt = PlantChange.query_with_default_order().where(
                     PlantChange.from_location == self.merger_candidate
                 )
