@@ -363,6 +363,25 @@ def test_deleting_source_plant_does_not_delete_shared_propagation(
     assert {plant.id for plant in propagation.plants} == {remaining_plant_id}
 
 
+def test_source_plant_propagation_is_scalar(db_session, setup_accession, setup_plants):
+    """A source references one plant-propagation trial, not a list of trials."""
+    accession = setup_accession["accession"]
+    propagation = Propagation(plants=[setup_plants[0]], prop_type="UnrootedCutting")
+    source = Source(accession=accession, plant_propagation=propagation)
+    db_session.add_all([propagation, source])
+    if db_session.in_transaction():
+        db_session.commit()
+
+    source_id = source.id
+    propagation_id = propagation.id
+    db_session.expire_all()
+
+    source = db_session.get(Source, source_id)
+    propagation = db_session.get(Propagation, propagation_id)
+    assert source.plant_propagation is propagation
+    assert source in propagation.used_source
+
+
 # Constants for test data
 default_cutting_values = {
     "cutting_type": "Nodal",

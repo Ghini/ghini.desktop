@@ -102,7 +102,7 @@ class Source(Base):
     # relation to a successful Plant Propagation trial. In this case, the
     # Propagation points back to all Accessions that resulted from it, via
     # `used_source[i].accession`. Arguably not practical.
-    # link back to a Plant-Propagation trial
+    # link back to a single Plant-Propagation trial
     plant_propagation_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("propagation.id")
     )
@@ -110,7 +110,7 @@ class Source(Base):
         "Propagation",
         primaryjoin="Source.plant_propagation_id==Propagation.id",
         back_populates="used_source",
-        uselist=True,
+        uselist=False,
         foreign_keys=[plant_propagation_id],
     )
 
