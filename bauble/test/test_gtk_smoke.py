@@ -11,6 +11,13 @@ import bauble.prefs as prefs
 from bauble.connmgr import ConnMgrPresenter
 from bauble.editor import GenericEditorView
 from bauble.gtkinit import Gtk
+from bauble.plugins.plants.family import Family, FamilyEditorPresenter, FamilyEditorView
+from bauble.plugins.plants.genus import Genus, GenusEditorPresenter, GenusEditorView
+from bauble.plugins.plants.species import Species
+from bauble.plugins.plants.species_editor import (
+    SpeciesEditorPresenter,
+    SpeciesEditorView,
+)
 
 prefs.testing = True
 
@@ -233,6 +240,39 @@ def connmgr_view():
             Gtk.main_iteration_do(False)
 
 
+@pytest.fixture
+def family_editor_view():
+    view = FamilyEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def genus_editor_view():
+    view = GenusEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def species_editor_view():
+    view = SpeciesEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
 @pytest.fixture(autouse=True)
 def disable_connection_manager_background_threads(monkeypatch):
     monkeypatch.setattr(ConnMgrPresenter, "start_thread", lambda self, thread: thread)
@@ -424,3 +464,85 @@ def test_connection_manager_add_and_remove_connection(
     assert presenter.connections == {}
     assert connmgr_view.widget_get_visible("noconnectionlabel")
     assert not connmgr_view.widget_get_visible("expander")
+
+
+def test_family_editor_presenter_populates_and_edits_fields(
+    session, family_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    presenter = FamilyEditorPresenter(family, family_editor_view)
+
+    assert family_editor_view.widget_get_value("fam_family_entry") == "Arecaceae"
+    assert family_editor_view.widget_get_value("fam_qualifier_combo") == ""
+    assert not family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+    family_editor_view.widget_set_value("fam_family_entry", "Palmae")
+    presenter.on_text_entry_changed("fam_family_entry")
+
+    assert family.epithet == "Palmae"
+    assert presenter.is_dirty()
+    assert family_editor_view.widgets.fam_ok_button.get_sensitive()
+    assert family_editor_view.widgets.fam_ok_and_add_button.get_sensitive()
+    assert family_editor_view.widgets.fam_next_button.get_sensitive()
+
+
+def test_genus_editor_presenter_populates_and_edits_fields(session, genus_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    session.add_all([family, genus])
+    session.flush()
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+
+    assert genus.family == family
+    assert genus_editor_view.widget_get_value("gen_family_entry") == "Arecaceae"
+    assert genus_editor_view.widget_get_value("gen_genus_entry") == "Cocos"
+    assert genus_editor_view.widget_get_value("gen_author_entry") == "L."
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    genus_editor_view.widget_set_value("gen_genus_entry", "Phoenix")
+    presenter.on_text_entry_changed("gen_genus_entry")
+    genus_editor_view.widget_set_value("gen_author_entry", "Mill.")
+    presenter.on_text_entry_changed("gen_author_entry")
+
+    assert genus.epithet == "Phoenix"
+    assert genus.author == "Mill."
+    assert presenter.is_dirty()
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
+    assert genus_editor_view.widgets.gen_ok_and_add_button.get_sensitive()
+    assert genus_editor_view.widgets.gen_next_button.get_sensitive()
+
+
+def test_species_editor_presenter_populates_and_edits_fields(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+
+    assert species.genus == genus
+    assert species_editor_view.widget_get_value("sp_genus_entry") == "Cocos"
+    assert species_editor_view.widget_get_value("sp_species_entry") == "nucifera"
+    assert species_editor_view.widget_get_value("sp_author_entry") == "L."
+    assert not species_editor_view.widget_get_active("sp_hybrid_check")
+
+    species_editor_view.widget_set_value("sp_species_entry", "odorata")
+    presenter.on_text_entry_changed("sp_species_entry")
+    species_editor_view.widget_set_value("sp_author_entry", "Dammer")
+    presenter.on_text_entry_changed("sp_author_entry")
+    species_editor_view.widget_set_active("sp_hybrid_check", True)
+    presenter.on_chkbx_toggled("sp_hybrid_check")
+
+    assert species.epithet == "odorata"
+    assert species.author == "Dammer"
+    assert species.hybrid is True
+    assert presenter.is_dirty()
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
+    assert species_editor_view.widgets.sp_next_button.get_sensitive()

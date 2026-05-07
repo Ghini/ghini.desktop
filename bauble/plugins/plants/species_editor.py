@@ -547,7 +547,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # We handled the signal so stop it from being processed further.
         try:
-            entry.stop_emission("insert-text")
+            entry.stop_emission_by_name("insert-text")
         except Exception as e:
             logger.debug("Could not stop species entry insert-text emission: %s", e)
 
