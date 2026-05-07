@@ -15,7 +15,10 @@ from bauble.plugins.garden.location_editor import (
     LocationEditorPresenter,
     LocationEditorView,
 )
+from bauble.plugins.garden.models.accession import Accession
 from bauble.plugins.garden.models.location import Location
+from bauble.plugins.garden.models.plant import Plant
+from bauble.plugins.garden.plant_editor import PlantEditorPresenter, PlantEditorView
 from bauble.plugins.plants.family import Family, FamilyEditorPresenter, FamilyEditorView
 from bauble.plugins.plants.genus import Genus, GenusEditorPresenter, GenusEditorView
 from bauble.plugins.plants.species import Species
@@ -281,6 +284,17 @@ def species_editor_view():
 @pytest.fixture
 def location_editor_view():
     view = LocationEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def plant_editor_view():
+    view = PlantEditorView()
     try:
         yield view
     finally:
@@ -617,3 +631,81 @@ def test_location_editor_requires_code_before_accept(session, location_editor_vi
 
     assert location.code == "U1"
     assert location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+
+def make_test_plant(session):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    accession = Accession(code="2026.001", species=species)
+    location = Location(code="P1", name="Palm House", description=None)
+    plant = Plant(
+        accession=accession,
+        location=location,
+        code="1",
+        quantity=1,
+        acc_type="Plant",
+        memorial=False,
+    )
+    session.add_all([family, genus, species, accession, location, plant])
+    session.flush()
+    return plant
+
+
+def test_plant_editor_presenter_populates_and_edits_code(
+    monkeypatch, session, plant_editor_view
+):
+    monkeypatch.setattr(prefs, "testing", False)
+    plant = make_test_plant(session)
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+
+    assert plant_editor_view.widget_get_value("plant_acc_entry") == "2026.001"
+    assert plant_editor_view.widget_get_value("plant_code_entry") == "1"
+    assert plant_editor_view.widget_get_value("plant_quantity_entry") == "1"
+    assert (
+        plant_editor_view.widget_get_value("plant_loc_comboentry") == "(P1) Palm House"
+    )
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+    plant_editor_view.widget_set_value("plant_code_entry", "2")
+    presenter.on_plant_code_entry_changed(plant_editor_view.widgets.plant_code_entry)
+
+    assert plant.code == "2"
+    assert presenter.is_dirty()
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+    assert plant_editor_view.widgets.pad_next_button.get_sensitive()
+
+
+def test_plant_editor_quantity_changes_update_model(
+    monkeypatch, session, plant_editor_view
+):
+    monkeypatch.setattr(prefs, "testing", False)
+    plant = make_test_plant(session)
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    plant_editor_view.widget_set_value("plant_quantity_entry", "3")
+
+    presenter.on_quantity_changed(plant_editor_view.widgets.plant_quantity_entry)
+
+    assert plant.quantity == 3
+    assert presenter.change.quantity == 2
+    assert presenter.is_dirty()
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+
+def test_plant_editor_invalid_quantity_blocks_accept(
+    monkeypatch, session, plant_editor_view
+):
+    monkeypatch.setattr(prefs, "testing", False)
+    plant = make_test_plant(session)
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    plant_editor_view.widgets.plant_quantity_entry.set_text("not a number")
+
+    assert plant.quantity == 1
+    assert plant_editor_view.widgets.plant_quantity_entry.get_text() == "1"
+    assert not presenter.has_problems()
+    assert not presenter.is_dirty()
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+    assert not plant_editor_view.widgets.pad_next_button.get_sensitive()

@@ -499,20 +499,29 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.change.date = entry.set_text
 
     def on_quantity_changed(self, entry, *args) -> None:
-        value = entry.set_text
+        value = entry.get_text()
         try:
             value = int(value)
-        except ValueError as e:
+        except (TypeError, ValueError) as e:
             logger.debug(e)
             value = None
+        if value is None:
+            self.add_problem(self.PROBLEM_INVALID_QUANTITY, entry)
+            self.refresh_sensitivity()
+            return
+        if value == self.model.quantity:
+            self.remove_problem(self.PROBLEM_INVALID_QUANTITY, entry)
+            if self._original_quantity is not None and value != self._original_quantity:
+                self._dirty = True
+                self.change.quantity = abs(self._original_quantity - value)
+            self.refresh_sensitivity()
+            return
         self.set_model_attr("quantity", value)
         if value < self.lower_quantity_limit or value >= self.upper_quantity_limit:
             self.add_problem(self.PROBLEM_INVALID_QUANTITY, entry)
         else:
             self.remove_problem(self.PROBLEM_INVALID_QUANTITY, entry)
         self.refresh_sensitivity()
-        if value is None:
-            return
         if self._original_quantity:
             self.change.quantity = abs(self._original_quantity - self.model.quantity)
         else:
