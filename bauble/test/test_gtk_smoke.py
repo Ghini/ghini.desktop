@@ -1,10 +1,14 @@
 import os
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+import bauble
+import bauble.connmgr as connmgr
 import bauble.paths as paths
 import bauble.prefs as prefs
+from bauble.connmgr import ConnMgrPresenter
 from bauble.editor import GenericEditorView
 from bauble.gtkinit import Gtk
 
@@ -198,6 +202,42 @@ ROOT_WIDGETS = {
 }
 
 
+class SaveablePrefs(dict):
+    def save(self):
+        return None
+
+
+@pytest.fixture
+def gtk_prefs(tmp_path):
+    store = SaveablePrefs()
+    store[bauble.conn_list_pref] = {}
+    store[bauble.conn_default_pref] = None
+    store[prefs.picture_root_pref] = str(tmp_path / "pictures")
+    return SimpleNamespace(
+        prefs=store,
+        testing=True,
+        picture_root_pref=prefs.picture_root_pref,
+    )
+
+
+@pytest.fixture
+def connmgr_view():
+    view = GenericEditorView(
+        str(LIB_DIR / "connmgr.glade"), root_widget_name="main_dialog"
+    )
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture(autouse=True)
+def disable_connection_manager_background_threads(monkeypatch):
+    monkeypatch.setattr(ConnMgrPresenter, "start_thread", lambda self, thread: thread)
+
+
 def glade_files():
     return sorted(LIB_DIR.glob("**/*.glade"))
 
@@ -255,3 +295,132 @@ def test_generic_editor_view_loads_root_widget(relative_name, root_widget):
         window.destroy()
         while Gtk.events_pending():
             Gtk.main_iteration_do(False)
+
+
+def test_connection_manager_empty_state(connmgr_view, gtk_prefs):
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    assert presenter.connection_names == []
+    assert connmgr_view.widget_get_visible("noconnectionlabel")
+    assert not connmgr_view.widget_get_visible("expander")
+    assert not connmgr_view.widgets.connect_button.get_sensitive()
+
+
+def test_connection_manager_populates_postgresql_connection(connmgr_view, gtk_prefs):
+    gtk_prefs.prefs[bauble.conn_list_pref] = {
+        "Wyse Home Garden": {
+            "type": "PostgreSQL",
+            "db": "ghini_test3",
+            "host": "postgres",
+            "port": 5432,
+            "user": "ghini",
+            "passwd": True,
+            "pictures": "/app/Wyse Home Garden",
+        }
+    }
+    gtk_prefs.prefs[bauble.conn_default_pref] = "Wyse Home Garden"
+
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    assert presenter.connection_name == "Wyse Home Garden"
+    assert connmgr_view.combobox_get_active_text("name_combo") == "Wyse Home Garden"
+    assert connmgr_view.combobox_get_active_text("type_combo") == "PostgreSQL"
+    assert connmgr_view.widget_get_value("database_entry") == "ghini_test3"
+    assert connmgr_view.widget_get_value("host_entry") == "postgres"
+    assert connmgr_view.widget_get_value("port_entry") == "5432"
+    assert connmgr_view.widget_get_value("user_entry") == "ghini"
+    assert connmgr_view.widget_get_active("passwd_chkbx")
+    assert (
+        connmgr_view.widget_get_value("pictureroot2_entry") == "/app/Wyse Home Garden"
+    )
+    assert connmgr_view.widget_get_visible("dbms_parambox")
+    assert not connmgr_view.widget_get_visible("sqlite_parambox")
+    assert connmgr_view.widgets.connect_button.get_sensitive()
+
+
+def test_connection_manager_entry_edits_update_presenter(connmgr_view, gtk_prefs):
+    gtk_prefs.prefs[bauble.conn_list_pref] = {
+        "dev": {
+            "type": "PostgreSQL",
+            "db": "old_db",
+            "host": "old_host",
+            "port": 5432,
+            "user": "old_user",
+            "passwd": False,
+            "pictures": "/tmp/dev",
+        }
+    }
+    gtk_prefs.prefs[bauble.conn_default_pref] = "dev"
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    connmgr_view.widget_set_value("database_entry", "new_db")
+    presenter.on_text_entry_changed("database_entry")
+    connmgr_view.widget_set_value("host_entry", "new_host")
+    presenter.on_text_entry_changed("host_entry")
+    connmgr_view.widget_set_value("port_entry", "6543")
+    presenter.on_text_entry_changed("port_entry")
+    connmgr_view.widget_set_value("user_entry", "new_user")
+    presenter.on_text_entry_changed("user_entry")
+    connmgr_view.widget_set_active("passwd_chkbx", True)
+    presenter.on_chkbx_toggled("passwd_chkbx")
+
+    assert presenter.database == "new_db"
+    assert presenter.host == "new_host"
+    assert presenter.port == "6543"
+    assert presenter.user == "new_user"
+    assert presenter.passwd is True
+    assert presenter.is_dirty()
+
+
+def test_connection_manager_switches_between_db_sections(connmgr_view, gtk_prefs):
+    gtk_prefs.prefs[bauble.conn_list_pref] = {
+        "dev": {
+            "type": "PostgreSQL",
+            "db": "ghini",
+            "host": "postgres",
+            "port": 5432,
+            "user": "ghini",
+            "passwd": False,
+            "pictures": "/tmp/dev",
+        }
+    }
+    gtk_prefs.prefs[bauble.conn_default_pref] = "dev"
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    connmgr_view.combobox_set_active("type_combo", connmgr.dbtypes.index("SQLite"))
+    presenter.on_combo_changed("type_combo")
+
+    assert presenter.dbtype == "SQLite"
+    assert connmgr_view.widget_get_visible("sqlite_parambox")
+    assert not connmgr_view.widget_get_visible("dbms_parambox")
+
+    connmgr_view.combobox_set_active("type_combo", connmgr.dbtypes.index("PostgreSQL"))
+    presenter.on_combo_changed("type_combo")
+
+    assert presenter.dbtype == "PostgreSQL"
+    assert connmgr_view.widget_get_visible("dbms_parambox")
+    assert not connmgr_view.widget_get_visible("sqlite_parambox")
+
+
+def test_connection_manager_add_and_remove_connection(
+    monkeypatch, connmgr_view, gtk_prefs
+):
+    monkeypatch.setattr(connmgr, "prefs", gtk_prefs)
+    connmgr_view.run_entry_dialog = lambda *args, **kwargs: "new connection"
+    connmgr_view.run_yes_no_dialog = lambda *args, **kwargs: True
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    presenter.on_add_button_clicked()
+
+    assert presenter.connection_names == ["new connection"]
+    assert "new connection" in presenter.connections
+    assert connmgr_view.combobox_get_active_text("name_combo") == "new connection"
+    assert connmgr_view.widget_get_visible("expander")
+    assert not connmgr_view.widget_get_visible("noconnectionlabel")
+
+    presenter.on_remove_button_clicked(connmgr_view.widgets.remove_button)
+
+    assert presenter.connection_names == []
+    assert presenter.connections == {}
+    assert connmgr_view.widget_get_visible("noconnectionlabel")
+    assert not connmgr_view.widget_get_visible("expander")
