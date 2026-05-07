@@ -301,6 +301,75 @@ def test_can_create_genus_from_family_editor_chain(
     assert genus_count == 1
 
 
+def test_can_create_species_from_genus_editor_chain(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    family_name = "EESPECACEAE"
+    genus_name = "Eespecgenus"
+    species_name = "eospecies"
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Family", role_name="menu item")
+
+    family_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Family Editor",
+    )
+    family_entry = find_child_by_role(family_editor, "text")
+    assert family_entry is not None, dump_accessible_tree(family_editor)
+    family_entry.click()
+    dogtail_rawinput.typeText(family_name)
+
+    find_named_child(family_editor, "Add Genera", role_name="push button").click()
+
+    genus_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Genus Editor",
+    )
+    genus_entries = find_children_by_role(genus_editor, "text")
+    assert len(genus_entries) >= 2, dump_accessible_tree(genus_editor)
+    genus_entries[1].click()
+    dogtail_rawinput.typeText(genus_name)
+
+    find_named_child(genus_editor, "Add Species", role_name="push button").click()
+
+    species_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+    )
+    species_entries = find_children_by_role(species_editor, "text")
+    assert species_entries, dump_accessible_tree(species_editor)
+    species_entries[0].click()
+    dogtail_rawinput.typeText(species_name)
+
+    find_named_child(species_editor, "OK", role_name="push button").click()
+
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "frame" and node.name.startswith("Ghini"),
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    species_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select count(*) from species "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "where species.epithet = ? "
+            "and genus.epithet = ? "
+            "and family.epithet = ?"
+        ),
+        species_name,
+        genus_name,
+        family_name,
+    )
+    assert species_count == 1
+
+
 def connect_to_sqlite_database(dogtail_tree, connection_name):
     window = wait_for_node(
         dogtail_tree,
