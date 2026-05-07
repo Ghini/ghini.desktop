@@ -29,10 +29,16 @@ Recommended setup:
 
 ```sh
 scripts/docker-dev build
-scripts/docker-dev app
+scripts/docker-dev gtk-smoke
 ```
 
-Before starting manual checks:
+The automated smoke suite runs under Xvfb inside the Docker development image.
+It loads every Glade file, verifies the core widget IDs used by the main
+workflows, and instantiates the key root windows/dialogs through
+`GenericEditorView`.
+
+Manual checks are still useful when changing behavior that depends on live user
+interaction, database state, or visual layout. Before starting manual checks:
 
 - Confirm the window title shows the git-derived application version.
 - Confirm no GTK import/version warnings appear in the terminal during startup.

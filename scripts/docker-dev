@@ -10,6 +10,7 @@ Usage:
   scripts/docker-dev debug
   scripts/docker-dev format [paths...]
   scripts/docker-dev check [paths...]
+  scripts/docker-dev gtk-smoke [pytest args...]
   scripts/docker-dev pytest
   scripts/docker-dev pytest-debug
   scripts/docker-dev warnings
@@ -233,6 +234,12 @@ run_warning_check() {
         run_container pytest "$@"
 }
 
+run_gtk_smoke() {
+    GHINI_XHOST=0 run_container shell \
+        timeout 120 xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        python -m pytest bauble/test/test_gtk_smoke.py -q "$@"
+}
+
 run_lock() {
     GHINI_XHOST=0 run_container shell \
         bash -lc 'python -c "import piptools" 2>/dev/null || python -m pip install --no-cache-dir "pip-tools==7.5.3"; python scripts/compile-requirement-locks'
@@ -250,6 +257,9 @@ case "${command}" in
         ;;
     check)
         run_check "$@"
+        ;;
+    gtk-smoke)
+        run_gtk_smoke "$@"
         ;;
     warnings)
         run_warning_check "$@"
