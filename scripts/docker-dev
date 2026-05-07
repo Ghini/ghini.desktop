@@ -11,6 +11,7 @@ Usage:
   scripts/docker-dev format [paths...]
   scripts/docker-dev check [paths...]
   scripts/docker-dev gtk-smoke [pytest args...]
+  scripts/docker-dev gui-e2e [pytest args...]
   scripts/docker-dev pytest
   scripts/docker-dev pytest-debug
   scripts/docker-dev warnings
@@ -240,6 +241,14 @@ run_gtk_smoke() {
         python -m pytest bauble/test/test_gtk_smoke.py -q "$@"
 }
 
+run_gui_e2e() {
+    GHINI_XHOST=0 NO_AT_BRIDGE=0 run_container shell \
+        timeout 180 xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        dbus-run-session -- \
+        bash -lc 'gsettings set org.gnome.desktop.interface toolkit-accessibility true; python -m pytest bauble/test/test_gui_e2e.py -q "$@"' \
+        bash "$@"
+}
+
 run_lock() {
     GHINI_XHOST=0 run_container shell \
         bash -lc 'python -c "import piptools" 2>/dev/null || python -m pip install --no-cache-dir "pip-tools==7.5.3"; python scripts/compile-requirement-locks'
@@ -260,6 +269,9 @@ case "${command}" in
         ;;
     gtk-smoke)
         run_gtk_smoke "$@"
+        ;;
+    gui-e2e)
+        run_gui_e2e "$@"
         ;;
     warnings)
         run_warning_check "$@"

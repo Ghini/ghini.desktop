@@ -154,6 +154,31 @@ PYTEST_ARGS='bauble/test/test_search.py -q' scripts/docker-dev warnings
 scripts/docker-dev warnings bauble/plugins/garden/test.py -q
 ```
 
+## GTK Test Layers
+
+Run the headless GTK smoke suite:
+
+```sh
+scripts/docker-dev gtk-smoke
+```
+
+This suite loads real Glade widgets and instantiates editor views and
+presenters under Xvfb. It is fast enough for regular development and catches
+many GTK, validation, and presenter wiring regressions, but it does not drive
+the application as a black-box user.
+
+Run the GUI end-to-end suite:
+
+```sh
+scripts/docker-dev gui-e2e
+```
+
+This suite launches the real application under Xvfb, enables AT-SPI, and uses
+dogtail accessibility APIs to inspect and interact with windows, dialogs, and
+controls. It is intentionally separate from `gtk-smoke` because it is slower,
+depends on accessibility names and roles, and is more sensitive to windowing
+behavior.
+
 ## Formatting And Checks
 
 Format changed Python files with Black:
