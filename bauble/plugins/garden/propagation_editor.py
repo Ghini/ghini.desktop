@@ -219,6 +219,7 @@ class PropagationTabPresenter(PropagationHandler, editor.GenericEditorPresenter)
         propagation to self.model.propagations
         """
         from bauble.plugins.garden.models import Propagation as Propagation
+
         propagation = Propagation()
         propagation.prop_type = "Seed"  # a reasonable default
         add_to_relationship(self.model.propagations, propagation)
@@ -233,7 +234,6 @@ class PropagationTabPresenter(PropagationHandler, editor.GenericEditorPresenter)
             self._dirty = True
         else:
             propagation.plant = None
-
 
 
 class PropagationEditorView(editor.GenericEditorView):
@@ -290,6 +290,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         :param view: an instance of PropagationEditorView
         """
         from bauble.plugins.garden.models import PropCutting
+
         super().__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
@@ -454,7 +455,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
     def on_rooted_add_clicked(self, button, *args) -> None:
         """ """
-        from bauble.plugins.garden import PropCuttingRooted
+        from bauble.plugins.garden.models import PropCuttingRooted
+
         tree = self.view.widgets.rooted_treeview
         rooted = PropCuttingRooted()
         rooted.cutting = self.model  # this lays the database link
@@ -516,6 +518,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
         :param view: an instance of PropagationEditorView
         """
         from bauble.plugins.garden.models import PropSeed
+
         super().__init__(model, view)
         self._dirty = False
         self.parent_ref = weakref.ref(parent)
@@ -804,7 +807,8 @@ class PropagationEditorPresenter(PropagationPresenter):
         super().refresh_sensitivity()
         sensitive = True
 
-        if utils.get_invalid_columns(self.model):
+        ignore = ["id", "_created", "_last_updated"]
+        if utils.get_invalid_columns(self.model, ignore):
             sensitive = False
 
         model = None
@@ -815,7 +819,7 @@ class PropagationEditorPresenter(PropagationPresenter):
                 model = self.model._seed
 
         if model:
-            invalid = utils.get_invalid_columns(model, ["id", "propagation_id"])
+            invalid = utils.get_invalid_columns(model, ignore + ["propagation_id"])
             # TODO: highlight the widget with are associated with the
             # columns that have bad values
             if invalid:

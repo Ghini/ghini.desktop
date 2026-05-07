@@ -1,3 +1,4 @@
+import datetime
 import os
 from pathlib import Path
 from types import SimpleNamespace
@@ -23,6 +24,11 @@ from bauble.plugins.garden.models.accession import Accession
 from bauble.plugins.garden.models.location import Location
 from bauble.plugins.garden.models.plant import Plant
 from bauble.plugins.garden.plant_editor import PlantEditorPresenter, PlantEditorView
+from bauble.plugins.garden.propagation_editor import (
+    PropagationEditorPresenter,
+    PropagationEditorView,
+)
+from bauble.plugins.garden.models.propagation import Propagation
 from bauble.plugins.plants.family import Family, FamilyEditorPresenter, FamilyEditorView
 from bauble.plugins.plants.genus import Genus, GenusEditorPresenter, GenusEditorView
 from bauble.plugins.plants.species import Species
@@ -310,6 +316,17 @@ def plant_editor_view():
 @pytest.fixture
 def accession_editor_view():
     view = AccessionEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def propagation_editor_view():
+    view = PropagationEditorView()
     try:
         yield view
     finally:
@@ -788,3 +805,74 @@ def test_accession_editor_duplicate_code_blocks_accept(session, accession_editor
     assert existing.code is None
     assert presenter.has_problems()
     assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_propagation_editor_seed_fields_enable_accept(session, propagation_editor_view):
+    propagation = Propagation(
+        prop_type="Seed",
+        date=datetime.date(2026, 4, 22),
+    )
+    session.add(propagation)
+    date_text = propagation.date.strftime(prefs.prefs[prefs.date_format_pref])
+
+    presenter = PropagationEditorPresenter(propagation, propagation_editor_view)
+
+    assert propagation_editor_view.widget_get_value("prop_type_combo") == "Seed"
+    assert propagation_editor_view.widget_get_value("prop_date_entry") == date_text
+    assert propagation_editor_view.widgets.seed_box.get_visible()
+    assert not propagation_editor_view.widgets.cutting_box.get_visible()
+    assert not propagation_editor_view.widgets.prop_ok_button.get_sensitive()
+
+    propagation_editor_view.widget_set_value("seed_nseeds_entry", "12")
+    propagation_editor_view.widget_set_value("seed_sown_entry", date_text)
+
+    assert propagation._seed.nseeds == "12"
+    assert propagation._seed.date_sown == propagation.date
+    assert presenter.is_dirty()
+    presenter.refresh_sensitivity()
+    assert propagation_editor_view.widgets.prop_ok_button.get_sensitive()
+
+
+def test_propagation_editor_cutting_fields_and_rooted_rows(
+    session, propagation_editor_view
+):
+    propagation = Propagation(
+        prop_type="UnrootedCutting",
+        date=datetime.date(2026, 5, 1),
+    )
+    session.add(propagation)
+
+    presenter = PropagationEditorPresenter(propagation, propagation_editor_view)
+
+    assert (
+        propagation_editor_view.widget_get_value("prop_type_combo") == "UnrootedCutting"
+    )
+    assert propagation_editor_view.widgets.cutting_box.get_visible()
+    assert not propagation_editor_view.widgets.seed_box.get_visible()
+    assert not propagation_editor_view.widgets.prop_ok_button.get_sensitive()
+
+    propagation_editor_view.widget_set_value("cutting_length_entry", "10")
+    propagation_editor_view.widget_set_value("cutting_rooted_pct_entry", "75")
+
+    assert propagation._cutting.length == "10"
+    assert propagation._cutting.rooted_pct == "75"
+
+    rooted_model = propagation_editor_view.widgets.rooted_treeview.get_model()
+    assert len(rooted_model) == 0
+
+    presenter._cutting_presenter.on_rooted_add_clicked(None)
+    assert len(rooted_model) == 1
+    treeiter = rooted_model.get_iter_first()
+    rooted = rooted_model[treeiter][0]
+    assert rooted.cutting is propagation._cutting
+
+    propagation_editor_view.widgets.rooted_treeview.get_selection().select_iter(
+        treeiter
+    )
+    presenter._cutting_presenter.on_rooted_remove_clicked(None)
+
+    assert len(rooted_model) == 0
+    assert rooted.cutting is None
+    assert presenter.is_dirty()
+    presenter.refresh_sensitivity()
+    assert propagation_editor_view.widgets.prop_ok_button.get_sensitive()
