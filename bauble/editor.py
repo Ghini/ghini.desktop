@@ -1707,7 +1707,7 @@ class GenericEditorPresenter:
                 or (widget is None and p == problem_id)
                 or (w == widget and problem_id is None)
             ):
-                if w and not prefs.testing:
+                if isinstance(w, Gtk.Widget) and not prefs.testing:
                     w.get_style_context().remove_class("problem")
                     # w.set_property('background-color', None)
                     w.queue_draw()
@@ -1764,9 +1764,7 @@ class GenericEditorPresenter:
 
         # Preserve old behavior: replace None with an empty choice at the front
         if any(v is None for v in vals):
-            logger.debug(
-                f"None value found in column {field}, that is not in the Enum"
-            )
+            logger.debug(f"None value found in column {field}, that is not in the Enum")
             vals = [v for v in vals if v is not None]
             vals.insert(0, "")
 
@@ -1976,7 +1974,7 @@ class GenericEditorPresenter:
             if len(text) > key_length:
                 logger.debug(f"recomputing completions matching {text}")
                 add_completions(text)
-          
+
             def idle_callback(text):
                 logger.debug("on_changed - part two")
                 comp = entry.get_completion()
@@ -2018,9 +2016,12 @@ class GenericEditorPresenter:
                         )
 
                 # inside idle_callback, replace the condition with:
-                if text != "" and not found and not any(
-                    pid == PROBLEM and w is widget
-                    for (pid, w) in self.problems
+                if (
+                    text != ""
+                    and not found
+                    and not any(
+                        pid == PROBLEM and w is widget for (pid, w) in self.problems
+                    )
                 ):
                     self.add_problem(PROBLEM, widget)
                     on_select(None)
