@@ -268,33 +268,21 @@ class LocationEditorPresenter(GenericEditorPresenter):
         # references to self.merger_candidate into references to self.model.
         from bauble.plugins.garden.models import Plant, PlantChange
 
-        stmt = Plant.query_with_default_order().where(Plant.location == self.merger_candidate)
-        for p in (self.session.execute(stmt).scalars().all()):
+        stmt = Plant.query_with_default_order().where(
+            Plant.location == self.merger_candidate
+        )
+        for p in self.session.execute(stmt).scalars().all():
             p.location = self.model
 
         stmt = PlantChange.query_with_default_order().where(
-                    PlantChange.from_location == self.merger_candidate
-                )
-        for p in (
-
-            self.session.execute(
-                stmt
-            )
-            .scalars()
-            .all()
-        ):
+            PlantChange.from_location == self.merger_candidate
+        )
+        for p in self.session.execute(stmt).scalars().all():
             p.from_location = self.model
         stmt = PlantChange.query_with_default_order().where(
-                PlantChange.to_location == self.merger_candidate
-            )
-        for p in (
-
-            self.session.execute(
-                stmt
-            )
-            .scalars()
-            .all()
-        ):
+            PlantChange.to_location == self.merger_candidate
+        )
+        for p in self.session.execute(stmt).scalars().all():
             p.to_location = self.model
 
         # step 2: merge model and merger_candidate  `description` and `name`
@@ -329,7 +317,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
     def refresh_sensitivity(self) -> None:
         sensitive = False
-        ignore = "id"
+        ignore = ("id", "_created", "_last_updated")
         if self.is_dirty() and not utils.get_invalid_columns(
             self.model, ignore_columns=ignore
         ):

@@ -11,6 +11,11 @@ import bauble.prefs as prefs
 from bauble.connmgr import ConnMgrPresenter
 from bauble.editor import GenericEditorView
 from bauble.gtkinit import Gtk
+from bauble.plugins.garden.location_editor import (
+    LocationEditorPresenter,
+    LocationEditorView,
+)
+from bauble.plugins.garden.models.location import Location
 from bauble.plugins.plants.family import Family, FamilyEditorPresenter, FamilyEditorView
 from bauble.plugins.plants.genus import Genus, GenusEditorPresenter, GenusEditorView
 from bauble.plugins.plants.species import Species
@@ -265,6 +270,17 @@ def genus_editor_view():
 @pytest.fixture
 def species_editor_view():
     view = SpeciesEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def location_editor_view():
+    view = LocationEditorView()
     try:
         yield view
     finally:
@@ -546,3 +562,58 @@ def test_species_editor_presenter_populates_and_edits_fields(
     assert presenter.is_dirty()
     assert species_editor_view.widgets.sp_ok_button.get_sensitive()
     assert species_editor_view.widgets.sp_next_button.get_sensitive()
+
+
+def test_location_editor_presenter_populates_and_edits_fields(
+    session, location_editor_view
+):
+    location = Location(code="A1", name="Palm House", description="Warm house")
+    session.add(location)
+    session.flush()
+
+    presenter = LocationEditorPresenter(location, location_editor_view)
+
+    assert location_editor_view.widget_get_value("loc_code_entry") == "A1"
+    assert location_editor_view.widget_get_value("loc_name_entry") == "Palm House"
+    assert location_editor_view.widget_get_value("loc_desc_textview") == "Warm house"
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widget_set_value("loc_code_entry", "B2")
+    presenter.on_text_entry_changed("loc_code_entry")
+    location_editor_view.widget_set_value("loc_name_entry", "Fern Room")
+    presenter.on_text_entry_changed("loc_name_entry")
+    location_editor_view.widget_set_value("loc_desc_textview", "Cool house")
+    presenter.on_textbuffer_changed(
+        location_editor_view.widgets.loc_desc_textview.get_buffer(),
+        attr="description",
+    )
+
+    assert location.code == "B2"
+    assert location.name == "Fern Room"
+    assert location.description == "Cool house"
+    assert presenter.is_dirty()
+    assert location_editor_view.widgets.loc_ok_button.get_sensitive()
+    assert location_editor_view.widgets.loc_ok_and_add_button.get_sensitive()
+    assert location_editor_view.widgets.loc_next_button.get_sensitive()
+
+
+def test_location_editor_requires_code_before_accept(session, location_editor_view):
+    location = Location(code=None, name=None, description=None)
+    session.add(location)
+
+    presenter = LocationEditorPresenter(location, location_editor_view)
+
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widget_set_value("loc_name_entry", "Unnamed bed")
+    presenter.on_text_entry_changed("loc_name_entry")
+
+    assert location.name == "Unnamed bed"
+    assert presenter.is_dirty()
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widget_set_value("loc_code_entry", "U1")
+    presenter.on_text_entry_changed("loc_code_entry")
+
+    assert location.code == "U1"
+    assert location_editor_view.widgets.loc_ok_button.get_sensitive()
