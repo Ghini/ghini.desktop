@@ -1420,6 +1420,16 @@ class WidgetStyler:
 
     def apply_styles(self, widget, label) -> None:
         """Apply the CSS styles for background and foreground."""
+        if not hasattr(widget, "get_style_context") or not hasattr(
+            label, "get_style_context"
+        ):
+            logger.warning(
+                "WidgetStyler.apply_styles() expected GTK widgets, got %s and %s",
+                type(widget).__name__,
+                type(label).__name__,
+            )
+            return
+
         widget_style_context = widget.get_style_context()
         label_style_context = label.get_style_context()
 
@@ -1437,6 +1447,16 @@ class WidgetStyler:
 
     def reset_styles(self, widget, label) -> None:
         """Reset the applied CSS classes."""
+        if not hasattr(widget, "get_style_context") or not hasattr(
+            label, "get_style_context"
+        ):
+            logger.warning(
+                "WidgetStyler.reset_styles() expected GTK widgets, got %s and %s",
+                type(widget).__name__,
+                type(label).__name__,
+            )
+            return
+
         widget_style_context = widget.get_style_context()
         label_style_context = label.get_style_context()
 
