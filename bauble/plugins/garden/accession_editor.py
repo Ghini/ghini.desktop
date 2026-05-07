@@ -466,7 +466,7 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         else:
             treeview = self.view.widgets.voucher_treeview
         model, treeiter = treeview.get_selection().get_selected()
-        if not model or not treeiter:          # ← guard
+        if not model or not treeiter:  # ← guard
             return
         voucher = model[treeiter][0]
         voucher.accession = None
@@ -526,7 +526,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.add_verification_box()
 
         # expand the first verification expander
-        #self.view.widgets.verifications_parent_box.get_children()[0].set_expanded(True)
+        # self.view.widgets.verifications_parent_box.get_children()[0].set_expanded(True)
         first_vb = next(self._iter_boxes(), None)
         if first_vb:
             first_vb.set_expanded(True)
@@ -560,6 +560,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
         vb.box.show_all()
         return vb
+
 
 class VerificationBox:
     """
@@ -658,15 +659,14 @@ class VerificationBox:
                     .join(Genus, Species.genus_id == Genus.id)
                     .where(ilike(Genus.genus, f"{text}%"))
                     .where(
-                        Species.id != (
-                            self.model.species.id if self.model.species else -1
-                        )
+                        Species.id
+                        != (self.model.species.id if self.model.species else -1)
                     )
                     .order_by(Genus.genus, Species.sp)
                     .limit(100)
                 )
                 .scalars()
-                .all()            # ← concrete list (not ScalarResult)
+                .all()  # ← concrete list (not ScalarResult)
             )
             return result
 
@@ -753,7 +753,7 @@ class VerificationBox:
     def on_level_combo_changed(self, combo, *args) -> None:
         """Update the level attribute when the combo box is changed."""
         i = combo.get_active_iter()
-        if not i:              # ← guard
+        if not i:  # ← guard
             self.set_model_attr("level", None)
             return
         level = combo.get_model()[i][0]
@@ -929,7 +929,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         if self.model.source:
             self.source = self.model.source
-            self.view.widgets.sources_code_entry.set_text(self.source.sources_code or "")
+            self.view.widgets.sources_code_entry.set_text(
+                self.source.sources_code or ""
+            )
         else:
             self.source = Source()
             # self.model.source will be reset the None if the source
@@ -1060,7 +1062,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def on_coll_add_button_clicked(self, *args) -> None:
         self.model.source.collection = self.collection
-        self.view.widgets.source_coll_expander.set_expanded( True)
+        self.view.widgets.source_coll_expander.set_expanded(True)
         self.view.widgets.source_coll_expander.set_sensitive(True)
         self.view.widgets.source_coll_add_button.set_sensitive(False)
         self.view.widgets.source_coll_remove_button.set_sensitive(True)
@@ -1125,7 +1127,12 @@ class SourcePresenter(editor.GenericEditorPresenter):
         none_iter = model.append([""])
         model.append([self.garden_prop_str])
         list(
-            [model.append([x]) for x in self.session.execute(Contact.query_with_default_order()).scalars()]
+            [
+                model.append([x])
+                for x in self.session.execute(
+                    Contact.query_with_default_order()
+                ).scalars()
+            ]
         )
         combo.set_model(model)
         combo.get_child().get_completion().set_model(model)
@@ -1310,7 +1317,16 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # set the default code and add it to the top of the code formats
         self.populate_code_formats(model.code or "")
-        self.view.widget_set_value("acc_code_format_comboentry", model.code or "")
+        code_format_combo = self.view.widgets.acc_code_format_comboentry
+        code_format_combo.handler_block_by_func(
+            self.on_acc_code_format_comboentry_changed
+        )
+        try:
+            self.view.widget_set_value("acc_code_format_comboentry", model.code or "")
+        finally:
+            code_format_combo.handler_unblock_by_func(
+                self.on_acc_code_format_comboentry_changed
+            )
         if not model.code:
             model.code = model.get_next_code()
             if self.model.species:
@@ -1390,13 +1406,13 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                         .limit(100)
                     )
                     .scalars()
-                    .all()            # ← return a concrete list
+                    .all()  # ← return a concrete list
                 )
                 return result
             except (PendingRollbackError, IntegrityError):
                 self.session.rollback()
                 return []
-            
+
         def on_select(value):
             logger.debug("on select: %s", value)
 
@@ -1420,7 +1436,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 if " " not in text:
                     set_model(None)
                     return
-                genus_name, epithet = (text.split(" ", 1)[0], text.split(" ", 1)[1].strip())
+                genus_name, epithet = (
+                    text.split(" ", 1)[0],
+                    text.split(" ", 1)[1].strip(),
+                )
                 if not genus_name or not epithet:
                     set_model(None)
                     return
@@ -1473,13 +1492,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                     model = Gtk.ListStore(object)
                     model.append([syn.species])
                     completion.set_model(model)
-                    safe_set_text(self.view.widgets.acc_species_entry, utils.to_unicode(syn.species))
+                    safe_set_text(
+                        self.view.widgets.acc_species_entry,
+                        utils.to_unicode(syn.species),
+                    )
                     set_model(syn.species)
 
             box.on_response = on_response
             box.show()
 
-        
         # Ensure the Entry has a completion and that it has a model
         species_entry = self.view.widgets.acc_species_entry
         comp = species_entry.get_completion()
@@ -1506,12 +1527,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             if " " not in txt:
                 self.set_model_attr("species", None)
                 return False
-            on_select(txt)   # on_select already handles strings / Species objects
+            on_select(txt)  # on_select already handles strings / Species objects
             return False
 
         # either style works with your helper; pick one:
         self.view.connect("acc_species_entry", "focus-out-event", _resolve_on_blur)
-
 
         self.assign_simple_handler("acc_prov_combo", "prov_type")
         self.assign_simple_handler("acc_wild_prov_combo", "wild_prov_status")
@@ -1625,7 +1645,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         ls = self.view.widgets.acc_code_format_liststore
         if entry_one is None:
             it = ls.get_iter_first()
-            entry_one = ls.get_value(it, 0) if it else ""   # ← guard
+            entry_one = ls.get_value(it, 0) if it else ""  # ← guard
         ls.clear()
         ls.append([entry_one])
         if values is None:
@@ -1861,7 +1881,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # called in the expected order
         wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == "prov_type":
-            is_wild = (self.model.prov_type == "Wild")
+            is_wild = self.model.prov_type == "Wild"
             if is_wild:
                 iter_ = wild_prov_combo.get_active_iter()
                 if iter_:
@@ -1895,7 +1915,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # Require a real Species instance, not just truthy text
         if not self.model.code or not isinstance(self.model.species, Species):
             return False
-        
+
         if not self.model.code or not isinstance(self.model.species, Species):
             return False
         if not self.model.code or not self.model.species:
@@ -2096,7 +2116,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden import PlantEditor
-            from bauble.plugins.garden.models import Plant  
+            from bauble.plugins.garden.models import Plant
+
             e = PlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
 
@@ -2112,7 +2133,10 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         from bauble.plugins.plants.species_model import Species
         from sqlalchemy import func
 
-        if self.session.execute(select(func.count()).select_from(Species)).scalar_one() == 0:
+        if (
+            self.session.execute(select(func.count()).select_from(Species)).scalar_one()
+            == 0
+        ):
             msg = _(
                 "You must first add or import at least one species into "
                 "the database before you can add accessions."
@@ -2198,7 +2222,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 type=Gtk.MessageType.WARNING,
             )
             # Raise to abort the commit (handle_response catches Exception and won’t append)
-            raise ValueError("Invalid or missing species; refusing to commit accession.")
+            raise ValueError(
+                "Invalid or missing species; refusing to commit accession."
+            )
 
         # Make sure the Species is attached to this session as well
         sp_state = sa_inspect(sp)
@@ -2218,12 +2244,13 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 self.session.expunge(obj)
 
         # also a sanity guard: species_id must be set
-        if not getattr(self.model, "species_id", None) and getattr(self.model, "species", None):
+        if not getattr(self.model, "species_id", None) and getattr(
+            self.model, "species", None
+        ):
             self.model.species_id = self.model.species.id
 
         if not getattr(self.model, "species_id", None):
             raise ValueError("species_id not set just before commit")
-
 
         if self.model.source:
             if not self.model.source.collection:
@@ -2267,6 +2294,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         except Exception:
             return False
         return True
+
 
 # import at the bottom to avoid circular dependencies
 
@@ -2361,7 +2389,9 @@ class GeneralAccessionExpander(InfoExpander):
 
         from sqlalchemy import func
 
-        stmt = select(func.count()).select_from(Plant).where(Plant.accession_id == row.id)
+        stmt = (
+            select(func.count()).select_from(Plant).where(Plant.accession_id == row.id)
+        )
         nplants = session.execute(stmt).scalar_one()
 
         self.widget_set_value("nplants_data", nplants)
@@ -2379,9 +2409,7 @@ class GeneralAccessionExpander(InfoExpander):
 
         prov_str = dict(prov_type_values).get(row.prov_type, "")
         if row.prov_type == "Wild" and row.wild_prov_status:
-            prov_str = (
-                f"{prov_str} ({dict(wild_prov_status_values).get(row.wild_prov_status, '')})"
-            )
+            prov_str = f"{prov_str} ({dict(wild_prov_status_values).get(row.wild_prov_status, '')})"
         self.set_labeled_value("prov", prov_str)
 
         image_size = Gtk.IconSize.SMALL_TOOLBAR

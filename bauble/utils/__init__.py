@@ -717,8 +717,8 @@ def set_widget_value(
             else:
                 logger.debug("value not found in model")
                 widget.set_active(-1)
-        if widget.get_child():
-            widget.get_child().text = value or ""
+        if widget.get_child() and isinstance(widget.get_child(), Gtk.Entry):
+            safe_set_text(widget.get_child(), value or "")
     elif isinstance(widget, (Gtk.ToggleButton, Gtk.CheckButton, Gtk.RadioButton)):
         if isinstance(widget, Gtk.CheckButton) and isinstance(value, str):
             value = value == Gtk.Buildable.get_name(widget)

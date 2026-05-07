@@ -15,6 +15,10 @@ from bauble.plugins.garden.location_editor import (
     LocationEditorPresenter,
     LocationEditorView,
 )
+from bauble.plugins.garden.accession_editor import (
+    AccessionEditorPresenter,
+    AccessionEditorView,
+)
 from bauble.plugins.garden.models.accession import Accession
 from bauble.plugins.garden.models.location import Location
 from bauble.plugins.garden.models.plant import Plant
@@ -295,6 +299,17 @@ def location_editor_view():
 @pytest.fixture
 def plant_editor_view():
     view = PlantEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def accession_editor_view():
+    view = AccessionEditorView()
     try:
         yield view
     finally:
@@ -652,6 +667,22 @@ def make_test_plant(session):
     return plant
 
 
+def make_test_accession(session):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    accession = Accession(
+        code="2026.001",
+        species=species,
+        quantity_recvd=1,
+        recvd_type="PLNT",
+        private=False,
+    )
+    session.add_all([family, genus, species, accession])
+    session.flush()
+    return accession
+
+
 def test_plant_editor_presenter_populates_and_edits_code(
     monkeypatch, session, plant_editor_view
 ):
@@ -709,3 +740,51 @@ def test_plant_editor_invalid_quantity_blocks_accept(
     assert not presenter.is_dirty()
     assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
     assert not plant_editor_view.widgets.pad_next_button.get_sensitive()
+
+
+def test_accession_editor_presenter_populates_and_edits_core_fields(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+
+    assert accession_editor_view.widget_get_value("acc_code_entry") == "2026.001"
+    assert accession_editor_view.widget_get_value("acc_quantity_recvd_entry") == "1"
+    assert (
+        accession_editor_view.widget_get_value("acc_recvd_type_comboentry")
+        == "Planting"
+    )
+    assert not accession_editor_view.widget_get_active("acc_private_check")
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    accession_editor_view.widgets.acc_code_entry.set_text("2026.002")
+    presenter.on_acc_code_entry_changed(accession_editor_view.widgets.acc_code_entry)
+    accession_editor_view.widget_set_value("acc_quantity_recvd_entry", "3")
+    presenter.on_text_entry_changed("acc_quantity_recvd_entry")
+    accession_editor_view.widget_set_active("acc_private_check", True)
+    presenter.on_chkbx_toggled("acc_private_check")
+
+    assert accession.code == "2026.002"
+    assert accession.quantity_recvd == "3"
+    assert accession.private is True
+    assert presenter.is_dirty()
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+    assert accession_editor_view.widgets.acc_ok_and_add_button.get_sensitive()
+    assert accession_editor_view.widgets.acc_next_button.get_sensitive()
+
+
+def test_accession_editor_duplicate_code_blocks_accept(session, accession_editor_view):
+    existing = make_test_accession(session)
+    duplicate = Accession(code="2026.002", species=existing.species)
+    session.add(duplicate)
+    session.flush()
+
+    presenter = AccessionEditorPresenter(existing, accession_editor_view)
+
+    accession_editor_view.widgets.acc_code_entry.set_text("2026.002")
+    presenter.on_acc_code_entry_changed(accession_editor_view.widgets.acc_code_entry)
+
+    assert existing.code is None
+    assert presenter.has_problems()
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
