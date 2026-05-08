@@ -1432,7 +1432,12 @@ class GenericEditorPresenter:
         # snapshot ONLY persistent objects (already saved in DB)
         objs = [o for o in list(self.session) if sa_inspect(o).persistent]
         try:
-            if self.session.in_transaction():
+            if (
+                self.session.in_transaction()
+                or self.session.new
+                or self.session.dirty
+                or self.session.deleted
+            ):
                 self.session.commit()
             try:
                 bauble.gui.get_view().update()
@@ -2160,7 +2165,12 @@ class GenericModelViewPresenterEditor:
         # snapshot ONLY persistent objects (already saved in DB)
         objs = [o for o in list(self.session) if sa_inspect(o).persistent]
         try:
-            if self.session.in_transaction():
+            if (
+                self.session.in_transaction()
+                or self.session.new
+                or self.session.dirty
+                or self.session.deleted
+            ):
                 self.session.commit()
             try:
                 bauble.gui.get_view().update()

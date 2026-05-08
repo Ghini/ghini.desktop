@@ -2081,9 +2081,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     #
                     # msg = _('Some required fields have not been completed')
                     return False
-                if self.presenter.is_dirty():
-                    self.commit_changes()
-                    self._committed.append(self.model)
+                self.commit_changes()
+                self._committed.append(self.model)
             except DBAPIError as e:
                 msg = _("Error committing changes.\n\n%s") % utils.xml_safe(str(e.orig))
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
@@ -2282,17 +2281,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             )
             self.session.add(plant)
 
-        try:
-            logger.warning(
-                "About to commit accession code=%s species=%r species_id=%s bound=%s",
-                self.model.code,
-                self.model.species,
-                getattr(self.model, "species_id", None),
-                object_session(self.model.species) is self.session,
-            )
-            super().commit_changes()
-        except Exception:
-            return False
+        super().commit_changes()
         return True
 
 
