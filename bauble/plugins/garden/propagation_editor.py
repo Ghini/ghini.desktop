@@ -155,7 +155,7 @@ class PropagationHandler:
                 utils.message_dialog(msg, type=Gtk.MessageType.WARNING)
                 return False
 
-            remove_from_relationship(self.model.propagations, propagation)
+            remove_from_relationship(self.model, propagation, "propagations")
             self.view.widgets.prop_tab_box.remove(box)
             self._dirty = True
             self.parent_ref().refresh_sensitivity()
@@ -222,7 +222,7 @@ class PropagationTabPresenter(PropagationHandler, editor.GenericEditorPresenter)
 
         propagation = Propagation()
         propagation.prop_type = "Seed"  # a reasonable default
-        add_to_relationship(self.model.propagations, propagation)
+        add_to_relationship(self.model, propagation, "propagations")
         editor = PropagationEditor(propagation, parent=self.view.get_window())
         # open propagation editor with start(commit=False) so that the
         # propagation editor doesn't commit its changes since we'll be

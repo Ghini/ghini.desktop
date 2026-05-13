@@ -730,6 +730,150 @@ def test_can_create_plant_from_insert_menu(
     assert plant_count == 1, plant_rows
 
 
+@pytest.mark.xfail(
+    reason=(
+        "Documents current propagation workflow failure: the propagation editor opens "
+        "from the plant editor, but the accession/plant/propgation save chain does "
+        "not yet persist the expected records reliably under GUI automation."
+    )
+)
+def test_can_create_seed_propagation_from_plant_editor(
+    dogtail_modules, sqlite_connection, ghini_process_factory
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    accession_code = "PROP-E2E-001"
+    location_code = "E2EP"
+    location_name = "E2E Propagation Bed"
+    plant_code = "1"
+    propagation_date = "2026-05-13"
+    genus_name = "Eepropgenus"
+    species_name = "eopropagation"
+
+    seed_taxonomy_location_fixture(
+        sqlite_connection["database_file"],
+        family_name="EEPROPACEAE",
+        genus_name=genus_name,
+        species_name=species_name,
+        location_code=location_code,
+        location_name=location_name,
+    )
+
+    ghini_process = ghini_process_factory()
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Accession", role_name="menu item")
+
+    accession_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+    )
+    dogtail_rawinput.typeText(f"{genus_name} {species_name}")
+    dogtail_rawinput.pressKey("Tab")
+
+    accession_entries = find_children_by_role(accession_editor, "text")
+    assert len(accession_entries) >= 2, dump_accessible_tree(accession_editor)
+    enter_text(accession_entries[1], accession_code, dogtail_rawinput)
+
+    find_named_child(accession_editor, "Add plants", role_name="push button").click()
+
+    plant_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+    )
+    plant_entries = find_children_by_role(plant_editor, "text")
+    assert len(plant_entries) >= 4, dump_accessible_tree(plant_editor)
+    enter_text(plant_entries[0], accession_code, dogtail_rawinput)
+    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
+    enter_text(plant_entries[3], "1", dogtail_rawinput)
+    enter_text(plant_entries[2], location_code, dogtail_rawinput)
+    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
+
+    propagation_tab = find_named_child(plant_editor, "Propagations", showing_only=True)
+    assert propagation_tab is not None, dump_accessible_tree(plant_editor)
+    dogtail_rawinput.keyCombo("<Control>Page_Down")
+    time.sleep(0.1)
+
+    find_named_child(
+        propagation_tab, "Add", role_name="push button", showing_only=True
+    ).click()
+
+    propagation_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Propagation Editor",
+    )
+    propagation_entries = [
+        entry
+        for entry in find_children_by_role(propagation_editor, "text")
+        if getattr(entry, "showing", True)
+    ]
+    assert len(propagation_entries) >= 4, dump_accessible_tree(propagation_editor)
+    enter_text(propagation_entries[0], propagation_date, dogtail_rawinput)
+    enter_text(propagation_entries[1], "12", dogtail_rawinput)
+    enter_text(propagation_entries[3], propagation_date, dogtail_rawinput)
+
+    propagation_ok = find_named_child(propagation_editor, "OK", role_name="push button")
+    propagation_values = [accessible_text(entry) for entry in propagation_entries]
+    assert propagation_ok is not None, propagation_values
+    assert getattr(propagation_ok, "sensitive", True), propagation_values
+    propagation_ok.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Propagation Editor",
+        timeout=20,
+    )
+
+    plant_ok = find_named_child(plant_editor, "OK", role_name="push button")
+    plant_values = [accessible_text(entry) for entry in plant_entries[:4]]
+    assert plant_ok is not None, plant_values
+    assert getattr(plant_ok, "sensitive", True), plant_values
+    plant_ok.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+        timeout=20,
+    )
+
+    accession_ok = find_named_child(accession_editor, "OK", role_name="push button")
+    assert accession_ok is not None, dump_accessible_tree(accession_editor)
+    assert getattr(accession_ok, "sensitive", True), dump_accessible_tree(
+        accession_editor
+    )
+    accession_ok.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    propagation_rows = fetch_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select propagation.prop_type, propagation.date, prop_seed.nseeds, "
+            "prop_seed.date_sown, plant.code, accession.code "
+            "from propagation "
+            "join plant_prop on propagation.id = plant_prop.propagation_id "
+            "join plant on plant_prop.plant_id = plant.id "
+            "join accession on plant.accession_id = accession.id "
+            "join prop_seed on propagation.id = prop_seed.propagation_id "
+            "where accession.code = ? and plant.code = ?"
+        ),
+        accession_code,
+        plant_code,
+    )
+    assert propagation_rows == [
+        (
+            "Seed",
+            propagation_date,
+            12,
+            propagation_date,
+            plant_code,
+            accession_code,
+        )
+    ]
+
+
 def connect_to_sqlite_database(dogtail_tree, connection_name):
     window = wait_for_node(
         dogtail_tree,
@@ -847,3 +991,48 @@ def fetch_sqlite_database(database_file, query, *parameters):
 def execute_sqlite_database(database_file, statement, *parameters):
     with sqlite3.connect(database_file) as connection:
         connection.execute(statement, parameters)
+
+
+def seed_taxonomy_location_fixture(
+    database_file,
+    *,
+    family_name,
+    genus_name,
+    species_name,
+    location_code,
+    location_name,
+):
+    timestamp = "2026-05-13 00:00:00"
+    with sqlite3.connect(database_file) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            (
+                "insert into family (epithet, author, qualifier, _created, _last_updated) "
+                "values (?, '', '', ?, ?)"
+            ),
+            (family_name, timestamp, timestamp),
+        )
+        family_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into genus "
+                "(epithet, author, qualifier, family_id, _created, _last_updated) "
+                "values (?, '', '', ?, ?, ?)"
+            ),
+            (genus_name, family_id, timestamp, timestamp),
+        )
+        genus_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into species (epithet, genus_id, _created, _last_updated) "
+                "values (?, ?, ?, ?)"
+            ),
+            (species_name, genus_id, timestamp, timestamp),
+        )
+        cursor.execute(
+            (
+                "insert into location (code, name, _created, _last_updated) "
+                "values (?, ?, ?, ?)"
+            ),
+            (location_code, location_name, timestamp, timestamp),
+        )
