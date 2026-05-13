@@ -38,6 +38,7 @@ nohup.out
 .env
 
 # Unit test / coverage reports
+test-results/
 htmlcov/
 .tox/
 .coverage

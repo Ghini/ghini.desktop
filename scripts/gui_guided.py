@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+"""Run visible, user-confirmed GUI test scenarios and record feedback."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import signal
+import subprocess
+import sys
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+APP_COMMAND = ["python", "/app/scripts/ghini"]
+RESULT_DIR = Path("test-results/gui-guided")
+
+
+@dataclass(frozen=True)
+class Checkpoint:
+    name: str
+    expected: tuple[str, ...]
+    instructions: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Scenario:
+    name: str
+    description: str
+    checkpoints: tuple[Checkpoint, ...]
+    launch_app: bool = True
+
+
+SCENARIOS = {
+    "connection-manager": Scenario(
+        name="connection-manager",
+        description="Open Ghini and visually inspect the connection manager.",
+        checkpoints=(
+            Checkpoint(
+                name="Connection manager opens",
+                instructions=(
+                    "Wait for the initial Ghini connection dialog.",
+                    "Do not connect yet.",
+                ),
+                expected=(
+                    "The dialog title starts with Ghini and shows the current version.",
+                    "Saved connections appear in the connection selector.",
+                    "Connection Details can expand and collapse.",
+                    "Add, Remove, Cancel, and Connect buttons are visible.",
+                    "No error dialog or traceback appears.",
+                ),
+            ),
+        ),
+    ),
+    "connect-main-window": Scenario(
+        name="connect-main-window",
+        description="Connect to a configured database and inspect the main window.",
+        checkpoints=(
+            Checkpoint(
+                name="Connected main window",
+                instructions=(
+                    "Use the connection manager to connect to a test database.",
+                    "Wait for the primary Ghini window.",
+                ),
+                expected=(
+                    "The main window opens without error dialogs.",
+                    "The menu bar is visible and Insert/Edit/View menus open.",
+                    "The search control is visible and accepts input.",
+                    "No terminal traceback appears during startup.",
+                ),
+            ),
+        ),
+    ),
+    "create-plant": Scenario(
+        name="create-plant",
+        description="Exercise the accession-to-plant creation workflow visually.",
+        checkpoints=(
+            Checkpoint(
+                name="Plant editor opened from accession",
+                instructions=(
+                    "Connect to a disposable test database.",
+                    "Open Insert > Accession, choose a species, and select Add plants.",
+                ),
+                expected=(
+                    "The Plant Editor opens in normal mode.",
+                    "Accession, Planting code, Quantity, and Location fields are visible.",
+                    "General, Propagations, Notes, and Pictures tabs are visible.",
+                    "Required-field validation enables OK only after valid input.",
+                ),
+            ),
+            Checkpoint(
+                name="Plant saved",
+                instructions=(
+                    "Enter a valid plant code, quantity, and location.",
+                    "Save the plant and return to the accession editor or main window.",
+                ),
+                expected=(
+                    "No integrity error dialog appears.",
+                    "The plant editor closes after OK.",
+                    "The saved plant can be found through search or the accession view.",
+                ),
+            ),
+        ),
+    ),
+    "propagation-workflow": Scenario(
+        name="propagation-workflow",
+        description="Exercise the plant propagation workflow visually.",
+        checkpoints=(
+            Checkpoint(
+                name="Propagation editor opens",
+                instructions=(
+                    "Open a Plant Editor for a disposable test plant.",
+                    "Open the Propagations tab and select Add.",
+                ),
+                expected=(
+                    "The Propagation Editor opens.",
+                    "Seed is the default propagation type.",
+                    "Date and seed-detail fields are visible.",
+                    "No traceback appears when Add is selected.",
+                ),
+            ),
+            Checkpoint(
+                name="Seed propagation saved",
+                instructions=(
+                    "Enter a propagation date, number of seeds, and date sown.",
+                    "Save the propagation, then save the plant or parent editor.",
+                ),
+                expected=(
+                    "The Propagation Editor closes after OK.",
+                    "The propagation appears in the Plant Editor Propagations tab.",
+                    "The saved propagation remains visible after reopening the plant.",
+                    "No integrity error dialog appears.",
+                ),
+            ),
+        ),
+    ),
+}
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "scenario",
+        nargs="?",
+        help="Scenario name to run. Use --list to show available scenarios.",
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="List available scenarios and exit.",
+    )
+    parser.add_argument(
+        "--no-launch",
+        action="store_true",
+        help="Do not launch Ghini; only prompt through the selected checkpoints.",
+    )
+    return parser.parse_args()
+
+
+def list_scenarios() -> None:
+    for name, scenario in sorted(SCENARIOS.items()):
+        print(f"{name}: {scenario.description}")
+
+
+def prompt_result() -> tuple[str, str]:
+    while True:
+        result = input("Result [pass/fail/skip]: ").strip().lower()
+        if result in {"pass", "fail", "skip"}:
+            break
+        print("Enter pass, fail, or skip.")
+    note = input("Notes or additional observations (optional): ").strip()
+    return result, note
+
+
+def launch_app() -> subprocess.Popen[str]:
+    env = os.environ.copy()
+    env.setdefault("NO_AT_BRIDGE", "0")
+    env.setdefault("PYTHONPATH", "/app")
+    return subprocess.Popen(
+        APP_COMMAND,
+        cwd="/app",
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+
+def terminate_process(process: subprocess.Popen[str]) -> tuple[str, str]:
+    if process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.send_signal(signal.SIGKILL)
+            process.wait(timeout=5)
+    stdout, stderr = process.communicate(timeout=5)
+    return stdout, stderr
+
+
+def run_scenario(scenario: Scenario, *, launch: bool) -> dict[str, object]:
+    started_at = datetime.now(timezone.utc)
+    process = launch_app() if launch and scenario.launch_app else None
+    checkpoint_results = []
+    print(f"\nScenario: {scenario.name}")
+    print(scenario.description)
+    print("\nThe application is visible on your display.")
+    print("Confirm only after each checkpoint-level workflow is complete.\n")
+
+    try:
+        for index, checkpoint in enumerate(scenario.checkpoints, start=1):
+            print(f"Checkpoint {index}: {checkpoint.name}")
+            if checkpoint.instructions:
+                print("Actions:")
+                for item in checkpoint.instructions:
+                    print(f"- {item}")
+            print("Expected:")
+            for item in checkpoint.expected:
+                print(f"- {item}")
+            result, note = prompt_result()
+            checkpoint_results.append(
+                {
+                    "name": checkpoint.name,
+                    "result": result,
+                    "note": note,
+                    "recorded_at": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+            print()
+    finally:
+        stdout = stderr = ""
+        returncode = None
+        if process is not None:
+            stdout, stderr = terminate_process(process)
+            returncode = process.returncode
+
+    finished_at = datetime.now(timezone.utc)
+    return {
+        "scenario": scenario.name,
+        "description": scenario.description,
+        "started_at": started_at.isoformat(),
+        "finished_at": finished_at.isoformat(),
+        "app_returncode": returncode,
+        "checkpoints": checkpoint_results,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+
+
+def write_result(result: dict[str, object]) -> Path:
+    RESULT_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    path = RESULT_DIR / f"{timestamp}-{result['scenario']}.json"
+    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    return path
+
+
+def main() -> int:
+    args = parse_args()
+    if args.list:
+        list_scenarios()
+        return 0
+    if not args.scenario:
+        list_scenarios()
+        return 2
+    scenario = SCENARIOS.get(args.scenario)
+    if scenario is None:
+        print(f"Unknown scenario: {args.scenario}", file=sys.stderr)
+        list_scenarios()
+        return 2
+
+    result = run_scenario(scenario, launch=not args.no_launch)
+    path = write_result(result)
+    print(f"Guided GUI result written to {path}")
+    failed = any(checkpoint["result"] == "fail" for checkpoint in result["checkpoints"])
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

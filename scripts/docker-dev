@@ -12,6 +12,7 @@ Usage:
   scripts/docker-dev check [paths...]
   scripts/docker-dev gtk-smoke [pytest args...]
   scripts/docker-dev gui-e2e [pytest args...]
+  scripts/docker-dev gui-guided [scenario]
   scripts/docker-dev pytest
   scripts/docker-dev pytest-debug
   scripts/docker-dev warnings
@@ -249,6 +250,11 @@ run_gui_e2e() {
         bash "$@"
 }
 
+run_gui_guided() {
+    NO_AT_BRIDGE=0 run_container gui-guided \
+        python scripts/gui_guided.py "$@"
+}
+
 run_lock() {
     GHINI_XHOST=0 run_container shell \
         bash -lc 'python -c "import piptools" 2>/dev/null || python -m pip install --no-cache-dir "pip-tools==7.5.3"; python scripts/compile-requirement-locks'
@@ -272,6 +278,9 @@ case "${command}" in
         ;;
     gui-e2e)
         run_gui_e2e "$@"
+        ;;
+    gui-guided)
+        run_gui_guided "$@"
         ;;
     warnings)
         run_warning_check "$@"
