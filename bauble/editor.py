@@ -1956,9 +1956,9 @@ class GenericEditorPresenter:
                 completion.set_model(completion_model)
 
             key_length = widget.get_completion().get_property("minimum-key-length")
-            values = get_completions(text[:key_length])
-            logger.debug(f"completions to add: {str([i for i in values])}")
-            GLib.idle_add(idle_callback, values)
+            values = list(get_completions(text[:key_length]))
+            logger.debug(f"completions to add: {values}")
+            idle_callback(values)
 
         def on_changed(entry, *args):
             logger.debug(f"assign_completions_handler::on_changed {entry} {args}")
@@ -2012,7 +2012,8 @@ class GenericEditorPresenter:
                         v = comp.get_model()[found[0]][0]
                         # only auto select if the full string has been entered
                         if text.lower() == str(v).lower():
-                            comp.emit("match-selected", comp.get_model(), found[0])
+                            self.remove_problem(PROBLEM, widget)
+                            on_select(v)
                         else:
                             found = None
                     else:

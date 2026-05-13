@@ -378,7 +378,9 @@ def init_location_comboentry(presenter, combo, on_select, required: bool = True)
             ).scalars()
         )
         names = presenter.session.execute(
-            select(Location).where(utils.ilike(Location.name, f"{utils.to_unicode(name)}"))
+            select(Location).where(
+                utils.ilike(Location.name, f"{utils.to_unicode(name)}")
+            )
         ).scalars()
         if len(codes) == 1:
             logger.debug("location matches code")
@@ -393,6 +395,7 @@ def init_location_comboentry(presenter, combo, on_select, required: bool = True)
         else:
             logger.debug(f"location {text} does not match anything")
             presenter.add_problem(PROBLEM, entry)
+        presenter.refresh_sensitivity()
         return True
 
     presenter.view.connect(entry, "changed", on_entry_changed, presenter)

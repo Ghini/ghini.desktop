@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import traceback
 from gettext import gettext as _
 from random import random
@@ -567,6 +568,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def refresh_sensitivity(self) -> None:
         logger.debug("refresh_sensitivity()")
+        self._sync_required_entry_values()
+        self._resolve_location_entry()
         try:
             logger.debug(
                 (
@@ -598,12 +601,84 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 and self.model.location is not None
                 and self.model.quantity is not None
             )
-            and self.is_dirty()
+            and (self.is_dirty() or self.model in self.session.new)
             and len(self.problems) == 0
         )
         self.view.widgets.pad_ok_button.set_sensitive(sensitive)
         self.view.widgets.pad_next_button.set_sensitive(sensitive)
         self.view.widgets.split_planting_button.set_visible = False
+
+    def _sync_required_entry_values(self) -> None:
+        from bauble.plugins.garden.models import Accession
+
+        accession_text = utils.to_unicode(
+            self.view.widgets.plant_acc_entry.get_text()
+        ).strip()
+        if accession_text and self.model.accession is None:
+            accession = self.session.execute(
+                select(Accession).where(Accession.code == accession_text)
+            ).scalar_one_or_none()
+            if accession is not None:
+                self.model.accession = accession
+                self.remove_problem(None, self.view.widgets.plant_acc_entry)
+                self._dirty = True
+
+        code_text = utils.to_unicode(
+            self.view.widgets.plant_code_entry.get_text()
+        ).strip()
+        if code_text and self.model.code is None:
+            self.model.code = code_text
+            self._dirty = True
+
+        quantity_text = utils.to_unicode(
+            self.view.widgets.plant_quantity_entry.get_text()
+        ).strip()
+        if quantity_text and self.model.quantity is None:
+            try:
+                self.model.quantity = int(quantity_text)
+            except ValueError:
+                return
+            self._dirty = True
+
+    def _resolve_location_entry(self) -> None:
+        if self.model.location is not None:
+            return
+        entry = self.view.widgets.plant_loc_comboentry.get_child()
+        text = utils.to_unicode(entry.get_text()).strip()
+        if not text:
+            return
+
+        match = re.match(r"\(([^)]+)\) ?(.*)", text)
+        code = match.group(1) if match else text
+        name = match.group(2) if match else text
+
+        combo_model = self.view.widgets.plant_loc_comboentry.get_model()
+        if combo_model is not None:
+            for row in combo_model:
+                location = row[0]
+                if not location:
+                    continue
+                if (
+                    utils.to_unicode(getattr(location, "code", "")) == code
+                    or utils.to_unicode(getattr(location, "name", "")) == name
+                    or utils.to_unicode(location) == text
+                ):
+                    self.model.location = location
+                    self.remove_problem(None, entry)
+                    return
+
+        from bauble.plugins.garden.models import Location
+
+        location = self.session.execute(
+            select(Location).where(utils.ilike(Location.code, code))
+        ).scalar_one_or_none()
+        if location is None:
+            location = self.session.execute(
+                select(Location).where(utils.ilike(Location.name, name))
+            ).scalar_one_or_none()
+        if location is not None:
+            self.model.location = location
+            self.remove_problem(None, entry)
 
     def set_model_attr(self, field, value, validator: Optional[Any] = None) -> None:
         logger.debug(f"set_model_attr({field}, {value})")
@@ -630,11 +705,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 self.set_model_attr("location", location)
 
     def refresh_view(self) -> None:
-        # TODO: is this really relevant since this editor only creates new
-        # plants?  it also won't work while testing, and removing it while
-        # testing has no impact on test results.
-        if prefs.testing:
-            return
         for widget, field in list(self.widget_to_field_map.items()):
             value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
@@ -764,6 +834,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
         from bauble.plugins.garden.models import Plant as Plant
         from bauble.plugins.garden.models import PlantNote as PlantNote
 
+        if self.model.id is None and self.model not in self.session:
+            self.session.add(self.model)
+
         codes = utils.range_builder(self.model.code)
         if (
             len(codes) <= 1
@@ -843,7 +916,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
         not_ok_msg = _("Are you sure you want to lose your changes?")
         if response == Gtk.ResponseType.OK or response in self.ok_responses:
-            if self.presenter.dirty():
+            if self.presenter.dirty() or self.model in self.session.new:
                 try:
                     self.commit_changes()
                 except Exception:

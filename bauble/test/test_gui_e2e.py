@@ -1,6 +1,7 @@
 import os
 from configparser import RawConfigParser
 import signal
+import sqlite3
 import subprocess
 import time
 
@@ -71,6 +72,29 @@ def ghini_process(isolated_app):
         yield process
     finally:
         terminate_process(process)
+
+
+@pytest.fixture
+def ghini_process_factory(isolated_app):
+    processes = []
+
+    def start_process():
+        process = subprocess.Popen(
+            APP_COMMAND,
+            cwd=isolated_app["cwd"],
+            env=isolated_app["env"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        processes.append(process)
+        return process
+
+    try:
+        yield start_process
+    finally:
+        for process in processes:
+            terminate_process(process)
 
 
 def terminate_process(process):
@@ -447,7 +471,7 @@ def test_can_create_accession_from_species_editor_chain(
         lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
     )
     dogtail_rawinput.typeText(f"{genus_name} {species_name}")
-    dogtail_rawinput.keyCombo("Tab")
+    dogtail_rawinput.pressKey("Tab")
 
     accession_entries = find_children_by_role(accession_editor, "text")
     assert len(accession_entries) >= 2, dump_accessible_tree(accession_editor)
@@ -462,6 +486,7 @@ def test_can_create_accession_from_species_editor_chain(
         lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
         timeout=20,
     )
+
     terminate_process(ghini_process)
 
     accession_count = query_sqlite_database(
@@ -502,6 +527,157 @@ def test_can_create_accession_from_species_editor_chain(
     assert (
         accession_count == 1
     ), f"accession_total={accession_total}, species_total={species_total}"
+
+
+def test_can_create_plant_from_insert_menu(
+    dogtail_modules, sqlite_connection, ghini_process_factory
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEPLANTACEAE"
+    genus_name = "Eeplantgenus"
+    species_name = "eoplant"
+    accession_code = "PLANT-E2E-001"
+    location_code = "E2EL"
+    location_name = "E2E Plant Bed"
+    plant_code = "1"
+
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into location (code, name, _created, _last_updated) "
+            "values (?, ?, current_timestamp, current_timestamp)"
+        ),
+        location_code,
+        location_name,
+    )
+
+    ghini_process = ghini_process_factory()
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Family", role_name="menu item")
+
+    family_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Family Editor",
+    )
+    family_entry = find_child_by_role(family_editor, "text")
+    assert family_entry is not None, dump_accessible_tree(family_editor)
+    family_entry.click()
+    dogtail_rawinput.typeText(family_name)
+
+    find_named_child(family_editor, "Add Genera", role_name="push button").click()
+
+    genus_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Genus Editor",
+    )
+    genus_entries = find_children_by_role(genus_editor, "text")
+    assert len(genus_entries) >= 2, dump_accessible_tree(genus_editor)
+    genus_entries[1].click()
+    dogtail_rawinput.typeText(genus_name)
+
+    find_named_child(genus_editor, "Add Species", role_name="push button").click()
+
+    species_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+    )
+    species_entries = find_children_by_role(species_editor, "text")
+    assert species_entries, dump_accessible_tree(species_editor)
+    species_entries[0].click()
+    dogtail_rawinput.typeText(species_name)
+
+    find_named_child(species_editor, "OK", role_name="push button").click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+        timeout=20,
+    )
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Accession", role_name="menu item")
+
+    accession_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+    )
+    dogtail_rawinput.typeText(f"{genus_name} {species_name}")
+    dogtail_rawinput.pressKey("Tab")
+
+    accession_entries = find_children_by_role(accession_editor, "text")
+    assert len(accession_entries) >= 2, dump_accessible_tree(accession_editor)
+    accession_entries[1].click()
+    dogtail_rawinput.keyCombo("<Control>a")
+    dogtail_rawinput.typeText(accession_code)
+
+    find_named_child(accession_editor, "Add plants", role_name="push button").click()
+
+    plant_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+    )
+    plant_entries = find_children_by_role(plant_editor, "text")
+    assert len(plant_entries) >= 4, dump_accessible_tree(plant_editor)
+    # Dogtail reports text fields in GTK container order for this dialog.
+    enter_text(plant_entries[0], accession_code, dogtail_rawinput)
+    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
+    enter_text(plant_entries[3], "1", dogtail_rawinput)
+    enter_text(plant_entries[2], location_code, dogtail_rawinput)
+    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
+
+    ok_button = find_named_child(plant_editor, "OK", role_name="push button")
+    field_values = [
+        plant_editor.name,
+        *[accessible_text(entry) for entry in plant_entries[:4]],
+    ]
+    assert ok_button is not None, field_values
+    assert getattr(ok_button, "sensitive", True), field_values
+    ok_button.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    plant_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select count(*) from plant "
+            "join accession on plant.accession_id = accession.id "
+            "join species on accession.species_id = species.id "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "join location on plant.location_id = location.id "
+            "where plant.code = ? "
+            "and species.epithet = ? "
+            "and genus.epithet = ? "
+            "and family.epithet = ? "
+            "and location.code = ? "
+            "and location.name = ?"
+        ),
+        plant_code,
+        species_name,
+        genus_name,
+        family_name,
+        location_code,
+        location_name,
+    )
+    plant_rows = fetch_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select plant.code, accession.code, species.epithet, genus.epithet, "
+            "family.epithet, location.code, location.name "
+            "from plant "
+            "join accession on plant.accession_id = accession.id "
+            "join species on accession.species_id = species.id "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "join location on plant.location_id = location.id"
+        ),
+    )
+    assert plant_count == 1, plant_rows
 
 
 def connect_to_sqlite_database(dogtail_tree, connection_name):
@@ -557,6 +733,22 @@ def find_children_by_role(node, role_name):
     return matches
 
 
+def enter_text(node, text, dogtail_rawinput):
+    x, y = node.position
+    width, height = node.size
+    dogtail_rawinput.click(x + width // 2, y + height // 2)
+    time.sleep(0.1)
+    dogtail_rawinput.keyCombo("<Control>a")
+    dogtail_rawinput.typeText(text)
+
+
+def accessible_text(node):
+    try:
+        return node.queryText().getText(0, -1)
+    except Exception:
+        return getattr(node, "text", "")
+
+
 def activate_menu_item(root, name, role_name=None):
     item = find_named_child(root, name, role_name=role_name, showing_only=True)
     assert item is not None, dump_accessible_tree(root)
@@ -587,3 +779,13 @@ def query_sqlite_database(database_file, query, *parameters):
     )
     assert result.returncode == 0, result.stderr
     return int(result.stdout.strip())
+
+
+def fetch_sqlite_database(database_file, query, *parameters):
+    with sqlite3.connect(database_file) as connection:
+        return connection.execute(query, parameters).fetchall()
+
+
+def execute_sqlite_database(database_file, statement, *parameters):
+    with sqlite3.connect(database_file) as connection:
+        connection.execute(statement, parameters)
