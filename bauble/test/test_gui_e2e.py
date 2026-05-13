@@ -529,6 +529,56 @@ def test_can_create_accession_from_species_editor_chain(
     ), f"accession_total={accession_total}, species_total={species_total}"
 
 
+def test_can_create_location_from_insert_menu(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    location_code = "E2EL"
+    location_name = "E2E Plant Bed"
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Location", role_name="menu item")
+
+    location_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog"
+        and find_named_child(node, "OK", role_name="push button") is not None
+        and find_named_child(node, "Add plants", role_name="push button") is not None,
+    )
+    location_entries = [
+        entry
+        for entry in find_children_by_role(location_editor, "text")
+        if getattr(entry, "showing", True)
+    ]
+    assert len(location_entries) >= 3, dump_accessible_tree(location_editor)
+
+    type_into_empty_text(location_entries[1], location_code, dogtail_rawinput)
+    type_into_empty_text(location_entries[2], location_name, dogtail_rawinput)
+
+    ok_button = find_named_child(location_editor, "OK", role_name="push button")
+    field_values = [accessible_text(entry) for entry in location_entries[:3]]
+    assert ok_button is not None, field_values
+    assert getattr(ok_button, "sensitive", True), field_values
+    ok_button.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog"
+        and find_named_child(node, "Add plants", role_name="push button") is not None,
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    location_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from location where code = ? and name = ?",
+        location_code,
+        location_name,
+    )
+    assert location_count == 1
+
+
 def test_can_create_plant_from_insert_menu(
     dogtail_modules, sqlite_connection, ghini_process_factory
 ):
@@ -739,6 +789,14 @@ def enter_text(node, text, dogtail_rawinput):
     dogtail_rawinput.click(x + width // 2, y + height // 2)
     time.sleep(0.1)
     dogtail_rawinput.keyCombo("<Control>a")
+    dogtail_rawinput.typeText(text)
+
+
+def type_into_empty_text(node, text, dogtail_rawinput):
+    x, y = node.position
+    width, height = node.size
+    dogtail_rawinput.click(x + width // 2, y + height // 2)
+    time.sleep(0.1)
     dogtail_rawinput.typeText(text)
 
 
