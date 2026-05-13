@@ -568,7 +568,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def refresh_sensitivity(self) -> None:
         logger.debug("refresh_sensitivity()")
-        self._sync_required_entry_values()
         self._resolve_location_entry()
         try:
             logger.debug(
@@ -607,38 +606,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.widgets.pad_ok_button.set_sensitive(sensitive)
         self.view.widgets.pad_next_button.set_sensitive(sensitive)
         self.view.widgets.split_planting_button.set_visible = False
-
-    def _sync_required_entry_values(self) -> None:
-        from bauble.plugins.garden.models import Accession
-
-        accession_text = utils.to_unicode(
-            self.view.widgets.plant_acc_entry.get_text()
-        ).strip()
-        if accession_text and self.model.accession is None:
-            accession = self.session.execute(
-                select(Accession).where(Accession.code == accession_text)
-            ).scalar_one_or_none()
-            if accession is not None:
-                self.model.accession = accession
-                self.remove_problem(None, self.view.widgets.plant_acc_entry)
-                self._dirty = True
-
-        code_text = utils.to_unicode(
-            self.view.widgets.plant_code_entry.get_text()
-        ).strip()
-        if code_text and self.model.code is None:
-            self.model.code = code_text
-            self._dirty = True
-
-        quantity_text = utils.to_unicode(
-            self.view.widgets.plant_quantity_entry.get_text()
-        ).strip()
-        if quantity_text and self.model.quantity is None:
-            try:
-                self.model.quantity = int(quantity_text)
-            except ValueError:
-                return
-            self._dirty = True
 
     def _resolve_location_entry(self) -> None:
         if self.model.location is not None:
