@@ -9,6 +9,45 @@ test work.
 
 ## Test Layers
 
+### Fast Development Smoke
+
+Command:
+
+```sh
+scripts/docker-dev test-smoke
+```
+
+This is the short no-intervention suite for day-to-day development. It should
+finish quickly enough to run before committing focused changes. It combines:
+
+- formatting and version/database checks
+- GTK smoke checks
+- a small stable subset of Dogtail GUI E2E tests for startup, search, and
+  simple create workflows
+
+Keep this suite conservative. Add a test to smoke only when it is deterministic,
+fast, and covers a workflow whose failure should stop normal development.
+
+### Full Release Regression
+
+Command:
+
+```sh
+scripts/docker-dev test-regression
+```
+
+This is the no-intervention release gate. It is expected to take longer than
+the smoke suite and should be run before release or merge-request review. It
+combines:
+
+- warning-gated pytest coverage
+- GTK smoke checks
+- the full automated Dogtail GUI E2E suite
+
+Known failures must be marked `xfail` with a GitLab issue reference. When a
+guided visual run finds a bug and the fix is stable, add or update an automated
+regression in this layer whenever practical.
+
 ### Headless Automated
 
 Command:
@@ -79,6 +118,17 @@ doc/gtk-smoke-checklist.md
 
 Manual-only checks should be converted to guided or automated tests only when
 the workflow is important enough to justify maintenance.
+
+## Promotion Policy
+
+Guided visual tests are for discovery and human confirmation. Automated suites
+are for repeatable confidence. For every guided finding:
+
+- If the behavior is stable and objectively assertable, add a regression test.
+- If it is a primary workflow and fast enough, include it in `test-smoke`.
+- If it is important but slow or broad, include it in `test-regression`.
+- If it cannot be automated cleanly, leave the GitLab issue with the guided
+  artifact and the reason automation is deferred.
 
 ## Critical Paths
 
