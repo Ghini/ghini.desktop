@@ -30,6 +30,7 @@ Useful overrides:
   GHINI_ENV_FILE=.env
   GHINI_PROJECT_DIR=<repo path>
   GHINI_CONFIG_DIR=$HOME/.bauble/3.1
+  GHINI_SKIP_CONFIG_MOUNT=1
   GHINI_KRB5_DIR=$HOME/krb5
   GHINI_XHOST=1
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
@@ -102,7 +103,9 @@ run_container() {
     local mode="$1"
     shift || true
 
-    mkdir -p "${config_dir}"
+    if [[ "${GHINI_SKIP_CONFIG_MOUNT:-0}" != "1" ]]; then
+        mkdir -p "${config_dir}"
+    fi
 
     local -a docker_args=(
         --rm
@@ -117,8 +120,11 @@ run_container() {
         --env "NO_AT_BRIDGE=${NO_AT_BRIDGE:-1}"
         --env "DISPLAY=${DISPLAY:-}"
         --volume "${project_dir}:/app"
-        --volume "${config_dir}:/home/ghini/.bauble/3.1"
     )
+
+    if [[ "${GHINI_SKIP_CONFIG_MOUNT:-0}" != "1" ]]; then
+        docker_args+=("--volume" "${config_dir}:/home/ghini/.bauble/3.1")
+    fi
 
     if [[ "${mode}" == "debug" || "${mode}" == "pytest-debug" ]]; then
         docker_args+=(--publish 5678:5678)
@@ -172,6 +178,7 @@ run_container() {
         DB_SSLMODE \
         KRB5_CONFIG \
         KRB5_CLIENT_KTNAME \
+        GHINI_GUIDED_WRITE_DEFAULT_CONFIG \
         PYTEST_ARGS \
         DEBUG; do
         add_env_if_set "${env_name}"
@@ -256,6 +263,22 @@ run_gui_e2e() {
 }
 
 run_gui_guided() {
+    local skip_config_mount=0
+    local arg
+    for arg in "$@"; do
+        if [[ "${arg}" == "--sqlite-fixture" ]]; then
+            skip_config_mount=1
+            break
+        fi
+    done
+
+    if [[ "${skip_config_mount}" == "1" ]]; then
+        GHINI_SKIP_CONFIG_MOUNT=1 GHINI_GUIDED_WRITE_DEFAULT_CONFIG=1 \
+            NO_AT_BRIDGE=0 run_container gui-guided \
+            python scripts/gui_guided.py "$@"
+        return
+    fi
+
     NO_AT_BRIDGE=0 run_container gui-guided \
         python scripts/gui_guided.py "$@"
 }

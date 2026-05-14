@@ -55,7 +55,9 @@ can inspect the visible window at useful points.
 Use `--sqlite-fixture` when the scenario should run against a disposable,
 known-good SQLite database instead of saved local connection settings. The
 fixture currently creates a `Guided SQLite` connection and seeds a searchable
-`Guidedaceae` family record for the visual smoke scenario.
+`Guidedaceae` family record for the visual smoke scenario. Fresh fixture
+databases may open the Institution Editor on first connection; enter a test
+institution name and continue the scenario from the main window.
 
 ### Manual Checklist
 

@@ -99,6 +99,7 @@ SCENARIOS = {
                 name="Main window usable",
                 instructions=(
                     f"Connect to {GUIDED_CONNECTION_NAME}, or another test database.",
+                    "If the Institution Editor opens for a fresh database, enter a test institution name and save it.",
                     "Wait for the main Ghini window.",
                     "Open one menu and click back into the search field.",
                 ),
@@ -261,10 +262,13 @@ def launch_app(env_overrides: dict[str, str] | None = None) -> subprocess.Popen[
 def create_sqlite_fixture(root: Path) -> dict[str, object]:
     home = root / "home"
     appdata = home / ".bauble" / "3.1"
+    default_appdata = Path("/home/ghini/.bauble/3.1")
     database_file = root / "guided.sqlite"
     pictures_root = root / "pictures"
     appdata.mkdir(parents=True)
     pictures_root.mkdir()
+    if os.environ.get("GHINI_GUIDED_WRITE_DEFAULT_CONFIG") == "1":
+        (default_appdata / "res" / "templates").mkdir(parents=True, exist_ok=True)
 
     env = os.environ.copy()
     env.update(
@@ -337,19 +341,28 @@ def create_sqlite_fixture(root: Path) -> dict[str, object]:
         database_file=database_file,
         pictures_root=pictures_root,
     )
+    if os.environ.get("GHINI_GUIDED_WRITE_DEFAULT_CONFIG") == "1":
+        write_preferences(
+            default_appdata,
+            connection_name=GUIDED_CONNECTION_NAME,
+            database_file=database_file,
+            pictures_root=pictures_root,
+        )
     return {
         "connection_name": GUIDED_CONNECTION_NAME,
+        "appdata": str(default_appdata),
         "home": str(home),
         "database_file": str(database_file),
         "pictures_root": str(pictures_root),
         "seed_search": "family where epithet=Guidedaceae",
-        "env": {"HOME": str(home), "USER": "ghini", "LOGNAME": "ghini"},
+        "env": {"HOME": "/home/ghini", "USER": "ghini", "LOGNAME": "ghini"},
     }
 
 
 def write_preferences(
     appdata_dir: Path, *, connection_name: str, database_file: Path, pictures_root: Path
 ) -> None:
+    appdata_dir.mkdir(parents=True, exist_ok=True)
     config = RawConfigParser()
     config.add_section("bauble.config")
     config.set("bauble.config", "version", "(4, 0)")
