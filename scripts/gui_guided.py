@@ -99,7 +99,7 @@ SCENARIOS = {
                 name="Main window usable",
                 instructions=(
                     f"Connect to {GUIDED_CONNECTION_NAME}, or another test database.",
-                    "If the Institution Editor opens for a fresh database, enter a test institution name and save it.",
+                    "If the Institution Editor opens unexpectedly, record that in the checkpoint notes.",
                     "Wait for the main Ghini window.",
                     "Open one menu and click back into the search field.",
                 ),
@@ -321,8 +321,14 @@ def create_sqlite_fixture(root: Path) -> dict[str, object]:
             "-c",
             (
                 "import sqlite3, sys; "
-                "db = sys.argv[1]; "
-                "conn = sqlite3.connect(db); "
+                "import bauble.db as db; "
+                "from bauble.plugins.garden.institution import Institution; "
+                "database = sys.argv[1]; "
+                "db.open('sqlite:///' + database, verify=False); "
+                "institution = Institution(); "
+                "institution.name = 'Guided Test Institution'; "
+                "institution.write(); "
+                "conn = sqlite3.connect(database); "
                 'conn.execute("insert into family '
                 "(epithet, author, qualifier, _created, _last_updated) "
                 "values ('Guidedaceae', '', '', current_timestamp, current_timestamp)\"); "
@@ -364,6 +370,7 @@ def create_sqlite_fixture(root: Path) -> dict[str, object]:
         "home": str(home),
         "database_file": str(database_file),
         "pictures_root": str(pictures_root),
+        "institution_name": "Guided Test Institution",
         "seed_search": "family where epithet=Guidedaceae",
         "env": {"HOME": "/home/ghini", "USER": "ghini", "LOGNAME": "ghini"},
     }
