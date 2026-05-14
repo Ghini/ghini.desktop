@@ -253,6 +253,43 @@ def test_sqlite_connection_opens_main_window(
     assert find_child_by_role(main_window, "combo box") is not None
 
 
+def test_can_search_existing_species(dogtail_modules, sqlite_connection, ghini_process):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EESEARCHACEAE"
+    genus_name = "Eesearchgenus"
+    species_name = "eosearch"
+
+    seed_taxonomy_location_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name=species_name,
+        location_code="E2ES",
+        location_name="E2E Search Bed",
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(
+        search_entry,
+        f"species where genus.epithet={genus_name}",
+        dogtail_rawinput,
+    )
+    dogtail_rawinput.pressKey("Enter")
+
+    results_view = find_child_by_role(main_window, "table")
+    assert results_view is not None, dump_accessible_tree(main_window)
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and genus_name in node.name
+        and species_name in node.name,
+        timeout=20,
+    )
+
+
 def test_can_create_family_from_insert_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):

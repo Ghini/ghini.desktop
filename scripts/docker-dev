@@ -243,11 +243,16 @@ run_gtk_smoke() {
 }
 
 run_gui_e2e() {
+    local -a pytest_args=(bauble/test/test_gui_e2e.py -q)
+    if [[ $# -gt 0 ]]; then
+        pytest_args=("$@")
+    fi
+
     GHINI_XHOST=0 NO_AT_BRIDGE=0 run_container shell \
         timeout 180 xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
         dbus-run-session -- \
-        bash -lc 'gsettings set org.gnome.desktop.interface toolkit-accessibility true; python -m pytest bauble/test/test_gui_e2e.py -q "$@"' \
-        bash "$@"
+        bash -lc 'gsettings set org.gnome.desktop.interface toolkit-accessibility true; python -m pytest "$@"' \
+        bash "${pytest_args[@]}"
 }
 
 run_gui_guided() {
