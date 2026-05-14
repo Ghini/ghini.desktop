@@ -732,8 +732,8 @@ def test_can_create_plant_from_insert_menu(
 
 @pytest.mark.xfail(
     reason=(
-        "Documents current propagation workflow failure: the propagation editor opens "
-        "from the plant editor, but the accession/plant/propgation save chain does "
+        "GitLab #2: the propagation editor opens "
+        "from the plant editor, but the accession/plant/propagation save chain does "
         "not yet persist the expected records reliably under GUI automation."
     )
 )
