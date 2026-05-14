@@ -34,6 +34,7 @@ Command:
 
 ```sh
 scripts/docker-dev gui-guided --list
+scripts/docker-dev gui-guided visual-smoke
 scripts/docker-dev gui-guided connection-manager
 scripts/docker-dev gui-guided propagation-workflow
 ```
@@ -48,6 +49,8 @@ test-results/gui-guided/
 
 Guided testing should not prompt for every assertion. Prompts are reserved for
 workflow-level confirmation, visual inspection, and unexpected observations.
+The runner pauses after launch and before closing the application so the tester
+can inspect the visible window at useful points.
 
 ### Manual Checklist
 
@@ -108,8 +111,10 @@ reason once the issue exists. Example:
 
 ## Guided Test Result Handling
 
-Guided runs create JSON artifacts. If any checkpoint result is `fail`, create a
-GitLab issue and include:
+Guided runs create ignored JSON artifacts under `test-results/gui-guided/`.
+Artifacts include checkpoint results, tester notes, the Git branch and commit,
+the display value, application return code, and captured stdout/stderr. If any
+checkpoint result is `fail`, create a GitLab issue and include:
 
 - scenario name
 - checkpoint name

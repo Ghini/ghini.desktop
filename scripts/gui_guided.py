@@ -73,6 +73,49 @@ SCENARIOS = {
             ),
         ),
     ),
+    "visual-smoke": Scenario(
+        name="visual-smoke",
+        description="Run a short visible smoke test from startup through search.",
+        checkpoints=(
+            Checkpoint(
+                name="Connection manager visible",
+                instructions=(
+                    "Wait for the initial Ghini connection dialog.",
+                    "Inspect the saved connection list and connection details.",
+                ),
+                expected=(
+                    "The connection dialog opens on the host display.",
+                    "The current Ghini version is visible in the title bar.",
+                    "No error dialog or traceback appears before connecting.",
+                ),
+            ),
+            Checkpoint(
+                name="Main window usable",
+                instructions=(
+                    "Connect to a test database.",
+                    "Wait for the main Ghini window.",
+                    "Open one menu and click back into the search field.",
+                ),
+                expected=(
+                    "The main window opens without error dialogs.",
+                    "Menus open and close normally.",
+                    "The search field accepts focus and typed text.",
+                ),
+            ),
+            Checkpoint(
+                name="Basic search visible",
+                instructions=(
+                    "Run a simple search against data in the selected database.",
+                    "Select a visible result if one is returned.",
+                ),
+                expected=(
+                    "Search results render in the result pane or a clear no-results message appears.",
+                    "Selecting a result does not produce an error dialog.",
+                    "Any visible detail pane behavior is noted.",
+                ),
+            ),
+        ),
+    ),
     "create-plant": Scenario(
         name="create-plant",
         description="Exercise the accession-to-plant creation workflow visually.",
@@ -156,6 +199,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Do not launch Ghini; only prompt through the selected checkpoints.",
     )
+    parser.add_argument(
+        "--auto-close",
+        action="store_true",
+        help="Close Ghini immediately after the last checkpoint.",
+    )
+    parser.add_argument(
+        "--result-dir",
+        default=str(RESULT_DIR),
+        help=f"Directory for JSON result artifacts. Default: {RESULT_DIR}",
+    )
     return parser.parse_args()
 
 
@@ -174,6 +227,10 @@ def prompt_result() -> tuple[str, str]:
     return result, note
 
 
+def prompt_continue(message: str) -> None:
+    input(f"{message} Press Enter to continue.")
+
+
 def launch_app() -> subprocess.Popen[str]:
     env = os.environ.copy()
     env.setdefault("NO_AT_BRIDGE", "0")
@@ -188,6 +245,35 @@ def launch_app() -> subprocess.Popen[str]:
     )
 
 
+def git_value(*args: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd="/app",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except Exception:
+        return ""
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
+def collect_run_context() -> dict[str, object]:
+    return {
+        "git_branch": git_value("rev-parse", "--abbrev-ref", "HEAD"),
+        "git_commit": git_value("rev-parse", "HEAD"),
+        "git_describe": git_value("describe", "--tags", "--dirty", "--always"),
+        "display": os.environ.get("DISPLAY", ""),
+        "user": os.environ.get("USER", ""),
+        "pythonpath": os.environ.get("PYTHONPATH", ""),
+    }
+
+
 def terminate_process(process: subprocess.Popen[str]) -> tuple[str, str]:
     if process.poll() is None:
         process.terminate()
@@ -200,16 +286,23 @@ def terminate_process(process: subprocess.Popen[str]) -> tuple[str, str]:
     return stdout, stderr
 
 
-def run_scenario(scenario: Scenario, *, launch: bool) -> dict[str, object]:
+def run_scenario(
+    scenario: Scenario, *, launch: bool, pause_before_close: bool
+) -> dict[str, object]:
     started_at = datetime.now(timezone.utc)
+    run_context = collect_run_context()
     process = launch_app() if launch and scenario.launch_app else None
     checkpoint_results = []
     print(f"\nScenario: {scenario.name}")
     print(scenario.description)
     print("\nThe application is visible on your display.")
+    print("Use this runner for human-visible checkpoints, not every assertion.")
+    print("Enter notes for anything surprising, even when the checkpoint passes.")
     print("Confirm only after each checkpoint-level workflow is complete.\n")
 
     try:
+        if process is not None:
+            prompt_continue("Ghini has been launched.")
         for index, checkpoint in enumerate(scenario.checkpoints, start=1):
             print(f"Checkpoint {index}: {checkpoint.name}")
             if checkpoint.instructions:
@@ -229,6 +322,8 @@ def run_scenario(scenario: Scenario, *, launch: bool) -> dict[str, object]:
                 }
             )
             print()
+        if process is not None and pause_before_close:
+            prompt_continue("Review the visible Ghini window before it closes.")
     finally:
         stdout = stderr = ""
         returncode = None
@@ -242,6 +337,7 @@ def run_scenario(scenario: Scenario, *, launch: bool) -> dict[str, object]:
         "description": scenario.description,
         "started_at": started_at.isoformat(),
         "finished_at": finished_at.isoformat(),
+        "run_context": run_context,
         "app_returncode": returncode,
         "checkpoints": checkpoint_results,
         "stdout": stdout,
@@ -249,10 +345,10 @@ def run_scenario(scenario: Scenario, *, launch: bool) -> dict[str, object]:
     }
 
 
-def write_result(result: dict[str, object]) -> Path:
-    RESULT_DIR.mkdir(parents=True, exist_ok=True)
+def write_result(result: dict[str, object], result_dir: Path) -> Path:
+    result_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    path = RESULT_DIR / f"{timestamp}-{result['scenario']}.json"
+    path = result_dir / f"{timestamp}-{result['scenario']}.json"
     path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     return path
 
@@ -271,8 +367,12 @@ def main() -> int:
         list_scenarios()
         return 2
 
-    result = run_scenario(scenario, launch=not args.no_launch)
-    path = write_result(result)
+    result = run_scenario(
+        scenario,
+        launch=not args.no_launch,
+        pause_before_close=not args.auto_close,
+    )
+    path = write_result(result, Path(args.result_dir))
     print(f"Guided GUI result written to {path}")
     failed = any(checkpoint["result"] == "fail" for checkpoint in result["checkpoints"])
     return 1 if failed else 0
