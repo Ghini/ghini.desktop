@@ -34,7 +34,7 @@ Command:
 
 ```sh
 scripts/docker-dev gui-guided --list
-scripts/docker-dev gui-guided visual-smoke
+scripts/docker-dev gui-guided visual-smoke --sqlite-fixture
 scripts/docker-dev gui-guided connection-manager
 scripts/docker-dev gui-guided propagation-workflow
 ```
@@ -51,6 +51,11 @@ Guided testing should not prompt for every assertion. Prompts are reserved for
 workflow-level confirmation, visual inspection, and unexpected observations.
 The runner pauses after launch and before closing the application so the tester
 can inspect the visible window at useful points.
+
+Use `--sqlite-fixture` when the scenario should run against a disposable,
+known-good SQLite database instead of saved local connection settings. The
+fixture currently creates a `Guided SQLite` connection and seeds a searchable
+`Guidedaceae` family record for the visual smoke scenario.
 
 ### Manual Checklist
 

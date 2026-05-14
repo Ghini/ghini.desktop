@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from configparser import RawConfigParser
 import json
 import os
 import signal
@@ -12,10 +13,12 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 APP_COMMAND = ["python", "/app/scripts/ghini"]
 RESULT_DIR = Path("test-results/gui-guided")
+GUIDED_CONNECTION_NAME = "Guided SQLite"
 
 
 @dataclass(frozen=True)
@@ -75,7 +78,10 @@ SCENARIOS = {
     ),
     "visual-smoke": Scenario(
         name="visual-smoke",
-        description="Run a short visible smoke test from startup through search.",
+        description=(
+            "Run a short visible smoke test from startup through search. "
+            "Use --sqlite-fixture for a disposable database."
+        ),
         checkpoints=(
             Checkpoint(
                 name="Connection manager visible",
@@ -92,7 +98,7 @@ SCENARIOS = {
             Checkpoint(
                 name="Main window usable",
                 instructions=(
-                    "Connect to a test database.",
+                    f"Connect to {GUIDED_CONNECTION_NAME}, or another test database.",
                     "Wait for the main Ghini window.",
                     "Open one menu and click back into the search field.",
                 ),
@@ -105,7 +111,7 @@ SCENARIOS = {
             Checkpoint(
                 name="Basic search visible",
                 instructions=(
-                    "Run a simple search against data in the selected database.",
+                    "Run a simple search, for example: family where epithet=Guidedaceae.",
                     "Select a visible result if one is returned.",
                 ),
                 expected=(
@@ -209,6 +215,11 @@ def parse_args() -> argparse.Namespace:
         default=str(RESULT_DIR),
         help=f"Directory for JSON result artifacts. Default: {RESULT_DIR}",
     )
+    parser.add_argument(
+        "--sqlite-fixture",
+        action="store_true",
+        help="Create a disposable SQLite database and launch Ghini with that config.",
+    )
     return parser.parse_args()
 
 
@@ -231,10 +242,12 @@ def prompt_continue(message: str) -> None:
     input(f"{message} Press Enter to continue.")
 
 
-def launch_app() -> subprocess.Popen[str]:
+def launch_app(env_overrides: dict[str, str] | None = None) -> subprocess.Popen[str]:
     env = os.environ.copy()
     env.setdefault("NO_AT_BRIDGE", "0")
     env.setdefault("PYTHONPATH", "/app")
+    if env_overrides:
+        env.update(env_overrides)
     return subprocess.Popen(
         APP_COMMAND,
         cwd="/app",
@@ -243,6 +256,121 @@ def launch_app() -> subprocess.Popen[str]:
         stderr=subprocess.PIPE,
         text=True,
     )
+
+
+def create_sqlite_fixture(root: Path) -> dict[str, object]:
+    home = root / "home"
+    appdata = home / ".bauble" / "3.1"
+    database_file = root / "guided.sqlite"
+    pictures_root = root / "pictures"
+    appdata.mkdir(parents=True)
+    pictures_root.mkdir()
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "PYTHONPATH": "/app",
+            "USER": "ghini",
+            "LOGNAME": "ghini",
+        }
+    )
+    create_database = subprocess.run(
+        [
+            "python",
+            "-c",
+            (
+                "import sys; "
+                "import bauble.db as db; "
+                "db.open('sqlite:///' + sys.argv[1], verify=False); "
+                "db.create(import_defaults=True)"
+            ),
+            str(database_file),
+        ],
+        cwd="/app",
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    if create_database.returncode != 0:
+        raise RuntimeError(
+            "Failed to create guided SQLite fixture\n\n"
+            f"stdout:\n{create_database.stdout}\n\nstderr:\n{create_database.stderr}"
+        )
+
+    seed_database = subprocess.run(
+        [
+            "python",
+            "-c",
+            (
+                "import sqlite3, sys; "
+                "db = sys.argv[1]; "
+                "conn = sqlite3.connect(db); "
+                'conn.execute("insert into family '
+                "(epithet, author, qualifier, _created, _last_updated) "
+                "values ('Guidedaceae', '', '', current_timestamp, current_timestamp)\"); "
+                "conn.commit(); "
+                "conn.close()"
+            ),
+            str(database_file),
+        ],
+        cwd="/app",
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    if seed_database.returncode != 0:
+        raise RuntimeError(
+            "Failed to seed guided SQLite fixture\n\n"
+            f"stdout:\n{seed_database.stdout}\n\nstderr:\n{seed_database.stderr}"
+        )
+
+    write_preferences(
+        appdata,
+        connection_name=GUIDED_CONNECTION_NAME,
+        database_file=database_file,
+        pictures_root=pictures_root,
+    )
+    return {
+        "connection_name": GUIDED_CONNECTION_NAME,
+        "home": str(home),
+        "database_file": str(database_file),
+        "pictures_root": str(pictures_root),
+        "seed_search": "family where epithet=Guidedaceae",
+        "env": {"HOME": str(home), "USER": "ghini", "LOGNAME": "ghini"},
+    }
+
+
+def write_preferences(
+    appdata_dir: Path, *, connection_name: str, database_file: Path, pictures_root: Path
+) -> None:
+    config = RawConfigParser()
+    config.add_section("bauble.config")
+    config.set("bauble.config", "version", "(4, 0)")
+    config.add_section("conn")
+    config.set(
+        "conn",
+        "list",
+        str(
+            {
+                connection_name: {
+                    "type": "SQLite",
+                    "file": str(database_file),
+                    "default": False,
+                    "pictures": str(pictures_root),
+                }
+            }
+        ),
+    )
+    config.set("conn", "default", str(connection_name))
+    with (appdata_dir / "config").open("w") as config_file:
+        config.write(config_file)
 
 
 def git_value(*args: str) -> str:
@@ -287,11 +415,25 @@ def terminate_process(process: subprocess.Popen[str]) -> tuple[str, str]:
 
 
 def run_scenario(
-    scenario: Scenario, *, launch: bool, pause_before_close: bool
+    scenario: Scenario,
+    *,
+    launch: bool,
+    pause_before_close: bool,
+    sqlite_fixture: bool,
 ) -> dict[str, object]:
     started_at = datetime.now(timezone.utc)
     run_context = collect_run_context()
-    process = launch_app() if launch and scenario.launch_app else None
+    fixture_context: dict[str, object] = {}
+    fixture_tempdir = None
+    if sqlite_fixture:
+        fixture_tempdir = TemporaryDirectory(prefix="ghini-guided-")
+        fixture_context = create_sqlite_fixture(Path(fixture_tempdir.name))
+    env_overrides = fixture_context.get("env")
+    process = (
+        launch_app(env_overrides if isinstance(env_overrides, dict) else None)
+        if launch and scenario.launch_app
+        else None
+    )
     checkpoint_results = []
     print(f"\nScenario: {scenario.name}")
     print(scenario.description)
@@ -299,6 +441,11 @@ def run_scenario(
     print("Use this runner for human-visible checkpoints, not every assertion.")
     print("Enter notes for anything surprising, even when the checkpoint passes.")
     print("Confirm only after each checkpoint-level workflow is complete.\n")
+    if fixture_context:
+        print("Disposable SQLite fixture:")
+        print(f"- Connection: {fixture_context['connection_name']}")
+        print(f"- Seed search: {fixture_context['seed_search']}")
+        print()
 
     try:
         if process is not None:
@@ -330,6 +477,8 @@ def run_scenario(
         if process is not None:
             stdout, stderr = terminate_process(process)
             returncode = process.returncode
+        if fixture_tempdir is not None:
+            fixture_tempdir.cleanup()
 
     finished_at = datetime.now(timezone.utc)
     return {
@@ -338,6 +487,7 @@ def run_scenario(
         "started_at": started_at.isoformat(),
         "finished_at": finished_at.isoformat(),
         "run_context": run_context,
+        "fixture": {k: v for k, v in fixture_context.items() if k != "env"},
         "app_returncode": returncode,
         "checkpoints": checkpoint_results,
         "stdout": stdout,
@@ -371,6 +521,7 @@ def main() -> int:
         scenario,
         launch=not args.no_launch,
         pause_before_close=not args.auto_close,
+        sqlite_fixture=args.sqlite_fixture,
     )
     path = write_result(result, Path(args.result_dir))
     print(f"Guided GUI result written to {path}")
