@@ -205,6 +205,16 @@ class Action:
 
     enabled: Any = property(get_enabled, set_enabled)
 
+    def get_accel_path(self) -> str:
+        return f"<Actions>/app.{self.name}"
+
+    def create_menu_item(self) -> Gtk.MenuItem:
+        item = Gtk.MenuItem.new_with_mnemonic(self.label)
+        if self.tooltip:
+            item.set_tooltip_text(self.tooltip)
+        item.show()
+        return item
+
 
 class PropertiesExpander(InfoExpander):
     id_data: Any
@@ -788,6 +798,31 @@ class SearchView(pluginmgr.View):
                 self[item] = self.Meta()
             return self.get(item)
 
+    @staticmethod
+    def _event_button(event) -> int:
+        if hasattr(event, "button"):
+            return event.button
+        button = event.get_button()
+        if isinstance(button, tuple):
+            return button[1] if button and button[0] else 0
+        return button
+
+    @staticmethod
+    def _event_position(event) -> tuple[int, int]:
+        if hasattr(event, "x") and hasattr(event, "y"):
+            return int(event.x), int(event.y)
+        x = event.get_x()
+        y = event.get_y()
+        if isinstance(x, tuple):
+            x = x[1] if x and x[0] else 0
+        if isinstance(y, tuple):
+            y = y[1] if y and y[0] else 0
+        return int(x), int(y)
+
+    @staticmethod
+    def _event_time(event) -> int:
+        return getattr(event, "time", Gtk.get_current_event_time())
+
     row_meta: Any = ViewMeta()
     bottom_info: Any = ViewMeta()
 
@@ -1333,17 +1368,11 @@ class SearchView(pluginmgr.View):
             if ref.valid():
                 self.results_view.expand_to_path(ref.get_path())
 
-    def on_view_button_release(self, view, event, data: Optional[Any] = None):
-        """right-mouse-button release.
-
-        Popup a context menu on the selected row.
-        """
-        if event.get_button() != 3:  # 1. issue_gdkevent_structs
-            return False  # if not right click then leave
-
+    def popup_context_menu(self, view, event):
+        """Show a context menu for the selected result rows."""
         selected = self.get_selected_values()
         if not selected:
-            return
+            return False
         selected_types = set(map(type, selected))
         if len(selected_types) > 1:
             # issue #31: currently we only show the menu when all objects
@@ -1361,48 +1390,55 @@ class SearchView(pluginmgr.View):
         # e.g. provide a menu with a "Tag" action so you can tag
         # everything...or we could just ignore this and add "Tag" to all of
         # our action lists
-        menu = None
-        try:
-            menu = self.context_menu_cache[selected_type]
-        except KeyError:
-            menu = Gtk.Menu()
-            for action in self.row_meta[selected_type].actions:
-                logger.debug(f"path: {action.get_accel_path()}")
-                item = action.create_menu_item()
-
-                def on_activate(item, cb):
-                    result = False
-                    try:
-                        # have to get the selected values again here
-                        # because for some unknown reason using the
-                        # "selected" variable from the parent scope
-                        # will give us the objects but they won't be
-                        # in an session...maybe it's a thread thing
-                        values = self.get_selected_values()
-                        result = cb(values)
-                    except Exception as e:
-                        msg = utils.xml_safe(str(e))
-                        tb = utils.xml_safe(traceback.format_exc())
-                        utils.message_details_dialog(msg, tb, Gtk.MessageType.ERROR)
-                        logger.warning(traceback.format_exc())
-                    if result:
-                        self.update()
-
-                item.connect("activate", on_activate, action.callback)
-                menu.append(item)
-            self.context_menu_cache[selected_type] = menu
-
-        # enable/disable the menu items depending on the selection
+        menu = Gtk.Menu()
         for action in self.row_meta[selected_type].actions:
-            action.enabled = (len(selected) > 1 and action.multiselect) or (
-                len(selected) <= 1 and action.singleselect
+            logger.debug(f"path: {action.get_accel_path()}")
+            item = action.create_menu_item()
+            item.set_sensitive(
+                (len(selected) > 1 and action.multiselect)
+                or (len(selected) <= 1 and action.singleselect)
             )
 
-        # (parent_menu_shell, parent_menu_item, func, data, button, activate_time)
-        menu.popup(
-            None, None, None, None, event.get_button(), event.time
-        )  # 1. issue_gdkevent_structs
+            def on_activate(item, cb):
+                result = False
+                try:
+                    # Retrieve selected values at activation time so callbacks
+                    # receive objects attached to the current session.
+                    values = self.get_selected_values()
+                    result = cb(values)
+                except Exception as e:
+                    msg = utils.xml_safe(str(e))
+                    tb = utils.xml_safe(traceback.format_exc())
+                    utils.message_details_dialog(msg, tb, Gtk.MessageType.ERROR)
+                    logger.warning(traceback.format_exc())
+                if result:
+                    self.update()
+
+            item.connect("activate", on_activate, action.callback)
+            menu.append(item)
+
+        menu.show_all()
+        if hasattr(menu, "popup_at_pointer"):
+            menu.popup_at_pointer(event)
+        else:
+            menu.popup(
+                None,
+                None,
+                None,
+                None,
+                self._event_button(event),
+                self._event_time(event),
+            )
         return True
+
+    def on_view_button_release(self, view, event, data: Optional[Any] = None):
+        """right-mouse-button release.
+
+        Popup a context menu on the selected row.
+        """
+        if self._event_button(event) != Gdk.BUTTON_SECONDARY:
+            return False
+        return self.popup_context_menu(view, event)
 
     def update(self) -> None:
         """
@@ -1483,26 +1519,22 @@ class SearchView(pluginmgr.View):
         self.results_view.connect("button-release-event", self.on_view_button_release)
         self.results_view.connect("row-activated", self.on_view_row_activated)
 
-        # Handle right-click to prevent deselecting multiple items
+        # Handle right-click directly so GTK 3 shows result-row menus reliably.
         def on_press(view, event):
             """
-            Ignores right-click selection to prevent unintended deselection.
+            Select the clicked row when needed and show the context menu.
 
-            This ensures that users can open the context menu without losing their
-            current selection when using a right-click.
+            If the row is already selected, keep the current selection intact so
+            multi-select context actions continue to work.
             """
-            if (
-                event.get_button() == Gdk.BUTTON_SECONDARY
-            ):  # Right-click  # 1. issue_gdkevent_structs
-                if (event.get_state() & Gdk.ModifierType.CONTROL_MASK) == 0:
-                    path_info = view.get_path_at_pos(
-                        int(event.get_x()), int(event.get_y())
-                    )  # 1. issue_gdkevent_structs
-                    if path_info:
-                        path, _, _, _ = path_info
-                        if not view.get_selection().path_is_selected(path):
-                            return False
-                return True
+            if self._event_button(event) == Gdk.BUTTON_SECONDARY:
+                x, y = self._event_position(event)
+                path_info = view.get_path_at_pos(x, y)
+                if path_info:
+                    path, _, _, _ = path_info
+                    if not view.get_selection().path_is_selected(path):
+                        view.set_cursor(path)
+                return self.popup_context_menu(view, event)
             return False
 
         self.results_view.connect("button-press-event", on_press)
