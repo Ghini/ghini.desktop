@@ -1036,6 +1036,10 @@ def type_into_empty_text(node, text, dogtail_rawinput):
 
 
 def click_node_center(node, dogtail_rawinput):
+    try:
+        node.grabFocus()
+    except Exception:
+        pass
     x, y = node.position
     width, height = node.size
     dogtail_rawinput.click(x + width // 2, y + height // 2)

@@ -50,6 +50,18 @@ class InfoExpander:
         """Return the main widget (Gtk.Expander) for integration in UI layouts."""
         return self.expander
 
+    def set_expanded(self, expanded: bool) -> None:
+        self.expander.set_expanded(expanded)
+
+    def get_expanded(self) -> bool:
+        return self.expander.get_expanded()
+
+    def set_sensitive(self, sensitive: bool) -> None:
+        self.expander.set_sensitive(sensitive)
+
+    def set_visible(self, visible: bool) -> None:
+        self.expander.set_visible(visible)
+
     def on_expanded(self, expander, *args) -> None:
         """
         Save the expanded state in preferences, if specified.

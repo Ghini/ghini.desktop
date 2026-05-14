@@ -407,18 +407,19 @@ class InfoBox:
     """
 
     notebook: Any
+    pages: Any
     row: Any
 
     def __init__(self, tabbed: bool = False) -> None:
         self.notebook = Gtk.Notebook()
+        self.pages = []
         self.row = None
         self.notebook.set_show_border(False)
 
         if not tabbed:
             page = InfoBoxPage()
-            self.notebook.append_page(
-                page, None
-            )  # insert_page → append_page for clarity
+            self.pages.append(page)
+            self.notebook.append_page(page.container, None)
             self.notebook.set_show_tabs(False)
 
         self.notebook.set_current_page(0)
@@ -429,7 +430,7 @@ class InfoBox:
         Called when a page is switched.
         """
         if self.row:
-            page = self.notebook.get_nth_page(page_num)
+            page = self.pages[page_num]
             page.update(self.row)
 
     def add_expander(self, expander, page_num: int = 0) -> None:
@@ -439,7 +440,7 @@ class InfoBox:
         :param expander: The expander to add.
         :param page_num: The page index in the InfoBox to add the expander.
         """
-        page = self.notebook.get_nth_page(page_num)
+        page = self.pages[page_num]
         page.add_expander(expander)
 
     def update(self, row) -> None:
@@ -448,7 +449,11 @@ class InfoBox:
         """
         self.row = row
         page_num = self.notebook.get_current_page()
-        self.notebook.get_nth_page(page_num).update(row)
+        self.pages[page_num].update(row)
+
+    def get_widget(self):
+        """Return the GTK widget that should be packed into containers."""
+        return self.notebook
 
 
 class LinksExpander(InfoExpander):
@@ -931,11 +936,19 @@ class SearchView(pluginmgr.View):
         def set_infobox_from_row(row):
             """implement the logic for update_infobox"""
 
+            def infobox_widget(infobox):
+                if infobox is None:
+                    return None
+                if hasattr(infobox, "get_widget"):
+                    return infobox.get_widget()
+                return infobox
+
             logger.debug(f"set_infobox_from_row: {row} --  {repr(row)}")
             # remove the current infobox if there is one and it is not needed
             if row is None:
-                if self.infobox is not None and self.infobox.get_parent() == self.pane:
-                    self.pane.remove(self.infobox)
+                widget = infobox_widget(self.infobox)
+                if widget is not None and widget.get_parent() == self.pane:
+                    self.pane.remove(widget)
                 return
 
             new_infobox = None
@@ -968,13 +981,16 @@ class SearchView(pluginmgr.View):
 
             # remove any old infoboxes connected to the pane
             if self.infobox is not None and type(self.infobox) != type(new_infobox):
-                if self.infobox.get_parent() == self.pane:
-                    self.pane.remove(self.infobox)
+                widget = infobox_widget(self.infobox)
+                if widget is not None and widget.get_parent() == self.pane:
+                    self.pane.remove(widget)
 
             # update the infobox and put it in the pane
             self.infobox = new_infobox
             if self.infobox is not None:
-                self.pane.pack2(self.infobox, resize=False, shrink=True)
+                widget = infobox_widget(self.infobox)
+                if widget.get_parent() is None:
+                    self.pane.pack2(widget, resize=False, shrink=True)
                 self.pane.show_all()
                 self.infobox.update(row)
 
@@ -996,8 +1012,7 @@ class SearchView(pluginmgr.View):
             set_infobox_from_row(values[0])
         except Exception as e:
             # if an error occurrs, log it and empty infobox.
-            logger.debug(f"SearchView.update_infobox: {e}")
-            logger.debug(traceback.format_exc())
+            logger.exception("SearchView.update_infobox failed: %s", e)
             logger.debug(values)
             set_infobox_from_row(None)
 
@@ -1008,7 +1023,14 @@ class SearchView(pluginmgr.View):
         model, rows = self.results_view.get_selection().get_selected_rows()
         if model is None:
             return None
-        return [model[row][0] for row in rows]
+        values = []
+        for row in rows:
+            value = model[row][0]
+            if not isinstance(value, str) and object_session(value) is None:
+                value = self.session.merge(value, load=False)
+                model[row][0] = value
+            values.append(value)
+        return values
 
     def on_cursor_changed(self, view):
         """
@@ -1249,7 +1271,8 @@ class SearchView(pluginmgr.View):
                     # expire the object in the session with the same key
                     self.session.expire(value)
                 else:
-                    self.session.merge(value)
+                    value = self.session.merge(value, load=False)
+                    model[treeiter][0] = value
             try:
                 r = value.search_view_markup_pair()
                 # logger.debug('TBR: %s' % str(r))
