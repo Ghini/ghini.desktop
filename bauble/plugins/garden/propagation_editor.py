@@ -80,7 +80,7 @@ class PropagationHandler:
 
         date = DateTime().process_bind_param(propagation.date, None)
         date_format = prefs.prefs[prefs.date_format_pref]
-        date_str = date.strftime(date_format)
+        date_str = date.strftime(date_format) if date else _("unknown date")
         expander.set_label(f"{prop_type} on {date_str}")
 
         hbox.pack_start(expander, True, True, 0)
@@ -638,7 +638,7 @@ class PropagationPresenter(editor.ChildPresenter):
         :param view: an instance of PropagationEditorView
         """
         super().__init__(model, view)
-        self.session = get_object_session(model)
+        self.session = get_object_session(self.model) or self.session
 
         if self.model.prop_type is None:
             view.widgets.prop_details_box.set_visible(False)

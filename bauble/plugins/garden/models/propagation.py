@@ -271,14 +271,16 @@ class Propagation(Base, WithNotes):
 
     def clean(self) -> None:
         if self.prop_type == "UnrootedCutting":
-            utils.delete_or_expunge(self._seed)
+            if self._seed is not None:
+                utils.delete_or_expunge(self._seed)
             self._seed = None
             if not self._cutting.bottom_heat_temp:
                 self._cutting.bottom_heat_unit = None
             if not self._cutting.length:
                 self._cutting.length_unit = None
         elif self.prop_type == "Seed":
-            utils.delete_or_expunge(self._cutting)
+            if self._cutting is not None:
+                utils.delete_or_expunge(self._cutting)
             self._cutting = None
 
 

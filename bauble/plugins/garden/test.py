@@ -741,6 +741,30 @@ def test_legacy_nullable_propagation_fields(db_session) -> None:
     assert seed.nseedlings is None
 
 
+def test_seed_propagation_clean_tolerates_missing_cutting(db_session) -> None:
+    """Seed cleanup should not require an inactive cutting detail row."""
+    propagation = Propagation(prop_type="Seed")
+    propagation._seed = PropSeed(nseeds=12, date_sown=date.today())
+    db_session.add(propagation)
+
+    propagation.clean()
+
+    assert propagation._seed is not None
+    assert propagation._cutting is None
+
+
+def test_propagation_box_tolerates_missing_date() -> None:
+    """Propagation tab rows should render even before a date is entered."""
+    from bauble.plugins.garden.propagation_editor import PropagationHandler
+
+    propagation = Propagation(prop_type="Seed")
+    propagation._seed = PropSeed(nseeds=12, date_sown=date.today())
+
+    box = PropagationHandler().create_propagation_box(propagation)
+
+    assert box is not None
+
+
 @pytest.mark.skip(reason="opens the interactive Location Editor dialog")
 def test_location_editor_interactions(db_session, setup_location) -> None:
     """Test interactions with the location editor."""
