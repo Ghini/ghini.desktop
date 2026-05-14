@@ -35,6 +35,8 @@ Command:
 ```sh
 scripts/docker-dev gui-guided --list
 scripts/docker-dev gui-guided visual-smoke --sqlite-fixture
+scripts/docker-dev gui-guided taxonomy-create --sqlite-fixture
+scripts/docker-dev gui-guided location-create --sqlite-fixture
 scripts/docker-dev gui-guided connection-manager
 scripts/docker-dev gui-guided propagation-workflow
 scripts/docker-dev gui-guided --summary
@@ -85,9 +87,9 @@ The following paths are the initial target set. This is intentionally narrow.
 | Connection manager opens | yes | yes | Validates startup and saved connection UI. |
 | Connect to database and open main window | yes | yes | Use SQLite for automation; PostgreSQL for guided local checks. |
 | Search existing records | todo | yes | Tracked by GitLab #3. |
-| Create family/genus/species | yes | optional | Taxonomy creation is already covered by Dogtail E2E. |
+| Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`. |
 | Create accession from species | yes | optional | Covered by Dogtail E2E. |
-| Create location | yes | optional | Covered by Dogtail E2E. |
+| Create location | yes | yes | Guided scenario: `location-create`. |
 | Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
 | Create seed propagation from plant | xfail | yes | Current GUI test documents GitLab #2. |
 | Edit existing family/genus/species/accession/plant/location | todo | yes | Tracked by GitLab #4. |

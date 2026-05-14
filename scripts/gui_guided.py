@@ -192,6 +192,84 @@ SCENARIOS = {
             ),
         ),
     ),
+    "taxonomy-create": Scenario(
+        name="taxonomy-create",
+        description="Exercise family-to-genus-to-species creation visually.",
+        checkpoints=(
+            Checkpoint(
+                name="Family editor opens",
+                instructions=(
+                    f"Connect to {GUIDED_CONNECTION_NAME} with --sqlite-fixture.",
+                    "Open Insert > Family.",
+                    "Enter family name: Guidedvisualaceae.",
+                ),
+                expected=(
+                    "The Family Editor opens without an error dialog.",
+                    "The family name field accepts text.",
+                    "Add Genera and OK controls are visible.",
+                ),
+            ),
+            Checkpoint(
+                name="Genus editor opens from family",
+                instructions=(
+                    "Click Add Genera from the Family Editor.",
+                    "Enter genus name: Guidedvisualgenus.",
+                ),
+                expected=(
+                    "The Genus Editor opens without closing unexpectedly.",
+                    "The family context is retained.",
+                    "Add Species and OK controls are visible.",
+                ),
+            ),
+            Checkpoint(
+                name="Species saved",
+                instructions=(
+                    "Click Add Species from the Genus Editor.",
+                    "Enter species epithet: visualspecies.",
+                    "Save the species editor.",
+                    "Return to the main window.",
+                    "Search for: species where genus.epithet=Guidedvisualgenus.",
+                ),
+                expected=(
+                    "The Species Editor saves without an error dialog.",
+                    "The editor chain closes or returns to the main window cleanly.",
+                    "The search result shows Guidedvisualgenus visualspecies.",
+                ),
+            ),
+        ),
+    ),
+    "location-create": Scenario(
+        name="location-create",
+        description="Exercise location creation visually.",
+        checkpoints=(
+            Checkpoint(
+                name="Location editor opens",
+                instructions=(
+                    f"Connect to {GUIDED_CONNECTION_NAME} with --sqlite-fixture.",
+                    "Open Insert > Location.",
+                    "Enter location code: GVLOC.",
+                    "Enter location name: Guided Visual Bed.",
+                ),
+                expected=(
+                    "The Location Editor opens without an error dialog.",
+                    "Code and name fields accept text.",
+                    "OK becomes available after required fields are valid.",
+                ),
+            ),
+            Checkpoint(
+                name="Location saved",
+                instructions=(
+                    "Save the Location Editor.",
+                    "Search for: location where code=GVLOC.",
+                ),
+                expected=(
+                    "The Location Editor closes cleanly.",
+                    "No integrity or traceback dialog appears.",
+                    "The saved location can be found or is visible through normal location lookup.",
+                ),
+            ),
+        ),
+    ),
     "create-plant": Scenario(
         name="create-plant",
         description="Exercise the accession-to-plant creation workflow visually.",
