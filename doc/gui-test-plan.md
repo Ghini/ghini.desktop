@@ -69,14 +69,14 @@ The following paths are the initial target set. This is intentionally narrow.
 | --- | --- | --- | --- |
 | Connection manager opens | yes | yes | Validates startup and saved connection UI. |
 | Connect to database and open main window | yes | yes | Use SQLite for automation; PostgreSQL for guided local checks. |
-| Search existing records | todo | yes | Critical repeated-use workflow. |
+| Search existing records | todo | yes | Tracked by GitLab #3. |
 | Create family/genus/species | yes | optional | Taxonomy creation is already covered by Dogtail E2E. |
 | Create accession from species | yes | optional | Covered by Dogtail E2E. |
 | Create location | yes | optional | Covered by Dogtail E2E. |
 | Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
-| Create seed propagation from plant | xfail | yes | Current GUI test documents an unresolved save-chain issue. |
-| Edit existing family/genus/species/accession/plant/location | todo | yes | Add only after creation paths stabilize. |
-| Delete/remove confirmation dialogs | todo | yes | Important because GTK response handling has regressed before. |
+| Create seed propagation from plant | xfail | yes | Current GUI test documents GitLab #2. |
+| Edit existing family/genus/species/accession/plant/location | todo | yes | Tracked by GitLab #4. |
+| Delete/remove confirmation dialogs | todo | yes | Tracked by GitLab #5. |
 
 ## Bug Recording Policy
 
@@ -120,6 +120,9 @@ GitLab issue and include:
 
 Do not commit routine guided result artifacts. Commit a guided result only when
 it is intentionally used as evidence for a regression or merge request.
+
+Tracked follow-up: GitLab #6 covers making the guided visual workflow repeatable
+across the current critical-path scenarios.
 
 ## Development Rules
 
