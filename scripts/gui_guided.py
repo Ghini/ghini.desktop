@@ -221,6 +221,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Create a disposable SQLite database and launch Ghini with that config.",
     )
+    parser.add_argument(
+        "--summary",
+        nargs="?",
+        const="latest",
+        metavar="RESULT_JSON",
+        help=(
+            "Print a readable summary for RESULT_JSON, or the latest guided "
+            "result when no path is supplied."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -516,8 +526,85 @@ def write_result(result: dict[str, object], result_dir: Path) -> Path:
     return path
 
 
+def latest_result_path(result_dir: Path) -> Path | None:
+    results = sorted(result_dir.glob("*.json"), key=lambda path: path.stat().st_mtime)
+    return results[-1] if results else None
+
+
+def load_result(path_arg: str, result_dir: Path) -> tuple[Path, dict[str, object]]:
+    if path_arg == "latest":
+        path = latest_result_path(result_dir)
+        if path is None:
+            raise FileNotFoundError(f"No guided result artifacts found in {result_dir}")
+    else:
+        path = Path(path_arg)
+    return path, json.loads(path.read_text())
+
+
+def print_summary(path: Path, result: dict[str, object]) -> None:
+    checkpoints = result.get("checkpoints", [])
+    if not isinstance(checkpoints, list):
+        checkpoints = []
+
+    counts = {"pass": 0, "fail": 0, "skip": 0}
+    for checkpoint in checkpoints:
+        if not isinstance(checkpoint, dict):
+            continue
+        status = checkpoint.get("result")
+        if status in counts:
+            counts[status] += 1
+
+    print(f"Guided result: {path}")
+    print(f"Scenario: {result.get('scenario', '')}")
+    print(f"Started: {result.get('started_at', '')}")
+    print(f"Finished: {result.get('finished_at', '')}")
+    print(
+        "Checkpoints: "
+        f"{counts['pass']} passed, {counts['fail']} failed, {counts['skip']} skipped"
+    )
+
+    run_context = result.get("run_context", {})
+    if isinstance(run_context, dict):
+        branch = run_context.get("git_branch", "")
+        commit = run_context.get("git_commit", "")
+        describe = run_context.get("git_describe", "")
+        print(f"Git: {branch} {commit} {describe}".strip())
+
+    fixture = result.get("fixture", {})
+    if isinstance(fixture, dict) and fixture:
+        print(f"Fixture: {fixture.get('connection_name', '')}")
+        print(f"Seed search: {fixture.get('seed_search', '')}")
+
+    print()
+    for index, checkpoint in enumerate(checkpoints, start=1):
+        if not isinstance(checkpoint, dict):
+            continue
+        result_text = str(checkpoint.get("result", "")).upper()
+        name = checkpoint.get("name", "")
+        note = checkpoint.get("note", "")
+        print(f"{index}. [{result_text}] {name}")
+        if note:
+            print(f"   Note: {note}")
+
+    if counts["fail"]:
+        print()
+        print("Create a GitLab issue for each unexpected failure.")
+        print("Include the scenario, failed checkpoint, notes, branch/commit, and stderr.")
+
+
 def main() -> int:
     args = parse_args()
+    if args.summary:
+        path, result = load_result(args.summary, Path(args.result_dir))
+        print_summary(path, result)
+        checkpoints = result.get("checkpoints", [])
+        if not isinstance(checkpoints, list):
+            checkpoints = []
+        failed = any(
+            isinstance(checkpoint, dict) and checkpoint.get("result") == "fail"
+            for checkpoint in checkpoints
+        )
+        return 1 if failed else 0
     if args.list:
         list_scenarios()
         return 0

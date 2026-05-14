@@ -37,6 +37,7 @@ scripts/docker-dev gui-guided --list
 scripts/docker-dev gui-guided visual-smoke --sqlite-fixture
 scripts/docker-dev gui-guided connection-manager
 scripts/docker-dev gui-guided propagation-workflow
+scripts/docker-dev gui-guided --summary
 ```
 
 This layer runs the application visibly on the host display and prompts the
@@ -51,6 +52,9 @@ Guided testing should not prompt for every assertion. Prompts are reserved for
 workflow-level confirmation, visual inspection, and unexpected observations.
 The runner pauses after launch and before closing the application so the tester
 can inspect the visible window at useful points.
+
+Use `--summary` after a guided run to print the latest JSON result in a readable
+form. Pass an artifact path to summarize a specific run.
 
 Use `--sqlite-fixture` when the scenario should run against a disposable,
 known-good SQLite database instead of saved local connection settings. The
