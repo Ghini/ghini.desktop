@@ -34,6 +34,66 @@ import bauble
 import logging
 logger = logging.getLogger(__name__)
 
+
+class TaskCancelled(Exception):
+    pass
+
+
+class TaskHandle(object):
+    def __init__(self):
+        self._done = threading.Event()
+        self._lock = threading.Lock()
+        self._result = None
+        self._exception = None
+        self._callbacks = []
+
+    def done(self):
+        return self._done.is_set()
+
+    def successful(self):
+        return self.done() and self._exception is None
+
+    def wait(self, timeout=None):
+        return self._done.wait(timeout)
+
+    def exception(self):
+        self._done.wait()
+        return self._exception
+
+    def result(self):
+        self._done.wait()
+        if self._exception is not None:
+            raise self._exception
+        return self._result
+
+    def add_done_callback(self, callback):
+        with self._lock:
+            if self._done.is_set():
+                GLib.idle_add(callback, self)
+            else:
+                self._callbacks.append(callback)
+
+    def _set_result(self, result):
+        callbacks = []
+        with self._lock:
+            self._result = result
+            self._done.set()
+            callbacks = list(self._callbacks)
+            self._callbacks = []
+        for cb in callbacks:
+            GLib.idle_add(cb, self)
+
+    def _set_exception(self, exc):
+        callbacks = []
+        with self._lock:
+            self._exception = exc
+            self._done.set()
+            callbacks = list(self._callbacks)
+            self._callbacks = []
+        for cb in callbacks:
+            GLib.idle_add(cb, self)
+
+
 __running = False
 __kill = False
 __thread = None
@@ -86,8 +146,9 @@ def _ui_clear_messages():
     return False
 
 
-def _worker(task, args, kwargs):
+def _worker(task, args, kwargs, handle):
     global __running, __kill
+    result = None
     try:
         if callable(task) and not inspect.isgenerator(task):
             task = task(*args, **kwargs)
@@ -99,13 +160,19 @@ def _worker(task, args, kwargs):
                 with _state_lock:
                     if __kill:
                         __kill = False
-                        break
+                        raise TaskCancelled('task cancelled')
                 try:
                     next(task)
-                except StopIteration:
+                except StopIteration as stop:
+                    result = getattr(stop, 'value', None)
                     break
         elif callable(task):
-            task()
+            result = task()
+
+        handle._set_result(result)
+    except Exception as exc:
+        logger.exception('task execution failed')
+        handle._set_exception(exc)
     finally:
         with _state_lock:
             __running = False
@@ -122,9 +189,10 @@ def queue(task, *args, **kwargs):
         __running = True
 
     GLib.idle_add(_ui_set_busy, True)
-
-    __thread = threading.Thread(target=_worker, args=(task, args, kwargs), daemon=True)
+    handle = TaskHandle()
+    __thread = threading.Thread(target=_worker, args=(task, args, kwargs, handle), daemon=True)
     __thread.start()
+    return handle
 
 
 def set_message(msg):
