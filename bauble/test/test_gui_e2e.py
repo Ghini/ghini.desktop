@@ -290,6 +290,60 @@ def test_can_search_existing_species(dogtail_modules, sqlite_connection, ghini_p
     )
 
 
+@pytest.mark.xfail(
+    reason=(
+        "GitLab #8: plant search finds the expected row, but selecting it does "
+        "not expose the plant detail infobox under GUI automation."
+    )
+)
+def test_can_search_existing_plant_and_show_details(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    accession_code = "SEARCH-E2E-001"
+    plant_code = "1"
+    location_code = "E2ESP"
+    location_name = "E2E Search Plant Bed"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name="EEPLSEARCHACEAE",
+        genus_name="Eeplantsearchgenus",
+        species_name="eoplantsearch",
+        accession_code=accession_code,
+        plant_code=plant_code,
+        location_code=location_code,
+        location_name=location_name,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(search_entry, f'"{accession_code}.{plant_code}"', dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    result = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and accession_code in node.name
+        and plant_code in node.name,
+        timeout=20,
+    )
+    click_node_center(result, dogtail_rawinput)
+
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "label" and location_name in node.name,
+        timeout=20,
+    )
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "label" and node.name == "Alive",
+        timeout=20,
+    )
+
+
 def test_can_create_family_from_insert_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -981,6 +1035,13 @@ def type_into_empty_text(node, text, dogtail_rawinput):
     dogtail_rawinput.typeText(text)
 
 
+def click_node_center(node, dogtail_rawinput):
+    x, y = node.position
+    width, height = node.size
+    dogtail_rawinput.click(x + width // 2, y + height // 2)
+    time.sleep(0.1)
+
+
 def accessible_text(node):
     try:
         return node.queryText().getText(0, -1)
@@ -1072,4 +1133,71 @@ def seed_taxonomy_location_fixture(
                 "values (?, ?, ?, ?)"
             ),
             (location_code, location_name, timestamp, timestamp),
+        )
+
+
+def seed_plant_fixture(
+    database_file,
+    *,
+    family_name,
+    genus_name,
+    species_name,
+    accession_code,
+    plant_code,
+    location_code,
+    location_name,
+):
+    timestamp = "2026-05-13 00:00:00"
+    with sqlite3.connect(database_file) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            (
+                "insert into family (epithet, author, qualifier, _created, _last_updated) "
+                "values (?, '', '', ?, ?)"
+            ),
+            (family_name, timestamp, timestamp),
+        )
+        family_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into genus "
+                "(epithet, author, qualifier, family_id, _created, _last_updated) "
+                "values (?, '', '', ?, ?, ?)"
+            ),
+            (genus_name, family_id, timestamp, timestamp),
+        )
+        genus_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into species (epithet, genus_id, _created, _last_updated) "
+                "values (?, ?, ?, ?)"
+            ),
+            (species_name, genus_id, timestamp, timestamp),
+        )
+        species_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into accession "
+                "(code, id_qual, private, species_id, _created, _last_updated) "
+                "values (?, '', 0, ?, ?, ?)"
+            ),
+            (accession_code, species_id, timestamp, timestamp),
+        )
+        accession_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into location (code, name, _created, _last_updated) "
+                "values (?, ?, ?, ?)"
+            ),
+            (location_code, location_name, timestamp, timestamp),
+        )
+        location_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into plant "
+                "(code, acc_type, memorial, quantity, accession_id, location_id, "
+                "_created, _last_updated) "
+                "values (?, 'Plant', 0, 1, ?, ?, ?, ?)"
+            ),
+            (plant_code, accession_id, location_id, timestamp, timestamp),
         )
