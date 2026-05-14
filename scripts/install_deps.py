@@ -62,7 +62,6 @@ eggs_install = {'lxml': '==2.1.5',
                 'py2exe': '==0.6.9',
                 'gdata': '',
                 'mako': ''
-                'fibra: ==0.0.17',
                 'pyparsing': '>=1.5'}
 
 

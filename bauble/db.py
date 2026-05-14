@@ -362,9 +362,7 @@ def create(import_defaults=True):
     except GeneratorExit as e:
         # this is here in case the main windows is closed in the middle
         # of a task
-        # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
-        # switched the task system to use fibra...but it doesn't hurt
-        # having it here until we can make sure
+        # Historical note: this handles shutdown while task execution is ongoing.
         logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
@@ -384,9 +382,7 @@ def create(import_defaults=True):
     except GeneratorExit as e:
         # this is here in case the main windows is closed in the middle
         # of a task
-        # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
-        # switched the task system to use fibra...but it doesn't hurt
-        # having it here until we can make sure
+        # Historical note: this handles shutdown while task execution is ongoing.
         logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise

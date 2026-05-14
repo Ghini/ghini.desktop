@@ -20,136 +20,128 @@
 #
 # task.py
 """
-The bauble.task module allows you to queue up long running tasks. The
-running tasks still block but allows the GUI to update.
+The bauble.task module allows you to queue up long running tasks.
+Tasks run in a worker thread; GUI updates are marshalled to the GTK main loop.
 """
 
-import fibra
-from gi.repository import Gtk
+import inspect
+import threading
+
+from gi.repository import Gtk, GLib
+
 import bauble
 
 import logging
 logger = logging.getLogger(__name__)
 
-# TODO: after some specified time the status bar should be cleared but not
-# too soon, maybe 30 seconds or so but only once the queue is empty, anytime
-# something is added to the queue we should set a 30 second timeout to
-# check again if the queue is empty and set the status bar message if it's
-# empty
-
-# TODO: provide a way to create background tasks that don't call set_busy()
-
-# TODO: check the fibra version here....has to be >0.17 or maybe
-# ==0.17 since fibra doesn't seem to ensure any sort of API
-# compatibility
-
-schedule = fibra.schedule()
-
 __running = False
 __kill = False
-__message_ids = None
+__thread = None
+__message_ids = []
+_context_id = None
+_state_lock = threading.Lock()
 
 
 def running():
-    """
-    Return True/False if a task is running.
-    """
-    return __running
+    with _state_lock:
+        return __running
 
 
 def kill():
-    """
-    Kill the current task.
-
-    This will kill the task when it goes idle and not while it's
-    running.  A task is idle after it yields.
-    """
     global __kill
-    __kill = True
+    with _state_lock:
+        __kill = True
 
 
-def _idle():
-    """
-    Called when a task is idle.
-    """
-    while Gtk.events_pending():
-        Gtk.main_iteration()
-
-    global __kill
-    if __kill:
-        __kill = False
-        raise StopIteration()
-
-
-schedule.register_idle_func(_idle)
-
-
-def queue(task):
-    """Run a task.
-
-    task should be a generator with side effects. it does not matter what it
-    yields, it is important that it does stop from time to time yielding
-    whatever it wants to, and causing the side effect it has to cause.
-
-    """
-
-    # TODO: we might have to add a quit handler similar to what the
-    # pre-fibra task manager had but raising StopIteration in the task
-    # idle function might be enough...just needs more testing
-    schedule.install(task)
-    if bauble.gui is not None:
-        bauble.gui.set_busy(True)
-        bauble.gui.progressbar.show()
-        bauble.gui.progressbar.set_pulse_step(1.0)
-        bauble.gui.progressbar.set_fraction(0)
-    global __running
-    __running = True
+def _ui_set_busy(is_busy):
+    if bauble.gui is None:
+        return False
     try:
-        schedule.run()
-        __running = False
-    except:
-        raise
-    finally:
-        __running = False
-        if bauble.gui is not None:
+        bauble.gui.set_busy(is_busy)
+        if is_busy:
+            bauble.gui.progressbar.show()
+            bauble.gui.progressbar.set_pulse_step(1.0)
+            bauble.gui.progressbar.set_fraction(0)
+        else:
             bauble.gui.progressbar.set_pulse_step(0)
             bauble.gui.progressbar.set_fraction(0)
             bauble.gui.progressbar.hide()
-            bauble.gui.set_busy(False)
-        clear_messages()
+    except Exception:
+        logger.exception('error while updating busy/progressbar state')
+    return False
 
 
-__message_ids = []
+def _ui_clear_messages():
+    if bauble.gui is None or bauble.gui.widgets is None or bauble.gui.widgets.statusbar is None:
+        return False
+    global _context_id, __message_ids
+    try:
+        if _context_id is None:
+            _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
+        for mid in __message_ids:
+            bauble.gui.widgets.statusbar.remove(_context_id, mid)
+        __message_ids = []
+    except Exception:
+        logger.exception('error while clearing status messages')
+    return False
+
+
+def _worker(task, args, kwargs):
+    global __running, __kill
+    try:
+        if callable(task) and not inspect.isgenerator(task):
+            task = task(*args, **kwargs)
+        elif args or kwargs:
+            raise TypeError('queue() received args/kwargs but task is not callable')
+
+        if inspect.isgenerator(task):
+            while True:
+                with _state_lock:
+                    if __kill:
+                        __kill = False
+                        break
+                try:
+                    next(task)
+                except StopIteration:
+                    break
+        elif callable(task):
+            task()
+    finally:
+        with _state_lock:
+            __running = False
+            __kill = False
+        GLib.idle_add(_ui_set_busy, False)
+        GLib.idle_add(_ui_clear_messages)
+
+
+def queue(task, *args, **kwargs):
+    global __running, __thread
+    with _state_lock:
+        if __running:
+            raise RuntimeError('a task is already running')
+        __running = True
+
+    GLib.idle_add(_ui_set_busy, True)
+
+    __thread = threading.Thread(target=_worker, args=(task, args, kwargs), daemon=True)
+    __thread.start()
 
 
 def set_message(msg):
-    """
-    A convenience function for setting a message on the
-    statusbar. Returns the message id
-    """
     if bauble.gui is None or bauble.gui.widgets is None:
         return
     global _context_id
-    try:
-        _context_id
-    except NameError as e:
-        # this is expected to happen, it's normal behaviour.
-        logger.info(e)  # global name '_context_id' is not defined
+    if _context_id is None:
         _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
-        logger.info("new context id: %s" % _context_id)
-    msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
-    __message_ids.append(msg_id)
-    return msg_id
+        logger.info('new context id: %s' % _context_id)
+
+    def _push():
+        msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
+        __message_ids.append(msg_id)
+        return False
+
+    GLib.idle_add(_push)
 
 
 def clear_messages():
-    """
-    Clear all the messages from the statusbar that were set with
-    :func:`bauble.task.set_message`
-    """
-    if bauble.gui is None or bauble.gui.widgets is None \
-            or bauble.gui.widgets.statusbar is None:
-        return
-    global _context_id, __message_ids
-    for mid in __message_ids:
-        bauble.gui.widgets.statusbar.remove(_context_id, mid)
+    GLib.idle_add(_ui_clear_messages)

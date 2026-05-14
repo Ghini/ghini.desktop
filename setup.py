@@ -88,7 +88,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     # for a list of all packages in the sqlalchemy namespace
     sqlalchemy_includes = ['sqlalchemy.dialects.sqlite',
                            'sqlalchemy.dialects.postgresql']
-    py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2',
+    py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'psycopg2',
                        'encodings', 'mako', 'mako.cache',
                        'MarkupSafe', 'jinja2',
                        'pygments.styles.default', 'pyparsing']
@@ -488,7 +488,6 @@ setuptools.setup(name="ghini.desktop",
                                    "jinja2==2.10",
                                    "gdata-python3==3.0.1",
                                    "requests==2.25.1",
-                                   "fibra==0.0.20",
                                    "pyparsing==2.2.0",
                                    'python-dateutil==2.7.3'] + needs_sqlite,
                  extras_require={'docs': ['sphinx==1.7.9']},

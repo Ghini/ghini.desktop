@@ -25,7 +25,7 @@ The top level module for Ghini.
 """
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 
 import logging
@@ -60,7 +60,7 @@ def pb_set_fraction(fraction):
     we use this in the tests where there is no gui
     """
     if gui is not None and gui.progressbar is not None:
-        gui.progressbar.set_fraction(fraction)
+        GLib.idle_add(gui.progressbar.set_fraction, fraction)
 
 def pb_grab():
     if gui is not None and gui.progressbar is not None:
@@ -136,7 +136,7 @@ def quit():
     """
     Stop all tasks and quit Ghini.
     """
-    from gi.repository import Gtk
+    from gi.repository import Gtk, GLib
     import bauble.utils as utils
     try:
         import bauble.task as task
@@ -165,7 +165,7 @@ def command_handler(cmd, arg):
     :type arg: list
     """
     logger.debug('entering ui.command_handler %s %s' % (cmd, arg))
-    from gi.repository import Gtk
+    from gi.repository import Gtk, GLib
     import bauble.utils as utils
     import bauble.pluginmgr as pluginmgr
     global last_handler
@@ -216,7 +216,7 @@ dbengine.html#create-engine-url-arguments>`_
     :type uri: str
     """
     try:
-        from gi.repository import Gtk
+        from gi.repository import Gtk, GLib
         from gi.repository import GObject
     except ImportError as e:
         print(_('** Error: could not import gtk and/or gobject'))

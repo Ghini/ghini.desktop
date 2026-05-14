@@ -8,7 +8,7 @@ XS-Python-Version: current
 
 Package: bauble
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, xdg-utils, python, python-egenix-mxdatetime, python-sqlalchemy, python-lxml, python-gtk2 (>=2.12), librsvg2-common, python-glade2, python-gdata (>=1.1.1), python-mako (>=0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, ${misc:Depends}, ${python:Depends}, libgtk2.0-0 (>= 2.14), python-fibra (>= 0.0.17), python-dateutil, python-pyparsing
+Depends: ${misc:Depends}, ${python:Depends}, xdg-utils, python, python-egenix-mxdatetime, python-sqlalchemy, python-lxml, python-gtk2 (>=2.12), librsvg2-common, python-glade2, python-gdata (>=1.1.1), python-mako (>=0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, ${misc:Depends}, ${python:Depends}, libgtk2.0-0 (>= 2.14), python-dateutil, python-pyparsing
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: Biodiversity collection manager software application for managing plant collections.
