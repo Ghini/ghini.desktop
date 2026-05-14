@@ -19,6 +19,75 @@ from tempfile import TemporaryDirectory
 APP_COMMAND = ["python", "/app/scripts/ghini"]
 RESULT_DIR = Path("test-results/gui-guided")
 GUIDED_CONNECTION_NAME = "Guided SQLite"
+GUIDED_FIXTURE = {
+    "institution_name": "Guided Test Institution",
+    "family_name": "Guidedaceae",
+    "genus_name": "Guidedgenus",
+    "species_name": "guidedspecies",
+    "accession_code": "GUIDED-ACC-001",
+    "location_code": "GLOC",
+    "location_name": "Guided Test Bed",
+    "plant_code": "1",
+    "plant_search": '"GUIDED-ACC-001.1"',
+    "seed_search": "family where epithet=Guidedaceae",
+}
+GUIDED_FIXTURE_SEED_SCRIPT = """
+import sqlite3
+import sys
+
+import bauble.db as db
+from bauble.plugins.garden.institution import Institution
+
+database = sys.argv[1]
+timestamp = "2026-05-14 00:00:00"
+
+db.open("sqlite:///" + database, verify=False)
+institution = Institution()
+institution.name = "Guided Test Institution"
+institution.write()
+
+with sqlite3.connect(database) as connection:
+    cursor = connection.cursor()
+    cursor.execute(
+        "insert into family (epithet, author, qualifier, _created, _last_updated) "
+        "values (?, '', '', ?, ?)",
+        ("Guidedaceae", timestamp, timestamp),
+    )
+    family_id = cursor.lastrowid
+    cursor.execute(
+        "insert into genus "
+        "(epithet, author, qualifier, family_id, _created, _last_updated) "
+        "values (?, '', '', ?, ?, ?)",
+        ("Guidedgenus", family_id, timestamp, timestamp),
+    )
+    genus_id = cursor.lastrowid
+    cursor.execute(
+        "insert into species (epithet, genus_id, _created, _last_updated) "
+        "values (?, ?, ?, ?)",
+        ("guidedspecies", genus_id, timestamp, timestamp),
+    )
+    species_id = cursor.lastrowid
+    cursor.execute(
+        "insert into accession "
+        "(code, id_qual, private, species_id, _created, _last_updated) "
+        "values (?, '', 0, ?, ?, ?)",
+        ("GUIDED-ACC-001", species_id, timestamp, timestamp),
+    )
+    accession_id = cursor.lastrowid
+    cursor.execute(
+        "insert into location (code, name, _created, _last_updated) "
+        "values (?, ?, ?, ?)",
+        ("GLOC", "Guided Test Bed", timestamp, timestamp),
+    )
+    location_id = cursor.lastrowid
+    cursor.execute(
+        "insert into plant "
+        "(code, acc_type, memorial, quantity, accession_id, location_id, "
+        "_created, _last_updated) "
+        "values (?, 'Plant', 0, 1, ?, ?, ?, ?)",
+        ("1", accession_id, location_id, timestamp, timestamp),
+    )
+"""
 
 
 @dataclass(frozen=True)
@@ -130,8 +199,11 @@ SCENARIOS = {
             Checkpoint(
                 name="Plant editor opened from accession",
                 instructions=(
-                    "Connect to a disposable test database.",
-                    "Open Insert > Accession, choose a species, and select Add plants.",
+                    f"Connect to {GUIDED_CONNECTION_NAME} with --sqlite-fixture.",
+                    "Open Insert > Accession.",
+                    "Choose species: Guidedgenus guidedspecies.",
+                    "Use accession code: GUIDED-ACC-NEW.",
+                    "Select Add plants.",
                 ),
                 expected=(
                     "The Plant Editor opens in normal mode.",
@@ -143,7 +215,9 @@ SCENARIOS = {
             Checkpoint(
                 name="Plant saved",
                 instructions=(
-                    "Enter a valid plant code, quantity, and location.",
+                    "Enter plant code: 2.",
+                    "Enter quantity: 1.",
+                    "Use location code: GLOC.",
                     "Save the plant and return to the accession editor or main window.",
                 ),
                 expected=(
@@ -161,7 +235,9 @@ SCENARIOS = {
             Checkpoint(
                 name="Propagation editor opens",
                 instructions=(
-                    "Open a Plant Editor for a disposable test plant.",
+                    f"Connect to {GUIDED_CONNECTION_NAME} with --sqlite-fixture.",
+                    'Search for: "GUIDED-ACC-001.1".',
+                    "Open the Plant Editor for the result.",
                     "Open the Propagations tab and select Add.",
                 ),
                 expected=(
@@ -174,7 +250,9 @@ SCENARIOS = {
             Checkpoint(
                 name="Seed propagation saved",
                 instructions=(
-                    "Enter a propagation date, number of seeds, and date sown.",
+                    "Enter propagation date: 2026-05-14.",
+                    "Enter number of seeds: 12.",
+                    "Enter date sown: 2026-05-14.",
                     "Save the propagation, then save the plant or parent editor.",
                 ),
                 expected=(
@@ -316,27 +394,7 @@ def create_sqlite_fixture(root: Path) -> dict[str, object]:
         )
 
     seed_database = subprocess.run(
-        [
-            "python",
-            "-c",
-            (
-                "import sqlite3, sys; "
-                "import bauble.db as db; "
-                "from bauble.plugins.garden.institution import Institution; "
-                "database = sys.argv[1]; "
-                "db.open('sqlite:///' + database, verify=False); "
-                "institution = Institution(); "
-                "institution.name = 'Guided Test Institution'; "
-                "institution.write(); "
-                "conn = sqlite3.connect(database); "
-                'conn.execute("insert into family '
-                "(epithet, author, qualifier, _created, _last_updated) "
-                "values ('Guidedaceae', '', '', current_timestamp, current_timestamp)\"); "
-                "conn.commit(); "
-                "conn.close()"
-            ),
-            str(database_file),
-        ],
+        ["python", "-c", GUIDED_FIXTURE_SEED_SCRIPT, str(database_file)],
         cwd="/app",
         env=env,
         stdout=subprocess.PIPE,
@@ -370,8 +428,7 @@ def create_sqlite_fixture(root: Path) -> dict[str, object]:
         "home": str(home),
         "database_file": str(database_file),
         "pictures_root": str(pictures_root),
-        "institution_name": "Guided Test Institution",
-        "seed_search": "family where epithet=Guidedaceae",
+        **GUIDED_FIXTURE,
         "env": {"HOME": "/home/ghini", "USER": "ghini", "LOGNAME": "ghini"},
     }
 
@@ -475,6 +532,14 @@ def run_scenario(
         print("Disposable SQLite fixture:")
         print(f"- Connection: {fixture_context['connection_name']}")
         print(f"- Seed search: {fixture_context['seed_search']}")
+        print(f"- Plant search: {fixture_context['plant_search']}")
+        print(
+            "- Seed records: "
+            f"{fixture_context['genus_name']} {fixture_context['species_name']}, "
+            f"accession {fixture_context['accession_code']}, "
+            f"plant {fixture_context['plant_code']}, "
+            f"location {fixture_context['location_code']}"
+        )
         print()
 
     try:
@@ -581,6 +646,8 @@ def print_summary(path: Path, result: dict[str, object]) -> None:
     if isinstance(fixture, dict) and fixture:
         print(f"Fixture: {fixture.get('connection_name', '')}")
         print(f"Seed search: {fixture.get('seed_search', '')}")
+        if fixture.get("plant_search"):
+            print(f"Plant search: {fixture.get('plant_search')}")
 
     print()
     for index, checkpoint in enumerate(checkpoints, start=1):
@@ -596,7 +663,9 @@ def print_summary(path: Path, result: dict[str, object]) -> None:
     if counts["fail"]:
         print()
         print("Create a GitLab issue for each unexpected failure.")
-        print("Include the scenario, failed checkpoint, notes, branch/commit, and stderr.")
+        print(
+            "Include the scenario, failed checkpoint, notes, branch/commit, and stderr."
+        )
 
 
 def main() -> int:

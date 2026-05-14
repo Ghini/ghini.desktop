@@ -59,9 +59,10 @@ form. Pass an artifact path to summarize a specific run.
 Use `--sqlite-fixture` when the scenario should run against a disposable,
 known-good SQLite database instead of saved local connection settings. The
 fixture currently creates a `Guided SQLite` connection and seeds a searchable
-`Guidedaceae` family record plus `Guided Test Institution` metadata for the
-visual smoke scenario. The Institution Editor should not appear during fixture
-startup; record it as an unexpected observation if it does.
+`Guidedaceae` taxonomy chain, `Guided Test Institution` metadata, accession
+`GUIDED-ACC-001`, plant `GUIDED-ACC-001.1`, and location `GLOC` for guided
+scenarios. The Institution Editor should not appear during fixture startup;
+record it as an unexpected observation if it does.
 
 ### Manual Checklist
 
