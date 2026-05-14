@@ -37,6 +37,8 @@ scripts/docker-dev gui-guided --list
 scripts/docker-dev gui-guided visual-smoke --sqlite-fixture
 scripts/docker-dev gui-guided taxonomy-create --sqlite-fixture
 scripts/docker-dev gui-guided location-create --sqlite-fixture
+scripts/docker-dev gui-guided edit-record --sqlite-fixture
+scripts/docker-dev gui-guided delete-confirmation --sqlite-fixture
 scripts/docker-dev gui-guided connection-manager
 scripts/docker-dev gui-guided propagation-workflow
 scripts/docker-dev gui-guided --summary
@@ -92,8 +94,8 @@ The following paths are the initial target set. This is intentionally narrow.
 | Create location | yes | yes | Guided scenario: `location-create`. |
 | Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
 | Create seed propagation from plant | xfail | yes | Current GUI test documents GitLab #2. |
-| Edit existing family/genus/species/accession/plant/location | todo | yes | Tracked by GitLab #4. |
-| Delete/remove confirmation dialogs | todo | yes | Tracked by GitLab #5. |
+| Edit existing family/genus/species/accession/plant/location | todo | yes | Guided scenario: `edit-record`; broader workflow tracked by GitLab #4. |
+| Delete/remove confirmation dialogs | todo | yes | Guided scenario: `delete-confirmation`; broader workflow tracked by GitLab #5. |
 
 ## Bug Recording Policy
 

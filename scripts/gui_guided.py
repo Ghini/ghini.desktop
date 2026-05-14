@@ -270,6 +270,73 @@ SCENARIOS = {
             ),
         ),
     ),
+    "edit-record": Scenario(
+        name="edit-record",
+        description="Exercise editing an existing fixture record visually.",
+        checkpoints=(
+            Checkpoint(
+                name="Existing family opens for edit",
+                instructions=(
+                    f"Connect to {GUIDED_CONNECTION_NAME} with --sqlite-fixture.",
+                    "Search for: family where epithet=Guidedaceae.",
+                    "Open the Family Editor for the Guidedaceae result.",
+                    "Change the family name to: Guidededitaceae.",
+                ),
+                expected=(
+                    "The Family Editor opens for the selected existing family.",
+                    "The current family name is visible before editing.",
+                    "The family name field accepts the updated value.",
+                    "OK becomes available after the edit.",
+                ),
+            ),
+            Checkpoint(
+                name="Edited family is searchable",
+                instructions=(
+                    "Save the Family Editor.",
+                    "Search for: family where epithet=Guidededitaceae.",
+                ),
+                expected=(
+                    "The editor closes without an error dialog.",
+                    "No integrity or traceback dialog appears.",
+                    "The edited family appears in search results.",
+                    "Searching for the old name no longer returns the edited record.",
+                ),
+            ),
+        ),
+    ),
+    "delete-confirmation": Scenario(
+        name="delete-confirmation",
+        description="Exercise delete confirmation behavior visually.",
+        checkpoints=(
+            Checkpoint(
+                name="Remove confirmation appears",
+                instructions=(
+                    f"Connect to {GUIDED_CONNECTION_NAME} with --sqlite-fixture.",
+                    "Search for: family where epithet=Guidedaceae.",
+                    "Select the Guidedaceae result.",
+                    "Use the normal remove/delete action for the selected family.",
+                ),
+                expected=(
+                    "A confirmation dialog appears before deletion.",
+                    "The dialog identifies the selected family or record type clearly.",
+                    "No record is deleted before confirmation.",
+                    "Both cancel/no and confirm/yes choices are visible.",
+                ),
+            ),
+            Checkpoint(
+                name="Cancel preserves record",
+                instructions=(
+                    "Choose the cancel/no option in the confirmation dialog.",
+                    "Search again for: family where epithet=Guidedaceae.",
+                ),
+                expected=(
+                    "The confirmation dialog closes cleanly.",
+                    "The selected family remains present after cancel/no.",
+                    "No error or traceback dialog appears.",
+                ),
+            ),
+        ),
+    ),
     "create-plant": Scenario(
         name="create-plant",
         description="Exercise the accession-to-plant creation workflow visually.",
