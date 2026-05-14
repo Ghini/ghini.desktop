@@ -32,10 +32,10 @@ gi.require_version('Gtk', '3.0')
 import os
 import sys
 import glob
-spawn = setuptools.distutils.spawn
-dep_util = setuptools.distutils.dep_util
-dir_util = setuptools.distutils.dir_util
-file_util = setuptools.distutils.file_util
+try:
+    from setuptools._distutils import spawn, dep_util, dir_util, file_util
+except Exception:
+    from distutils import spawn, dep_util, dir_util, file_util
 from distutils.command.build import build as _build
 #from setuptools.command.build_py import build_py as _build
 from setuptools import Command

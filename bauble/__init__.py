@@ -33,7 +33,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 consoleLevel = logging.INFO
 
-import imp
 import os
 import sys
 import bauble.paths as paths

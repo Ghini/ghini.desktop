@@ -31,13 +31,12 @@ logger = logging.getLogger(__name__)
 
 
 def main_is_frozen():
-    """Returns True/False if Ghini is being run from a py2exe executable.
+    """Returns True/False if Ghini is being run from a frozen executable.
 
+    Compatible with modern Python where imp was removed.
     """
-    import imp
-    return (hasattr(sys, "frozen") or  # new py2exe
-            hasattr(sys, "importers") or  # old py2exe
-            imp.is_frozen("__main__"))  # tools/freeze
+    return (hasattr(sys, "frozen") or  # new py2exe/PyInstaller style
+            hasattr(sys, "importers"))  # old py2exe
 
 
 def main_dir():

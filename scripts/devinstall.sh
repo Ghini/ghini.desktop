@@ -1,190 +1,103 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+VERSION="${1:-3.1}"
+LINE="ghini-${VERSION}"
 
-#echo missing in vanilla ubuntu - to run 'pip install bauble'
-#echo libxslt1-dev python-all-dev gettext
+if [[ -d "$HOME/Local/github.com/Ghini/ghini.desktop" ]]; then
+  REPO_BASE="$HOME/Local/github.com/Ghini"
+elif [[ -d "$HOME/Local/github/Ghini/ghini.desktop" ]]; then
+  REPO_BASE="$HOME/Local/github/Ghini"
+else
+  REPO_BASE="$HOME/Local/github.com/Ghini"
+fi
+REPO_DIR="$REPO_BASE/ghini.desktop"
+VENV_DIR="$HOME/.virtualenvs/$LINE"
 
-while true
-do
-    MISSING=''
-    if ! msgfmt --version >/dev/null 2>&1; then
-        MISSING="$MISSING gettext"
-    fi
-    if ! python3 --version >/dev/null 2>&1; then
-        MISSING="$MISSING python3-minimal"
-    fi
-    if ! python3 -c 'import gi' >/dev/null 2>&1; then
-        MISSING="$MISSING python3-gi"
-    fi
-    if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; ' >/dev/null 2>&1; then
-        MISSING="$MISSING gir1.2-gtkclutter "
-    fi
-    if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; gi.require_version("Champlain", "0.12"); from gi.repository import GtkChamplain; GtkClutter.init([]); from gi.repository import Champlain' >/dev/null 2>&1; then
-        MISSING="$MISSING gir1.2-gtkchamplain-0.12 "
-    fi
-    if ! python3 -c 'import lxml' >/dev/null 2>&1; then
-        MISSING="$MISSING python3-lxml"
-    fi
-    if ! git help >/dev/null 2>&1; then
-        MISSING="$MISSING git"
-    fi
-    if ! virtualenv --help >/dev/null 2>&1; then
-        MISSING="$MISSING virtualenv"
-    fi
-    if ! xslt-config --help >/dev/null 2>&1; then
-        MISSING="$MISSING libxslt1-dev"
-    fi
-    if ! pkg-config --help >/dev/null 2>&1; then
-        MISSING="$MISSING pkg-config"
-    fi
-    if ! pkg-config --cflags jpeg --help >/dev/null 2>&1; then
-        MISSING="$MISSING libjpeg-dev"
-    fi
-    if ! gcc --version >/dev/null 2>&1; then
-        MISSING="$MISSING build-essential"
-    fi
-    PYTHONHCOUNT=$(find /usr/include/python3* /usr/local/include/python3* -name Python.h 2>/dev/null | wc -l)
-    if [ "$PYTHONHCOUNT" = "0" ]; then
-        MISSING="$MISSING libpython3-all-dev"
-    fi
-
-    # forget password, please.
-    sudo -k
-
-    if [ "$MISSING" == "" ]
-    then
-        break;
-    else
-        echo 'Guessing package names, if you get in a loop, please double check.'
-        echo 'You need to solve the following dependencies:'
-        echo '------------------------------------------------------------------'
-        echo $MISSING
-        echo '------------------------------------------------------------------'
-        echo 'Then restart the devinstall.sh script'
-        if [ -x /usr/bin/apt-get ]; then
-            echo
-            echo 'you are on a debian-like system, I should know how to install'
-            echo $MISSING
-            sudo apt-get -y install $MISSING
-            echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
-            read
-        fi
-    fi
+check_cmd(){ command -v "$1" >/dev/null 2>&1; }
+while true; do
+  MISSING=""
+  check_cmd msgfmt || MISSING+=" gettext"
+  check_cmd python3 || MISSING+=" python3"
+  check_cmd git || MISSING+=" git"
+  check_cmd pkg-config || MISSING+=" pkg-config"
+  check_cmd gcc || MISSING+=" build-essential"
+  check_cmd xslt-config || MISSING+=" libxslt1-dev"
+  python3 -m venv --help >/dev/null 2>&1 || MISSING+=" python3-venv"
+  PYTHONHCOUNT=$(find /usr/include /usr/local/include -type f -path '*/python3*/Python.h' 2>/dev/null | wc -l)
+  [[ "$PYTHONHCOUNT" == "0" ]] && MISSING+=" python3-dev"
+  sudo -k
+  [[ -z "$MISSING" ]] && break
+  if [[ -x /usr/bin/apt-get ]]; then
+    sudo apt-get update
+    sudo apt-get -y install $MISSING
+  else
+    echo "Missing packages:$MISSING"; exit 1
+  fi
 done
 
-if [ -d $HOME/Local/github/Ghini/ghini.desktop ]
-then
-    echo "ghini checkout already in place"
-    cd $HOME/Local/github/Ghini
-else
-    mkdir -p $HOME/Local/github/Ghini >/dev/null 2>&1
-    cd $HOME/Local/github/Ghini
-    git clone https://github.com/Ghini/ghini.desktop
-fi
-cd ghini.desktop
+mkdir -p "$REPO_BASE"
+[[ -d "$REPO_DIR/.git" ]] || git clone https://github.com/Ghini/ghini.desktop "$REPO_DIR"
+cd "$REPO_DIR"
+git fetch --all --tags
+git checkout "$LINE"
 
-if [ $# -ne 0 ]
-then
-    VERSION=$1
-    LINE=ghini-$1
-else
-    VERSION=3.1
-    LINE=ghini-3.1
-fi
+mkdir -p "$HOME/.virtualenvs" "$HOME/.ghini" "$HOME/bin"
+python3 -m venv --system-site-packages "$VENV_DIR"
+source "$VENV_DIR/bin/activate"
+python -m pip install --upgrade pip setuptools wheel
 
-git checkout $LINE
+[[ -n "${PG:-}" ]] && python -m pip install psycopg2
+[[ -n "${MYSQL:-}" ]] && python -m pip install mysqlclient
 
-mkdir -p $HOME/.virtualenvs
-virtualenv --python python3 $HOME/.virtualenvs/$LINE --system-site-packages
-find $HOME/.virtualenvs/$LINE -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
-mkdir -p $HOME/.virtualenvs/$LINE/share
-mkdir -p $HOME/.ghini
-. $HOME/.virtualenvs/$LINE/bin/activate
-
-if [ ! -z $PG ]
-then
-    echo 'installing postgresql adapter'
-    pip install psycopg2 ;
-fi
-
-if [ ! -z $MYSQL ]
-then
-    echo 'installing mysql adapter'
-    pip install mysqlclient ;    
-fi
+python -m pip install \
+  "SQLAlchemy==1.2.7" \
+  "raven==6.7.0" \
+  Pillow \
+  lxml \
+  "pyqrcode==1.2.1" \
+  "mako==1.0.7" \
+  "gdata==2.0.18" \
+  requests \
+  "pyparsing==2.2.0" \
+  "python-dateutil==2.7.3"
 
 python setup.py build
-python setup.py install
-mkdir -p $HOME/bin 2>/dev/null
-cat <<EOF > $HOME/bin/ghini
-#!/bin/bash
+python setup.py install --single-version-externally-managed --record /tmp/ghini-install-record.txt
 
-GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
-. \$HOME/.virtualenvs/$LINE/bin/activate
-
-while getopts us:mp f
-do
-  case \$f in
-    u)  cd \$GITHOME
-        BUILD=1
-        END=1
-        ;;
-    s)  cd \$GITHOME
-        git checkout ghini-\$OPTARG || exit 1
-        BUILD=1
-        END=1
-        ;;
-    m)  pip install mysqlclient
-        END=1
-        ;;
-    p)  pip install psycopg2
-        END=1
-        ;;
-  esac
-done
-
-if [ ! -z "\$BUILD" ]
-then
-    git pull
+cat > "$HOME/bin/ghini" <<LAUNCHER
+#!/usr/bin/env bash
+set -euo pipefail
+GITHOME="$REPO_DIR"
+VENV="$VENV_DIR"
+source "\$VENV/bin/activate"
+case "${1:-}" in
+  -u)
+    cd "\$GITHOME"; git pull --ff-only
     python setup.py build
-    python setup.py install
-fi
+    python setup.py install --single-version-externally-managed --record /tmp/ghini-install-record.txt
+    exit 0 ;;
+  -s)
+    [[ -n "${2:-}" ]] || { echo "usage: ghini -s VERSION" >&2; exit 2; }
+    cd "\$GITHOME"; git checkout "ghini-\$2"
+    python setup.py build
+    python setup.py install --single-version-externally-managed --record /tmp/ghini-install-record.txt
+    exit 0 ;;
+  -m) python -m pip install mysqlclient; exit 0 ;;
+  -p) python -m pip install psycopg2; exit 0 ;;
+esac
+exec python "\$GITHOME/scripts/ghini" "\$@"
+LAUNCHER
+chmod +x "$HOME/bin/ghini"
 
-if [ ! -z "\$END" ]
-then
-    exit 1
-fi
+sudo groupadd ghini 2>/dev/null || true
+sudo usermod -a -G ghini "$(whoami)" || true
+chmod -R g-w+rX,o-rwx "$VENV_DIR"
+sudo chgrp -R ghini "$VENV_DIR" || true
 
-ghini
-EOF
-chmod +x $HOME/bin/ghini
-
-echo your local installation is now complete.
-echo enter your password to make Ghini available to other users.
-
-sudo groupadd ghini 2>/dev/null 
-sudo usermod -a -G ghini $(whoami)
-chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/$LINE
-sudo chgrp -R ghini $HOME/.virtualenvs/$LINE
-cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
-#!/bin/bash
-. $HOME/.virtualenvs/$LINE/bin/activate
-$HOME/.virtualenvs/$LINE/bin/ghini
-EOF
+cat <<EOF2 | sudo tee /usr/local/bin/ghini >/dev/null
+#!/usr/bin/env bash
+exec "$HOME/bin/ghini" "$@"
+EOF2
 sudo chmod +x /usr/local/bin/ghini
 
-sudo mkdir -p /usr/local/share/applications/ >/dev/null 2>&1
-cat <<EOF | sudo tee /usr/local/share/applications/ghini.desktop > /dev/null
-#!/bin/bash
-[Desktop Entry]
-Type=Application
-Name=Ghini Desktop
-Version=$VERSION
-GenericName=Biodiversity Manager
-Icon=$HOME/.virtualenvs/$LINE/share/icons/hicolor/scalable/apps/ghini.svg
-TryExec=/usr/local/bin/ghini
-Exec=/usr/local/bin/ghini
-Terminal=false
-StartupNotify=false
-Categories=Qt;Education;Science;Geography;
-Keywords=botany;botanic;
-EOF
+echo "Done. Run: $HOME/bin/ghini"
