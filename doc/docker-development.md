@@ -28,6 +28,13 @@ For password-based PostgreSQL authentication, set `DB_PASSWORD` in `.env`.
 `scripts/docker-dev` passes it through to the container but it should remain
 local and uncommitted.
 
+`scripts/docker-dev` also passes a `TZ` value into the container so default
+dates in the GUI follow the user-visible host date rather than UTC. It uses
+`GHINI_TZ` when set, then `TZ`, then the host `/etc/timezone` or
+`/etc/localtime`, and falls back to `UTC` only when no host timezone can be
+detected. Set `GHINI_TZ=America/New_York` or another IANA timezone in `.env` to
+override detection.
+
 ## Build
 
 ```sh
@@ -328,6 +335,9 @@ keeps the repository mounted at `/app`.
   for Docker builds in `requirements/`.
 - Black is installed in the development image and is available through
   `scripts/docker-dev format` and `scripts/docker-dev check`.
+- `scripts/docker-dev` forwards the host timezone as `TZ` so date defaults in
+  the GUI match the desktop local date. Override this with `GHINI_TZ` in
+  `.env` when needed.
 - `scripts/docker-dev` grants X11 access with
   `xhost +SI:localuser:$(id -un)` by default. Set `GHINI_XHOST=0` to disable
   that step if your host display access is configured another way.

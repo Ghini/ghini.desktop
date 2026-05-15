@@ -35,6 +35,7 @@ Useful overrides:
   GHINI_SKIP_CONFIG_MOUNT=1
   GHINI_KRB5_DIR=$HOME/krb5
   GHINI_XHOST=1
+  GHINI_TZ=<IANA timezone>
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
 EOF
 }
@@ -91,6 +92,38 @@ add_env_if_set() {
     fi
 }
 
+detect_host_timezone() {
+    if [[ -n "${GHINI_TZ:-}" ]]; then
+        printf '%s\n' "${GHINI_TZ}"
+        return
+    fi
+
+    if [[ -n "${TZ:-}" ]]; then
+        printf '%s\n' "${TZ}"
+        return
+    fi
+
+    if [[ -f /etc/timezone ]]; then
+        local timezone
+        timezone="$(sed -n '1s/[[:space:]]*$//p' /etc/timezone)"
+        if [[ -n "${timezone}" ]]; then
+            printf '%s\n' "${timezone}"
+            return
+        fi
+    fi
+
+    if [[ -L /etc/localtime ]]; then
+        local localtime_target
+        localtime_target="$(readlink /etc/localtime)"
+        if [[ "${localtime_target}" == /usr/share/zoneinfo/* ]]; then
+            printf '%s\n' "${localtime_target#/usr/share/zoneinfo/}"
+            return
+        fi
+    fi
+
+    printf 'UTC\n'
+}
+
 allow_xhost() {
     if [[ "${GHINI_XHOST:-1}" != "1" || -z "${DISPLAY:-}" ]]; then
         return
@@ -121,6 +154,7 @@ run_container() {
         --env "LOGNAME=ghini"
         --env "NO_AT_BRIDGE=${NO_AT_BRIDGE:-1}"
         --env "DISPLAY=${DISPLAY:-}"
+        --env "TZ=$(detect_host_timezone)"
         --volume "${project_dir}:/app"
     )
 
