@@ -1062,10 +1062,18 @@ class SearchView(pluginmgr.View):
         for row in rows:
             value = model[row][0]
             if not isinstance(value, str) and object_session(value) is None:
-                value = self.session.merge(value, load=False)
+                value = self._merge_result_value(value)
                 model[row][0] = value
             values.append(value)
         return values
+
+    def _merge_result_value(self, value):
+        """Attach a detached result row value to the view session."""
+        try:
+            return self.session.merge(value, load=False)
+        except saexc.InvalidRequestError:
+            logger.debug("falling back to regular merge for dirty result value")
+            return self.session.merge(value)
 
     def on_cursor_changed(self, view):
         """
@@ -1306,7 +1314,7 @@ class SearchView(pluginmgr.View):
                     # expire the object in the session with the same key
                     self.session.expire(value)
                 else:
-                    value = self.session.merge(value, load=False)
+                    value = self._merge_result_value(value)
                     model[treeiter][0] = value
             try:
                 r = value.search_view_markup_pair()

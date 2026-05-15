@@ -61,6 +61,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+def ensure_propagation_date(propagation):
+    """Set the default propagation date that the editor shows for new rows."""
+    if propagation.date is None:
+        propagation.date = datetime.date.today()
+    return propagation.date
+
+
 class PropagationHandler:
     _dirty: bool
 
@@ -222,6 +229,7 @@ class PropagationTabPresenter(PropagationHandler, editor.GenericEditorPresenter)
 
         propagation = Propagation()
         propagation.prop_type = "Seed"  # a reasonable default
+        ensure_propagation_date(propagation)
         add_to_relationship(self.model, propagation, "propagations")
         editor = PropagationEditor(propagation, parent=self.view.get_window())
         # open propagation editor with start(commit=False) so that the
@@ -229,6 +237,7 @@ class PropagationTabPresenter(PropagationHandler, editor.GenericEditorPresenter)
         # doing our own commit later
         committed = editor.start(commit=False)
         if committed:
+            ensure_propagation_date(committed)
             box = self.create_propagation_box(committed)
             self.view.widgets.prop_tab_box.pack_start(box, False, True, 0)
             self._dirty = True
@@ -654,11 +663,9 @@ class PropagationPresenter(editor.ChildPresenter):
         self._seed_presenter = SeedPresenter(self, self.model, self.view, self.session)
 
         self.assign_simple_handler("prop_date_entry", "date", editor.DateValidator())
-        if self.model.date is None:
-            date_str = utils.today_str()
-        else:
-            format = prefs.prefs[prefs.date_format_pref]
-            date_str = self.model.date.strftime(format)
+        ensure_propagation_date(self.model)
+        format = prefs.prefs[prefs.date_format_pref]
+        date_str = self.model.date.strftime(format)
         self.view.widget_set_value(self.view.widgets.prop_date_entry, date_str)
 
         self._dirty = False
@@ -851,16 +858,15 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         # the view and presenter are created in self.start()
         self.view = None
         self.presenter = None
-        super().__init__(model, parent)
-        # if mode already has a session then use it, this is unique to
-        # the PropagationEditor because so far it is the only editor
-        # that dependent on a parent editor and the parent editor's
-        # model and session
         sess = object_session(model)
         if sess:
-            self.session.close()
+            # Use the parent editor session directly. Merging a pending
+            # propagation into a temporary editor session can duplicate it
+            # in the parent relationship when the plant is later saved.
             self.session = sess
             self.model = model
+        else:
+            super().__init__(model, parent)
 
         if not parent and bauble.gui:
             parent = bauble.gui.window

@@ -755,14 +755,45 @@ def test_seed_propagation_clean_tolerates_missing_cutting(db_session) -> None:
 
 def test_propagation_box_tolerates_missing_date() -> None:
     """Propagation tab rows should render even before a date is entered."""
+    from bauble.editor import MockView
     from bauble.plugins.garden.propagation_editor import PropagationHandler
 
     propagation = Propagation(prop_type="Seed")
     propagation._seed = PropSeed(nseeds=12, date_sown=date.today())
 
-    box = PropagationHandler().create_propagation_box(propagation)
+    handler = PropagationHandler()
+    handler.view = MockView()
+    box = handler.create_propagation_box(propagation)
 
     assert box is not None
+
+
+def test_propagation_box_uses_saved_date() -> None:
+    """Propagation tab rows should use the propagation date in their label."""
+    from bauble.editor import MockView
+    from bauble.plugins.garden.propagation_editor import PropagationHandler
+    from bauble.prefs import date_format_pref, prefs
+
+    propagation = Propagation(prop_type="Seed", date=date(2026, 5, 14))
+    propagation._seed = PropSeed(nseeds=12, date_sown=date.today())
+
+    handler = PropagationHandler()
+    handler.view = MockView()
+    box = handler.create_propagation_box(propagation)
+    expander = box.get_children()[0]
+
+    assert propagation.date.strftime(prefs[date_format_pref]) in expander.get_label()
+
+
+def test_new_propagation_gets_visible_default_date() -> None:
+    """New propagation records should persist the date shown by the editor."""
+    from bauble.plugins.garden.propagation_editor import ensure_propagation_date
+
+    propagation = Propagation(prop_type="Seed")
+    expected_date = date.today()
+
+    assert ensure_propagation_date(propagation) == expected_date
+    assert propagation.date == expected_date
 
 
 @pytest.mark.skip(reason="opens the interactive Location Editor dialog")
