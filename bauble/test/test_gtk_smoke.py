@@ -9,9 +9,11 @@ import bauble
 import bauble.connmgr as connmgr
 import bauble.paths as paths
 import bauble.prefs as prefs
+import bauble.view as view
 from bauble.connmgr import ConnMgrPresenter
 from bauble.editor import GenericEditorView
 from bauble.gtkinit import Gtk
+from bauble.shared import InfoExpander
 from bauble.plugins.garden.location_editor import (
     LocationEditorPresenter,
     LocationEditorView,
@@ -23,7 +25,11 @@ from bauble.plugins.garden.accession_editor import (
 from bauble.plugins.garden.models.accession import Accession
 from bauble.plugins.garden.models.location import Location
 from bauble.plugins.garden.models.plant import Plant
-from bauble.plugins.garden.plant_editor import PlantEditorPresenter, PlantEditorView
+from bauble.plugins.garden.plant_editor import (
+    PlantEditorPresenter,
+    PlantEditorView,
+    PlantInfoBox,
+)
 from bauble.plugins.garden.propagation_editor import (
     PropagationEditorPresenter,
     PropagationEditorView,
@@ -41,6 +47,15 @@ prefs.testing = True
 
 
 LIB_DIR = Path(paths.lib_dir())
+
+
+class DummyInfoExpander(InfoExpander):
+    def __init__(self, label="Dummy") -> None:
+        super().__init__(label)
+        self.updated_with = None
+
+    def update(self, value) -> None:
+        self.updated_with = value
 
 
 CORE_WIDGETS = {
@@ -395,6 +410,35 @@ def test_generic_editor_view_loads_root_widget(relative_name, root_widget):
         assert isinstance(window, Gtk.Window)
     finally:
         window.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_infobox_page_packs_info_expander_widgets():
+    page = view.InfoBoxPage()
+    expander = DummyInfoExpander("General")
+    row = object()
+
+    page.add_expander(expander)
+
+    assert expander.get_widget() in page.vbox.get_children()
+    assert page.get_expander("General") is expander
+
+    page.update(row)
+
+    assert expander.updated_with is row
+    assert page.remove_expander("General") is expander
+    assert expander.get_widget() not in page.vbox.get_children()
+
+
+def test_plant_infobox_constructs_with_expander_widgets():
+    infobox = PlantInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        assert isinstance(widget, Gtk.Notebook)
+    finally:
+        widget.destroy()
         while Gtk.events_pending():
             Gtk.main_iteration_do(False)
 

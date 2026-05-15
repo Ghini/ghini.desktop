@@ -42,7 +42,17 @@ from bauble import pluginmgr as pluginmgr
 from bauble import search as search
 from bauble import utils as utils
 from bauble.error import BaubleError, check
-from bauble.gtkinit import Champlain, Clutter, Gdk, Gio, GLib, Gtk, GtkClutter, Pango
+from bauble.gtkinit import (
+    Champlain,
+    Clutter,
+    Gdk,
+    Gio,
+    GLib,
+    Gtk,
+    GtkChamplain,
+    GtkClutter,
+    Pango,
+)
 from bauble.shared import InfoExpander
 from pyparsing import ParseException
 from sqlalchemy import func, select
@@ -296,21 +306,23 @@ class MapInfoExpander(InfoExpander):
     """
 
     map_widget: Any
+    clutter_view: Any
     get_points: Any
     layer: Any
 
     def __init__(self, get_points: Optional[Any] = None) -> None:
         super().__init__(_("Location on map"))
 
-        self.map_widget = Champlain.View()
+        self.map_widget = GtkChamplain.Embed()
         self.map_widget.set_size_request(230, 230)
         self.vbox.pack_start(self.map_widget, False, False, 0)
-        self.map_widget.set_horizontal_wrap(True)
+        self.clutter_view = self.map_widget.get_view()
+        self.clutter_view.set_horizontal_wrap(True)
         self.map_widget.set_sensitive(False)
 
         self.get_points = get_points
         self.layer = Champlain.MarkerLayer()
-        self.map_widget.add_layer(self.layer)
+        self.clutter_view.add_layer(self.layer)
         self.layer.show()
 
     def on_expanded(self, *args) -> None:
@@ -322,9 +334,7 @@ class MapInfoExpander(InfoExpander):
         """Update the map with points from the row."""
         self.map_widget.set_visible(self.get_expanded())
 
-        black = Gdk.RGBA(
-            0, 0, 0, 0.5
-        )  # Equivalent to Clutter.Color.new(0x00, 0x00, 0x00, 0x7F)
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7F)
 
         self.layer.remove_all()
         if self.get_points is None:
@@ -340,8 +350,8 @@ class MapInfoExpander(InfoExpander):
             self.layer.add_marker(marker)
 
         if i is not None:
-            self.map_widget.center_on(i["lat"], i["lon"])
-            self.map_widget.set_zoom_level(18)
+            self.clutter_view.center_on(i["lat"], i["lon"])
+            self.clutter_view.set_zoom_level(18)
 
 
 class InfoBoxPage:
@@ -367,10 +377,9 @@ class InfoBoxPage:
 
         :param expander: the bauble.view.InfoExpander to add to this infobox
         """
-        self.vbox.pack_start(expander, False, True, 5)
-        self.expanders[expander.get_label()] = (
-            expander  # Use get_label() instead of get_property("label")
-        )
+        widget = expander.get_widget() if hasattr(expander, "get_widget") else expander
+        self.vbox.pack_start(widget, False, True, 5)
+        self.expanders[widget.get_label()] = expander
 
         expander._sep = Gtk.Separator.new(orientation=Gtk.Orientation.HORIZONTAL)
         self.vbox.pack_start(expander._sep, False, False, 0)
@@ -393,7 +402,12 @@ class InfoBoxPage:
         """
         expander = self.expanders.pop(label, None)
         if expander:
-            self.vbox.remove(expander)
+            widget = (
+                expander.get_widget() if hasattr(expander, "get_widget") else expander
+            )
+            self.vbox.remove(widget)
+            if hasattr(expander, "_sep"):
+                self.vbox.remove(expander._sep)
         return expander
 
     def update(self, row) -> None:
