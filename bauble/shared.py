@@ -50,6 +50,14 @@ class InfoExpander:
         """Return the main widget (Gtk.Expander) for integration in UI layouts."""
         return self.expander
 
+    def get_label(self):
+        """Return the expander label."""
+        return self.expander.get_label()
+
+    def set_label(self, label) -> None:
+        """Set the expander label."""
+        self.expander.set_label(label)
+
     def set_expanded(self, expanded: bool) -> None:
         self.expander.set_expanded(expanded)
 
@@ -100,8 +108,12 @@ class InfoExpander:
         """
         A shorthand for L{bauble.utils.set_widget_value()}
         """
-        if widget_name in self.widgets:
-            set_widget_value(self.widgets[widget_name], value, markup, default)
+        try:
+            widget = self.widgets[widget_name]
+        except KeyError:
+            logger.warning(f"Widget '{widget_name}' not found.")
+            return
+        set_widget_value(widget, value, markup, default)
 
     def update(self, value) -> None:
         """

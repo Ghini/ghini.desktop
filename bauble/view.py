@@ -514,8 +514,9 @@ class LinksExpander(InfoExpander):
                 logger.warning(f"Invalid link definition {link}: {type(e)}({e})")
 
         for button in self.buttons:
-            button.set_halign(Gtk.Align.START)
-            self.vbox.pack_start(button, False, False, 0)
+            widget = button.get_widget() if hasattr(button, "get_widget") else button
+            widget.set_halign(Gtk.Align.START)
+            self.vbox.pack_start(widget, False, False, 0)
 
     def update(self, row) -> None:
         """

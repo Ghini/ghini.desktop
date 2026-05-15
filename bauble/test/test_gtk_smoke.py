@@ -35,7 +35,12 @@ from bauble.plugins.garden.propagation_editor import (
     PropagationEditorView,
 )
 from bauble.plugins.garden.models.propagation import Propagation
-from bauble.plugins.plants.family import Family, FamilyEditorPresenter, FamilyEditorView
+from bauble.plugins.plants.family import (
+    Family,
+    FamilyEditorPresenter,
+    FamilyEditorView,
+    FamilyInfoBox,
+)
 from bauble.plugins.plants.genus import Genus, GenusEditorPresenter, GenusEditorView
 from bauble.plugins.plants.species import Species
 from bauble.plugins.plants.species_editor import (
@@ -437,6 +442,46 @@ def test_plant_infobox_constructs_with_expander_widgets():
 
     try:
         assert isinstance(widget, Gtk.Notebook)
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_links_expander_packs_link_button_widgets():
+    expander = view.LinksExpander(
+        links=[
+            {
+                "name": "SearchButton",
+                "_base_uri": "https://example.test/search?q=%s",
+                "_space": "+",
+                "title": "Search",
+                "tooltip": "Search example",
+            }
+        ]
+    )
+    link_button = expander.buttons[0]
+    widget = link_button.get_widget()
+
+    assert widget in expander.vbox.get_children()
+    assert widget.get_halign() == Gtk.Align.START
+
+    expander.update("Guided family")
+
+    assert widget.get_uri() == "https://example.test/search?q=Guided+family"
+
+
+def test_family_infobox_updates_builder_widgets(session):
+    family = Family(epithet="Guidedaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    infobox = FamilyInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(family)
+        assert infobox.general.widgets.fam_name_data.get_label()
     finally:
         widget.destroy()
         while Gtk.events_pending():
