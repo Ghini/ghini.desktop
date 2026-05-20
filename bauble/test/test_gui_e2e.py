@@ -758,6 +758,77 @@ def test_can_create_accession_from_species_editor_chain(
     ), f"accession_total={accession_total}, species_total={species_total}"
 
 
+def test_can_edit_existing_accession_from_result_context_menu(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEEDITACCACEAE"
+    genus_name = "Eeeditaccgenus"
+    species_name = "eoeditacc"
+    accession_code = "ACC-EDIT-001"
+    edited_accession_code = "ACC-EDIT-002"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name=species_name,
+        accession_code=accession_code,
+        plant_code="1",
+        location_code="EA01",
+        location_name="E2E Accession Bed",
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(search_entry, f"accession where code={accession_code}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    result = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and accession_code in node.name,
+        timeout=20,
+    )
+    right_click_node_center(result, dogtail_rawinput)
+    activate_menu_item(dogtail_tree.root, "Edit", role_name="menu item")
+
+    accession_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+    )
+    accession_code_entry = find_text_entry_with_value(accession_editor, accession_code)
+    assert accession_code_entry is not None, dump_accessible_tree(accession_editor)
+
+    enter_text(accession_code_entry, edited_accession_code, dogtail_rawinput)
+
+    ok_button = find_named_child(accession_editor, "OK", role_name="push button")
+    assert ok_button is not None, dump_accessible_tree(accession_editor)
+    assert getattr(ok_button, "sensitive", True), dump_accessible_tree(accession_editor)
+    ok_button.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    edited_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from accession where code = ?",
+        edited_accession_code,
+    )
+    old_code_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from accession where code = ?",
+        accession_code,
+    )
+    assert edited_count == 1
+    assert old_code_count == 0
+
+
 def test_can_create_location_from_insert_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -1230,6 +1301,15 @@ def find_named_child(node, name, role_name=None, showing_only=None):
 def find_child_by_role(node, role_name):
     return node.findChild(
         lambda child: child.roleName == role_name,
+        recursive=True,
+        retry=False,
+        requireResult=False,
+    )
+
+
+def find_text_entry_with_value(node, value):
+    return node.findChild(
+        lambda child: child.roleName == "text" and accessible_text(child) == value,
         recursive=True,
         retry=False,
         requireResult=False,
