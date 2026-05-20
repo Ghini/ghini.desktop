@@ -122,16 +122,7 @@ class SplashCommandHandler(pluginmgr.CommandHandler):
 def create_menu_item_with_image(
     label, icon_name: Optional[Any] = None, base_dir: Optional[Any] = None
 ):
-    """Return a MenuItem with an associated image, if provided.
-
-    Args:
-        label (str or object): The label or object representing the menu item.
-        icon_name (str, optional): The name or path of the icon to display.
-        base_dir (str, optional): Base directory for icon lookup.
-
-    Returns:
-        Gtk.MenuItem: A Gtk.MenuItem, with an optional image if provided.
-    """
+    """Return a GTK3 menu item with an optional image."""
     if not isinstance(label, str):
         # Extract attributes if label is an object
         tool = label
@@ -144,14 +135,12 @@ def create_menu_item_with_image(
 
     logger.debug(f"create_menu_item_with_image {label} {icon_name} {base_dir}")
 
-    # Resolve full path for PNG icons
-    if base_dir and icon_name and icon_name.endswith(".png"):
-        icon_name = os.path.join(base_dir, icon_name)
-
     image = None
     if icon_name:
         try:
             if icon_name.endswith(".png"):
+                if base_dir and not os.path.isabs(icon_name):
+                    icon_name = os.path.join(base_dir, icon_name)
                 # Load and scale PNG icon
                 pb = GdkPixbuf.Pixbuf.new_from_file(icon_name)
                 (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
@@ -163,15 +152,16 @@ def create_menu_item_with_image(
         except (GLib.Error, FileNotFoundError):
             logger.debug(f"Cannot load icon: {icon_name}")
 
-    # Create the menu item
-    item = Gtk.MenuItem()
-    item.set_label(label)
-    hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
     if image:
+        item = Gtk.MenuItem()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         hbox.pack_start(image, False, False, 0)
-    label_widget = Gtk.Label(label=label)
-    hbox.pack_start(label_widget, True, True, 0)
-    item.add(hbox)
+        label_widget = Gtk.Label(label=label)
+        label_widget.set_xalign(0)
+        hbox.pack_start(label_widget, True, True, 0)
+        item.add(hbox)
+    else:
+        item = Gtk.MenuItem(label=label)
 
     return item
 
@@ -621,22 +611,11 @@ class GUI:
         help_contents_item.connect("activate", self.on_help_menu_contents)
         help_menu.append(help_contents_item)
 
-        bug_report_item = Gtk.MenuItem(label=_("Report a Bug"))
-        try:
-            icon_name = os.path.join(paths.lib_dir(), "images", "menu-help-bug.png")
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon_name)
-            (what, width, height) = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
-            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-            image = Gtk.Image.new_from_pixbuf(pixbuf)
-            # 7. issue_gtk_button_image_api (REMOVED, pack GtkImage manually inside GtkButton)
-            bug_report_item.set_child(image)
-            if Gtk.get_major_version() >= 4:
-                bug_report_item.set_child(image)
-            else:
-                bug_report_item.add(image)
-                bug_report_item.show_all()
-        except Exception as e:
-            logger.debug(f"Cannot set icon {icon_name}: {e}")
+        bug_report_item = create_menu_item_with_image(
+            _("Report a Bug"),
+            "menu-help-bug.png",
+            os.path.join(paths.lib_dir(), "images"),
+        )
         bug_report_item.connect("activate", self.on_help_menu_bug)
         help_menu.append(bug_report_item)
 

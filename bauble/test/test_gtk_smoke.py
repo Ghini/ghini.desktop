@@ -9,6 +9,7 @@ import bauble
 import bauble.connmgr as connmgr
 import bauble.paths as paths
 import bauble.prefs as prefs
+import bauble.ui as ui
 import bauble.view as view
 from bauble.connmgr import ConnMgrPresenter
 from bauble.editor import GenericEditorView
@@ -486,6 +487,35 @@ def test_family_infobox_updates_builder_widgets(session):
         widget.destroy()
         while Gtk.events_pending():
             Gtk.main_iteration_do(False)
+
+
+def test_create_menu_item_with_image_uses_single_gtk_menu_child():
+    item = ui.create_menu_item_with_image("Report a Bug", "help-about")
+
+    try:
+        assert isinstance(item, Gtk.MenuItem)
+        assert isinstance(item.get_child(), Gtk.Box)
+        assert len(item.get_children()) == 1
+        image, label = item.get_child().get_children()
+        assert isinstance(image, Gtk.Image)
+        assert label.get_label() == "Report a Bug"
+    finally:
+        item.destroy()
+
+
+def test_create_menu_item_with_png_image_uses_image_menu_item():
+    item = ui.create_menu_item_with_image(
+        "Report a Bug",
+        "menu-help-bug.png",
+        os.path.join(paths.lib_dir(), "images"),
+    )
+
+    try:
+        assert isinstance(item, Gtk.MenuItem)
+        assert isinstance(item.get_child(), Gtk.Box)
+        assert len(item.get_children()) == 1
+    finally:
+        item.destroy()
 
 
 def test_connection_manager_empty_state(connmgr_view, gtk_prefs):
