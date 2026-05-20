@@ -353,12 +353,6 @@ def test_can_edit_existing_family_from_result_context_menu(
     assert old_family_count == 0
 
 
-@pytest.mark.xfail(
-    reason=(
-        "GitLab #8: plant search finds the expected row, but selecting it does "
-        "not expose the plant detail infobox under GUI automation."
-    )
-)
 def test_can_search_existing_plant_and_show_details(
     dogtail_modules, sqlite_connection, ghini_process
 ):
