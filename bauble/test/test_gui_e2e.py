@@ -821,6 +821,90 @@ def test_can_create_location_from_insert_menu(
     assert location_count == 1
 
 
+def test_can_edit_existing_location_from_result_context_menu(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    location_code = "E2ED"
+    location_name = "E2E Display Bed"
+    edited_location_name = "E2E Edited Bed"
+    timestamp = "2026-05-13 00:00:00"
+
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into location (code, name, description, _created, _last_updated) "
+            "values (?, ?, '', ?, ?)"
+        ),
+        location_code,
+        location_name,
+        timestamp,
+        timestamp,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(search_entry, f"location where code={location_code}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    result = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and location_code in node.name
+        and location_name in node.name,
+        timeout=20,
+    )
+    right_click_node_center(result, dogtail_rawinput)
+    activate_menu_item(dogtail_tree.root, "Edit", role_name="menu item")
+
+    location_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog"
+        and find_named_child(node, "OK", role_name="push button") is not None
+        and find_named_child(node, "Add plants", role_name="push button") is not None,
+    )
+    location_entries = [
+        entry
+        for entry in find_children_by_role(location_editor, "text")
+        if getattr(entry, "showing", True)
+    ]
+    assert len(location_entries) >= 3, dump_accessible_tree(location_editor)
+    assert accessible_text(location_entries[1]) == location_code
+    assert accessible_text(location_entries[2]) == location_name
+
+    enter_text(location_entries[2], edited_location_name, dogtail_rawinput)
+
+    ok_button = find_named_child(location_editor, "OK", role_name="push button")
+    field_values = [accessible_text(entry) for entry in location_entries[:3]]
+    assert ok_button is not None, field_values
+    assert getattr(ok_button, "sensitive", True), field_values
+    ok_button.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog"
+        and find_named_child(node, "Add plants", role_name="push button") is not None,
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    edited_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from location where code = ? and name = ?",
+        location_code,
+        edited_location_name,
+    )
+    old_name_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from location where code = ? and name = ?",
+        location_code,
+        location_name,
+    )
+    assert edited_count == 1
+    assert old_name_count == 0
+
+
 def test_can_create_plant_from_insert_menu(
     dogtail_modules, sqlite_connection, ghini_process_factory
 ):
