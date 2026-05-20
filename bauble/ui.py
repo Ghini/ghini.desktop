@@ -428,7 +428,7 @@ class GUI:
             main_entry.set_completion(completion)
             compl_model = Gtk.ListStore(str)
             completion.set_model(compl_model)
-            completion.set_property("popup_completion", False)
+            completion.set_property("popup_completion", True)
             completion.set_property("inline_completion", True)
             completion.set_minimum_key_length(2)
         else:

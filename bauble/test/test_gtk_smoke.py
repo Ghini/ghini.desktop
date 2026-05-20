@@ -518,6 +518,33 @@ def test_create_menu_item_with_png_image_uses_image_menu_item():
         item.destroy()
 
 
+def test_main_search_history_completion_shows_popup(monkeypatch):
+    history = [
+        "family where epithet=Guidedaceae",
+        "species where genus.epithet=Guidedgenus",
+    ]
+    combo = Gtk.ComboBoxText.new_with_entry()
+    combo.set_model(Gtk.ListStore(str))
+    gui = SimpleNamespace(
+        entry_history_pref="bauble.history",
+        widgets=SimpleNamespace(main_comboentry=combo),
+    )
+    monkeypatch.setattr(ui, "prefs", {"bauble.history": history})
+
+    ui.GUI.populate_main_entry(gui)
+
+    completion = combo.get_child().get_completion()
+    completion_model = completion.get_model()
+
+    try:
+        assert completion.get_property("popup_completion")
+        assert completion.get_property("inline_completion")
+        assert completion.get_minimum_key_length() == 2
+        assert [row[0] for row in completion_model] == history
+    finally:
+        combo.destroy()
+
+
 def test_connection_manager_empty_state(connmgr_view, gtk_prefs):
     presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
 
