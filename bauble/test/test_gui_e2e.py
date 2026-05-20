@@ -1129,6 +1129,96 @@ def test_can_create_plant_from_insert_menu(
 
 @pytest.mark.xfail(
     reason=(
+        "GitLab #17: Plant Editor closes after a planting code edit, "
+        "but the changed code is not persisted."
+    )
+)
+def test_can_edit_existing_plant_from_result_context_menu(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEEDITPLANTACEAE"
+    genus_name = "Eeeditplantgenus"
+    species_name = "eoeditplant"
+    accession_code = "PLANT-EDIT-001"
+    plant_code = "P1"
+    edited_plant_code = "P2"
+    location_code = "EP01"
+    location_name = "E2E Plant Edit Bed"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name=species_name,
+        accession_code=accession_code,
+        plant_code=plant_code,
+        location_code=location_code,
+        location_name=location_name,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(search_entry, f"{accession_code}.{plant_code}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    result = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and f"{accession_code}.{plant_code}" in node.name,
+        timeout=20,
+    )
+    right_click_node_center(result, dogtail_rawinput)
+    activate_menu_item(dogtail_tree.root, "Edit", role_name="menu item")
+
+    plant_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+    )
+    plant_code_entry = find_text_entry_with_value(plant_editor, plant_code)
+    assert plant_code_entry is not None, dump_accessible_tree(plant_editor)
+
+    enter_text(plant_code_entry, edited_plant_code, dogtail_rawinput)
+
+    ok_button = find_named_child(plant_editor, "OK", role_name="push button")
+    assert ok_button is not None, dump_accessible_tree(plant_editor)
+    assert getattr(ok_button, "sensitive", True), dump_accessible_tree(plant_editor)
+    ok_button.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    edited_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select count(*) from plant "
+            "join accession on plant.accession_id = accession.id "
+            "where accession.code = ? and plant.code = ?"
+        ),
+        accession_code,
+        edited_plant_code,
+    )
+    old_code_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select count(*) from plant "
+            "join accession on plant.accession_id = accession.id "
+            "where accession.code = ? and plant.code = ?"
+        ),
+        accession_code,
+        plant_code,
+    )
+    assert edited_count == 1
+    assert old_code_count == 0
+
+
+@pytest.mark.xfail(
+    reason=(
         "GitLab #2: the propagation editor opens "
         "from the plant editor, but the accession/plant/propagation save chain does "
         "not yet persist the expected records reliably under GUI automation."
