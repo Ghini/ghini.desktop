@@ -81,7 +81,7 @@ class PlantSearch(SearchStrategy):
         else:
             logger.debug("text is not quoted, should strategy apply?")
             # return []
-        delimiter = Plant.get_delimiter()
+        delimiter = Plant.get_delimiter(session=session)
         if delimiter not in text:
             logger.debug("delimiter not found, can't split the code")
             return []

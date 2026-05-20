@@ -722,6 +722,19 @@ def test_can_create_location_from_insert_menu(
         and find_named_child(node, "Add plants", role_name="push button") is not None,
         timeout=20,
     )
+
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+    enter_text(search_entry, f"location where code={location_code}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and location_code in node.name
+        and location_name in node.name,
+        timeout=20,
+    )
+
     terminate_process(ghini_process)
 
     location_count = query_sqlite_database(
