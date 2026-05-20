@@ -353,6 +353,87 @@ def test_can_edit_existing_family_from_result_context_menu(
     assert old_family_count == 0
 
 
+def test_family_delete_confirmation_cancel_and_confirm(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEDELETEACEAE"
+    timestamp = "2026-05-13 00:00:00"
+
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into family (epithet, author, qualifier, _created, _last_updated) "
+            "values (?, '', '', ?, ?)"
+        ),
+        family_name,
+        timestamp,
+        timestamp,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    def search_family():
+        enter_text(
+            search_entry, f"family where epithet={family_name}", dogtail_rawinput
+        )
+        dogtail_rawinput.pressKey("Enter")
+        return wait_for_node(
+            dogtail_tree,
+            lambda node: node.roleName in {"table cell", "label"}
+            and family_name in node.name,
+            timeout=20,
+        )
+
+    def request_delete():
+        result = search_family()
+        right_click_node_center(result, dogtail_rawinput)
+        activate_menu_item(dogtail_tree.root, "Delete", role_name="menu item")
+        return wait_for_node(
+            dogtail_tree,
+            lambda node: node.roleName in {"alert", "dialog"}
+            and node_contains_text(node, "remove the family"),
+            timeout=20,
+        )
+
+    confirmation = request_delete()
+    assert node_contains_text(confirmation, family_name)
+    find_named_child(confirmation, "No", role_name="push button").click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName in {"alert", "dialog"}
+        and node_contains_text(node, "remove the family"),
+        timeout=20,
+    )
+
+    family_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from family where epithet = ?",
+        family_name,
+    )
+    assert family_count == 1
+
+    confirmation = request_delete()
+    assert node_contains_text(confirmation, family_name)
+    find_named_child(confirmation, "Yes", role_name="push button").click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName in {"alert", "dialog"}
+        and node_contains_text(node, "remove the family"),
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    family_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from family where epithet = ?",
+        family_name,
+    )
+    assert family_count == 0
+
+
 def test_can_search_existing_plant_and_show_details(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -1068,6 +1149,20 @@ def find_child_by_role(node, role_name):
         recursive=True,
         retry=False,
         requireResult=False,
+    )
+
+
+def node_contains_text(node, text):
+    if text in getattr(node, "name", ""):
+        return True
+    return (
+        node.findChild(
+            lambda child: text in getattr(child, "name", ""),
+            recursive=True,
+            retry=False,
+            requireResult=False,
+        )
+        is not None
     )
 
 
