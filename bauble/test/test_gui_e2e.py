@@ -290,6 +290,69 @@ def test_can_search_existing_species(dogtail_modules, sqlite_connection, ghini_p
     )
 
 
+def test_can_edit_existing_family_from_result_context_menu(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEEDITACEAE"
+    edited_family_name = "EEEDITEDACEAE"
+
+    seed_taxonomy_location_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name="Eeeditgenus",
+        species_name="eoedit",
+        location_code="E2EE",
+        location_name="E2E Edit Bed",
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(search_entry, f"family where epithet={family_name}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    result = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and family_name in node.name,
+        timeout=20,
+    )
+    right_click_node_center(result, dogtail_rawinput)
+    activate_menu_item(dogtail_tree.root, "Edit", role_name="menu item")
+
+    editor_window = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Family Editor",
+    )
+    family_entry = find_child_by_role(editor_window, "text")
+    assert family_entry is not None, dump_accessible_tree(editor_window)
+    assert accessible_text(family_entry) == family_name
+
+    enter_text(family_entry, edited_family_name, dogtail_rawinput)
+    find_named_child(editor_window, "OK", role_name="push button").click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Family Editor",
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    family_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from family where epithet = ?",
+        edited_family_name,
+    )
+    old_family_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from family where epithet = ?",
+        family_name,
+    )
+    assert family_count == 1
+    assert old_family_count == 0
+
+
 @pytest.mark.xfail(
     reason=(
         "GitLab #8: plant search finds the expected row, but selecting it does "
@@ -1043,6 +1106,17 @@ def click_node_center(node, dogtail_rawinput):
     x, y = node.position
     width, height = node.size
     dogtail_rawinput.click(x + width // 2, y + height // 2)
+    time.sleep(0.1)
+
+
+def right_click_node_center(node, dogtail_rawinput):
+    try:
+        node.grabFocus()
+    except Exception:
+        pass
+    x, y = node.position
+    width, height = node.size
+    dogtail_rawinput.click(x + width // 2, y + height // 2, button=3)
     time.sleep(0.1)
 
 
