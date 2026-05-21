@@ -432,7 +432,7 @@ class CSVImporter(Importer):
                 configure_mappers()
                 # Drop all dependent tables, ensuring proper order
                 sorted_depends = [t for t in metadata.sorted_tables if t in depends]
-                metadata.drop_all(bind=session.get_bind(), tables=sorted_depends)
+                metadata.drop_all(bind=session.connection(), tables=sorted_depends)
 
                 logger.debug("Successfully dropped dependent tables.")
             except Exception as e:
@@ -495,7 +495,7 @@ class CSVImporter(Importer):
             return False
 
         # don't do anything if the file is empty:
-        bind = session.get_bind()
+        bind = session.connection()
 
         if filesizes[filename] <= 1:  # Handle empty files
             if table.name not in inspect(bind).get_table_names():
@@ -542,7 +542,7 @@ class CSVImporter(Importer):
         :param created_tables: List of created tables.
         """
         configure_mappers()
-        bind = session.get_bind()
+        bind = session.connection()
         #        print(str(table.compile(bind=bind)))
         #        print([fk.column for fk in table.foreign_keys])
         table.create(bind=bind)
@@ -561,7 +561,7 @@ class CSVImporter(Importer):
         :param session: SQLAlchemy session object.
         """
         # Inspect existing tables
-        bind = session.get_bind()
+        bind = session.connection()
         inspector = inspect(bind)
         existing_tables = set(inspector.get_table_names())
 
@@ -707,6 +707,7 @@ class CSVImporter(Importer):
                             update_every=127,
                             flush_count=self.flush_count,
                             steps_so_far=self.steps_so_far,
+                            session=session,
                             use_thread=False,
                         )
 
@@ -799,6 +800,7 @@ class CSVImporter(Importer):
                 # be created but weren't created already
                 # Ensure only missing tables are created
                 self.create_missing_tables(metadata, session)
+                session.commit()
 
                 # Reset sequences
                 self._reset_sequences(sorted_tables)

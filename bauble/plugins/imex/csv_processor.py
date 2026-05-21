@@ -178,6 +178,7 @@ class CSVProcessor:
         update_every,
         flush_count: int = 0,
         steps_so_far: int = 0,
+        session=None,
         use_thread: bool = False,  # 🔴 default to synchronous for now
     ) -> None:
         """
@@ -194,6 +195,7 @@ class CSVProcessor:
         self.filename = filename
         self.defaults = defaults
         self.update_every = update_every
+        self.session = session
         self.column_keys = None  # Determined after file analysis
         self.insert_stmt = self.table.insert()
         self.values = []  # Batch of rows to insert
@@ -637,6 +639,22 @@ class CSVProcessor:
 
         # ---- executemany: statement + list-of-dicts (no .values(...)) ----
         from sqlalchemy.exc import SQLAlchemyError
+
+        if self.session is not None:
+            try:
+                self.session.execute(self.insert_stmt, fixed)
+                self.flush_count += 1
+                logger.debug(
+                    "Flushed batch #%s for %s (caller session)",
+                    self.flush_count,
+                    self.table.name,
+                )
+            except SQLAlchemyError as e:
+                logger.exception("Batch insert failed for %s", self.table.name)
+                if self.worker_error is None:
+                    self.worker_error = e
+                raise
+            return
 
         with Session() as s:
             try:

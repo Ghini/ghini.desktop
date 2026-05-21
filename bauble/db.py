@@ -454,7 +454,11 @@ def open(uri, verify: bool = True, show_error_dialogs: bool = False):
 
     # Create the SQLAlchemy engine
     try:
-        poolclass = SingletonThreadPool if bauble.prefs.testing else NullPool
+        poolclass = (
+            SingletonThreadPool
+            if bauble.prefs.testing and "sqlite" in uri
+            else NullPool
+        )
 
         connect_args = {}
         if "sqlite" in uri and bauble.prefs.testing:

@@ -89,8 +89,12 @@ def setup_session(db_session) -> Any:
 
 
 @pytest.fixture(autouse=True)
-def clean_db(db_session) -> None:
+def clean_db(request) -> None:
     """Drop and recreate all tables for a clean database before each test."""
+    if request.node.get_closest_marker("postgresql"):
+        return
+
+    db_session = request.getfixturevalue("db_session")
     db.metadata.drop_all(bind=db.engine)
     db.metadata.create_all(bind=db.engine)
 

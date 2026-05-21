@@ -410,8 +410,7 @@ class XSLFormatterPlugin(FormatterPlugin):
         "create templates dir on plugin installation"
         logger.debug("installing xsl plugin")
         container_dir = os.path.join(bpaths.appdata_dir(), "res", "templates")
-        if not os.path.exists(container_dir):
-            os.mkdir(container_dir)
+        os.makedirs(container_dir, exist_ok=True)
 
     @classmethod
     def format(cls, objs, **kwargs):

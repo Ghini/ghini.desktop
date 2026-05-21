@@ -33,12 +33,6 @@ def postgresql_database(postgresql_uri):
             db.engine.dispose()
 
 
-@pytest.mark.xfail(
-    reason=(
-        "GitLab #18: PostgreSQL db.create(import_defaults=True) logs default "
-        "imports but leaves default tables empty."
-    )
-)
 def test_postgresql_database_create_imports_defaults(postgresql_database):
     with postgresql_database.engine.connect() as connection:
         family_count = connection.execute(
