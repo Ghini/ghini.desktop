@@ -186,6 +186,36 @@ controls. It is intentionally separate from `gtk-smoke` because it is slower,
 depends on accessibility names and roles, and is more sensitive to windowing
 behavior.
 
+Run the opt-in PostgreSQL regression lane:
+
+```sh
+scripts/docker-dev postgres-check
+```
+
+This command starts a disposable PostgreSQL container, runs a focused backend
+regression inside the Ghini development container, and removes the PostgreSQL
+container afterward. It is intended as a release or migration gate, not as the
+default fast development loop. The test database is disposable: `db.create()`
+drops and recreates the Ghini schema before importing defaults.
+
+Override the PostgreSQL lane image or credentials when needed:
+
+```sh
+GHINI_POSTGRES_IMAGE=postgres:16-alpine scripts/docker-dev postgres-check
+GHINI_POSTGRES_PASSWORD=secret scripts/docker-dev postgres-check
+```
+
+You can also point the PostgreSQL lane at an already available disposable
+database by running the test directly and setting `GHINI_TEST_POSTGRES_URI`:
+
+```sh
+GHINI_TEST_POSTGRES_URI=postgresql://ghini:ghini@postgres/ghini_test \
+  scripts/docker-dev run -- python -m pytest bauble/test/test_postgresql_lane.py -q
+```
+
+Do not point `GHINI_TEST_POSTGRES_URI` at a real garden database. The lane owns
+the target schema and recreates it.
+
 ## Formatting And Checks
 
 Format changed Python files with Black:

@@ -12,6 +12,7 @@ Usage:
   scripts/docker-dev check [paths...]
   scripts/docker-dev test-smoke
   scripts/docker-dev test-regression [pytest args...]
+  scripts/docker-dev postgres-check [pytest args...]
   scripts/docker-dev gtk-smoke [pytest args...]
   scripts/docker-dev gui-e2e [pytest args...]
   scripts/docker-dev gui-guided [scenario]
@@ -37,6 +38,8 @@ Useful overrides:
   GHINI_XHOST=1
   GHINI_TZ=<IANA timezone>
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
+  GHINI_DOCKER_NETWORK=<docker network mode>
+  GHINI_POSTGRES_IMAGE=postgres:16-alpine
 EOF
 }
 
@@ -212,6 +215,7 @@ run_container() {
         DB_USER \
         DB_PASSWORD \
         DB_SSLMODE \
+        GHINI_TEST_POSTGRES_URI \
         KRB5_CONFIG \
         KRB5_CLIENT_KTNAME \
         GHINI_GUIDED_WRITE_DEFAULT_CONFIG \
@@ -219,6 +223,10 @@ run_container() {
         DEBUG; do
         add_env_if_set "${env_name}"
     done
+
+    if [[ -n "${GHINI_DOCKER_NETWORK:-}" ]]; then
+        docker_args+=("--network" "${GHINI_DOCKER_NETWORK}")
+    fi
 
     allow_xhost
     docker run "${docker_args[@]}" "${image}" "$@"
@@ -321,6 +329,56 @@ run_test_regression() {
         "${script_dir}/docker-dev" gui-e2e
 }
 
+run_postgres_check() {
+    local pg_container="${GHINI_POSTGRES_CONTAINER:-ghini-postgres-check-$$}"
+    local pg_image="${GHINI_POSTGRES_IMAGE:-postgres:16-alpine}"
+    local pg_user="${GHINI_POSTGRES_USER:-ghini}"
+    local pg_password="${GHINI_POSTGRES_PASSWORD:-ghini}"
+    local pg_database="${GHINI_POSTGRES_DB:-ghini_test}"
+    local -a pytest_args=(bauble/test/test_postgresql_lane.py -q)
+    if [[ $# -gt 0 ]]; then
+        pytest_args=("$@")
+    fi
+
+    docker run \
+        --detach \
+        --rm \
+        --name "${pg_container}" \
+        --env "POSTGRES_USER=${pg_user}" \
+        --env "POSTGRES_PASSWORD=${pg_password}" \
+        --env "POSTGRES_DB=${pg_database}" \
+        "${pg_image}" >/dev/null
+
+    local ready=0
+    for _ in {1..30}; do
+        if docker exec "${pg_container}" \
+            pg_isready -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
+            ready=1
+            break
+        fi
+        sleep 1
+    done
+    if [[ "${ready}" != "1" ]]; then
+        docker logs "${pg_container}" >&2 || true
+        docker stop "${pg_container}" >/dev/null 2>&1 || true
+        echo "PostgreSQL test container did not become ready." >&2
+        return 1
+    fi
+
+    set +e
+    GHINI_XHOST=0 \
+        GHINI_SKIP_CONFIG_MOUNT=1 \
+        GHINI_DOCKER_NETWORK="container:${pg_container}" \
+        GHINI_TEST_POSTGRES_URI="postgresql://${pg_user}:${pg_password}@127.0.0.1:5432/${pg_database}" \
+        run_container postgres-check \
+        python -m pytest "${pytest_args[@]}"
+    local status=$?
+    set -e
+
+    docker stop "${pg_container}" >/dev/null 2>&1 || true
+    return "${status}"
+}
+
 run_gui_guided() {
     local skip_config_mount=0
     local arg
@@ -365,6 +423,9 @@ case "${command}" in
         ;;
     test-regression)
         run_test_regression "$@"
+        ;;
+    postgres-check)
+        run_postgres_check "$@"
         ;;
     gtk-smoke)
         run_gtk_smoke "$@"

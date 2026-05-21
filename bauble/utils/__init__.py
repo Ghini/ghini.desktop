@@ -1364,7 +1364,7 @@ def reset_sequence(column):
     for other database engines.
     """
     import bauble.db as db
-    from sqlalchemy import schema
+    from sqlalchemy import schema, text
     from sqlalchemy.types import Integer
 
     if db.engine.name != "postgresql":
@@ -1388,18 +1388,20 @@ def reset_sequence(column):
 
     try:
         with db.engine.begin() as conn:
-            stmt = f"SELECT {column.name} FROM {column.table.name} FOR UPDATE"
-            result = conn.execute(stmt)
-            vals = list(result)
-            maxid = max(vals, key=lambda x: x[0])[0] if vals else None
-
-            if maxid is None:
-                stmt = f"SELECT nextval('{sequence_name}')"
-            else:
-                stmt = f"SELECT setval('{sequence_name}', max({column.name})+1) FROM {column.table.name}"
-            conn.execute(stmt)
+            preparer = conn.dialect.identifier_preparer
+            table_name = preparer.format_table(column.table)
+            column_name = preparer.quote(column.name)
+            conn.execute(text(f"LOCK TABLE {table_name} IN SHARE ROW EXCLUSIVE MODE"))
+            stmt = text(
+                "SELECT setval("
+                "CAST(:sequence_name AS regclass), "
+                f"COALESCE(max({column_name}), 1), "
+                f"max({column_name}) IS NOT NULL"
+                f") FROM {table_name}"
+            )
+            conn.execute(stmt, {"sequence_name": sequence_name})
     except Exception as e:
-        logger.warning("bauble.utils.reset_sequence(): %s", utf8(e))
+        logger.warning("bauble.utils.reset_sequence(): %s", e)
 
 
 class WidgetStyler:
