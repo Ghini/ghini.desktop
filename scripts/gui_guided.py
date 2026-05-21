@@ -30,6 +30,15 @@ GUIDED_FIXTURE = {
     "plant_code": "1",
     "plant_search": '"GUIDED-ACC-001.1"',
     "seed_search": "family where epithet=Guidedaceae",
+    "daily_family_name": "Dailyaceae",
+    "daily_genus_name": "Dailygenus",
+    "daily_species_name": "dailyensis",
+    "daily_vernacular_name": "daily workflow plant",
+    "daily_accession_code": "DAILY-ACC-001",
+    "daily_source_name": "Daily Workflow Nursery",
+    "daily_source_id": "DW-2026-001",
+    "daily_location_code": "DAILY",
+    "daily_location_name": "Daily Workflow Bed",
 }
 GUIDED_FIXTURE_SEED_SCRIPT = """
 import sqlite3
@@ -369,6 +378,124 @@ SCENARIOS = {
                     "No integrity error dialog appears.",
                     "The plant editor closes after OK.",
                     "The saved plant can be found through search or the accession view.",
+                ),
+            ),
+        ),
+    ),
+    "daily-accession-workflow": Scenario(
+        name="daily-accession-workflow",
+        description=(
+            "Exercise the daily search, species, accession, source, and planting "
+            "workflow used for routine collection entry."
+        ),
+        checkpoints=(
+            Checkpoint(
+                name="Daily searches work",
+                instructions=(
+                    f"Connect to {GUIDED_CONNECTION_NAME} with --sqlite-fixture.",
+                    f"Search for all plants in location {GUIDED_FIXTURE['location_code']}.",
+                    (
+                        "Search for species: "
+                        f"{GUIDED_FIXTURE['genus_name']} {GUIDED_FIXTURE['species_name']}."
+                    ),
+                    f"Search for genus: {GUIDED_FIXTURE['genus_name']}.",
+                    "While entering search text, watch for autocomplete behavior.",
+                ),
+                expected=(
+                    "Location, species, and genus searches return the expected records.",
+                    "Search autocomplete is available where the application supports it.",
+                    "No traceback or error dialog appears.",
+                ),
+            ),
+            Checkpoint(
+                name="Species editor supports routine data entry",
+                instructions=(
+                    "Open Insert > Species.",
+                    (
+                        "Use genus autocomplete to select "
+                        f"{GUIDED_FIXTURE['genus_name']}."
+                    ),
+                    (
+                        "Enter species epithet: "
+                        f"{GUIDED_FIXTURE['daily_species_name']}."
+                    ),
+                    "Use the external lookup action to populate or confirm the author.",
+                    "Fill rank, infraspecific epithet, and author if the editor exposes them.",
+                    (
+                        "Open Additional info and add vernacular name: "
+                        f"{GUIDED_FIXTURE['daily_vernacular_name']}."
+                    ),
+                    "Add a short note on the Notes tab.",
+                ),
+                expected=(
+                    "Genus autocomplete selects the existing genus without freezing.",
+                    "External lookup is reachable and does not block local editing if no match is chosen.",
+                    "Additional info accepts a vernacular name for label use.",
+                    "Notes can be entered without changing the required-field state unexpectedly.",
+                ),
+            ),
+            Checkpoint(
+                name="Accession editor captures acquisition details",
+                instructions=(
+                    "Select Add Accession from the Species Editor.",
+                    (
+                        "Review the automatic accession ID and change it to "
+                        f"{GUIDED_FIXTURE['daily_accession_code']} if needed."
+                    ),
+                    "Set type of material.",
+                    "Enter quantity.",
+                    "Enter date accessioned and date received.",
+                    "Set provenance and wild status.",
+                ),
+                expected=(
+                    "The accession editor inherits the selected species.",
+                    "Accession ID can be kept or manually changed.",
+                    "Material, quantity, dates, provenance, and wild status are retained.",
+                    "No validation or integrity error appears while moving between fields.",
+                ),
+            ),
+            Checkpoint(
+                name="Source tab supports source selection",
+                instructions=(
+                    "Open the Source tab.",
+                    (
+                        f"If {GUIDED_FIXTURE['daily_source_name']} is not present, "
+                        "use New to add it."
+                    ),
+                    (
+                        f"Select {GUIDED_FIXTURE['daily_source_name']} from the "
+                        "source control."
+                    ),
+                    f"Enter source ID: {GUIDED_FIXTURE['daily_source_id']}.",
+                    "Optionally add a source note.",
+                ),
+                expected=(
+                    "New source creation returns cleanly to the accession source workflow.",
+                    "The source list does not show duplicate entries.",
+                    "Sources are ordered predictably and are practical to find.",
+                    "Autocomplete or equivalent fast selection is available for the source control.",
+                    "The selected source and source ID are retained.",
+                ),
+            ),
+            Checkpoint(
+                name="Planting is created from accession",
+                instructions=(
+                    "Select Add plants.",
+                    "Set plant material.",
+                    "Enter quantity.",
+                    (
+                        f"Enter location {GUIDED_FIXTURE['daily_location_code']}, "
+                        f"adding location {GUIDED_FIXTURE['daily_location_name']} "
+                        "if needed."
+                    ),
+                    "Save the plant, accession, and species workflow.",
+                ),
+                expected=(
+                    "The Plant Editor opens with the accession context populated.",
+                    "Plant material choices are visible and understandable.",
+                    "Quantity and location are retained.",
+                    "Saving closes the workflow without traceback or integrity errors.",
+                    "The final plant can be found by search.",
                 ),
             ),
         ),
