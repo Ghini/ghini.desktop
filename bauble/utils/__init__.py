@@ -178,7 +178,10 @@ def safe_set_text(gtk_widget, text) -> None:
             text = text.decode("utf-8", errors="replace")  # Safely decode bytes
         elif not isinstance(text, str):
             text = str(text)  # Ensure it's a string
-        gtk_widget.set_text(text)
+        if hasattr(gtk_widget, "set_text"):
+            gtk_widget.set_text(text)
+        else:
+            gtk_widget.set_property("text", text)
     except AttributeError as e:
         raise TypeError(f"Invalid widget or text: {gtk_widget}, {text}") from e
 

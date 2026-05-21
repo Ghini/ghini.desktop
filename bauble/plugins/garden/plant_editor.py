@@ -382,6 +382,18 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.initializing = True
 
         def on_location_select(location):
+            if isinstance(location, str):
+                from bauble.plugins.garden.models import Location
+
+                location = (
+                    self.session.execute(
+                        select(Location).where(
+                            utils.ilike(Location.code, utils.to_unicode(location))
+                        )
+                    )
+                    .scalars()
+                    .one_or_none()
+                )
             if self.initializing:
                 return
             self.set_model_attr("location", location)
@@ -423,14 +435,31 @@ class PlantEditorPresenter(GenericEditorPresenter):
         def acc_get_completions(text):
             from bauble.plugins.garden.models import Accession
 
-            query = self.session.execute(
-                select(Accession)
-                .where(Accession.code.like(str(f"{text}%")))
-                .order_by(Accession.code)
-            ).scalars()
+            query = (
+                self.session.execute(
+                    select(Accession)
+                    .where(Accession.code.like(str(f"{text}%")))
+                    .order_by(Accession.code)
+                )
+                .scalars()
+                .all()
+            )
             return query
 
         def on_select(value):
+            if isinstance(value, str):
+                from bauble.plugins.garden.models import Accession
+
+                if self.model.accession and self.model.accession.code == value:
+                    value = self.model.accession
+                else:
+                    value = (
+                        self.session.execute(
+                            select(Accession).where(Accession.code == value)
+                        )
+                        .scalars()
+                        .one_or_none()
+                    )
             self.set_model_attr("accession", value)
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946

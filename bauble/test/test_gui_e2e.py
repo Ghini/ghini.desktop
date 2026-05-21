@@ -1273,13 +1273,6 @@ def test_can_edit_existing_plant_from_result_context_menu(
     assert old_code_count == 0
 
 
-@pytest.mark.xfail(
-    reason=(
-        "GitLab #2: the propagation editor opens "
-        "from the plant editor, but the accession/plant/propagation save chain does "
-        "not yet persist the expected records reliably under GUI automation."
-    )
-)
 def test_can_create_seed_propagation_from_plant_editor(
     dogtail_modules, sqlite_connection, ghini_process_factory
 ):
@@ -1289,48 +1282,41 @@ def test_can_create_seed_propagation_from_plant_editor(
     location_name = "E2E Propagation Bed"
     plant_code = "1"
     propagation_date = "2026-05-13"
+    propagation_date_input = "13-05-2026"
     genus_name = "Eepropgenus"
     species_name = "eopropagation"
 
-    seed_taxonomy_location_fixture(
+    seed_plant_fixture(
         sqlite_connection["database_file"],
         family_name="EEPROPACEAE",
         genus_name=genus_name,
         species_name=species_name,
+        accession_code=accession_code,
+        plant_code=plant_code,
         location_code=location_code,
         location_name=location_name,
     )
 
     ghini_process = ghini_process_factory()
     main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
 
-    activate_menu_item(main_window, "Insert", role_name="menu")
-    activate_menu_item(dogtail_tree.root, "Accession", role_name="menu item")
-
-    accession_editor = wait_for_node(
+    enter_text(search_entry, f"{accession_code}.{plant_code}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+    result = wait_for_node(
         dogtail_tree,
-        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+        lambda node: node.roleName in {"table cell", "label"}
+        and f"{accession_code}.{plant_code}" in node.name,
+        timeout=20,
     )
-    dogtail_rawinput.typeText(f"{genus_name} {species_name}")
-    dogtail_rawinput.pressKey("Tab")
-
-    accession_entries = find_children_by_role(accession_editor, "text")
-    assert len(accession_entries) >= 2, dump_accessible_tree(accession_editor)
-    enter_text(accession_entries[1], accession_code, dogtail_rawinput)
-
-    find_named_child(accession_editor, "Add plants", role_name="push button").click()
+    right_click_node_center(result, dogtail_rawinput)
+    activate_menu_item(dogtail_tree.root, "Edit", role_name="menu item")
 
     plant_editor = wait_for_node(
         dogtail_tree,
         lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
     )
-    plant_entries = find_children_by_role(plant_editor, "text")
-    assert len(plant_entries) >= 4, dump_accessible_tree(plant_editor)
-    enter_text(plant_entries[0], accession_code, dogtail_rawinput)
-    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
-    enter_text(plant_entries[3], "1", dogtail_rawinput)
-    enter_text(plant_entries[2], location_code, dogtail_rawinput)
-    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
 
     propagation_tab = find_named_child(plant_editor, "Propagations", showing_only=True)
     assert propagation_tab is not None, dump_accessible_tree(plant_editor)
@@ -1345,20 +1331,21 @@ def test_can_create_seed_propagation_from_plant_editor(
         dogtail_tree,
         lambda node: node.roleName == "dialog" and node.name == "Propagation Editor",
     )
-    propagation_entries = [
-        entry
-        for entry in find_children_by_role(propagation_editor, "text")
-        if getattr(entry, "showing", True)
-    ]
+    propagation_entries = find_visible_text_entries_by_position(propagation_editor)
     assert len(propagation_entries) >= 4, dump_accessible_tree(propagation_editor)
-    enter_text(propagation_entries[0], propagation_date, dogtail_rawinput)
-    enter_text(propagation_entries[1], "12", dogtail_rawinput)
-    enter_text(propagation_entries[3], propagation_date, dogtail_rawinput)
+    enter_text(propagation_entries[0], propagation_date_input, dogtail_rawinput)
+    enter_text(propagation_entries[2], "12", dogtail_rawinput)
+    enter_text(propagation_entries[3], propagation_date_input, dogtail_rawinput)
 
     propagation_ok = find_named_child(propagation_editor, "OK", role_name="push button")
     propagation_values = [accessible_text(entry) for entry in propagation_entries]
     assert propagation_ok is not None, propagation_values
-    assert getattr(propagation_ok, "sensitive", True), propagation_values
+    assert getattr(propagation_ok, "sensitive", True), "\n".join(
+        f"{index}: {value!r} pos={entry.position} size={entry.size}"
+        for index, (entry, value) in enumerate(
+            zip(propagation_entries, propagation_values)
+        )
+    )
     propagation_ok.click()
     wait_for_absence(
         dogtail_tree,
@@ -1367,27 +1354,21 @@ def test_can_create_seed_propagation_from_plant_editor(
     )
 
     plant_ok = find_named_child(plant_editor, "OK", role_name="push button")
-    plant_values = [accessible_text(entry) for entry in plant_entries[:4]]
-    assert plant_ok is not None, plant_values
-    assert getattr(plant_ok, "sensitive", True), plant_values
+    assert plant_ok is not None, dump_accessible_tree(plant_editor)
+    assert getattr(plant_ok, "sensitive", True), "\n".join(
+        f"{index}: {accessible_text(entry)!r} pos={entry.position} size={entry.size}"
+        for index, entry in enumerate(
+            find_visible_text_entries_by_position(plant_editor)
+        )
+    )
     plant_ok.click()
     wait_for_absence(
         dogtail_tree,
         lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
         timeout=20,
     )
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
 
-    accession_ok = find_named_child(accession_editor, "OK", role_name="push button")
-    assert accession_ok is not None, dump_accessible_tree(accession_editor)
-    assert getattr(accession_ok, "sensitive", True), dump_accessible_tree(
-        accession_editor
-    )
-    accession_ok.click()
-    wait_for_absence(
-        dogtail_tree,
-        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
-        timeout=20,
-    )
     terminate_process(ghini_process)
 
     propagation_rows = fetch_sqlite_database(
@@ -1493,6 +1474,15 @@ def find_children_by_role(node, role_name):
     return matches
 
 
+def find_visible_text_entries_by_position(node):
+    entries = [
+        entry
+        for entry in find_children_by_role(node, "text")
+        if getattr(entry, "showing", True)
+    ]
+    return sorted(entries, key=lambda entry: (entry.position[1], entry.position[0]))
+
+
 def enter_text(node, text, dogtail_rawinput):
     x, y = node.position
     width, height = node.size
@@ -1519,6 +1509,48 @@ def click_node_center(node, dogtail_rawinput):
     width, height = node.size
     dogtail_rawinput.click(x + width // 2, y + height // 2)
     time.sleep(0.1)
+
+
+def activate_node(node, dogtail_rawinput):
+    try:
+        if "click" in node.actions:
+            node.doActionNamed("click")
+            time.sleep(0.1)
+            return
+        if "activate" in node.actions:
+            node.doActionNamed("activate")
+            time.sleep(0.1)
+            return
+    except Exception:
+        pass
+    click_node_center(node, dogtail_rawinput)
+
+
+def fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, process=None):
+    alert = dogtail_tree.root.findChild(
+        lambda node: node.roleName == "alert" and getattr(node, "showing", True),
+        recursive=True,
+        retry=False,
+        requireResult=False,
+    )
+    if alert is None:
+        return
+
+    details = find_named_child(alert, "Details", role_name="toggle button")
+    if details is not None:
+        activate_node(details, dogtail_rawinput)
+        time.sleep(0.2)
+
+    stderr = ""
+    if process is not None:
+        terminate_process(process)
+        stderr = process.stderr.read() if process.stderr is not None else ""
+
+    raise AssertionError(
+        "Unexpected GUI error alert.\n\n"
+        f"Accessible tree:\n{dump_accessible_tree(alert, max_depth=8)}\n\n"
+        f"stderr:\n{stderr}"
+    )
 
 
 def right_click_node_center(node, dogtail_rawinput):

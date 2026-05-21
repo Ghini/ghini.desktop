@@ -327,6 +327,8 @@ def init_location_comboentry(presenter, combo, on_select, required: bool = True)
     def match_func(completion, key, treeiter, data=None):
         logger.debug("match_func")
         loc = completion.get_model()[treeiter][0]
+        if not loc:
+            return False
         return (loc.name and loc.name.lower().startswith(key.lower())) or (
             loc.code and loc.code.lower().startswith(key.lower())
         )
@@ -377,11 +379,13 @@ def init_location_comboentry(presenter, combo, on_select, required: bool = True)
                 )
             ).scalars()
         )
-        names = presenter.session.execute(
-            select(Location).where(
-                utils.ilike(Location.name, f"{utils.to_unicode(name)}")
-            )
-        ).scalars()
+        names = list(
+            presenter.session.execute(
+                select(Location).where(
+                    utils.ilike(Location.name, f"{utils.to_unicode(name)}")
+                )
+            ).scalars()
+        )
         if len(codes) == 1:
             logger.debug("location matches code")
             location = codes[0]
