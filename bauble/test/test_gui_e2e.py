@@ -290,6 +290,62 @@ def test_can_search_existing_species(dogtail_modules, sqlite_connection, ghini_p
     )
 
 
+def test_can_search_existing_accession(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEACCSEARCHACEAE"
+    genus_name = "Eeaccsearchgenus"
+    species_name = "eoaccsearch"
+    accession_code = "ACC-SEARCH-001"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name=species_name,
+        accession_code=accession_code,
+        plant_code="1",
+        location_code="AS01",
+        location_name="E2E Accession Search Bed",
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(search_entry, f"accession where code={accession_code}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    results_view = find_child_by_role(main_window, "table")
+    assert results_view is not None, dump_accessible_tree(main_window)
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and accession_code in node.name,
+        timeout=20,
+    )
+
+    accession_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select count(*) from accession "
+            "join species on accession.species_id = species.id "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "where accession.code = ? "
+            "and species.epithet = ? "
+            "and genus.epithet = ? "
+            "and family.epithet = ?"
+        ),
+        accession_code,
+        species_name,
+        genus_name,
+        family_name,
+    )
+    assert accession_count == 1
+
+
 def test_can_edit_existing_family_from_result_context_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):
