@@ -454,6 +454,16 @@ def parse_args() -> argparse.Namespace:
             "result when no path is supplied."
         ),
     )
+    parser.add_argument(
+        "--issue-body",
+        nargs="?",
+        const="latest",
+        metavar="RESULT_JSON",
+        help=(
+            "Print a GitLab issue body for RESULT_JSON, or the latest guided "
+            "result when no path is supplied."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -813,6 +823,112 @@ def print_summary(path: Path, result: dict[str, object]) -> None:
         )
 
 
+def _markdown_code_block(value: object, *, language: str = "text") -> str:
+    text = "" if value is None else str(value)
+    return f"```{language}\n{text.rstrip()}\n```"
+
+
+def _format_context_value(value: object) -> str:
+    text = "" if value is None else str(value)
+    return text if text else "(not recorded)"
+
+
+def format_issue_body(path: Path, result: dict[str, object]) -> str:
+    checkpoints = result.get("checkpoints", [])
+    if not isinstance(checkpoints, list):
+        checkpoints = []
+
+    failed_checkpoints = [
+        checkpoint
+        for checkpoint in checkpoints
+        if isinstance(checkpoint, dict) and checkpoint.get("result") == "fail"
+    ]
+    relevant_checkpoints = failed_checkpoints or [
+        checkpoint for checkpoint in checkpoints if isinstance(checkpoint, dict)
+    ]
+
+    run_context = result.get("run_context", {})
+    if not isinstance(run_context, dict):
+        run_context = {}
+    fixture = result.get("fixture", {})
+    if not isinstance(fixture, dict):
+        fixture = {}
+
+    lines = [
+        "## Summary",
+        "",
+        "Guided visual test finding from "
+        f"`{_format_context_value(result.get('scenario'))}`.",
+        "",
+        "## Result Artifact",
+        "",
+        f"- Artifact: `{path}`",
+        f"- Started: {_format_context_value(result.get('started_at'))}",
+        f"- Finished: {_format_context_value(result.get('finished_at'))}",
+        f"- App return code: {_format_context_value(result.get('app_returncode'))}",
+        "",
+        "## Git Context",
+        "",
+        f"- Branch: `{_format_context_value(run_context.get('git_branch'))}`",
+        f"- Commit: `{_format_context_value(run_context.get('git_commit'))}`",
+        f"- Describe: `{_format_context_value(run_context.get('git_describe'))}`",
+        f"- Display: `{_format_context_value(run_context.get('display'))}`",
+        "",
+        "## Checkpoints",
+        "",
+    ]
+
+    if not relevant_checkpoints:
+        lines.append("- No checkpoint results were recorded.")
+    for checkpoint in relevant_checkpoints:
+        result_text = str(checkpoint.get("result", "")).upper() or "UNKNOWN"
+        name = _format_context_value(checkpoint.get("name"))
+        note = _format_context_value(checkpoint.get("note"))
+        recorded_at = _format_context_value(checkpoint.get("recorded_at"))
+        lines.extend(
+            [
+                f"- [{result_text}] {name}",
+                f"  - Recorded: {recorded_at}",
+                f"  - Notes: {note}",
+            ]
+        )
+
+    if fixture:
+        lines.extend(
+            [
+                "",
+                "## Fixture",
+                "",
+                f"- Connection: `{_format_context_value(fixture.get('connection_name'))}`",
+                f"- Database: `{_format_context_value(fixture.get('database_file'))}`",
+                f"- Seed search: `{_format_context_value(fixture.get('seed_search'))}`",
+                f"- Plant search: `{_format_context_value(fixture.get('plant_search'))}`",
+            ]
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Captured stdout",
+            "",
+            _markdown_code_block(result.get("stdout")),
+            "",
+            "## Captured stderr",
+            "",
+            _markdown_code_block(result.get("stderr")),
+            "",
+            "## Suggested Labels",
+            "",
+            "`bug`, `gui`, `guided-test`, `needs-investigation`",
+        ]
+    )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def print_issue_body(path: Path, result: dict[str, object]) -> None:
+    print(format_issue_body(path, result), end="")
+
+
 def main() -> int:
     args = parse_args()
     if args.summary:
@@ -826,6 +942,10 @@ def main() -> int:
             for checkpoint in checkpoints
         )
         return 1 if failed else 0
+    if args.issue_body:
+        path, result = load_result(args.issue_body, Path(args.result_dir))
+        print_issue_body(path, result)
+        return 0
     if args.list:
         list_scenarios()
         return 0

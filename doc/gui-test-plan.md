@@ -81,6 +81,7 @@ scripts/docker-dev gui-guided delete-confirmation --sqlite-fixture
 scripts/docker-dev gui-guided connection-manager
 scripts/docker-dev gui-guided propagation-workflow
 scripts/docker-dev gui-guided --summary
+scripts/docker-dev gui-guided --issue-body
 ```
 
 This layer runs the application visibly on the host display and prompts the
@@ -98,6 +99,11 @@ can inspect the visible window at useful points.
 
 Use `--summary` after a guided run to print the latest JSON result in a readable
 form. Pass an artifact path to summarize a specific run.
+
+Use `--issue-body` after a guided run to print a GitLab-ready markdown issue
+body for the latest JSON result. Pass an artifact path to generate an issue body
+for a specific run. The generated body includes failed checkpoint notes, branch
+and commit, fixture details, and captured stdout/stderr.
 
 Use `--sqlite-fixture` when the scenario should run against a disposable,
 known-good SQLite database instead of saved local connection settings. The
@@ -138,14 +144,14 @@ The following paths are the initial target set. This is intentionally narrow.
 | --- | --- | --- | --- |
 | Connection manager opens | yes | yes | Validates startup and saved connection UI. |
 | Connect to database and open main window | yes | yes | Use SQLite for automation; PostgreSQL for guided local checks. |
-| Search existing records | todo | yes | Tracked by GitLab #3. |
+| Search existing records | yes | yes | Species, accession, and plant searches covered by Dogtail E2E. |
 | Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`. |
 | Create accession from species | yes | optional | Covered by Dogtail E2E. |
 | Create location | yes | yes | Guided scenario: `location-create`. |
 | Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
 | Create seed propagation from plant | xfail | yes | Current GUI test documents GitLab #2. |
-| Edit existing family/genus/species/accession/plant/location | todo | yes | Guided scenario: `edit-record`; broader workflow tracked by GitLab #4. |
-| Delete/remove confirmation dialogs | todo | yes | Guided scenario: `delete-confirmation`; broader workflow tracked by GitLab #5. |
+| Edit existing family/genus/species/accession/plant/location | partial | yes | Family, location, and accession pass; plant edit xfails against GitLab #17. |
+| Delete/remove confirmation dialogs | yes | yes | Family delete cancel/confirm covered by Dogtail E2E. |
 
 ## Bug Recording Policy
 
@@ -188,6 +194,13 @@ checkpoint result is `fail`, create a GitLab issue and include:
 - app stdout/stderr from the JSON artifact
 - screenshots if available
 - branch and commit tested
+
+The helper command below generates a clean starter body with those fields:
+
+```sh
+scripts/docker-dev gui-guided --issue-body
+scripts/docker-dev gui-guided --issue-body test-results/gui-guided/<artifact>.json
+```
 
 Do not commit routine guided result artifacts. Commit a guided result only when
 it is intentionally used as evidence for a regression or merge request.
