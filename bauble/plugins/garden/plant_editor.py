@@ -447,7 +447,13 @@ class PlantEditorPresenter(GenericEditorPresenter):
             return query
 
         def on_select(value):
-            if isinstance(value, str):
+            if value is None and self.model.accession:
+                entry_text = utils.to_unicode(
+                    self.view.widgets.plant_acc_entry.get_text()
+                )
+                if self.model.accession.code == entry_text:
+                    value = self.model.accession
+            elif isinstance(value, str):
                 from bauble.plugins.garden.models import Accession
 
                 if self.model.accession and self.model.accession.code == value:
@@ -613,7 +619,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             logger.debug(f"({type(e)}){e}")
             return
         logger.debug(self.problems)
-
         # TODO: because we don't call refresh_sensitivity() every time a
         # character is entered then the edit button doesn't sensitize
         # properly

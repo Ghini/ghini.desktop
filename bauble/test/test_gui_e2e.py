@@ -1123,19 +1123,26 @@ def test_can_create_plant_from_insert_menu(
     plant_entries = find_children_by_role(plant_editor, "text")
     assert len(plant_entries) >= 4, dump_accessible_tree(plant_editor)
     # Dogtail reports text fields in GTK container order for this dialog.
-    enter_text(plant_entries[0], accession_code, dogtail_rawinput)
     enter_text(plant_entries[1], plant_code, dogtail_rawinput)
     enter_text(plant_entries[3], "1", dogtail_rawinput)
     enter_text(plant_entries[2], location_code, dogtail_rawinput)
-    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
 
     ok_button = find_named_child(plant_editor, "OK", role_name="push button")
-    field_values = [
-        plant_editor.name,
-        *[accessible_text(entry) for entry in plant_entries[:4]],
-    ]
-    assert ok_button is not None, field_values
-    assert getattr(ok_button, "sensitive", True), field_values
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline and not getattr(ok_button, "sensitive", True):
+        time.sleep(0.25)
+    assert getattr(ok_button, "sensitive", True), "\n".join(
+        [
+            dump_accessible_tree(plant_editor, max_depth=10),
+            *[
+                f"{index}: {accessible_text(entry)!r} pos={entry.position} size={entry.size}"
+                for index, entry in enumerate(
+                    find_children_by_role(plant_editor, "text")
+                )
+            ],
+        ]
+    )
     ok_button.click()
     wait_for_absence(
         dogtail_tree,

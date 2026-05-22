@@ -35,7 +35,7 @@ def define_accession_plant_relationships(accession: "Accession", plant: "Plant")
         accession,
         back_populates="plants",
         uselist=False,
-        cascade="save-update",
+        cascade="save-update, merge",
         active_history=True,
     )
 
@@ -114,7 +114,7 @@ def define_location_relationships(
         location,
         back_populates="plants",
         uselist=False,  # A Plant belongs to one Location
-        cascade="save-update",
+        cascade="save-update, merge",
         active_history=True,
     )
 
