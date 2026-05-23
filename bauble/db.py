@@ -54,6 +54,23 @@ def utc_now() -> datetime.datetime:
     return datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
 
 
+def is_connection_invalidated_error(exc) -> bool:
+    """Return True when SQLAlchemy reports a dropped DBAPI connection."""
+    if isinstance(exc, sa.exc.DBAPIError) and exc.connection_invalidated:
+        return True
+
+    if isinstance(exc, (sa.exc.InterfaceError, sa.exc.OperationalError)):
+        message = str(getattr(exc, "orig", exc)).lower()
+        closed_connection_text = (
+            "connection already closed",
+            "server closed the connection",
+            "closed the connection unexpectedly",
+        )
+        return any(text in message for text in closed_connection_text)
+
+    return False
+
+
 def _parse_timestamp(value):
     timestamp = parse_date(value)
     if timestamp.tzinfo is None:

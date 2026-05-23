@@ -4,6 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import sqlalchemy.exc as saexc
 
 import bauble
 import bauble.connmgr as connmgr
@@ -506,6 +507,59 @@ def test_result_expand_keeps_retry_child_for_empty_rows(session):
 
     assert search_view.on_test_expand_row(tree, parent, model.get_path(parent)) is True
     assert model.iter_n_children(parent) == 1
+
+
+def test_search_retries_once_after_invalidated_connection(monkeypatch):
+    class FakeSession:
+        def __init__(self, name) -> None:
+            self.name = name
+            self.closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    class FakeSessionFactory:
+        def __init__(self) -> None:
+            self.sessions = [FakeSession("fresh")]
+            self.removed = False
+
+        def __call__(self):
+            return self.sessions.pop(0)
+
+        def remove(self) -> None:
+            self.removed = True
+
+    original_session = FakeSession("original")
+    session_factory = FakeSessionFactory()
+    calls = []
+    connection_error = saexc.DBAPIError(
+        "select 1",
+        {},
+        Exception("connection already closed"),
+        connection_invalidated=True,
+    )
+
+    def fake_search(text, session):
+        calls.append((text, session.name))
+        if len(calls) == 1:
+            raise connection_error
+        return ["result"]
+
+    search_view = view.SearchView.__new__(view.SearchView)
+    search_view.session = original_session
+
+    monkeypatch.setattr(view.db, "Session", session_factory)
+    monkeypatch.setattr(view.search, "search", fake_search)
+
+    assert search_view._search_with_reconnect("family where epithet=Guidedaceae") == [
+        "result"
+    ]
+    assert calls == [
+        ("family where epithet=Guidedaceae", "original"),
+        ("family where epithet=Guidedaceae", "fresh"),
+    ]
+    assert original_session.closed
+    assert session_factory.removed
 
 
 def test_create_menu_item_with_image_uses_single_gtk_menu_child():

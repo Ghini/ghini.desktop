@@ -1134,6 +1134,30 @@ class SearchView(pluginmgr.View):
 
     nresults_statusbar_context: str = "searchview.nresults"
 
+    def reset_session(self) -> None:
+        """Close the current session and attach a fresh default session."""
+        current_session = getattr(self, "session", None)
+        if current_session is not None:
+            try:
+                current_session.close()
+            except Exception as e:
+                logger.warning("Failed to close search session: %s", e)
+        db.Session.remove()
+        self.session = db.Session()
+
+    def _search_with_reconnect(self, text):
+        try:
+            return search.search(text, self.session)
+        except saexc.SQLAlchemyError as e:
+            if not db.is_connection_invalidated_error(e):
+                raise
+            logger.warning(
+                "Search database connection was invalidated; resetting session and retrying once: %s",
+                e,
+            )
+            self.reset_session()
+            return search.search(text, self.session)
+
     def search(self, text):
         """
         Search the database using the provided text.
@@ -1152,7 +1176,7 @@ class SearchView(pluginmgr.View):
                 self.session.rollback()  # Rollback any pending transactions
         except Exception as e:
             logger.warning("Failed to rollback session: %s", e)
-            self.session = db.Session()  # Reinitialize session if rollback fails
+            self.reset_session()
 
         # Prepare variables
         error_msg = None
@@ -1162,7 +1186,7 @@ class SearchView(pluginmgr.View):
 
         try:
             # Perform the search query
-            results = search.search(text, self.session)
+            results = self._search_with_reconnect(text)
             logger.debug("UI received %d search results", len(results))
             if results:
                 first = next(iter(results))

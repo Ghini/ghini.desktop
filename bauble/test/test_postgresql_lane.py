@@ -117,3 +117,27 @@ def test_postgresql_can_persist_core_taxonomy_fixture(postgresql_database):
         ).all()
 
     assert rows == [("PG-ACC-001", "pgcheckspecies", "Pgcheckgenus", "PGCHECKACEAE")]
+
+
+def test_postgresql_session_recovers_after_backend_disconnect(postgresql_database):
+    session = postgresql_database.Session()
+
+    try:
+        backend_pid = session.execute(text("select pg_backend_pid()")).scalar_one()
+        with postgresql_database.engine.begin() as connection:
+            terminated = connection.execute(
+                text("select pg_terminate_backend(:pid)"),
+                {"pid": backend_pid},
+            ).scalar_one()
+        assert terminated
+
+        with pytest.raises(Exception) as excinfo:
+            session.execute(text("select 1")).scalar_one()
+
+        assert postgresql_database.is_connection_invalidated_error(excinfo.value)
+
+        session.rollback()
+        assert session.execute(text("select 1")).scalar_one() == 1
+    finally:
+        session.close()
+        postgresql_database.Session.remove()
