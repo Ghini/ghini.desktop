@@ -74,10 +74,12 @@ Command:
 ```sh
 scripts/docker-dev gui-guided --list
 scripts/docker-dev gui-guided visual-smoke --sqlite-fixture
+scripts/docker-dev gui-guided connect-main-window --sqlite-fixture
 scripts/docker-dev gui-guided taxonomy-create --sqlite-fixture
 scripts/docker-dev gui-guided location-create --sqlite-fixture
 scripts/docker-dev gui-guided edit-record --sqlite-fixture
 scripts/docker-dev gui-guided delete-confirmation --sqlite-fixture
+scripts/docker-dev gui-guided daily-accession-workflow --sqlite-fixture
 scripts/docker-dev gui-guided connection-manager
 scripts/docker-dev gui-guided propagation-workflow
 scripts/docker-dev gui-guided --summary
@@ -147,10 +149,11 @@ The following paths are the initial target set. This is intentionally narrow.
 | Search existing records | yes | yes | Species, accession, and plant searches covered by Dogtail E2E. |
 | Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`. |
 | Create accession from species | yes | optional | Covered by Dogtail E2E. |
+| Select existing accession source | yes | yes | Covered by Dogtail E2E; guided in `daily-accession-workflow`. |
 | Create location | yes | yes | Guided scenario: `location-create`. |
 | Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
-| Create seed propagation from plant | xfail | yes | Current GUI test documents GitLab #2. |
-| Edit existing family/genus/species/accession/plant/location | partial | yes | Family, location, and accession pass; plant edit xfails against GitLab #17. |
+| Create seed propagation from plant | yes | yes | Dogtail E2E verifies seed propagation and database state. |
+| Edit existing family/genus/species/accession/plant/location | partial | yes | Family, accession, location, and plant edit pass; genus/species edit remain covered by creation-chain and guided workflows. |
 | Delete/remove confirmation dialogs | yes | yes | Family delete cancel/confirm covered by Dogtail E2E. |
 
 ## Bug Recording Policy
@@ -205,8 +208,8 @@ scripts/docker-dev gui-guided --issue-body test-results/gui-guided/<artifact>.js
 Do not commit routine guided result artifacts. Commit a guided result only when
 it is intentionally used as evidence for a regression or merge request.
 
-Tracked follow-up: GitLab #6 covers making the guided visual workflow repeatable
-across the current critical-path scenarios.
+GitLab #6 recorded the initial guided visual workflow implementation. Keep this
+plan current when adding or retiring guided scenarios.
 
 ## Development Rules
 
