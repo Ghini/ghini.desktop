@@ -88,6 +88,7 @@ Ghini Development
    :maxdepth: 2
 
    building
+   taxonomic-lookup
    template-letters
 
 Supporting Ghini
@@ -105,4 +106,3 @@ please consider `donating <https://pledgie.com/campaigns/29188>`_
 .. * :ref:`genindex`
 .. * :ref:`modindex`
 .. * :ref:`search`
-

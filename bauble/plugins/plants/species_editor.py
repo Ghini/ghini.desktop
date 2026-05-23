@@ -212,7 +212,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     for k, v in list(accepted.items())
                 }
 
-            msg_box_msg = _("No match found on ThePlantList.org")
+            msg_box_msg = _("No match found on World Flora Online")
 
             if not (found is None and accepted is None):
 
@@ -222,7 +222,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     and self.model.author == found["Authorship"]
                     and self.model.hybrid == (found["Species hybrid marker"] == "×")
                 ):
-                    msg_box_msg = _("your data finely matches ThePlantList.org")
+                    msg_box_msg = _("your data matches World Flora Online")
                 else:
                     cit = (
                         "<i>{Genus}</i> {Species hybrid marker}"
@@ -332,7 +332,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             timeout = prefs.get("network_timeout", 4)
             AskTPL(binomial, sp_species_TPL_callback, timeout=timeout, gui=True).start()
             b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
-            b0.message = _("querying the plant list")
+            b0.message = _("querying World Flora Online")
             b0.on_response = lambda b, r: self.view.remove_box(b0)
             self.view.add_box(b0)
             b0.show()
