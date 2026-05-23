@@ -54,6 +54,7 @@ from bauble.test import check_dupids, update_gui
 from bauble.utils import ilike
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import object_session
 
 accession_test_data: Any
 default_cutting_values: Any
@@ -247,6 +248,16 @@ def test_is_code_unique(plant_data) -> None:
     assert is_code_unique(plant, "01")
     assert not is_code_unique(plant, "1-2")
     assert not is_code_unique(plant, "01-2")
+
+
+def test_is_code_unique_keeps_attached_session(db_session, plant_data) -> None:
+    """The uniqueness check must not close the editor's scoped session."""
+    plant = plant_data["plant"]
+    plant.code = "2"
+
+    assert is_code_unique(plant, "2")
+    assert object_session(plant) is db_session
+    assert plant in db_session.dirty
 
 
 def test_living_plant_has_no_date_of_death(plant_data) -> None:

@@ -1318,12 +1318,6 @@ def test_can_create_plant_from_insert_menu(
     assert plant_count == 1, plant_rows
 
 
-@pytest.mark.xfail(
-    reason=(
-        "GitLab #17: Plant Editor closes after a planting code edit, "
-        "but the changed code is not persisted."
-    )
-)
 def test_can_edit_existing_plant_from_result_context_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -1372,6 +1366,7 @@ def test_can_edit_existing_plant_from_result_context_menu(
     assert plant_code_entry is not None, dump_accessible_tree(plant_editor)
 
     enter_text(plant_code_entry, edited_plant_code, dogtail_rawinput)
+    assert accessible_text(plant_code_entry) == edited_plant_code
 
     ok_button = find_named_child(plant_editor, "OK", role_name="push button")
     assert ok_button is not None, dump_accessible_tree(plant_editor)

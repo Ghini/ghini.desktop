@@ -222,7 +222,10 @@ def is_code_unique(plant, code):
     # reference accesssion.id instead of accession_id since
     # setting the accession on the model doesn't set the
     # accession_id until the session is flushed
-    session = db.Session()
+    session = object_session(plant)
+    should_close_session = session is None
+    if should_close_session:
+        session = db.Session()
 
     stmt = select(func.count()).select_from(
         select(Plant)
@@ -237,10 +240,12 @@ def is_code_unique(plant, code):
     )
 
     try:
-        count = session.execute(stmt, {"codes": codes}).scalar_one()
+        with session.no_autoflush:
+            count = session.execute(stmt, {"codes": codes}).scalar_one()
         return count == 0
     finally:
-        session.close()
+        if should_close_session:
+            session.close()
 
 
 class PlantEditorView(GenericEditorView):
