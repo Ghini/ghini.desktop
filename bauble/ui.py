@@ -41,6 +41,34 @@ from bauble.view import SearchView
 logger: Any = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+MAIN_SEARCH_COMPLETION_TEMPLATES = (
+    "family where epithet=",
+    "genus where epithet=",
+    "species where genus.epithet=",
+    "accession where code=",
+    "plant where location.code=",
+    "location where code=",
+)
+
+
+def _main_search_completion_values(history) -> list[str]:
+    seen = set()
+    values = []
+    for value in list(history or []) + list(MAIN_SEARCH_COMPLETION_TEMPLATES):
+        text = utils.to_unicode(value).strip()
+        if not text:
+            continue
+        key = text.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        values.append(text)
+    return values
+
+
+def _main_search_completion_matches_text(value: str, text: str) -> bool:
+    return text.strip().casefold() in utils.to_unicode(value).casefold()
+
 
 def safe_set_text(gtk_widget, text) -> None:
     """
@@ -419,25 +447,44 @@ class GUI:
         history = prefs[self.entry_history_pref]
         main_combo = self.widgets.main_comboentry
         model = main_combo.get_model()
+        if model is None:
+            model = Gtk.ListStore(str)
+            main_combo.set_model(model)
+            main_combo.set_entry_text_column(0)
         model.clear()
         main_entry = self.widgets.main_comboentry.get_child()
         completion = main_entry.get_completion()
         if completion is None:
             completion = Gtk.EntryCompletion()
-            completion.set_text_column(0)
             main_entry.set_completion(completion)
             compl_model = Gtk.ListStore(str)
             completion.set_model(compl_model)
-            completion.set_property("popup_completion", True)
-            completion.set_property("inline_completion", True)
-            completion.set_minimum_key_length(2)
         else:
             compl_model = completion.get_model()
+            if compl_model is None:
+                compl_model = Gtk.ListStore(str)
+                completion.set_model(compl_model)
 
-        if history is not None:
-            for herstory in history:
-                main_combo.append_text(herstory)
-                compl_model.append([herstory])
+        completion.set_text_column(0)
+        completion.set_property("popup_completion", True)
+        completion.set_property("inline_completion", True)
+        completion.set_property("popup-set-width", False)
+        completion.set_minimum_key_length(2)
+
+        def match_func(completion, key, treeiter, data=None):
+            completion_model = completion.get_model()
+            value = completion_model[treeiter][0]
+            return _main_search_completion_matches_text(value, key)
+
+        completion.set_match_func(match_func)
+
+        if compl_model is not model:
+            compl_model.clear()
+
+        for completion_text in _main_search_completion_values(history):
+            main_combo.append_text(completion_text)
+            if compl_model is not model:
+                compl_model.append([completion_text])
 
     def __get_title(self):
         if bauble.conn_name is None:

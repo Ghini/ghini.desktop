@@ -540,9 +540,49 @@ def test_main_search_history_completion_shows_popup(monkeypatch):
         assert completion.get_property("popup_completion")
         assert completion.get_property("inline_completion")
         assert completion.get_minimum_key_length() == 2
-        assert [row[0] for row in completion_model] == history
+        values = [row[0] for row in completion_model]
+        assert values[: len(history)] == history
+        assert "genus where epithet=" in values
+        assert "plant where location.code=" in values
     finally:
         combo.destroy()
+
+
+def test_main_search_completion_configures_glade_completion(monkeypatch):
+    history = ["species where genus.epithet=Tulipa"]
+    combo = Gtk.ComboBoxText.new_with_entry()
+    combo.set_model(Gtk.ListStore(str))
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(str))
+    combo.get_child().set_completion(completion)
+    gui = SimpleNamespace(
+        entry_history_pref="bauble.history",
+        widgets=SimpleNamespace(main_comboentry=combo),
+    )
+    monkeypatch.setattr(ui, "prefs", {"bauble.history": history})
+
+    ui.GUI.populate_main_entry(gui)
+
+    try:
+        assert completion.get_property("popup_completion")
+        assert completion.get_property("inline_completion")
+        assert completion.get_property("popup-set-width") is False
+        assert completion.get_minimum_key_length() == 2
+        assert [row[0] for row in completion.get_model()][:1] == history
+    finally:
+        combo.destroy()
+
+
+def test_main_search_completion_matches_substrings_case_insensitively():
+    assert ui._main_search_completion_matches_text(
+        "species where genus.epithet=Tulipa", "tulip"
+    )
+    assert ui._main_search_completion_matches_text(
+        "plant where location.code=", "LOCATION"
+    )
+    assert not ui._main_search_completion_matches_text(
+        "genus where epithet=", "accession"
+    )
 
 
 def test_connection_manager_empty_state(connmgr_view, gtk_prefs):
