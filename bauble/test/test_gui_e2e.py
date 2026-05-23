@@ -885,6 +885,134 @@ def test_can_edit_existing_accession_from_result_context_menu(
     assert old_code_count == 0
 
 
+def test_can_select_existing_source_when_editing_accession(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EESOURCEACEAE"
+    genus_name = "Eesourcegenus"
+    species_name = "eosource"
+    accession_code = "SOURCE-E2E-001"
+    plant_code = "1"
+    source_name = "Daily Workflow Nursery"
+    source_code = "DW-2026-001"
+    timestamp = "2026-05-13 00:00:00"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name=species_name,
+        accession_code=accession_code,
+        plant_code=plant_code,
+        location_code="E2SO",
+        location_name="E2E Source Bed",
+    )
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into contact (name, description, _created, _last_updated) "
+            "values (?, '', ?, ?)"
+        ),
+        source_name,
+        timestamp,
+        timestamp,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+    enter_text(search_entry, f"accession where code={accession_code}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    result = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and accession_code in node.name,
+        timeout=20,
+    )
+    right_click_node_center(result, dogtail_rawinput)
+    activate_menu_item(dogtail_tree.root, "Edit", role_name="menu item")
+
+    accession_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+    )
+    assert find_text_entry_with_value(accession_editor, accession_code) is not None
+
+    source_tab = find_named_child(accession_editor, "Source", showing_only=True)
+    assert source_tab is not None, dump_accessible_tree(accession_editor)
+    click_node_center(source_tab, dogtail_rawinput)
+
+    source_entries = find_visible_text_entries_by_position(accession_editor)
+    assert source_entries, dump_accessible_tree(accession_editor)
+    enter_text(source_entries[0], source_name, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    source_entries = [
+        entry
+        for entry in find_visible_text_entries_by_position(accession_editor)
+        if entry.size[0] > 10 and entry.size[1] > 10
+    ]
+    assert len(source_entries) >= 2, "\n".join(
+        [
+            dump_accessible_tree(accession_editor, max_depth=10),
+            *[
+                f"{index}: {accessible_text(entry)!r} "
+                f"pos={entry.position} size={entry.size}"
+                for index, entry in enumerate(source_entries)
+            ],
+        ]
+    )
+    enter_text(source_entries[1], source_code, dogtail_rawinput)
+
+    ok_button = find_named_child(accession_editor, "OK", role_name="push button")
+    source_entries = [
+        entry
+        for entry in find_visible_text_entries_by_position(accession_editor)
+        if entry.size[0] > 10 and entry.size[1] > 10
+    ]
+    field_values = [accessible_text(entry) for entry in source_entries]
+    assert ok_button is not None, field_values
+    assert getattr(ok_button, "sensitive", True), field_values
+    ok_button.click()
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+    stderr = ghini_process.stderr.read() if ghini_process.stderr is not None else ""
+
+    source_rows = fetch_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select source.sources_code, contact.name "
+            "from source "
+            "join accession on source.accession_id = accession.id "
+            "join contact on source.source_detail_id = contact.id "
+            "where accession.code = ?"
+        ),
+        accession_code,
+    )
+    accession_rows = fetch_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select accession.code, accession.species_id, source.sources_code, "
+            "source.source_detail_id "
+            "from accession "
+            "left join source on source.accession_id = accession.id "
+            "where accession.code = ?"
+        ),
+        accession_code,
+    )
+    assert source_rows == [(source_code, source_name)], {
+        "accession_rows": accession_rows,
+        "field_values": field_values,
+        "stderr": stderr,
+    }
+
+
 def test_can_create_location_from_insert_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):

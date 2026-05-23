@@ -76,6 +76,50 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+def _source_display_text(source: Any) -> str:
+    """Return the text shown for a source combo value."""
+    return utils.to_unicode(source).strip()
+
+
+def _source_sort_key(source: Any) -> tuple[str, int]:
+    source_id = getattr(source, "id", 0) or 0
+    return (_source_display_text(source).casefold(), source_id)
+
+
+def _unique_source_contacts(contacts) -> list[Any]:
+    seen = set()
+    result = []
+    for contact in sorted(contacts, key=_source_sort_key):
+        display_text = _source_display_text(contact)
+        if not display_text:
+            continue
+        key = display_text.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(contact)
+    return result
+
+
+def _source_matches_text(source: Any, text: str) -> bool:
+    normalized_text = text.strip().casefold()
+    if not normalized_text:
+        return True
+    display_text = _source_display_text(source).casefold()
+    if normalized_text in display_text:
+        return True
+    source_id = getattr(source, "id", None)
+    return source_id is not None and str(source_id).startswith(text.strip())
+
+
+def _source_exact_text_match(source: Any, text: str) -> bool:
+    normalized_text = text.strip().casefold()
+    if _source_display_text(source).casefold() == normalized_text:
+        return True
+    source_id = getattr(source, "id", None)
+    return source_id is not None and str(source_id) == text.strip()
+
+
 def generic_taxon_add_action(
     model, view, presenter, top_presenter, button, taxon_entry
 ) -> None:
@@ -1060,6 +1104,39 @@ class SourcePresenter(editor.GenericEditorPresenter):
         logger.warning(f"refresh_sensitivity: {str(self.problems)}")
         self.parent_ref().refresh_sensitivity()
 
+    def sync_from_view(self) -> None:
+        combo = self.view.widgets.acc_source_comboentry
+        entry_text = utils.to_unicode(combo.get_child().get_text()).strip()
+        sources_code = utils.to_unicode(
+            self.view.widgets.sources_code_entry.get_text()
+        ).strip()
+        self.source.sources_code = sources_code or None
+
+        if entry_text == self.garden_prop_str:
+            self.model.source = self.source
+            self.source.source_detail = None
+            return
+
+        if entry_text:
+            model = combo.get_model()
+            source_detail = None
+            if model is not None:
+                for row in model:
+                    value = row[0]
+                    if value and value != self.garden_prop_str:
+                        if _source_exact_text_match(value, entry_text):
+                            source_detail = value
+                            break
+            if source_detail is not None:
+                self.model.source = self.source
+                self.source.source_detail = source_detail
+                return
+
+        if self.source.sources_code:
+            self.model.source = self.source
+        elif not self.source.collection and not self.source.propagation:
+            self.model.source = None
+
     def on_coll_add_button_clicked(self, *args) -> None:
         self.model.source.collection = self.collection
         self.view.widgets.source_coll_expander.set_expanded(True)
@@ -1106,8 +1183,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         committed = create_contact(parent=self.view.get_window())
         new_detail = None
         if committed:
-            new_detail = committed[0]
-            self.session.add(new_detail)
+            new_detail = self.session.merge(committed[0])
             self.populate_source_combo(new_detail)
 
     def populate_source_combo(self, active: Optional[Any] = None) -> None:
@@ -1126,14 +1202,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = Gtk.ListStore(object)
         none_iter = model.append([""])
         model.append([self.garden_prop_str])
-        list(
-            [
-                model.append([x])
-                for x in self.session.execute(
-                    Contact.query_with_default_order()
-                ).scalars()
-            ]
-        )
+        contacts = self.session.execute(Contact.query_with_default_order()).scalars()
+        for contact in _unique_source_contacts(contacts):
+            model.append([contact])
         combo.set_model(model)
         combo.get_child().get_completion().set_model(model)
 
@@ -1157,8 +1228,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         :param on_select: called when an item is selected
         """
-        from bauble.plugins.garden.source import Contact
-
         PROBLEM = "unknown_source"
 
         def cell_data_func(col, cell, model, treeiter, data=None):
@@ -1178,14 +1247,14 @@ class SourcePresenter(editor.GenericEditorPresenter):
         def match_func(completion, key, treeiter, data=None):
             model = completion.get_model()
             value = model[treeiter][0]
-            # allows completions of source details by their ID
-            if utils.to_unicode(value).lower().startswith(key.lower()) or (
-                isinstance(value, Contact) and str(value.id).startswith(key)
-            ):
-                return True
-            return False
+            return _source_matches_text(value, key)
 
         completion.set_match_func(match_func)
+        completion.set_inline_completion(True)
+        completion.set_inline_selection(True)
+        completion.set_popup_completion(True)
+        completion.set_popup_single_match(False)
+        completion.set_minimum_key_length(1)
 
         entry = combo.get_child()
         entry.set_completion(completion)
@@ -1212,6 +1281,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
             # TODO: should we reset/store the entry values if the
             # source is changed and restore them if they are switched
             # back
+            active = combo.get_active_iter()
+            if active is None or model.get_path(active) != model.get_path(treeiter):
+                combo.set_active_iter(treeiter)
             if not value:
                 combo.get_child().set_text("")
                 on_select(None)
@@ -1228,19 +1300,14 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         self.view.connect(completion, "match-selected", on_match_select)
 
-        def on_entry_changed(entry, data=None):
+        def resolve_entry_text(entry):
             text = utils.to_unicode(entry.get_text())
             # see if the text matches a completion string
             comp = entry.get_completion()
 
             def _cmp(row, data):
                 val = row[0]
-                if utils.to_unicode(val) == data or (
-                    isinstance(val, Contact) and str(val.id) == str(data)
-                ):
-                    return True
-                else:
-                    return False
+                return _source_exact_text_match(val, data)
 
             found = utils.search_tree_model(comp.get_model(), text, _cmp)
             if len(found) == 1:
@@ -1252,7 +1319,16 @@ class SourcePresenter(editor.GenericEditorPresenter):
             update_visible()
             return True
 
+        def on_entry_changed(entry, data=None):
+            return resolve_entry_text(entry)
+
         self.view.connect(entry, "changed", on_entry_changed)
+        self.view.connect(entry, "activate", lambda entry: resolve_entry_text(entry))
+        self.view.connect(
+            entry,
+            "focus-out-event",
+            lambda entry, event: not resolve_entry_text(entry),
+        )
 
         def on_combo_changed(combo, *args):
             active = combo.get_active_iter()
@@ -2088,6 +2164,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
             except Exception as e:
+                logger.exception("Unknown error when committing accession changes")
                 msg = _(
                     "Unknown error when committing changes. See the "
                     "details for more information.\n\n%s"
@@ -2250,6 +2327,25 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         if not getattr(self.model, "species_id", None):
             raise ValueError("species_id not set just before commit")
+
+        self.presenter.source_presenter.sync_from_view()
+
+        source = self.model.source
+        if source:
+            has_source_data = any(
+                (
+                    source.source_detail,
+                    source.sources_code,
+                    source.collection,
+                    source.propagation,
+                    source.plant_propagation,
+                )
+            )
+            if has_source_data:
+                source.accession = self.model
+                self.session.add(source)
+            else:
+                self.model.source = None
 
         if self.model.source:
             if not self.model.source.collection:
