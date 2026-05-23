@@ -1271,6 +1271,8 @@ class SearchView(pluginmgr.View):
         try:
             kids = self.row_meta[type(row)].get_children(row)
             if len(kids) == 0:
+                # Keep the lazy-load expander available for a later retry.
+                model.append(treeiter, ["-"])
                 return True
         except saexc.InvalidRequestError as e:
             logger.debug(utils.to_unicode(e))

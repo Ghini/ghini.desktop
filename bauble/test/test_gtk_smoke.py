@@ -489,6 +489,25 @@ def test_family_infobox_updates_builder_widgets(session):
             Gtk.main_iteration_do(False)
 
 
+def test_result_expand_keeps_retry_child_for_empty_rows(session):
+    family = Family(epithet="Emptyaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    search_view = view.SearchView.__new__(view.SearchView)
+    search_view.session = session
+    search_view.row_meta = view.SearchView.ViewMeta()
+    search_view.row_meta[Family].set(children=lambda _row: [])
+
+    model = Gtk.TreeStore(object)
+    parent = model.append(None, [family])
+    model.append(parent, ["-"])
+    tree = SimpleNamespace(get_model=lambda: model)
+
+    assert search_view.on_test_expand_row(tree, parent, model.get_path(parent)) is True
+    assert model.iter_n_children(parent) == 1
+
+
 def test_create_menu_item_with_image_uses_single_gtk_menu_child():
     item = ui.create_menu_item_with_image("Report a Bug", "help-about")
 
