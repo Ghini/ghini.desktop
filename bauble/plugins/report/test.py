@@ -27,6 +27,7 @@ import pytest
 from bauble.plugins.garden.models import Accession, Contact, Location, Plant, Source
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.report import get_pertinent_objects
+from bauble.plugins.report.flat_export import _resolve_export_value
 from bauble.plugins.tag import Tag, tag_objects
 from bauble.test import check_dupids
 from sqlalchemy import delete, select
@@ -161,6 +162,13 @@ class TestReport:
         family = session.get(Family, 1)
         ids = get_ids(get_pertinent_objects(Species, [family]))
         assert ids == list(range(1, 5))
+
+    def test_flat_export_optional_relationship_missing_is_empty(self):
+        species = self.get(Species, 1)
+
+        assert species.habit is None
+        assert _resolve_export_value(species, "habit.name") is None
+        assert _resolve_export_value(species, "sp") == "sp1"
 
     def test_get_species_pertinent_to_element(self):
         """

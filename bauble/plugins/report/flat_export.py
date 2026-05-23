@@ -31,8 +31,41 @@ from bauble.querybuilder import SchemaMenu
 from bauble.search import MapperSearch
 from sqlalchemy import select
 from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.collections import InstrumentedList
 from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.types import Boolean, Float, Integer
+
+
+def _resolve_export_value(obj, clause_field):
+    """Resolve one Quick CSV field path from an exported object."""
+    values = [obj]
+    single_valued = True
+    *steps, field = clause_field.split(".")
+    for step in steps:
+        next_values = []
+        for value in values:
+            if value is None:
+                next_values.append(None)
+                continue
+            related_value = getattr(value, step)
+            if isinstance(related_value, InstrumentedList):
+                next_values.extend(related_value)
+                single_valued = False
+            else:
+                next_values.append(related_value)
+        values = next_values
+
+    if field == "<str>":
+        if not values or values[0] is None:
+            return ""
+        return str(values[0]).replace("\u200b", "")
+
+    values = [None if value is None else getattr(value, field) for value in values]
+    if single_valued:
+        return values[0] if values else None
+    if field == "id":
+        return len(values)
+    return sum(value or 0 for value in values)
 
 
 class FlatFileExporter(GenericEditorPresenter):
@@ -257,7 +290,6 @@ class FlatFileExporter(GenericEditorPresenter):
         import csv
 
         from bauble import db
-        from sqlalchemy.orm.collections import InstrumentedList
 
         filename = self.view.widget_get_value("output_file")
         rows_count = 0
@@ -282,29 +314,7 @@ class FlatFileExporter(GenericEditorPresenter):
                 for obj in todo:
                     row = []
                     for j in self.view.widgets.exported_fields_ls:
-                        # values is the list of the objects from which to read fields
-                        values = [obj]
-                        single_valued = True
-                        *steps, field = j[0].split(".")
-                        for step in steps:
-                            values = [getattr(value, step) for value in values]
-                            if values and isinstance(values[0], InstrumentedList):
-                                values = [
-                                    item for sublist in values for item in sublist
-                                ]
-                                single_valued = False
-                        if field == "<str>":
-                            value = str(values[0]).replace("\u200b", "")
-                        else:
-                            values = [getattr(value, field) for value in values]
-                            if single_valued:
-                                value = values[0]
-                            else:
-                                if field == "id":
-                                    value = len(values)
-                                else:
-                                    value = sum(x or 0 for x in values)
-                        row.append(value)
+                        row.append(_resolve_export_value(obj, j[0]))
                     spamwriter.writerow(row)
                     rows_count += 1
             finally:
