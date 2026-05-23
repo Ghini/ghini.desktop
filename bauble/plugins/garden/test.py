@@ -260,6 +260,20 @@ def test_is_code_unique_keeps_attached_session(db_session, plant_data) -> None:
     assert plant in db_session.dirty
 
 
+def test_is_code_unique_suppresses_autoflush(db_session, plant_data) -> None:
+    """Validation queries must not flush incomplete editor state."""
+    plant = plant_data["plant"]
+    db_session.autoflush = True
+    incomplete_plant = Plant(accession=plant.accession, quantity=1)
+    db_session.add(incomplete_plant)
+
+    try:
+        assert is_code_unique(plant, "2")
+        assert incomplete_plant in db_session.new
+    finally:
+        db_session.autoflush = False
+
+
 def test_living_plant_has_no_date_of_death(plant_data) -> None:
     """Test that a living plant has no date of death."""
     plant = plant_data["plant"]
