@@ -164,7 +164,6 @@ class TestAskTPL:
         assert infolog[0] == "Iris x florentina L. (Iridaceae)"
         assert infolog[1] == "Iris x germanica L. (Iridaceae) - is its accepted form"
 
-    @pytest.mark.skip(reason="Skipping this needs more work and is non-critical")  # type: ignore[misc]
     def test_empty_answer(self: TestAskTPL, mock_logger: Any) -> None:
         self.logger.setLevel(logging.INFO)
         binomial = "Manducaria italica"
