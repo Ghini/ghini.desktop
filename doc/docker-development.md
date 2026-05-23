@@ -35,6 +35,11 @@ dates in the GUI follow the user-visible host date rather than UTC. It uses
 detected. Set `GHINI_TZ=America/New_York` or another IANA timezone in `.env` to
 override detection.
 
+Date-only user fields, such as propagation dates and accession-code date
+tokens, use the process local calendar date. Automatic audit timestamps, such as
+`_created`, `_last_updated`, and history rows, use UTC internally so SQLite and
+PostgreSQL runs do not depend on the desktop timezone.
+
 ## Build
 
 ```sh

@@ -359,7 +359,17 @@ class TestHistory:
     Tests for tracking history changes in the database.
     """
 
-    def test_history_tracking(self, db_session) -> None:
+    def test_history_tracking(self, db_session, monkeypatch) -> None:
+        expected_timestamp = datetime.datetime(2026, 5, 14, 23, 59, 59)
+        timestamps = iter(
+            [
+                expected_timestamp,
+                datetime.datetime(2026, 5, 15, 0, 0, 0),
+                datetime.datetime(2026, 5, 15, 0, 0, 1),
+            ]
+        )
+        monkeypatch.setattr(db, "utc_now", lambda: next(timestamps))
+
         f = Family(family="Family")
         db_session.add(f)
         if db_session.in_transaction():
@@ -373,6 +383,9 @@ class TestHistory:
         )
         assert history.table_name == "family"
         assert history.operation == "insert"
+        assert history.timestamp == expected_timestamp.replace(
+            tzinfo=datetime.timezone.utc
+        )
 
         # Update operation
         f.family = "Family2"

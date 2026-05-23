@@ -64,7 +64,7 @@ logger.setLevel(logging.INFO)
 def ensure_propagation_date(propagation):
     """Set the default propagation date that the editor shows for new rows."""
     if propagation.date is None:
-        propagation.date = datetime.date.today()
+        propagation.date = utils.local_today()
     return propagation.date
 
 
@@ -469,7 +469,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         tree = self.view.widgets.rooted_treeview
         rooted = PropCuttingRooted()
         rooted.cutting = self.model  # this lays the database link
-        rooted.date = datetime.date.today()
+        rooted.date = utils.local_today()
         model = tree.get_model()
         treeiter = model.insert(0, [rooted])
         path = model.get_path(treeiter)

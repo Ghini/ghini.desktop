@@ -33,7 +33,7 @@ from bauble.btypes import Date as DbDate
 from bauble.db import Base, Serializable, Session, WithNotes, make_note_class
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
-from bauble.utils import check, safe_int, xml_safe
+from bauble.utils import check, local_today, safe_int, xml_safe
 from sqlalchemy import Boolean, ForeignKey, Integer, Unicode, asc, event, select
 from sqlalchemy.orm import (
     Mapped,
@@ -456,7 +456,7 @@ class Accession(Base, Serializable, WithNotes):
             if code_format is None:
                 code_format = cls.code_format
             format = code_format.replace("%PD", Plant.get_delimiter())
-            today = datetime.date.today()
+            today = local_today()
             if format.find("%{Y-1}") >= 0:
                 format = format.replace("%{Y-1}", str(today.year - 1))
             format = today.strftime(format)

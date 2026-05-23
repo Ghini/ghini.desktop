@@ -162,3 +162,10 @@ def test_date_parser_365() -> None:
     """
     target = datetime.datetime(2014, 1, 1, 20)
     assert parse_date("2014-01-01 20") == target
+
+
+def test_today_str_uses_local_today(monkeypatch) -> None:
+    """Date-button defaults should use the process local calendar date."""
+    monkeypatch.setattr(utils, "local_today", lambda: datetime.date(2026, 5, 14))
+
+    assert utils.today_str("%Y-%m-%d") == "2026-05-14"

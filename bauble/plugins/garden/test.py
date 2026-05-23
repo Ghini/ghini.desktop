@@ -810,12 +810,16 @@ def test_propagation_box_uses_saved_date() -> None:
     assert propagation.date.strftime(prefs[date_format_pref]) in expander.get_label()
 
 
-def test_new_propagation_gets_visible_default_date() -> None:
+def test_new_propagation_gets_visible_default_date(monkeypatch) -> None:
     """New propagation records should persist the date shown by the editor."""
     from bauble.plugins.garden.propagation_editor import ensure_propagation_date
 
     propagation = Propagation(prop_type="Seed")
-    expected_date = date.today()
+    expected_date = date(2026, 5, 14)
+    monkeypatch.setattr(
+        "bauble.plugins.garden.propagation_editor.utils.local_today",
+        lambda: expected_date,
+    )
 
     assert ensure_propagation_date(propagation) == expected_date
     assert propagation.date == expected_date

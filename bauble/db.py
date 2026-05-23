@@ -294,7 +294,7 @@ class MapperBase(DeclarativeMeta):
                 values=str(row),
                 operation=operation,
                 user=user,
-                timestamp=datetime.datetime.now(),
+                timestamp=utc_now(),
             )
             connection.execute(stmt)
             logger.debug("History entry added: %s", stmt)

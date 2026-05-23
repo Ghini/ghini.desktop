@@ -1144,6 +1144,11 @@ def prettify_format(format):
     return f
 
 
+def local_today() -> datetime.date:
+    """Return today's date in the process local timezone."""
+    return datetime.datetime.now().astimezone().date()
+
+
 def today_str(format: Optional[Any] = None):
     """
     Return a string for of today's date according to format.
@@ -1154,9 +1159,7 @@ def today_str(format: Optional[Any] = None):
 
     if not format:
         format = prefs.prefs[prefs.date_format_pref]
-    import datetime
-
-    today = datetime.date.today()
+    today = local_today()
     return today.strftime(format)
 
 
