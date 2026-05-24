@@ -70,6 +70,7 @@ from bauble.view import (
 from lxml import etree
 from sqlalchemy import delete, or_, select
 from sqlalchemy.exc import DBAPIError
+from sqlalchemy.orm import attributes as orm_attributes
 from sqlalchemy.orm import object_session
 
 logger = logging.getLogger(__name__)
@@ -84,6 +85,22 @@ def _source_display_text(source: Any) -> str:
 def _source_sort_key(source: Any) -> tuple[str, int]:
     source_id = getattr(source, "id", 0) or 0
     return (_source_display_text(source).casefold(), source_id)
+
+
+def _source_same_value(left: Any, right: Any) -> bool:
+    if left is right:
+        return True
+    if left is None or right is None:
+        return False
+
+    left_id = getattr(left, "id", None)
+    right_id = getattr(right, "id", None)
+    if left_id is not None and right_id is not None and left_id == right_id:
+        return True
+
+    left_text = _source_display_text(left).casefold()
+    right_text = _source_display_text(right).casefold()
+    return bool(left_text and right_text and left_text == right_text)
 
 
 def _unique_source_contacts(contacts) -> list[Any]:
@@ -968,11 +985,11 @@ class SourcePresenter(editor.GenericEditorPresenter):
             if not source:
                 self.model.source = None
             elif isinstance(source, Contact):
-                self.model.source = self.source
-                self.model.source.source_detail = source
+                self._attach_source_to_model()
+                self.source.source_detail = source
             elif source == self.garden_prop_str:
-                self.model.source = self.source
-                self.model.source.source_detail = None
+                self._attach_source_to_model()
+                self.source.source_detail = None
             else:
                 logger.warning(f"unknown source: {source}")
             # self.model.source = self.source
@@ -1079,12 +1096,30 @@ class SourcePresenter(editor.GenericEditorPresenter):
         Return a union of all the problems from this presenter and
         child presenters
         """
-        return (
-            self.problems
-            | self.collection_presenter.problems
-            | self.prop_chooser_presenter.problems
-            | self.source_prop_presenter.problems
-        )
+        problems = set(self.problems)
+        if self.source.collection:
+            problems |= self.collection_presenter.problems
+        if self.source.propagation:
+            problems |= self.source_prop_presenter.problems
+        if self.source.plant_propagation:
+            problems |= self.prop_chooser_presenter.problems
+        return problems
+
+    def _attach_source_to_model(self) -> None:
+        if self.model.source is self.source:
+            return
+
+        source_accession = getattr(self.source, "accession", None)
+        source_accession_id = getattr(source_accession, "id", None)
+        model_id = getattr(self.model, "id", None)
+        if source_accession is self.model or (
+            source_accession_id is not None
+            and model_id is not None
+            and source_accession_id == model_id
+        ):
+            orm_attributes.set_committed_value(self.model, "source", self.source)
+        else:
+            self.model.source = self.source
 
     def cleanup(self) -> None:
         super().cleanup()
@@ -1122,7 +1157,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.source.sources_code = sources_code or None
 
         if entry_text == self.garden_prop_str:
-            self.model.source = self.source
+            self._attach_source_to_model()
             self.source.source_detail = None
             return
 
@@ -1137,12 +1172,12 @@ class SourcePresenter(editor.GenericEditorPresenter):
                             source_detail = value
                             break
             if source_detail is not None:
-                self.model.source = self.source
+                self._attach_source_to_model()
                 self.source.source_detail = source_detail
                 return
 
         if self.source.sources_code:
-            self.model.source = self.source
+            self._attach_source_to_model()
         elif not self.source.collection and not self.source.propagation:
             self.model.source = None
 
@@ -1190,10 +1225,50 @@ class SourcePresenter(editor.GenericEditorPresenter):
         from bauble.plugins.garden.source import create_contact
 
         committed = create_contact(parent=self.view.get_window())
-        new_detail = None
         if committed:
             new_detail = self.session.merge(committed[0])
             self.populate_source_combo(new_detail)
+            self.select_source_detail(new_detail)
+            self._dirty = True
+            self.refresh_sensitivity()
+
+    def select_source_detail(self, source_detail: Any) -> None:
+        combo = self.view.widgets.acc_source_comboentry
+        entry = combo.get_child()
+        selected_detail = source_detail
+        model = combo.get_model()
+        if model is not None:
+            results = utils.search_tree_model(
+                model,
+                source_detail,
+                lambda row, data: _source_same_value(row[0], data),
+            )
+            if results:
+                selected_detail = model[results[0]][0]
+
+        signal_handlers = (
+            (entry, getattr(self, "_source_entry_changed_handler", None)),
+            (combo, getattr(self, "_source_combo_changed_handler", None)),
+        )
+        for widget, handler_id in signal_handlers:
+            if handler_id is not None:
+                widget.handler_block(handler_id)
+        try:
+            if model is not None and results:
+                combo.set_active_iter(results[0])
+            entry.set_text(_source_display_text(selected_detail))
+        finally:
+            for widget, handler_id in signal_handlers:
+                if handler_id is not None:
+                    widget.handler_unblock(handler_id)
+
+        self._attach_source_to_model()
+        self.source.source_detail = selected_detail
+        self.remove_problem("unknown_source", entry)
+        self.view.widgets.source_none_label.set_visible(False)
+        self.view.widgets.source_garden_prop_box.set_visible(False)
+        self.view.widgets.source_sw.set_visible(True)
+        self.view.widgets.source_sw.show_all()
 
     def populate_source_combo(self, active: Optional[Any] = None) -> None:
         """
@@ -1211,7 +1286,16 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = Gtk.ListStore(object)
         none_iter = model.append([""])
         model.append([self.garden_prop_str])
-        contacts = self.session.execute(Contact.query_with_default_order()).scalars()
+        contacts = list(
+            self.session.execute(Contact.query_with_default_order()).scalars()
+        )
+        if (
+            active
+            and active != self.garden_prop_str
+            and _source_display_text(active)
+            and not any(_source_same_value(contact, active) for contact in contacts)
+        ):
+            contacts.append(active)
         for contact in _unique_source_contacts(contacts):
             model.append([contact])
         combo.set_model(model)
@@ -1219,7 +1303,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         combo._populate = True
         if active:
-            results = utils.search_tree_model(model, active)
+            results = utils.search_tree_model(
+                model, active, lambda row, data: _source_same_value(row[0], data)
+            )
             if results:
                 combo.set_active_iter(results[0])
         else:
@@ -1285,6 +1371,8 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 self.view.widgets[widget].set_visible(value)
             self.view.widgets.source_alignment.set_sensitive(True)
 
+        self.update_source_visibility = update_visible
+
         def on_match_select(completion, model, treeiter):
             value = model[treeiter][0]
             # TODO: should we reset/store the entry values if the
@@ -1295,14 +1383,13 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 combo.set_active_iter(treeiter)
             if not value:
                 combo.get_child().set_text("")
-                on_select(None)
             else:
                 combo.get_child().set_text(utils.to_unicode(value))
-                on_select(value)
 
             # don't set the model as dirty if this is called during
             # populate_source_combo
             if not combo._populate:
+                on_select(value or None)
                 self._dirty = True
                 self.refresh_sensitivity()
             return True
@@ -1335,7 +1422,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
         def on_entry_changed(entry, data=None):
             return resolve_entry_text(entry, require_exact=False)
 
-        self.view.connect(entry, "changed", on_entry_changed)
+        self._source_entry_changed_handler = self.view.connect(
+            entry, "changed", on_entry_changed
+        )
         self.view.connect(entry, "activate", lambda entry: resolve_entry_text(entry))
         self.view.connect(
             entry,
@@ -1356,7 +1445,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
             update_visible()
             return True
 
-        self.view.connect(combo, "changed", on_combo_changed)
+        self._source_combo_changed_handler = self.view.connect(
+            combo, "changed", on_combo_changed
+        )
 
 
 class AccessionEditorPresenter(editor.GenericEditorPresenter):
@@ -2062,11 +2153,14 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         else:
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
+        is_dirty = self.is_dirty()
+        is_valid = self.validate()
+        source_problems = self.source_presenter.all_problems()
         sensitive = (
-            self.is_dirty()
-            and self.validate()
+            is_dirty
+            and is_valid
             and not self.problems
-            and not self.source_presenter.all_problems()
+            and not source_problems
             and not self.ver_presenter.problems
             and not self.voucher_presenter.problems
         )

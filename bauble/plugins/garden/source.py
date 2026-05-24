@@ -39,6 +39,7 @@ from bauble.plugins.garden.models import Contact, Source
 from bauble.plugins.plants.geography import GeographicArea, GeographicAreaMenu
 from bauble.utils import safe_set_text
 from sqlalchemy import select
+from sqlalchemy.orm import sessionmaker
 
 view: Any = importlib.import_module("bauble.view")
 logger: Any = logging.getLogger(__name__)
@@ -658,8 +659,10 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
 def create_contact(parent: Optional[Any] = None):
     model = Contact()
-    source_detail_edit_callback([model], parent)
-    return [model]
+    committed = source_detail_edit_callback([model], parent)
+    if committed is not None:
+        return [committed]
+    return []
 
 
 def source_detail_edit_callback(details, parent: Optional[Any] = None):
@@ -667,10 +670,18 @@ def source_detail_edit_callback(details, parent: Optional[Any] = None):
     view = editor.GenericEditorView(
         glade_path, parent=parent, root_widget_name="source_details_dialog"
     )
-    model = details[0]
-    presenter = ContactPresenter(model, view)
-    result = presenter.start()
-    return result is not None
+
+    session_factory = sessionmaker(bind=db.engine, autoflush=False, future=True)
+    session = session_factory()
+    try:
+        model = session.merge(details[0])
+        presenter = ContactPresenter(model, view, session=session)
+        result = presenter.start()
+        if presenter.response_commits(result):
+            return presenter.model
+        return None
+    finally:
+        session.close()
 
 
 def source_detail_remove_callback(details):
@@ -724,12 +735,52 @@ class ContactPresenter(editor.GenericEditorPresenter):
     }
     view_accept_buttons: Any = ["sd_ok_button"]
 
-    def __init__(self, model, view) -> None:
+    def __init__(self, model, view, session: Optional[Any] = None) -> None:
         from bauble.plugins.garden.models.contact import source_type_values
+
         view.init_translatable_combo("source_type_combo", source_type_values)
-        super().__init__(model, view, refresh_view=True, do_commit=True)
+        super().__init__(
+            model, view, refresh_view=True, session=session, do_commit=True
+        )
         self.create_toolbar()
         view.set_accept_buttons_sensitive(False)
+
+    def _set_model_attr_from_widget(self, attr, value) -> None:
+        if getattr(self.model, attr) != value:
+            setattr(self.model, attr, value)
+            self._dirty = True
+            self.view._dirty = True
+
+    def sync_from_view(self) -> None:
+        name = utils.to_unicode(self.view.widgets.source_name_entry.get_text()).strip()
+        self._set_model_attr_from_widget("name", name or None)
+        self._set_model_attr_from_widget(
+            "source_type", self.view.widget_get_value("source_type_combo") or None
+        )
+
+        buffer = self.view.widgets.source_desc_textview.get_buffer()
+        start_iter = buffer.get_start_iter()
+        end_iter = buffer.get_end_iter()
+        description = buffer.get_text(start_iter, end_iter, False) or ""
+        self._set_model_attr_from_widget("description", description)
+
+    def response_commits(self, result) -> bool:
+        cancel_results = {
+            Gtk.ResponseType.CANCEL,
+            Gtk.ResponseType.CLOSE,
+            Gtk.ResponseType.DELETE_EVENT,
+            Gtk.ResponseType.NONE,
+        }
+        return result is not None and result not in cancel_results
+
+    def start(self):
+        result = self.view.get_window().run()
+        if self.response_commits(result):
+            self.sync_from_view()
+            if self._dirty or self.session.new or self.session.dirty:
+                self.commit_changes()
+        self.cleanup()
+        return result
 
     def on_textbuffer_changed_description(
         self, widget, value: Optional[Any] = None, attr: Optional[Any] = None

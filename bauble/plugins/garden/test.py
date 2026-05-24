@@ -1125,6 +1125,32 @@ def test_plant_search_strategy(db_session, plant_data) -> None:
     assert isinstance(plant, Plant)
 
 
+def test_create_contact_returns_empty_when_editor_is_cancelled(monkeypatch) -> None:
+    from bauble.plugins.garden import source
+
+    monkeypatch.setattr(
+        source, "source_detail_edit_callback", lambda details, parent=None: None
+    )
+
+    assert source.create_contact() == []
+
+
+def test_create_contact_returns_contact_when_editor_commits(monkeypatch) -> None:
+    from bauble.plugins.garden import source
+
+    def commit_contact(details, parent=None):
+        details[0].name = "Committed Contact"
+        return details[0]
+
+    monkeypatch.setattr(source, "source_detail_edit_callback", commit_contact)
+
+    committed = source.create_contact()
+
+    assert len(committed) == 1
+    assert isinstance(committed[0], Contact)
+    assert committed[0].name == "Committed Contact"
+
+
 def test_location_retrieve_or_create_with_timestamps(db_session) -> None:
     """Test retrieving or creating locations with timestamp fields."""
     Location.retrieve_or_create(
