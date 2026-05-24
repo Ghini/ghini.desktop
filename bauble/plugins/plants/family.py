@@ -600,7 +600,9 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
         # connect signals
         self.assign_simple_handler(
-            "fam_family_entry", "epithet", editor.UnicodeOrNoneValidator()
+            "fam_family_entry",
+            "epithet",
+            editor.MaxLengthValidator(45, editor.UnicodeOrNoneValidator()),
         )
         self.assign_simple_handler(
             "fam_qualifier_combo",
@@ -653,9 +655,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
                 self.synonyms_presenter.clear_view()
 
     def refresh_sensitivity(self) -> None:
-        # TODO: check widgets for problems
         sensitive = False
-        if self.dirty() and self.model.epithet:
+        if self.dirty() and self.model.epithet and not self.problems:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 

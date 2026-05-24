@@ -820,10 +820,14 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             "gen_family_entry", fam_get_completions, on_select=on_select
         )
         self.assign_simple_handler(
-            "gen_genus_entry", "genus", editor.UnicodeOrNoneValidator()
+            "gen_genus_entry",
+            "genus",
+            editor.MaxLengthValidator(64, editor.UnicodeOrNoneValidator()),
         )
         self.assign_simple_handler(
-            "gen_author_entry", "author", editor.UnicodeOrNoneValidator()
+            "gen_author_entry",
+            "author",
+            editor.MaxLengthValidator(255, editor.UnicodeOrNoneValidator()),
         )
 
         notes_parent = self.view.widgets.notes_parent_box
@@ -841,9 +845,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.notes_presenter.cleanup()
 
     def refresh_sensitivity(self) -> None:
-        # TODO: check widgets for problems
         sensitive = False
-        if self.model.family and self.model.genus and self.model.family:
+        if self.model.family and self.model.genus and not self.problems:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 

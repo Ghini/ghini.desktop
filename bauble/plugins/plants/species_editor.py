@@ -95,6 +95,17 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         "sp_label_dist_entry": "label_distribution",
         "sp_habit_comboentry": "habit",
     }
+    field_length_validators: Any = {
+        "sp_species_entry": editor.MaxLengthValidator(
+            64, editor.UnicodeOrNoneValidator()
+        ),
+        "sp_author_entry": editor.MaxLengthValidator(
+            128, editor.UnicodeOrNoneValidator()
+        ),
+        "sp_cvgroup_entry": editor.MaxLengthValidator(
+            50, editor.UnicodeOrNoneValidator()
+        ),
+    }
 
     def __init__(self, model, view) -> None:
         super().__init__(model, view)
@@ -394,7 +405,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             on_select=on_select,  # 'genus',
         )
         self.assign_simple_handler(
-            "sp_cvgroup_entry", "cv_group", editor.UnicodeOrNoneValidator()
+            "sp_cvgroup_entry",
+            "cv_group",
+            self.field_length_validators["sp_cvgroup_entry"],
         )
         self.assign_simple_handler(
             "sp_spqual_combo", "sp_qual", editor.UnicodeOrNoneValidator()
@@ -425,6 +438,27 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     def on_sp_species_entry_changed(self, widget, *args) -> None:
         self.on_text_entry_changed(widget, *args)
         self.on_entry_changed_clear_boxes(widget, *args)
+
+    def on_text_entry_changed(self, widget, value: Optional[Any] = None):
+        widget_name = self.widget_get_name(widget)
+        validator = self.field_length_validators.get(widget_name)
+        if validator is None:
+            return super().on_text_entry_changed(widget, value)
+
+        attr = self.widget_to_field_map.get(widget_name)
+        if attr is None:
+            return None
+        value = self.view.widget_get_value(widget)
+        problem_id = f"BAD_VALUE_{attr}"
+        try:
+            value = validator.to_python(value)
+        except editor.ValidatorError:
+            self.add_problem(problem_id, widget)
+            self.view.set_accept_buttons_sensitive(False)
+            return value
+        self.remove_problem(problem_id, widget)
+        self.set_model_attr(attr, value)
+        return value
 
     def on_entry_changed_clear_boxes(self, widget, *args) -> None:
         while self.species_check_messages:

@@ -897,6 +897,31 @@ def test_family_editor_presenter_populates_and_edits_fields(
     assert family_editor_view.widgets.fam_next_button.get_sensitive()
 
 
+def test_family_editor_blocks_overlong_epithet(session, family_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    presenter = FamilyEditorPresenter(family, family_editor_view)
+    entry = family_editor_view.widgets.fam_family_entry
+
+    entry.set_text("X" * 46)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert family.epithet == "Arecaceae"
+    assert presenter.has_problems(entry)
+    assert not family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+    entry.set_text("Guidedaceae")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert family.epithet == "Guidedaceae"
+    assert not presenter.has_problems()
+    assert family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+
 def test_genus_editor_presenter_populates_and_edits_fields(session, genus_editor_view):
     family = Family(epithet="Arecaceae", qualifier="")
     genus = Genus(family=family, epithet="Cocos", author="L.")
@@ -922,6 +947,45 @@ def test_genus_editor_presenter_populates_and_edits_fields(session, genus_editor
     assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
     assert genus_editor_view.widgets.gen_ok_and_add_button.get_sensitive()
     assert genus_editor_view.widgets.gen_next_button.get_sensitive()
+
+
+def test_genus_editor_blocks_overlong_epithet_and_author(session, genus_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    session.add_all([family, genus])
+    session.flush()
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+    epithet_entry = genus_editor_view.widgets.gen_genus_entry
+    author_entry = genus_editor_view.widgets.gen_author_entry
+
+    epithet_entry.set_text("X" * 65)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.epithet == "Cocos"
+    assert presenter.has_problems(epithet_entry)
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    epithet_entry.set_text("Phoenix")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    author_entry.set_text("Y" * 256)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.epithet == "Phoenix"
+    assert genus.author == "L."
+    assert presenter.has_problems(author_entry)
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    author_entry.set_text("Mill.")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.author == "Mill."
+    assert not presenter.has_problems()
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
 
 
 def test_species_editor_presenter_populates_and_edits_fields(
@@ -954,6 +1018,65 @@ def test_species_editor_presenter_populates_and_edits_fields(
     assert presenter.is_dirty()
     assert species_editor_view.widgets.sp_ok_button.get_sensitive()
     assert species_editor_view.widgets.sp_next_button.get_sensitive()
+
+
+def test_species_editor_blocks_overlong_names(session, species_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(
+        genus=genus,
+        epithet="nucifera",
+        author="L.",
+        hybrid=False,
+        cv_group=None,
+    )
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    epithet_entry = species_editor_view.widgets.sp_species_entry
+    author_entry = species_editor_view.widgets.sp_author_entry
+    cv_group_entry = species_editor_view.widgets.sp_cvgroup_entry
+
+    epithet_entry.set_text("X" * 65)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.epithet == "nucifera"
+    assert presenter.has_problems(epithet_entry)
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    epithet_entry.set_text("odorata")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    author_entry.set_text("Y" * 129)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.epithet == "odorata"
+    assert species.author == "L."
+    assert presenter.has_problems(author_entry)
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    author_entry.set_text("Dammer")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    cv_group_entry.set_text("Z" * 51)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.author == "Dammer"
+    assert species.cv_group is None
+    assert presenter.has_problems(cv_group_entry)
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    cv_group_entry.set_text("Guided Group")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.cv_group == "Guided Group"
+    assert not presenter.has_problems()
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
 
 
 def test_location_editor_presenter_populates_and_edits_fields(
