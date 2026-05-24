@@ -88,6 +88,7 @@ Ghini Development
    :maxdepth: 2
 
    building
+   release-readiness
    taxonomic-lookup
    template-letters
 

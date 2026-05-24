@@ -141,6 +141,10 @@ are for repeatable confidence. For every guided finding:
 ## Critical Paths
 
 The following paths are the initial target set. This is intentionally narrow.
+For release readiness, these paths are the baseline. A release candidate should
+not be tagged until each row is either covered by the automated/guided gates or
+explicitly deferred in GitLab and release notes. See
+`doc/release-readiness.rst` for the release-blocker policy.
 
 | Path | Headless | Guided | Notes |
 | --- | --- | --- | --- |
@@ -155,6 +159,24 @@ The following paths are the initial target set. This is intentionally narrow.
 | Create seed propagation from plant | yes | yes | Dogtail E2E verifies seed propagation and database state. |
 | Edit existing family/genus/species/accession/plant/location | partial | yes | Family, accession, location, and plant edit pass; genus/species edit remain covered by creation-chain and guided workflows. |
 | Delete/remove confirmation dialogs | yes | yes | Family delete cancel/confirm covered by Dogtail E2E. |
+
+## Release Gate Mapping
+
+Use this gate sequence before a release candidate:
+
+1. `scripts/docker-dev test-smoke`
+2. `scripts/docker-dev test-regression`
+3. `scripts/docker-dev postgres-check`
+4. Guided visual scenarios for startup, connection, taxonomy creation, location
+   creation, record editing, delete confirmation, daily accession workflow, and
+   propagation workflow
+5. A real PostgreSQL smoke pass against a disposable copy of representative
+   data
+
+Known failures are acceptable only when they are marked `xfail` or recorded in
+GitLab with a release decision. A defect should block release when it affects
+startup, database connection, data integrity, search/navigation, or the daily
+taxonomy-to-accession-to-plant workflow.
 
 ## Bug Recording Policy
 
