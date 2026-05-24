@@ -243,7 +243,6 @@
                       <object class="GtkEntry" id="loc_code_entry">
                         <property name="can-focus">True</property>
                         <property name="invisible-char">●</property>
-                        <property name="max-length">10</property>
                         <property name="primary-icon-activatable">False</property>
                         <property name="secondary-icon-activatable">False</property>
                         <property name="visible">True</property>

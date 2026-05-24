@@ -36,6 +36,7 @@ from bauble.editor import GenericEditorView as GenericEditorView
 from bauble.editor import (
     GenericModelViewPresenterEditor as GenericModelViewPresenterEditor,
 )
+from bauble.editor import MaxLengthValidator as MaxLengthValidator
 from bauble.editor import NotesPresenter as NotesPresenter
 from bauble.editor import UnicodeOrNoneValidator as UnicodeOrNoneValidator
 from bauble.gtkinit import Gtk
@@ -201,8 +202,16 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_view()  # put model values in view
 
         # connect signals
-        self.assign_simple_handler("loc_name_entry", "name", UnicodeOrNoneValidator())
-        self.assign_simple_handler("loc_code_entry", "code", UnicodeOrNoneValidator())
+        self.assign_simple_handler(
+            "loc_name_entry",
+            "name",
+            MaxLengthValidator(80, UnicodeOrNoneValidator()),
+        )
+        self.assign_simple_handler(
+            "loc_code_entry",
+            "code",
+            MaxLengthValidator(12, UnicodeOrNoneValidator()),
+        )
         self.assign_simple_handler(
             "loc_desc_textview", "description", UnicodeOrNoneValidator()
         )
@@ -318,8 +327,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
     def refresh_sensitivity(self) -> None:
         sensitive = False
         ignore = ("id", "_created", "_last_updated")
-        if self.is_dirty() and not utils.get_invalid_columns(
-            self.model, ignore_columns=ignore
+        if (
+            self.is_dirty()
+            and not self.problems
+            and not utils.get_invalid_columns(self.model, ignore_columns=ignore)
         ):
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)

@@ -13,7 +13,13 @@ import bauble.prefs as prefs
 import bauble.ui as ui
 import bauble.view as view
 from bauble.connmgr import ConnMgrPresenter
-from bauble.editor import GenericEditorPresenter, GenericEditorView
+from bauble.editor import (
+    GenericEditorPresenter,
+    GenericEditorView,
+    MaxLengthValidator,
+    UnicodeOrNoneValidator,
+    ValidatorError,
+)
 from bauble.gtkinit import Gtk
 from bauble.shared import InfoExpander
 from bauble.plugins.garden.location_editor import (
@@ -712,6 +718,17 @@ def test_dynamic_completion_refreshes_at_minimum_key_length():
         entry.destroy()
 
 
+def test_max_length_validator_wraps_base_validator():
+    validator = MaxLengthValidator(3, UnicodeOrNoneValidator())
+
+    assert validator.to_python("") is None
+    assert validator.to_python("abc") == "abc"
+    with pytest.raises(ValidatorError) as exc_info:
+        validator.to_python("abcd")
+
+    assert "3 characters or fewer" in str(exc_info.value)
+
+
 def test_connection_manager_empty_state(connmgr_view, gtk_prefs):
     presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
 
@@ -975,6 +992,42 @@ def test_location_editor_requires_code_before_accept(session, location_editor_vi
     presenter.on_text_entry_changed("loc_code_entry")
 
     assert location.code == "U1"
+    assert location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+
+def test_location_editor_blocks_overlong_code_and_name(session, location_editor_view):
+    location = Location(code="A1", name="Palm House", description=None)
+    session.add(location)
+    session.flush()
+
+    presenter = LocationEditorPresenter(location, location_editor_view)
+
+    location_editor_view.widgets.loc_code_entry.set_text("X" * 13)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert location.code == "A1"
+    assert presenter.has_problems(location_editor_view.widgets.loc_code_entry)
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widgets.loc_code_entry.set_text("B2")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    location_editor_view.widgets.loc_name_entry.set_text("Y" * 81)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert location.code == "B2"
+    assert location.name == "Palm House"
+    assert presenter.has_problems(location_editor_view.widgets.loc_name_entry)
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widgets.loc_name_entry.set_text("Fern Room")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert location.name == "Fern Room"
+    assert not presenter.has_problems()
     assert location_editor_view.widgets.loc_ok_button.get_sensitive()
 
 

@@ -154,6 +154,27 @@ class UnicodeOrEmptyValidator(Validator):
         return utils.to_unicode(value, self.encoding)
 
 
+class MaxLengthValidator(Validator):
+    """
+    Validate the length of text after an optional wrapped validator has
+    normalized it.
+    """
+
+    def __init__(self, max_length: int, wrapped: Optional[Validator] = None) -> None:
+        self.max_length = max_length
+        self.wrapped = wrapped
+
+    def to_python(self, value):
+        if self.wrapped is not None:
+            value = self.wrapped.to_python(value)
+        if value is not None and len(value) > self.max_length:
+            raise ValidatorError(
+                _("Value must be %(max)d characters or fewer.")
+                % {"max": self.max_length}
+            )
+        return value
+
+
 class IntOrNoneStringValidator(Validator):
     """
     If the value is an int, long or can be cast to int then return the
