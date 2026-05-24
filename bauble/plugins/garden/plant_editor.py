@@ -41,7 +41,10 @@ from bauble.editor import GenericEditorView as GenericEditorView
 from bauble.editor import (
     GenericModelViewPresenterEditor as GenericModelViewPresenterEditor,
 )
+from bauble.editor import MaxLengthValidator as MaxLengthValidator
 from bauble.editor import NotesPresenter, PicturesPresenter
+from bauble.editor import UnicodeOrNoneValidator as UnicodeOrNoneValidator
+from bauble.editor import ValidatorError as ValidatorError
 from bauble.error import CheckConditionError
 from bauble.gtkinit import Gtk
 from bauble.plugins.garden.constants import acc_type_values, change_reasons
@@ -331,6 +334,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     PROBLEM_DUPLICATE_PLANT_CODE: Any = str(random())
     PROBLEM_INVALID_QUANTITY: Any = str(random())
+    PROBLEM_INVALID_CODE_LENGTH = "BAD_VALUE_code"
+    code_validator = MaxLengthValidator(6, UnicodeOrNoneValidator())
 
     def __init__(self, model, view) -> None:
         """
@@ -573,11 +578,19 @@ class PlantEditorPresenter(GenericEditorPresenter):
         """
         Validates the accession number and the plant code from the editors.
         """
-        text = utils.to_unicode(entry.get_text())
-        if text == "":
+        text = utils.to_unicode(entry.get_text()).strip()
+        try:
+            code = self.code_validator.to_python(text)
+        except ValidatorError:
+            self.add_problem(self.PROBLEM_INVALID_CODE_LENGTH, entry)
+            self.refresh_sensitivity()
+            return
+        self.remove_problem(self.PROBLEM_INVALID_CODE_LENGTH, entry)
+
+        if code is None:
             self.set_model_attr("code", None)
         else:
-            self.set_model_attr("code", utils.to_unicode(text))
+            self.set_model_attr("code", code)
 
         if not self.model.accession:
             self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)

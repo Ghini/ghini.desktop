@@ -1141,6 +1141,28 @@ def test_plant_editor_invalid_quantity_blocks_accept(
     assert not plant_editor_view.widgets.pad_next_button.get_sensitive()
 
 
+def test_plant_editor_blocks_overlong_code(session, plant_editor_view):
+    plant = make_test_plant(session)
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    entry = plant_editor_view.widgets.plant_code_entry
+
+    entry.set_text("X" * 7)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert plant.code == "1"
+    assert presenter.has_problems(entry)
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+    entry.set_text("2")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert plant.code == "2"
+    assert not presenter.has_problems()
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+
 def test_accession_editor_presenter_populates_and_edits_core_fields(
     session, accession_editor_view
 ):
@@ -1187,6 +1209,28 @@ def test_accession_editor_duplicate_code_blocks_accept(session, accession_editor
     assert existing.code is None
     assert presenter.has_problems()
     assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_accession_editor_blocks_overlong_code(session, accession_editor_view):
+    accession = make_test_accession(session)
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    entry = accession_editor_view.widgets.acc_code_entry
+
+    entry.set_text("X" * 21)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert accession.code == "2026.001"
+    assert presenter.has_problems(entry)
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("2026.002")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert accession.code == "2026.002"
+    assert not presenter.has_problems()
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
 
 
 def test_contact_editor_blocks_overlong_source_name(session, contact_editor_view):

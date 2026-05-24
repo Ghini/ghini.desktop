@@ -1493,6 +1493,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_DATE: Any = random()
     PROBLEM_DUPLICATE_ACCESSION: Any = random()
+    PROBLEM_INVALID_CODE_LENGTH = "BAD_VALUE_code"
+    code_validator = editor.MaxLengthValidator(20, editor.UnicodeOrNoneValidator())
     PROBLEM_ID_QUAL_RANK_REQUIRED: Any = random()
 
     def __init__(self, model, view) -> None:
@@ -2019,16 +2021,24 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr("recvd_type", None)
 
     def on_acc_code_entry_changed(self, entry, data: Optional[Any] = None) -> None:
-        text = entry.get_text()
+        text = utils.to_unicode(entry.get_text()).strip()
+        try:
+            code = self.code_validator.to_python(text)
+        except editor.ValidatorError:
+            self.add_problem(self.PROBLEM_INVALID_CODE_LENGTH, entry)
+            self.refresh_sensitivity()
+            return
+        self.remove_problem(self.PROBLEM_INVALID_CODE_LENGTH, entry)
+
         from sqlalchemy import func
 
         stmt = (
             select(func.count())
             .select_from(Accession)
-            .where(Accession.code == str(text))
+            .where(Accession.code == str(code))
         )
         count = self.session.execute(stmt).scalar_one()
-        if text != self._original_code and count > 0:
+        if code != self._original_code and count > 0:
             self.add_problem(
                 self.PROBLEM_DUPLICATE_ACCESSION,
                 self.view.widgets.acc_code_entry,
@@ -2038,10 +2048,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.remove_problem(
             self.PROBLEM_DUPLICATE_ACCESSION, self.view.widgets.acc_code_entry
         )
-        if text == "":
+        if code is None:
             self.set_model_attr("code", None)
         else:
-            self.set_model_attr("code", utils.to_unicode(text))
+            self.set_model_attr("code", code)
 
     def on_date_entry_changed(self, entry, prop) -> None:
         """handle changed signal.
