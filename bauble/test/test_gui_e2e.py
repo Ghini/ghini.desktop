@@ -1618,8 +1618,13 @@ def enter_text(node, text, dogtail_rawinput):
     width, height = node.size
     dogtail_rawinput.click(x + width // 2, y + height // 2)
     time.sleep(0.1)
-    dogtail_rawinput.keyCombo("<Control>a")
-    dogtail_rawinput.typeText(text)
+    try:
+        node.text = text
+    except AttributeError:
+        dogtail_rawinput.keyCombo("<Control>a")
+        dogtail_rawinput.typeText(text)
+    time.sleep(0.1)
+    assert accessible_text(node) == text
 
 
 def type_into_empty_text(node, text, dogtail_rawinput):
@@ -1627,7 +1632,12 @@ def type_into_empty_text(node, text, dogtail_rawinput):
     width, height = node.size
     dogtail_rawinput.click(x + width // 2, y + height // 2)
     time.sleep(0.1)
-    dogtail_rawinput.typeText(text)
+    try:
+        node.text = text
+    except AttributeError:
+        dogtail_rawinput.typeText(text)
+    time.sleep(0.1)
+    assert accessible_text(node) == text
 
 
 def click_node_center(node, dogtail_rawinput):
