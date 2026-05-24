@@ -27,6 +27,27 @@ The query uses ``taxonNameMatch(inputString: ...)`` and expects:
 The lookup is intentionally asynchronous. UI code should not block species
 editing if WFO is unavailable, times out, or returns no match.
 
+Release Scope
+=============
+
+The Ghini 4.0.0 baseline release gates the daily interactive species-entry
+workflow, not the older batch taxonomy-check workflow. For the baseline, the
+required behavior is:
+
+* the species editor can query a maintained service for author and accepted-name
+  information,
+* unavailable or empty lookup responses do not block species editing,
+* accepted-name responses can be interpreted without reintroducing The Plant
+  List dependencies,
+* the behavior is covered by mocked tests so the release suite is deterministic.
+
+The current implementation satisfies that release scope through WFO. The WFO
+Plant List API documents both GraphQL and REST matching interfaces, open access
+without API keys, stable WFO identifiers, and data snapshots every six months.
+The TNRS service also has a maintained API suitable for future batch workflows,
+but replacing the batch taxonomy-check tool is not required for the 4.0.0
+baseline.
+
 Current Coverage
 ================
 
@@ -44,9 +65,11 @@ Remaining Work
 ==============
 
 The legacy ``AskTPL`` name and species-editor callback names can be renamed
-later, but that should be a separate compatibility cleanup. More importantly,
+later, but that should be a separate compatibility cleanup.
+
 ``bauble/plugins/plants/taxonomy_check.py`` still documents a TNRS file-based
-workflow for batch checks. Before release, decide whether that workflow should:
+workflow for batch checks. That workflow is retained as legacy/manual behavior
+for 4.0.0. After the baseline release, decide whether that workflow should:
 
 * keep importing user-supplied TNRS files,
 * switch to WFO matching exports,
@@ -55,3 +78,11 @@ workflow for batch checks. Before release, decide whether that workflow should:
 
 The current daily-entry priority is the interactive species lookup used to
 confirm author names while entering new species.
+
+References
+==========
+
+* WFO Plant List API: https://list.worldfloraonline.org/index.php
+* WFO Plant List background: https://about.worldfloraonline.org/plant-list/
+* TNRS API: https://tnrs.biendata.org/tnrsapi/
+* BIEN TNRS API notes: https://bien.nceas.ucsb.edu/bien/tools/tnrs/tnrs-api/
