@@ -962,6 +962,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
     session: Any
     _dirty: bool
     treeview: Any
+    _active_cell_edit: Optional[tuple[Any, str, str]]
 
     def __init__(self, parent) -> None:
         """
@@ -971,6 +972,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
         self._dirty = False
+        self._active_cell_edit = None
         self.init_treeview(self.model.vernacular_names)
         self.view.connect("sp_vern_add_button", "clicked", self.on_add_button_clicked)
         self.view.connect(
@@ -989,7 +991,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         """
         treemodel = self.treeview.get_model()
         column = self.treeview.get_column(0)
-        vn = VernacularName()
+        vn = VernacularName(name="")
         self.model.vernacular_names.append(vn)
         treeiter = treemodel.append([vn])
         path = treemodel.get_path(treeiter)
@@ -1043,8 +1045,48 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         self.parent_ref().refresh_sensitivity()
 
     def on_cell_edited(self, cell, path, new_text, prop) -> None:
+        self._set_cell_value(path, new_text, prop)
+        self._active_cell_edit = None
+
+    def on_cell_editing_started(self, cell, editable, path, prop) -> None:
+        path_text = path.to_string() if isinstance(path, Gtk.TreePath) else str(path)
+        self._active_cell_edit = (editable, path_text, prop)
+        if hasattr(editable, "connect"):
+            self.view.connect(
+                editable, "changed", self.on_cell_editing_changed, path_text, prop
+            )
+            self.view.connect(
+                editable,
+                "focus-out-event",
+                self.on_cell_editing_focus_out,
+                path_text,
+                prop,
+            )
+
+    def on_cell_editing_changed(self, editable, path, prop) -> None:
+        self._set_cell_value(path, editable.get_text(), prop)
+
+    def on_cell_editing_focus_out(self, editable, event, path, prop) -> bool:
+        self._set_cell_value(path, editable.get_text(), prop)
+        return False
+
+    def sync_active_cell_edit(self) -> None:
+        active_edit = self._active_cell_edit
+        if not active_edit:
+            return
+        editable, path, prop = active_edit
+        if hasattr(editable, "get_text"):
+            self._set_cell_value(path, editable.get_text(), prop)
+
+    def _set_cell_value(self, path, new_text, prop) -> None:
         treemodel = self.treeview.get_model()
-        vn = treemodel[path][0]
+        try:
+            treeiter = treemodel.get_iter(path)
+        except (TypeError, ValueError, GLib.Error):
+            treeiter = treemodel.get_iter_from_string(str(path))
+        if treeiter is None:
+            return
+        vn = treemodel[treeiter][0]
         if getattr(vn, prop) == new_text:
             return  # didn't change
         setattr(vn, prop, new_text)
@@ -1078,6 +1120,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         cell = self.view.widgets.vn_name_cell
         self.view.widgets.vn_name_column.set_cell_data_func(cell, _name_data_func)
         self.view.connect(cell, "edited", self.on_cell_edited, "name")
+        self.view.connect(cell, "editing-started", self.on_cell_editing_started, "name")
 
         def _lang_data_func(column, cell, model, treeiter, data=None):
             v = model[treeiter][0]
@@ -1092,6 +1135,9 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         cell = self.view.widgets.vn_lang_cell
         self.view.widgets.vn_lang_column.set_cell_data_func(cell, _lang_data_func)
         self.view.connect(cell, "edited", self.on_cell_edited, "language")
+        self.view.connect(
+            cell, "editing-started", self.on_cell_editing_started, "language"
+        )
 
         def _default_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
@@ -1553,6 +1599,8 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         #     self.model.infrasp = None
         #     self.model.infrasp_author = None
         #     self.model.cv_group = None
+
+        self.presenter.vern_presenter.sync_active_cell_edit()
 
         # remove incomplete vernacular names
         for vn in self.model.vernacular_names or []:

@@ -1079,6 +1079,33 @@ def test_species_editor_blocks_overlong_names(session, species_editor_view):
     assert species_editor_view.widgets.sp_ok_button.get_sensitive()
 
 
+def test_species_vernacular_name_syncs_while_cell_is_edited(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    vern_presenter = presenter.vern_presenter
+    vern_presenter.on_add_button_clicked(species_editor_view.widgets.sp_vern_add_button)
+    vernacular_name = species.vernacular_names[0]
+    cell_editor = Gtk.Entry()
+
+    vern_presenter.on_cell_editing_started(
+        species_editor_view.widgets.vn_name_cell, cell_editor, "0", "name"
+    )
+    cell_editor.set_text("Coconut palm")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert vernacular_name.name == "Coconut palm"
+    assert presenter.is_dirty()
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+
 def test_location_editor_presenter_populates_and_edits_fields(
     session, location_editor_view
 ):
