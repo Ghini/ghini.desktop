@@ -768,7 +768,10 @@ class GenericEditorView:
         completion.set_property("text-column", text_column)
         completion.set_minimum_key_length(minimum_key_length)
         completion.set_property("popup_completion", True)
+        completion.set_property("inline_completion", True)
+        completion.set_property("inline_selection", True)
         completion.set_property("popup-set-width", False)
+        completion.set_popup_single_match(False)
         if isinstance(entry, str):
             self.widgets[entry].set_completion(completion)
         else:
@@ -1976,7 +1979,7 @@ class GenericEditorPresenter:
                 return
 
             key_length = widget.get_completion().get_property("minimum-key-length")
-            if len(text) > key_length:
+            if len(text) >= key_length:
                 logger.debug(f"recomputing completions matching {text}")
                 add_completions(text)
 

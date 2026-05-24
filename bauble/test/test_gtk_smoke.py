@@ -13,7 +13,7 @@ import bauble.prefs as prefs
 import bauble.ui as ui
 import bauble.view as view
 from bauble.connmgr import ConnMgrPresenter
-from bauble.editor import GenericEditorView
+from bauble.editor import GenericEditorPresenter, GenericEditorView
 from bauble.gtkinit import Gtk
 from bauble.shared import InfoExpander
 from bauble.plugins.garden.location_editor import (
@@ -656,6 +656,60 @@ def test_main_search_completion_matches_substrings_case_insensitively():
     assert not ui._main_search_completion_matches_text(
         "genus where epithet=", "accession"
     )
+
+
+def test_generic_entry_completion_enables_inline_and_popup_behavior():
+    entry = Gtk.Entry()
+    generic_view = object.__new__(GenericEditorView)
+
+    try:
+        completion = GenericEditorView.attach_completion(
+            generic_view, entry, text_column=0
+        )
+
+        assert completion.get_property("popup_completion")
+        assert completion.get_property("inline_completion")
+        assert completion.get_property("inline_selection")
+        assert completion.get_property("popup-set-width") is False
+        assert not completion.get_popup_single_match()
+    finally:
+        entry.destroy()
+
+
+def test_dynamic_completion_refreshes_at_minimum_key_length():
+    entry = Gtk.Entry()
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(object))
+    completion.set_minimum_key_length(2)
+    entry.set_completion(completion)
+    requested_prefixes = []
+
+    class CompletionView:
+        widgets = SimpleNamespace()
+
+        def connect(self, obj, signal, callback, *args):
+            return obj.connect(signal, callback, *args)
+
+    presenter = object.__new__(GenericEditorPresenter)
+    presenter.view = CompletionView()
+    presenter.problems = set()
+
+    def get_completions(prefix):
+        requested_prefixes.append(prefix)
+        return ["Tulipa"]
+
+    try:
+        GenericEditorPresenter.assign_completions_handler(
+            presenter, entry, get_completions
+        )
+        entry.set_text("Tu")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert requested_prefixes == ["Tu"]
+        assert [row[0] for row in entry.get_completion().get_model()] == ["Tulipa"]
+    finally:
+        entry.destroy()
 
 
 def test_connection_manager_empty_state(connmgr_view, gtk_prefs):
