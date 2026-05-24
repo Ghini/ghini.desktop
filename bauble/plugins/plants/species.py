@@ -157,13 +157,20 @@ class SynonymSearch(search.SearchStrategy):
 
     def __init__(self) -> None:
         super().__init__()
+        if prefs.config is None:
+            return
         if self.return_synonyms_pref not in prefs:
             prefs[self.return_synonyms_pref] = True
             prefs.save()
 
+    def return_synonyms_enabled(self) -> bool:
+        if prefs.config is None:
+            return True
+        return bool(prefs[self.return_synonyms_pref])
+
     def search(self, text, session, seed: Optional[Set[Any]] = None, **_):
         super().search(text, session)
-        if not session or not prefs[self.return_synonyms_pref]:
+        if not session or not self.return_synonyms_enabled():
             return set()
 
         # use the provided base if available to avoid re-running MapperSearch

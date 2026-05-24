@@ -2298,6 +2298,18 @@ class TestGlobalFunctions:
         assert partial(db.natsort, "species.accessions")(vName) == []
 
 
+def test_synonym_search_defaults_enabled_without_initialized_prefs(monkeypatch) -> None:
+    from bauble.plugins.plants.species import SynonymSearch
+    from bauble.prefs import prefs
+
+    monkeypatch.setattr(prefs, "config", None)
+
+    strategy = SynonymSearch()
+
+    assert strategy.return_synonyms_enabled() is True
+    assert strategy.search("anything", None) == set()
+
+
 @pytest.mark.usefixtures("setup_bauble_data")
 class TestBaubleSearch:
     def test_search_uses_synonym_search(self, session, caplog) -> None:
