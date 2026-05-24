@@ -953,6 +953,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
     prop_chooser_presenter: Any
     collection_presenter: Any
     garden_prop_str: Any = _("Garden Propagation")
+    SOURCE_CODE_PROBLEM = "BAD_VALUE_sources_code"
+    source_code_validator = editor.MaxLengthValidator(
+        32, editor.UnicodeOrNoneValidator()
+    )
 
     def __init__(self, parent, model, view, session) -> None:
         from bauble.plugins.garden.models import (
@@ -1060,13 +1064,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.collection_presenter.register_clipboard()
 
         def on_changed(entry, *args):
-            text = entry.get_text()
-            if text.strip():
-                self.source.sources_code = utils.to_unicode(text)
-            else:
-                self.source.sources_code = None
-            self._dirty = True
-            self.refresh_sensitivity()
+            self._set_sources_code_from_text(entry.get_text(), entry)
 
         self.view.connect("sources_code_entry", "changed", on_changed)
 
@@ -1148,13 +1146,29 @@ class SourcePresenter(editor.GenericEditorPresenter):
         logger.warning(f"refresh_sensitivity: {str(self.problems)}")
         self.parent_ref().refresh_sensitivity()
 
+    def _set_sources_code_from_text(self, text, widget) -> bool:
+        text = utils.to_unicode(text).strip()
+        try:
+            sources_code = self.source_code_validator.to_python(text)
+        except editor.ValidatorError:
+            self.add_problem(self.SOURCE_CODE_PROBLEM, widget)
+            self.refresh_sensitivity()
+            return False
+        self.remove_problem(self.SOURCE_CODE_PROBLEM, widget)
+        if self.source.sources_code != sources_code:
+            self.source.sources_code = sources_code
+            self._dirty = True
+        self.refresh_sensitivity()
+        return True
+
     def sync_from_view(self) -> None:
         combo = self.view.widgets.acc_source_comboentry
         entry_text = utils.to_unicode(combo.get_child().get_text()).strip()
-        sources_code = utils.to_unicode(
-            self.view.widgets.sources_code_entry.get_text()
-        ).strip()
-        self.source.sources_code = sources_code or None
+        if not self._set_sources_code_from_text(
+            self.view.widgets.sources_code_entry.get_text(),
+            self.view.widgets.sources_code_entry,
+        ):
+            return
 
         if entry_text == self.garden_prop_str:
             self._attach_source_to_model()

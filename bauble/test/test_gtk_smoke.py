@@ -31,6 +31,7 @@ from bauble.plugins.garden.accession_editor import (
     AccessionEditorView,
 )
 from bauble.plugins.garden.models.accession import Accession
+from bauble.plugins.garden.models.contact import Contact
 from bauble.plugins.garden.models.location import Location
 from bauble.plugins.garden.models.plant import Plant
 from bauble.plugins.garden.plant_editor import (
@@ -43,6 +44,7 @@ from bauble.plugins.garden.propagation_editor import (
     PropagationEditorView,
 )
 from bauble.plugins.garden.models.propagation import Propagation
+from bauble.plugins.garden.source import ContactPresenter
 from bauble.plugins.plants.family import (
     Family,
     FamilyEditorPresenter,
@@ -344,6 +346,20 @@ def plant_editor_view():
 @pytest.fixture
 def accession_editor_view():
     view = AccessionEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def contact_editor_view():
+    view = GenericEditorView(
+        str(LIB_DIR / "plugins" / "garden" / "contact.glade"),
+        root_widget_name="source_details_dialog",
+    )
     try:
         yield view
     finally:
@@ -1171,6 +1187,54 @@ def test_accession_editor_duplicate_code_blocks_accept(session, accession_editor
     assert existing.code is None
     assert presenter.has_problems()
     assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_contact_editor_blocks_overlong_source_name(session, contact_editor_view):
+    contact = Contact(name="Known source")
+    session.add(contact)
+    session.flush()
+
+    presenter = ContactPresenter(contact, contact_editor_view, session=session)
+    entry = contact_editor_view.widgets.source_name_entry
+
+    entry.set_text("X" * 76)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert contact.name == "Known source"
+    assert presenter.has_problems(entry)
+    assert not contact_editor_view.widgets.sd_ok_button.get_sensitive()
+
+    entry.set_text("New source")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert contact.name == "New source"
+    assert not presenter.has_problems()
+    assert contact_editor_view.widgets.sd_ok_button.get_sensitive()
+
+
+def test_accession_source_id_blocks_overlong_value(session, accession_editor_view):
+    accession = make_test_accession(session)
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    source_presenter = presenter.source_presenter
+    entry = accession_editor_view.widgets.sources_code_entry
+
+    entry.set_text("X" * 33)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert source_presenter.source.sources_code is None
+    assert source_presenter.has_problems(entry)
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("DONOR-001")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert source_presenter.source.sources_code == "DONOR-001"
+    assert not source_presenter.has_problems(entry)
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
 
 
 def test_propagation_editor_seed_fields_enable_accept(session, propagation_editor_view):

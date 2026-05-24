@@ -728,6 +728,8 @@ source_detail_context_menu: Any = [
 
 class ContactPresenter(editor.GenericEditorPresenter):
 
+    NAME_PROBLEM = "BAD_VALUE_name"
+    name_validator = editor.MaxLengthValidator(75, editor.UnicodeOrNoneValidator())
     widget_to_field_map: Any = {
         "source_name_entry": "name",
         "source_type_combo": "source_type",
@@ -751,8 +753,31 @@ class ContactPresenter(editor.GenericEditorPresenter):
             self._dirty = True
             self.view._dirty = True
 
+    def _validate_name(self, widget, value):
+        try:
+            value = self.name_validator.to_python(value)
+        except editor.ValidatorError:
+            self.add_problem(self.NAME_PROBLEM, widget)
+            self.view.set_accept_buttons_sensitive(False)
+            return None, False
+        self.remove_problem(self.NAME_PROBLEM, widget)
+        return value, True
+
+    def on_unique_text_entry_changed(self, widget, value: Optional[Any] = None) -> None:
+        if self.widget_get_name(widget) == "source_name_entry":
+            if value is None:
+                value = widget.get_text()
+            value, is_valid = self._validate_name(widget, value)
+            if not is_valid:
+                return
+        return super().on_unique_text_entry_changed(widget, value)
+
     def sync_from_view(self) -> None:
-        name = utils.to_unicode(self.view.widgets.source_name_entry.get_text()).strip()
+        name_widget = self.view.widgets.source_name_entry
+        name = utils.to_unicode(name_widget.get_text()).strip()
+        name, is_valid = self._validate_name(name_widget, name)
+        if not is_valid:
+            return
         self._set_model_attr_from_widget("name", name or None)
         self._set_model_attr_from_widget(
             "source_type", self.view.widget_get_value("source_type_combo") or None
@@ -777,7 +802,9 @@ class ContactPresenter(editor.GenericEditorPresenter):
         result = self.view.get_window().run()
         if self.response_commits(result):
             self.sync_from_view()
-            if self._dirty or self.session.new or self.session.dirty:
+            if not self.has_problems() and (
+                self._dirty or self.session.new or self.session.dirty
+            ):
                 self.commit_changes()
         self.cleanup()
         return result
