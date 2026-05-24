@@ -142,6 +142,8 @@ Documentation and issue accounting
   manual test layers.
 * ``doc/search-migration-accounting.md`` is up to date for migration decisions
   from the old search branch.
+* ``doc/upstream-release-triage.md`` records which upstream GitHub issues are
+  included, deferred, or already covered for this release.
 * Open GitLab issues are classified before release:
 
   * ``release-blocker``: must be fixed before release.
