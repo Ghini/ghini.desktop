@@ -1,4 +1,5 @@
 from bauble.plugins.garden.accession_editor import (
+    _source_model_has_text_match,
     _source_exact_text_match,
     _source_matches_text,
     _unique_source_contacts,
@@ -39,6 +40,19 @@ def test_source_completion_matches_case_insensitive_substrings_and_ids():
     assert _source_matches_text(contact, "NURS")
     assert _source_matches_text(contact, "4")
     assert not _source_matches_text(contact, "missing")
+
+
+def test_source_model_partial_match_keeps_typing_valid():
+    model = [
+        [""],
+        ["Garden Propagation"],
+        [ContactStub("Daily Workflow Nursery", id=42)],
+    ]
+
+    assert _source_model_has_text_match(model, "daily")
+    assert _source_model_has_text_match(model, "NURS")
+    assert _source_model_has_text_match(model, "4")
+    assert not _source_model_has_text_match(model, "missing")
 
 
 def test_source_exact_match_accepts_display_text_or_id():

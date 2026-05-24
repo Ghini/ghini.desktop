@@ -120,6 +120,15 @@ def _source_exact_text_match(source: Any, text: str) -> bool:
     return source_id is not None and str(source_id) == text.strip()
 
 
+def _source_model_has_text_match(model: Any, text: str) -> bool:
+    normalized_text = text.strip()
+    if not normalized_text:
+        return True
+    if model is None:
+        return False
+    return any(_source_matches_text(row[0], normalized_text) for row in model)
+
+
 def generic_taxon_add_action(
     model, view, presenter, top_presenter, button, taxon_entry
 ) -> None:
@@ -1300,7 +1309,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         self.view.connect(completion, "match-selected", on_match_select)
 
-        def resolve_entry_text(entry):
+        def resolve_entry_text(entry, require_exact: bool = True):
             text = utils.to_unicode(entry.get_text())
             # see if the text matches a completion string
             comp = entry.get_completion()
@@ -1314,13 +1323,17 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 # the model and iter here should technically be the tree
                 comp.emit("match-selected", comp.get_model(), found[0])
                 self.remove_problem(PROBLEM, entry)
+            elif not require_exact and _source_model_has_text_match(
+                comp.get_model(), text
+            ):
+                self.remove_problem(PROBLEM, entry)
             else:
                 self.add_problem(PROBLEM, entry)
             update_visible()
             return True
 
         def on_entry_changed(entry, data=None):
-            return resolve_entry_text(entry)
+            return resolve_entry_text(entry, require_exact=False)
 
         self.view.connect(entry, "changed", on_entry_changed)
         self.view.connect(entry, "activate", lambda entry: resolve_entry_text(entry))
