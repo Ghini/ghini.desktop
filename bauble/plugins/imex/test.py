@@ -1380,8 +1380,102 @@ def test_import_with_synonym(temp_file3, db_session) -> None:
     )
 
     assert synonym is not None
-    assert synonym.accepted == accepted
     assert accepted is not None
+    assert synonym.author == "Reinw."
+    assert accepted.author == "Thouars"
+    assert synonym.accepted == accepted
+
+
+def test_import_family_with_accepted_preserves_both_taxa(
+    temp_file3, db_session
+) -> None:
+    """Family import links a synonym family to its accepted family."""
+    with open(temp_file3, "w") as f:
+        json.dump(
+            [
+                {
+                    "object": "taxon",
+                    "rank": "familia",
+                    "epithet": "Leguminosae",
+                    "accepted": {
+                        "object": "taxon",
+                        "rank": "familia",
+                        "epithet": "Fabaceae",
+                    },
+                }
+            ],
+            f,
+        )
+
+    importer = JSONImporter(MockView())
+    importer.filename = temp_file3
+    importer.on_btnok_clicked(None)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    synonym = Family.retrieve_or_create(
+        db_session, {"epithet": "Leguminosae"}, create=False
+    )
+    accepted = Family.retrieve_or_create(
+        db_session, {"epithet": "Fabaceae"}, create=False
+    )
+
+    assert synonym is not None
+    assert accepted is not None
+    assert synonym.accepted == accepted
+
+
+def test_import_species_with_accepted_preserves_both_taxa(
+    temp_file3, db_session
+) -> None:
+    """Species import links a synonym species to its accepted species."""
+    with open(temp_file3, "w") as f:
+        json.dump(
+            [
+                {
+                    "object": "taxon",
+                    "rank": "species",
+                    "ht-rank": "genus",
+                    "ht-epithet": "Acceptedimporta",
+                    "familia": "Orchidaceae",
+                    "epithet": "minor",
+                    "author": "Syn. Author",
+                    "accepted": {
+                        "object": "taxon",
+                        "rank": "species",
+                        "ht-rank": "genus",
+                        "ht-epithet": "Acceptedimporta",
+                        "familia": "Orchidaceae",
+                        "epithet": "major",
+                        "author": "Acc. Author",
+                    },
+                }
+            ],
+            f,
+        )
+
+    importer = JSONImporter(MockView())
+    importer.filename = temp_file3
+    importer.on_btnok_clicked(None)
+    if db_session.in_transaction():
+        db_session.commit()
+
+    synonym = Species.retrieve_or_create(
+        db_session,
+        {"ht-epithet": "Acceptedimporta", "epithet": "minor"},
+        create=False,
+    )
+    accepted = Species.retrieve_or_create(
+        db_session,
+        {"ht-epithet": "Acceptedimporta", "epithet": "major"},
+        create=False,
+    )
+
+    assert synonym is not None
+    assert accepted is not None
+    assert synonym.author == "Syn. Author"
+    assert accepted.author == "Acc. Author"
+    assert synonym.accepted == accepted
 
 
 def test_use_author_to_break_ties(temp_file3, db_session) -> None:
