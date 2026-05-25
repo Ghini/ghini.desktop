@@ -29,6 +29,11 @@ from unittest.mock import patch
 
 import pytest
 from bauble.plugins.plants.ask_tpl import AskTPL, what_to_do_with_it
+from bauble.plugins.plants.taxon_lookup import (
+    TaxonLookupRequest,
+    TaxonLookupStatus,
+    WfoTaxonLookupProvider,
+)
 
 
 class MockResponse:
@@ -129,7 +134,7 @@ def mock_requests() -> Iterator[None]:
         def __exit__(self, *args: Any) -> None:
             pass
 
-    with patch("bauble.plugins.plants.ask_tpl.requests.Session", MockSession):
+    with patch("bauble.plugins.plants.taxon_lookup.requests.Session", MockSession):
         yield
 
 
@@ -172,6 +177,41 @@ class TestAskTPL:
         infolog = mock_logger.messages[self.logger_name]["info"]
         assert len(infolog) == 1
         assert infolog[0] == "nothing matches"
+
+    def test_wfo_provider_maps_accepted_result(self) -> None:
+        response = WfoTaxonLookupProvider().lookup(
+            TaxonLookupRequest(name="Rhopalocarpus alternifolium")
+        )
+
+        assert len(response.results) == 1
+        result = response.results[0]
+        assert result.provider == "wfo"
+        assert result.provider_id == "wfo-rhopalocarpus"
+        assert result.family == "Sphaerosepalaceae"
+        assert result.genus == "Rhopalocarpus"
+        assert result.species == "alternifolius"
+        assert result.authorship == "Capuron"
+        assert result.status == TaxonLookupStatus.ACCEPTED
+        assert result.accepted_provider_id == "wfo-rhopalocarpus"
+
+    def test_wfo_provider_maps_synonym_result(self) -> None:
+        response = WfoTaxonLookupProvider().lookup(
+            TaxonLookupRequest(name="Iris florentina")
+        )
+
+        assert len(response.results) == 1
+        result = response.results[0]
+        assert result.provider_id == "kew-321828"
+        assert result.status == TaxonLookupStatus.SYNONYM
+        assert result.accepted_provider_id == "kew-321867"
+        assert result.as_ask_tpl_dict()["Taxonomic status"] == "Synonym"
+
+    def test_wfo_provider_returns_no_results_for_empty_answer(self) -> None:
+        response = WfoTaxonLookupProvider().lookup(
+            TaxonLookupRequest(name="Manducaria italica")
+        )
+
+        assert response.results == []
 
     def test_do_not_run_same_query_twice(self, mock_logger: Any) -> None:
         self.logger.setLevel(logging.DEBUG)
