@@ -28,6 +28,8 @@ from bauble.plugins.plants import Species
 
 logger: Any = logging.getLogger(__name__)
 
+TNRS_WEB_URL = "https://tnrs.biendata.org/"
+
 
 def safe_set_text(gtk_widget, text) -> None:
     """
@@ -137,7 +139,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
     the batch taxonomy check (BTC) can run if you have an equal rank
     selection of taxa in your search results. The BTC exports the names
     to the clipboard and opens the browser on the
-    http://tnrs.iplantcollaborative.org/TNRSapp.html page.
+    current TNRS web application.
 
     the user will run the service on the remote site, then save the results to
     a file. then back to Ghini's BTC, the user will open the file and finally
@@ -293,7 +295,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
     def on_tnrs_browse_button_clicked(self, *args) -> None:
         from bauble.utils import desktop
 
-        desktop.open("http://tnrs.iplantcollaborative.org/TNRSapp.html")
+        desktop.open(TNRS_WEB_URL)
 
     def on_tick_off_view_row_activated(
         self, view, path, column, data: Optional[Any] = None

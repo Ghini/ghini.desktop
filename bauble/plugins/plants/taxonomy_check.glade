@@ -27,18 +27,18 @@
     </columns>
   </object>
   <object class="GtkTextBuffer" id="textbuffer1">
-    <property name="text" translatable="yes">Please interact with the http://tnrs.iplantcollaborative.org page.
+    <property name="text" translatable="yes">Please interact with the https://tnrs.biendata.org/ page.
 
 On this screen you should:
 1. use the below 'copy' button to copy the selection into the clipboard
-2. use the below 'browse' button to open the tnrs web page
+2. use the below 'browse' button to open the TNRS web page
 
 On that page you should:
 1. copy the content of the clipboard to the text field there
 2. click on submit list
 3. wait until the request is completed
 4. click on download results
-5. change download format to detailed
+5. change download format to detailed if that option is available
 6. notice the name of the file about to be downloaded
 7. click on OK
 

@@ -85,8 +85,10 @@ The legacy ``AskTPL`` name and species-editor callback names can be renamed
 later, but that should be a separate compatibility cleanup.
 
 ``bauble/plugins/plants/taxonomy_check.py`` still documents a TNRS file-based
-workflow for batch checks. Before closing the release-blocking taxonomy lookup
-issue, decide whether that workflow should:
+workflow for batch checks. The manual workflow points at the current TNRS web
+application, but it does not yet call a provider API directly. Before closing
+the release-blocking taxonomy lookup issue, decide whether that workflow
+should:
 
 * keep importing user-supplied TNRS files,
 * switch to WFO matching exports,

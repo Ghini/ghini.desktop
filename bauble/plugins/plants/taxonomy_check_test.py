@@ -20,7 +20,12 @@ from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from sqlalchemy import text
 
+from .taxonomy_check import TNRS_WEB_URL
 from .taxonomy_check import species_to_fix as species_to_fix
+
+
+def test_tnrs_web_url_points_to_current_service() -> None:
+    assert TNRS_WEB_URL == "https://tnrs.biendata.org/"
 
 
 @pytest.fixture(scope="function")
