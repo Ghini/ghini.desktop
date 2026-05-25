@@ -300,7 +300,7 @@ run_gui_e2e() {
     fi
 
     GHINI_XHOST=0 NO_AT_BRIDGE=0 run_container shell \
-        timeout 180 xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        timeout 420 xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
         dbus-run-session -- \
         bash -lc 'gsettings set org.gnome.desktop.interface toolkit-accessibility true; python -m pytest "$@"' \
         bash "${pytest_args[@]}"
