@@ -22,12 +22,13 @@
 # Import necessary modules
 import datetime
 import os
+from types import SimpleNamespace
 
 import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
 import pytest
-from bauble.editor import GenericEditorView
+from bauble.editor import GenericEditorView, NoteBox
 from bauble.utils import parse_date
 
 # Ensure testing environment
@@ -169,3 +170,78 @@ def test_today_str_uses_local_today(monkeypatch) -> None:
     monkeypatch.setattr(utils, "local_today", lambda: datetime.date(2026, 5, 14))
 
     assert utils.today_str("%Y-%m-%d") == "2026-05-14"
+
+
+class _FakeEntry:
+    def __init__(self, text="") -> None:
+        self.text = text
+
+    def get_text(self):
+        return self.text
+
+    def set_text(self, text) -> None:
+        self.text = text
+
+
+class _FakeParent:
+    def __init__(self) -> None:
+        self.refreshed = False
+
+    def refresh_sensitivity(self) -> None:
+        self.refreshed = True
+
+
+class _FakePresenter:
+    PROBLEM_EMPTY = "EMPTY"
+
+    def __init__(self, parent) -> None:
+        self._dirty = False
+        self.notes = []
+        self.parent = parent
+        self.problems = []
+
+    def add_problem(self, problem, widget) -> None:
+        self.problems.append((problem, widget))
+
+    def remove_problem(self, problem, widget) -> None:
+        if (problem, widget) in self.problems:
+            self.problems.remove((problem, widget))
+
+    def parent_ref(self):
+        return self.parent
+
+
+def _note_box_with_date_entry(text="25-05-2026"):
+    box = NoteBox.__new__(NoteBox)
+    parent = _FakeParent()
+    box.presenter = _FakePresenter(parent)
+    box.model = SimpleNamespace(date=None, user=None, category=None, note=None)
+    box.prefs = prefs
+    box.widgets = SimpleNamespace(date_entry=_FakeEntry(text))
+    box.update_label = lambda: None
+    return box, parent
+
+
+def test_note_box_date_entry_uses_editor_date_validator() -> None:
+    box, _parent = _note_box_with_date_entry("25-05-2026")
+    entry = _FakeEntry("25-05-2026")
+
+    box.on_date_entry_changed(entry)
+
+    assert box.model.date.date() == datetime.date(2026, 5, 25)
+    assert box.presenter.problems == []
+
+
+def test_note_box_appends_new_note_once_when_date_is_missing() -> None:
+    box, parent = _note_box_with_date_entry("25-05-2026")
+
+    box.set_model_attr("note", "Test note")
+    box.set_model_attr("category", "guided category")
+
+    assert box.presenter.notes == [box.model]
+    assert box.presenter._dirty is True
+    assert parent.refreshed is True
+
+
+def test_note_box_defaults_to_global_preferences() -> None:
+    assert NoteBox._resolve_prefs(None) is prefs

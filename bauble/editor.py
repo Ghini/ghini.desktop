@@ -2235,6 +2235,10 @@ class NoteBox:
     session: Any
     glade_ui: str = "notes.glade"
 
+    @staticmethod
+    def _resolve_prefs(prefs_module: Optional[Any] = None):
+        return prefs_module or globals()["prefs"]
+
     def __init__(
         self, presenter, model: Optional[Any] = None, prefs: Optional[Any] = None
     ) -> None:
@@ -2247,7 +2251,7 @@ class NoteBox:
         """
         self.box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.presenter = presenter
-        self.prefs = prefs
+        self.prefs = self._resolve_prefs(prefs)
         self.model = model if model else presenter.note_cls()
 
         # Load UI from Glade file
@@ -2339,7 +2343,7 @@ class NoteBox:
         PROBLEM = "BAD_DATE"
         text = entry.get_text()
         try:
-            text = utils.DateValidator().to_python(text)
+            text = DateValidator().to_python(text)
         except Exception as e:
             logger.debug(e)
             self.presenter.add_problem(PROBLEM, entry)
@@ -2428,7 +2432,8 @@ class NoteBox:
             tmp = entry.get_text()
             safe_set_props(entry, "text", "")
             safe_set_props(entry, "text", tmp)
-            self.presenter.notes.append(self.model)
+            if self.model not in self.presenter.notes:
+                self.presenter.notes.append(self.model)
 
         self.update_label()
         self.presenter.parent_ref().refresh_sensitivity()
