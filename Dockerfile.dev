@@ -74,6 +74,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# WFO currently omits this intermediate certificate from its TLS chain.
+# Keep verification enabled by installing the public intermediate certificate
+# in the development image trust store.
+COPY docker/certs/network-solutions-rsa-ov-ssl-ca-3.crt \
+    /usr/local/share/ca-certificates/network-solutions-rsa-ov-ssl-ca-3.crt
+RUN update-ca-certificates
+
 RUN existing_group="$(getent group "${GROUP_ID}" | cut -d: -f1 || true)" \
     && if [[ -z "${existing_group}" ]]; then \
         groupadd --gid "${GROUP_ID}" ghini; \
@@ -147,4 +154,6 @@ EXPOSE 5678
 USER ghini
 
 ENTRYPOINT ["/usr/local/bin/ghini-dev-entrypoint"]
+ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 CMD ["__ghini_mode__"]

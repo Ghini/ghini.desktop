@@ -64,6 +64,12 @@ snapshots every six months. The TNRS service also has a maintained API suitable
 for batch workflows; it should plug into the same contract if it remains part
 of the release scope.
 
+The WFO server has been observed to omit the Network Solutions RSA OV SSL CA 3
+intermediate certificate from its TLS chain. The Docker development image
+therefore installs that public intermediate certificate into the container trust
+store and points ``requests`` at the system CA bundle so Ghini can keep normal
+HTTPS verification enabled.
+
 Current Coverage
 ================
 
