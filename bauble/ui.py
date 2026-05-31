@@ -26,6 +26,9 @@ import traceback
 from gettext import gettext as _
 from typing import Any, Optional
 
+from sqlalchemy import or_, select
+from sqlalchemy.orm import sessionmaker
+
 import bauble
 import bauble.db as db
 import bauble.paths as paths
@@ -49,12 +52,18 @@ MAIN_SEARCH_COMPLETION_TEMPLATES = (
     "plant where location.code=",
     "location where code=",
 )
+MAIN_SEARCH_COMPLETION_MINIMUM_LENGTH = 2
+MAIN_SEARCH_DATABASE_COMPLETION_LIMIT = 8
 
 
-def _main_search_completion_values(history) -> list[str]:
+def _main_search_completion_values(history, database_values=None) -> list[str]:
     seen = set()
     values = []
-    for value in list(history or []) + list(MAIN_SEARCH_COMPLETION_TEMPLATES):
+    for value in (
+        list(history or [])
+        + list(database_values or [])
+        + list(MAIN_SEARCH_COMPLETION_TEMPLATES)
+    ):
         text = utils.to_unicode(value).strip()
         if not text:
             continue
@@ -68,6 +77,165 @@ def _main_search_completion_values(history) -> list[str]:
 
 def _main_search_completion_matches_text(value: str, text: str) -> bool:
     return text.strip().casefold() in utils.to_unicode(value).casefold()
+
+
+def _main_search_completion_query_parts(text) -> tuple[str, str, Optional[str]]:
+    raw = utils.to_unicode(text).strip()
+    if "=" not in raw:
+        return "", raw, None
+
+    prefix, query_text = raw.rsplit("=", 1)
+    prefix = f"{prefix}="
+    normalized_prefix = prefix.strip().casefold()
+
+    if (
+        normalized_prefix.startswith("species ")
+        and "genus.epithet" in normalized_prefix
+    ):
+        return prefix, query_text.strip(), "genus"
+
+    if normalized_prefix.startswith("plant ") and "location.code" in normalized_prefix:
+        return prefix, query_text.strip(), "location"
+
+    for domain in ("family", "genus", "species", "accession", "plant", "location"):
+        if normalized_prefix.startswith(f"{domain} "):
+            return prefix, query_text.strip(), domain
+
+    return prefix, query_text.strip(), None
+
+
+def _main_search_database_completion_values(
+    text, limit: int = MAIN_SEARCH_DATABASE_COMPLETION_LIMIT
+) -> list[str]:
+    prefix, query_text, domain = _main_search_completion_query_parts(text)
+    if len(query_text) < MAIN_SEARCH_COMPLETION_MINIMUM_LENGTH:
+        return []
+
+    session = None
+    values = []
+
+    def allowed(candidate: str) -> bool:
+        return domain in (None, candidate)
+
+    def add(value) -> None:
+        text_value = utils.to_unicode(value).strip()
+        if text_value:
+            values.append(f"{prefix}{text_value}" if prefix else text_value)
+
+    try:
+        from bauble.plugins.garden.models import Accession, Location, Plant
+        from bauble.plugins.plants.family import Family
+        from bauble.plugins.plants.genus import Genus
+        from bauble.plugins.plants.species_model import Species
+
+        if db.engine is None:
+            return []
+        session = sessionmaker(bind=db.engine, autoflush=False, future=True)()
+        prefix_match = f"{query_text}%"
+        contains_match = f"%{query_text}%"
+
+        if allowed("family"):
+            stmt = (
+                select(Family)
+                .where(Family.epithet.ilike(prefix_match))
+                .order_by(Family.epithet)
+                .limit(limit)
+            )
+            for family in session.execute(stmt).scalars():
+                add(family.epithet)
+
+        if allowed("genus"):
+            stmt = (
+                select(Genus)
+                .where(Genus.epithet.ilike(prefix_match))
+                .order_by(Genus.epithet)
+                .limit(limit)
+            )
+            for genus in session.execute(stmt).scalars():
+                add(genus.epithet)
+
+        if allowed("species"):
+            parts = query_text.split(None, 1)
+            if len(parts) == 2:
+                genus_text, species_text = parts
+                species_clause = (
+                    Genus.epithet.ilike(f"{genus_text}%"),
+                    Species.epithet.ilike(f"{species_text}%"),
+                )
+            else:
+                species_clause = (
+                    or_(
+                        Genus.epithet.ilike(prefix_match),
+                        Species.epithet.ilike(prefix_match),
+                    ),
+                )
+            stmt = (
+                select(Species)
+                .join(Genus, Species.genus_id == Genus.id)
+                .where(*species_clause)
+                .order_by(Genus.epithet, Species.epithet)
+                .limit(limit)
+            )
+            for species in session.execute(stmt).scalars():
+                add(species.str(remove_zws=True))
+
+        if allowed("accession"):
+            stmt = (
+                select(Accession)
+                .where(Accession.code.ilike(prefix_match))
+                .order_by(Accession.code)
+                .limit(limit)
+            )
+            for accession in session.execute(stmt).scalars():
+                add(accession.code)
+
+        if allowed("plant"):
+            delimiter = Plant.get_delimiter(session=session)
+            stmt = (
+                select(Accession.code, Plant.code)
+                .join(Accession, Plant.accession_id == Accession.id)
+                .where(
+                    or_(
+                        Accession.code.ilike(prefix_match),
+                        Plant.code.ilike(prefix_match),
+                    )
+                )
+                .order_by(Accession.code, Plant.code)
+                .limit(limit)
+            )
+            for accession_code, plant_code in session.execute(stmt):
+                add(f"{accession_code}{delimiter}{plant_code}")
+
+        if allowed("location"):
+            stmt = (
+                select(Location)
+                .where(
+                    or_(
+                        Location.code.ilike(prefix_match),
+                        Location.name.ilike(contains_match),
+                    )
+                )
+                .order_by(Location.code)
+                .limit(limit)
+            )
+            for location in session.execute(stmt).scalars():
+                add(location.code)
+    except Exception:
+        logger.debug("Could not load main search database completions", exc_info=True)
+        return []
+    finally:
+        if session is not None:
+            session.close()
+
+    seen = set()
+    completion_values = []
+    for value in values:
+        key = value.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        completion_values.append(value)
+    return completion_values
 
 
 def safe_set_text(gtk_widget, text) -> None:
@@ -243,6 +411,7 @@ class GUI:
 
         main_entry = combo.get_child()
         main_entry.connect("activate", self.on_main_entry_activate)
+        main_entry.connect("changed", self.on_main_entry_changed)
 
         # Add modern shortcut for focus (GTK 3 equivalent)
         accel_group = Gtk.AccelGroup()
@@ -374,6 +543,11 @@ class GUI:
     def on_main_entry_activate(self, widget, data: Optional[Any] = None) -> None:
         self.widgets.go_button.emit("clicked")
 
+    def on_main_entry_changed(self, widget, data: Optional[Any] = None) -> None:
+        if getattr(self, "_populating_main_entry", False):
+            return
+        self.populate_main_entry(widget.get_text())
+
     def on_home_button_clicked(self, widget) -> None:
         """ """
         bauble.command_handler("home", None)
@@ -443,7 +617,7 @@ class GUI:
         prefs[self.entry_history_pref] = history
         self.populate_main_entry()
 
-    def populate_main_entry(self) -> None:
+    def populate_main_entry(self, text: str = "") -> None:
         history = prefs[self.entry_history_pref]
         main_combo = self.widgets.main_comboentry
         model = main_combo.get_model()
@@ -469,7 +643,7 @@ class GUI:
         completion.set_property("popup_completion", True)
         completion.set_property("inline_completion", True)
         completion.set_property("popup-set-width", False)
-        completion.set_minimum_key_length(2)
+        completion.set_minimum_key_length(MAIN_SEARCH_COMPLETION_MINIMUM_LENGTH)
 
         def match_func(completion, key, treeiter, data=None):
             completion_model = completion.get_model()
@@ -478,13 +652,20 @@ class GUI:
 
         completion.set_match_func(match_func)
 
-        if compl_model is not model:
-            compl_model.clear()
-
-        for completion_text in _main_search_completion_values(history):
-            main_combo.append_text(completion_text)
+        database_values = _main_search_database_completion_values(text)
+        self._populating_main_entry = True
+        try:
             if compl_model is not model:
-                compl_model.append([completion_text])
+                compl_model.clear()
+
+            for completion_text in _main_search_completion_values(
+                history, database_values
+            ):
+                main_combo.append_text(completion_text)
+                if compl_model is not model:
+                    compl_model.append([completion_text])
+        finally:
+            self._populating_main_entry = False
 
     def __get_title(self):
         if bauble.conn_name is None:

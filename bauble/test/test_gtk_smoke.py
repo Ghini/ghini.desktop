@@ -632,6 +632,7 @@ def test_main_search_history_completion_shows_popup(monkeypatch):
         widgets=SimpleNamespace(main_comboentry=combo),
     )
     monkeypatch.setattr(ui, "prefs", {"bauble.history": history})
+    monkeypatch.setattr(ui, "_main_search_database_completion_values", lambda text: [])
 
     ui.GUI.populate_main_entry(gui)
 
@@ -662,6 +663,7 @@ def test_main_search_completion_configures_glade_completion(monkeypatch):
         widgets=SimpleNamespace(main_comboentry=combo),
     )
     monkeypatch.setattr(ui, "prefs", {"bauble.history": history})
+    monkeypatch.setattr(ui, "_main_search_database_completion_values", lambda text: [])
 
     ui.GUI.populate_main_entry(gui)
 
@@ -671,6 +673,79 @@ def test_main_search_completion_configures_glade_completion(monkeypatch):
         assert completion.get_property("popup-set-width") is False
         assert completion.get_minimum_key_length() == 2
         assert [row[0] for row in completion.get_model()][:1] == history
+    finally:
+        combo.destroy()
+
+
+def test_main_search_completion_includes_database_values_before_templates():
+    values = ui._main_search_completion_values(
+        ["GLOC", "family where epithet="],
+        ["Guidedgenus", "GLOC", "location where code=GLOC"],
+    )
+
+    assert values[:3] == ["GLOC", "family where epithet=", "Guidedgenus"]
+    assert values.count("GLOC") == 1
+    assert "location where code=GLOC" in values
+    assert values[-1] == "location where code="
+
+
+def test_main_search_database_completion_values_uses_seeded_records(session):
+    family = Family(epithet="Guidedaceae")
+    genus = Genus(epithet="Guidedgenus", family=family)
+    species = Species(epithet="guidedspecies", genus=genus)
+    location = Location(code="GLOC", name="Guided Test Bed")
+    accession = Accession(code="GUIDED-ACC-001", species=species)
+    plant = Plant(code="1", accession=accession, location=location, quantity=1)
+    session.add_all([family, genus, species, location, accession, plant])
+    session.commit()
+
+    guided_values = ui._main_search_database_completion_values("Gui")
+    assert "Guidedaceae" in guided_values
+    assert "Guidedgenus" in guided_values
+    assert "Guidedgenus guidedspecies" in guided_values
+    assert "GUIDED-ACC-001" in guided_values
+    assert "GUIDED-ACC-001.1" in guided_values
+
+    species_values = ui._main_search_database_completion_values("guideds")
+    assert "Guidedgenus guidedspecies" in species_values
+
+    species_genus_values = ui._main_search_database_completion_values(
+        "species where genus.epithet=Gui"
+    )
+    assert species_genus_values == ["species where genus.epithet=Guidedgenus"]
+
+    location_values = ui._main_search_database_completion_values(
+        "location where code=GL"
+    )
+    assert location_values == ["location where code=GLOC"]
+
+
+def test_main_search_changed_refreshes_database_completion(monkeypatch):
+    requested_text = []
+    combo = Gtk.ComboBoxText.new_with_entry()
+    combo.set_model(Gtk.ListStore(str))
+    gui = SimpleNamespace(
+        entry_history_pref="bauble.history",
+        widgets=SimpleNamespace(main_comboentry=combo),
+        _populating_main_entry=False,
+    )
+    gui.populate_main_entry = lambda text="": ui.GUI.populate_main_entry(gui, text)
+    monkeypatch.setattr(ui, "prefs", {"bauble.history": []})
+
+    def database_values(text):
+        requested_text.append(text)
+        return ["GLOC", "Guidedgenus guidedspecies"]
+
+    monkeypatch.setattr(ui, "_main_search_database_completion_values", database_values)
+
+    try:
+        entry = combo.get_child()
+        entry.set_text("GL")
+        ui.GUI.on_main_entry_changed(gui, entry)
+
+        completion_values = [row[0] for row in entry.get_completion().get_model()]
+        assert requested_text == ["GL"]
+        assert completion_values[:2] == ["GLOC", "Guidedgenus guidedspecies"]
     finally:
         combo.destroy()
 
