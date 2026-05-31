@@ -653,6 +653,49 @@ def test_source_propagation_cleanup(db_session, setup_accession2) -> None:
     )
 
 
+def test_source_accessible_plants_suppresses_autoflush(db_session, plant_data) -> None:
+    """Source plant lookups must not flush incomplete propagation editor state."""
+    from types import SimpleNamespace
+
+    from bauble.plugins.garden.source import _populate_accessible_plant_store
+
+    accession = plant_data["accession"]
+    plant = plant_data["plant"]
+    other_accession = Accession(species=accession.species, code="2")
+    other_plant = Plant(
+        accession=other_accession,
+        location=plant.location,
+        code="1",
+        quantity=1,
+    )
+    propagation = Propagation(prop_type="Seed", plants=[other_plant])
+    propagation._seed = PropSeed(**default_seed_values)
+    db_session.add_all([other_accession, other_plant, propagation])
+    db_session.commit()
+
+    source = Source(accession=accession)
+    source.propagation = Propagation(prop_type="Seed")
+    incomplete_seed = PropSeed()
+    source.propagation._seed = incomplete_seed
+    db_session.add(source)
+    db_session.autoflush = True
+
+    result_store = Gtk.ListStore(str, int)
+    try:
+        _populate_accessible_plant_store(
+            db_session,
+            source,
+            SimpleNamespace(model=None),
+            result_store,
+        )
+
+        assert incomplete_seed in db_session.new
+        assert len(result_store) == 1
+        assert result_store[0][1] == other_plant.id
+    finally:
+        db_session.autoflush = False
+
+
 def test_accession_species_str(db_session, setup_accession2) -> None:
     """Test species string generation for accessions."""
     accession = setup_accession2["accession"]

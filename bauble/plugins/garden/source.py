@@ -484,6 +484,30 @@ class CollectionPresenter(editor.ChildPresenter):
             self.set_model_attr("longitude", utils.to_unicode(longitude))
 
 
+def _populate_accessible_plant_store(session, source, parent, result_store):
+    """Populate source propagation plant choices without flushing editor state."""
+    from bauble.plugins.garden.models import Accession, Plant
+
+    source_accession = source.accession or getattr(parent, "model", None)
+    source_accession_id = getattr(source_accession, "id", None)
+    stmt = (
+        select(Plant)
+        .join(Accession, Plant.accession_id == Accession.id)
+        .where(Plant.propagations.any())
+        .order_by(Accession.code, Plant.code)
+    )
+    if source_accession_id is not None:
+        stmt = stmt.where(Accession.id != source_accession_id)
+
+    with session.no_autoflush:
+        plants = list(session.execute(stmt).scalars())
+        result_store.clear()
+
+        for plant in plants:
+            if any(p.accessible_quantity > 0 for p in plant.propagations):
+                result_store.append([str(plant), plant.id])
+
+
 class PropagationChooserPresenter(editor.ChildPresenter):
     """
     Chooser for selecting an existing propagation for the source.
@@ -550,27 +574,12 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
         def get_accessible_plants():
             logger.debug("in PropagationChooserPresenter:plant_get_completions")
-            from bauble.plugins.garden.models import Accession, Plant
-
-            parent = self.parent_ref()
-            source_accession = self.model.accession or getattr(parent, "model", None)
-            source_accession_id = getattr(source_accession, "id", None)
-            stmt = (
-                select(Plant)
-                .join(Accession, Plant.accession_id == Accession.id)
-                .where(Plant.propagations.any())
-                .order_by(Accession.code, Plant.code)
+            _populate_accessible_plant_store(
+                self.session,
+                self.model,
+                self.parent_ref(),
+                self.view.widgets.source_prop_plant_liststore,
             )
-            if source_accession_id is not None:
-                stmt = stmt.where(Accession.id != source_accession_id)
-            with self.session.no_autoflush:
-                plants = list(self.session.execute(stmt).scalars())
-            result_store = self.view.widgets.source_prop_plant_liststore
-            result_store.clear()
-
-            for plant in plants:
-                if any(p.accessible_quantity > 0 for p in plant.propagations):
-                    result_store.append([str(plant), plant.id])
 
         get_accessible_plants()
 
