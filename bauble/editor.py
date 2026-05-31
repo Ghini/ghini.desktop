@@ -2008,7 +2008,8 @@ class GenericEditorPresenter:
                 logger.debug("on_changed - part two")
                 comp = entry.get_completion()
                 comp_model = comp.get_model()
-                found = []
+                prefix_matches = []
+                exact_match = None
                 if comp_model:
                     comp_model.foreach(
                         lambda m, p, i, ud: logger.debug(
@@ -2025,36 +2026,26 @@ class GenericEditorPresenter:
                     def _cmp(row, data):
                         return str(row[0])[: len(text)].lower() == data.lower()
 
-                    found = utils.search_tree_model(comp_model, text, _cmp)
-                    logger.debug(f"matches found in ListStore: {str(found)}")
-                    if not found:
+                    prefix_matches = utils.search_tree_model(comp_model, text, _cmp)
+                    logger.debug(f"matches found in ListStore: {str(prefix_matches)}")
+                    if not prefix_matches:
                         logger.debug("nothing found, nothing to select from")
-                    elif len(found) == 1:
+                    elif len(prefix_matches) == 1:
                         logger.debug(
-                            f"one match, decide whether to select it - {found[0]}"
+                            "one match, decide whether to select it - "
+                            f"{prefix_matches[0]}"
                         )
-                        v = comp.get_model()[found[0]][0]
+                        v = comp.get_model()[prefix_matches[0]][0]
                         # only auto select if the full string has been entered
                         if text.lower() == str(v).lower():
+                            exact_match = v
                             self.remove_problem(PROBLEM, widget)
                             on_select(v)
-                        else:
-                            found = None
                     else:
                         logger.debug(
-                            f"multiple matches, we cannot select any - {str(found)}"
+                            "multiple matches, we cannot select any - "
+                            f"{str(prefix_matches)}"
                         )
-
-                # inside idle_callback, replace the condition with:
-                if (
-                    text != ""
-                    and not found
-                    and not any(
-                        pid == PROBLEM and w is widget for (pid, w) in self.problems
-                    )
-                ):
-                    self.add_problem(PROBLEM, widget)
-                    on_select(None)
 
                 # if entry is empty select nothing and remove all problem
                 if text == "":
@@ -2066,9 +2057,11 @@ class GenericEditorPresenter:
                     on_select(text)  # `on_select` will know how to convert the
                     # text into a properly typed value.
                     self.remove_problem(PROBLEM, widget)
-                else:
-                    # We have a model and either multiple matches or an exact match already handled.
+                elif exact_match is not None or prefix_matches:
                     self.remove_problem(PROBLEM, widget)
+                else:
+                    self.add_problem(PROBLEM, widget)
+                    on_select(None)
                 logger.debug("on_changed - part two - returning")
 
             GLib.idle_add(idle_callback, text)

@@ -816,6 +816,48 @@ def test_dynamic_completion_refreshes_at_minimum_key_length():
         entry.destroy()
 
 
+def test_dynamic_completion_keeps_partial_prefix_match_pending():
+    entry = Gtk.Entry()
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(object))
+    completion.set_minimum_key_length(2)
+    entry.set_completion(completion)
+    selected_values = []
+
+    class CompletionView:
+        widgets = SimpleNamespace()
+
+        def connect(self, obj, signal, callback, *args):
+            return obj.connect(signal, callback, *args)
+
+    presenter = object.__new__(GenericEditorPresenter)
+    presenter.view = CompletionView()
+    presenter.problems = set()
+
+    try:
+        GenericEditorPresenter.assign_completions_handler(
+            presenter,
+            entry,
+            lambda _prefix: ["Guidedgenus"],
+            on_select=selected_values.append,
+        )
+        entry.set_text("Guide")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert selected_values == []
+        assert not presenter.has_problems(entry)
+
+        entry.set_text("Guidedgenus")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert selected_values == ["Guidedgenus"]
+        assert not presenter.has_problems(entry)
+    finally:
+        entry.destroy()
+
+
 def test_max_length_validator_wraps_base_validator():
     validator = MaxLengthValidator(3, UnicodeOrNoneValidator())
 
