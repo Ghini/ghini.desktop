@@ -2023,8 +2023,14 @@ class GenericEditorPresenter:
                     # emit the match-selected signal, this allows us to
                     # type a match in the entry without having to select
                     # it from the popup
+                    def _completion_text(value):
+                        return str(value).replace("\u200b", "")
+
                     def _cmp(row, data):
-                        return str(row[0])[: len(text)].lower() == data.lower()
+                        return (
+                            _completion_text(row[0])[: len(text)].lower()
+                            == data.lower()
+                        )
 
                     prefix_matches = utils.search_tree_model(comp_model, text, _cmp)
                     logger.debug(f"matches found in ListStore: {str(prefix_matches)}")
@@ -2037,7 +2043,7 @@ class GenericEditorPresenter:
                         )
                         v = comp.get_model()[prefix_matches[0]][0]
                         # only auto select if the full string has been entered
-                        if text.lower() == str(v).lower():
+                        if text.lower() == _completion_text(v).lower():
                             exact_match = v
                             self.remove_problem(PROBLEM, widget)
                             on_select(v)

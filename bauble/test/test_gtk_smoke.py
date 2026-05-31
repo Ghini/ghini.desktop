@@ -858,6 +858,46 @@ def test_dynamic_completion_keeps_partial_prefix_match_pending():
         entry.destroy()
 
 
+def test_dynamic_completion_exact_match_ignores_zero_width_space():
+    entry = Gtk.Entry()
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(object))
+    completion.set_minimum_key_length(2)
+    entry.set_completion(completion)
+    selected_values = []
+
+    class CompletionView:
+        widgets = SimpleNamespace()
+
+        def connect(self, obj, signal, callback, *args):
+            return obj.connect(signal, callback, *args)
+
+    class SpeciesLike:
+        def __str__(self):
+            return "Guidedgenus \u200bguidedspecies"
+
+    value = SpeciesLike()
+    presenter = object.__new__(GenericEditorPresenter)
+    presenter.view = CompletionView()
+    presenter.problems = set()
+
+    try:
+        GenericEditorPresenter.assign_completions_handler(
+            presenter,
+            entry,
+            lambda _prefix: [value],
+            on_select=selected_values.append,
+        )
+        entry.set_text("Guidedgenus guidedspecies")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert selected_values == [value]
+        assert not presenter.has_problems(entry)
+    finally:
+        entry.destroy()
+
+
 def test_max_length_validator_wraps_base_validator():
     validator = MaxLengthValidator(3, UnicodeOrNoneValidator())
 
