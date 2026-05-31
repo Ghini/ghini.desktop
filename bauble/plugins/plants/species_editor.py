@@ -1578,7 +1578,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
             from bauble.plugins.garden.accession_editor import AccessionEditor
             from bauble.plugins.garden.models import Accession
 
-            e = AccessionEditor(Accession(species=self.model), parent=self.parent)
+            e = AccessionEditor(Accession(species_id=self.model.id), parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

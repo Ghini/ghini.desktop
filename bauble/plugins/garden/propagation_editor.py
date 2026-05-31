@@ -204,7 +204,7 @@ class PropagationTabPresenter(PropagationHandler, editor.GenericEditorPresenter)
     _dirty: bool
 
     def __init__(self, parent, model, view, session) -> None:
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.view.connect("prop_add_button", "clicked", self.on_add_button_clicked)
@@ -300,7 +300,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         """
         from bauble.plugins.garden.models import PropCutting
 
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self._dirty = False
@@ -528,7 +528,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
         """
         from bauble.plugins.garden.models import PropSeed
 
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
         self._dirty = False
         self.parent_ref = weakref.ref(parent)
         self.session = session
@@ -641,12 +641,12 @@ class PropagationPresenter(editor.ChildPresenter):
         "prop_date_entry": "date",
     }
 
-    def __init__(self, model, view) -> None:
+    def __init__(self, model, view, session=None) -> None:
         """
         :param model: an instance of class Propagation
         :param view: an instance of PropagationEditorView
         """
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
         self.session = get_object_session(self.model) or self.session
 
         if self.model.prop_type is None:
@@ -761,7 +761,7 @@ class SourcePropagationPresenter(PropagationPresenter):
         view.widgets.prop_type_combo.get_model().append([None, ""])
 
         self._dirty = False
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
 
     def on_prop_type_changed(self, combo, *args) -> None:
         """

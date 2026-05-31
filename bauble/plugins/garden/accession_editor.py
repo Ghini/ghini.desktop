@@ -68,9 +68,10 @@ from bauble.view import (
     select_in_search_results,
 )
 from lxml import etree
-from sqlalchemy import delete, or_, select
+from sqlalchemy import delete, inspect as sa_inspect, or_, select
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import attributes as orm_attributes
+from sqlalchemy.orm.exc import DetachedInstanceError
 from sqlalchemy.orm import object_session
 
 logger = logging.getLogger(__name__)
@@ -1008,9 +1009,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
             )
         else:
             self.source = Source()
-            # self.model.source will be reset the None if the source
-            # combo value is None in commit_changes()
-            self.model.source = self.source
             self.view.widgets.sources_code_entry.set_text("")
 
         if self.source.collection:
@@ -1018,7 +1016,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
             enabled = True
         else:
             self.collection = Collection()
-            self.session.add(self.collection)
             enabled = False
         self.view.widgets.source_coll_add_button.set_sensitive(not enabled)
         self.view.widgets.source_coll_remove_button.set_sensitive(enabled)
@@ -1030,7 +1027,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
             enabled = True
         else:
             self.propagation = Propagation()
-            self.session.add(self.propagation)
             enabled = False
         self.view.widgets.source_prop_add_button.set_sensitive(not enabled)
         self.view.widgets.source_prop_remove_button.set_sensitive(enabled)
@@ -1196,6 +1192,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             self.model.source = None
 
     def on_coll_add_button_clicked(self, *args) -> None:
+        self._attach_source_to_model()
         self.model.source.collection = self.collection
         self.view.widgets.source_coll_expander.set_expanded(True)
         self.view.widgets.source_coll_expander.set_sensitive(True)
@@ -1205,7 +1202,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.refresh_sensitivity()
 
     def on_coll_remove_button_clicked(self, *args) -> None:
-        self.model.source.collection = None
+        self.source.collection = None
         self.view.widgets.source_coll_expander.set_expanded(False)
         self.view.widgets.source_coll_expander.set_sensitive(False)
         self.view.widgets.source_coll_add_button.set_sensitive(True)
@@ -1214,6 +1211,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.refresh_sensitivity()
 
     def on_prop_add_button_clicked(self, *args) -> None:
+        self._attach_source_to_model()
         self.model.source.propagation = self.propagation
         self.view.widgets.source_prop_expander.set_expanded(True)
         self.view.widgets.source_prop_expander.set_sensitive(True)
@@ -1223,7 +1221,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.refresh_sensitivity()
 
     def on_prop_remove_button_clicked(self, *args) -> None:
-        self.model.source.propagation = None
+        self.source.propagation = None
         self.view.widgets.source_prop_expander.set_expanded(False)
         self.view.widgets.source_prop_expander.set_sensitive(False)
         self.view.widgets.source_prop_add_button.set_sensitive(True)
@@ -1497,16 +1495,17 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
     code_validator = editor.MaxLengthValidator(20, editor.UnicodeOrNoneValidator())
     PROBLEM_ID_QUAL_RANK_REQUIRED: Any = random()
 
-    def __init__(self, model, view) -> None:
+    def __init__(self, model, view, session: Optional[Any] = None) -> None:
         """
         :param model: an instance of class Accession
         ;param view: an instance of AccessionEditorView
         """
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
         self.initializing = True
         self.create_toolbar()
         self._dirty = False
-        self.session = object_session(model)
+        self.session = session or object_session(model)
+        self._bind_model_species()
         self._original_code = self.model.code
         self.current_source_box = None
         model.create_plant = False
@@ -1921,10 +1920,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         """
         combo = self.view.widgets.acc_id_qual_rank_combo
         utils.clear_model(combo)
-        if not self.model.species:
+        species = self._species_for_id_qual_rank()
+        if not species:
             return
         model = Gtk.ListStore(str, str)
-        species = self.model.species
         it = model.append([str(species.genus), "genus"])
         active = None
         if self.model.id_qual_rank == "genus":
@@ -1956,6 +1955,89 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             active = it
         combo.set_model(model)
         combo.set_active_iter(active)
+
+    def _species_from_text(self, text):
+        text = utils.to_unicode(text).strip().replace("\u200b", "")
+        if " " not in text:
+            return None
+        genus_name, epithet = text.split(" ", 1)
+        return get_species_instance(
+            session=self.session,
+            genus_epithet=genus_name,
+            epithet=epithet.strip(),
+            create=False,
+        )
+
+    def _species_bound_to_session(self, species):
+        if isinstance(species, str):
+            return self._species_from_text(species)
+        if not isinstance(species, Species):
+            return None
+
+        state = sa_inspect(species)
+        species_id = state.identity[0] if state.identity else None
+        if species_id is None:
+            try:
+                species_id = species.id
+            except DetachedInstanceError:
+                species_id = None
+        if species_id is not None and self.session is not None:
+            bound = self.session.get(Species, species_id)
+            if bound is not None:
+                return bound
+
+        try:
+            species_session = object_session(species)
+        except Exception:
+            species_session = None
+
+        if species_session is self.session:
+            return species
+
+        if state.detached and self.session is not None:
+            return self.session.merge(species)
+        return species
+
+    def _bind_model_species(self):
+        species = self.model.species
+        if (
+            species is None
+            and getattr(self.model, "species_id", None)
+            and self.session is not None
+        ):
+            species = self.session.get(Species, self.model.species_id)
+        else:
+            species = self._species_bound_to_session(species)
+
+        if (
+            species is None
+            and getattr(self.model, "species_id", None)
+            and self.session is not None
+        ):
+            species = self.session.get(Species, self.model.species_id)
+
+        if species is None:
+            return None
+
+        model_state = sa_inspect(self.model, raiseerr=False)
+        if model_state is None or not model_state.transient:
+            self.model.species = species
+        if getattr(species, "id", None) is not None:
+            self.model.species_id = species.id
+        return species
+
+    def _species_for_id_qual_rank(self):
+        species = self._bind_model_species()
+        if species is None:
+            return None
+        try:
+            species.genus
+        except DetachedInstanceError:
+            if not self.model.species_id or self.session is None:
+                raise
+            species = self.session.get(Species, self.model.species_id)
+            self.model.species = species
+        return species
 
     def on_loc_button_clicked(self, button, target_widget, target_field) -> None:
         logger.debug(
@@ -2116,13 +2198,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         """
         # TODO: if add_problems=True then we should add problems to
         # all the required widgets that don't have values
-        # Require a real Species instance, not just truthy text
-        if not self.model.code or not isinstance(self.model.species, Species):
-            return False
-
-        if not self.model.code or not isinstance(self.model.species, Species):
-            return False
-        if not self.model.code or not self.model.species:
+        species = self._bind_model_species()
+        if not self.model.code or not isinstance(species, Species):
             return False
 
         for ver in self.model.verifications or []:
@@ -2172,14 +2249,16 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         Refresh the sensitivity of the fields and accept buttons according
         to the current values in the model.
         """
-        if self.model.species and self.model.id_qual:
+        species = self._bind_model_species()
+        if species and self.model.id_qual:
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(True)
         else:
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
         is_dirty = self.is_dirty()
         is_valid = self.validate()
-        source_problems = self.source_presenter.all_problems()
+        source_presenter = getattr(self, "source_presenter", None)
+        source_problems = source_presenter.all_problems() if source_presenter else set()
         sensitive = (
             is_dirty
             and is_valid
@@ -2194,6 +2273,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         """
         get the values from the model and put them in the view
         """
+        species = self._bind_model_species()
         prefs.prefs[prefs.date_format_pref]
         for widget, field in list(self.widget_to_field_map.items()):
             if field == "species_id":
@@ -2201,6 +2281,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             else:
                 value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
+        self.view.widget_set_value("acc_species_entry", species)
 
         self.view.widget_set_value(
             "acc_wild_prov_combo",
@@ -2256,12 +2337,19 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         if model is None:
             model = Accession()
 
-        super().__init__(model, parent)
+        model_state = sa_inspect(model)
+        if model_state.transient:
+            self.session = Session()
+            self.model = model
+        else:
+            super().__init__(model, parent)
         self.parent = parent
         self._committed = []
 
         view = AccessionEditorView(parent=parent)
-        self.presenter = AccessionEditorPresenter(self.model, view)
+        self.presenter = AccessionEditorPresenter(
+            self.model, view, session=self.session
+        )
 
         # set the default focus
         if self.model.species is None:
@@ -2393,58 +2481,46 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         from bauble.plugins.garden.models import Plant  # ← keep this import
         from bauble.plugins.garden.models import Accession
         from bauble.plugins.plants.species_model import Species
-        from sqlalchemy import inspect as sa_inspect
 
-        # Ensure the Accession instance is attached to this session
-        st = sa_inspect(self.model)
-        if st.transient or st.pending:
-            # brand new object, just add it to this session
-            self.session.add(self.model)
-        elif st.detached:
-            # came from a different session, merge it (default load=True)
-            self.model = self.session.merge(self.model)
+        # Normalize species before attaching the accession; otherwise
+        # SQLAlchemy may cascade a detached Species instance into this session.
+        sp = self.presenter._bind_model_species()
 
-        # --- NEW: make sure model.species is a real Species bound to this session ---
-        sp = self.model.species
-
-        # If a plain string slipped in (e.g., from the entry auto-binding), try to resolve it
         if isinstance(sp, str):
-            txt = sp.strip().replace("\u200b", "")
-            sp = None
-            if " " in txt:
-                gen, epithet = txt.split(" ", 1)
-                # get_species_instance is already imported at top of the file
-                sp = get_species_instance(
-                    session=self.session,
-                    genus_epithet=gen,
-                    epithet=epithet.strip(),
-                    create=False,
-                )
+            sp = self.presenter._species_from_text(sp)
 
-        # Hard stop if we still don’t have a proper Species row
         if not isinstance(sp, Species):
-            # optional: user-friendly message; remove if you prefer only the generic dialog upstream
             utils.message_dialog(
                 _("You must select a valid species from the list."),
                 type=Gtk.MessageType.WARNING,
             )
-            # Raise to abort the commit (handle_response catches Exception and won’t append)
             raise ValueError(
                 "Invalid or missing species; refusing to commit accession."
             )
 
-        # Make sure the Species is attached to this session as well
+        sp = self.presenter._species_bound_to_session(sp)
         sp_state = sa_inspect(sp)
-        if sp_state.detached:
-            sp = self.session.merge(sp)
-        elif sp_state.transient:
-            # shouldn’t happen for a taxon picked from DB, but handle gracefully
+        if sp_state.transient:
             self.session.add(sp)
 
-        # Set both the relationship and (if exposed) the FK column
-        self.model.species = sp
         if hasattr(self.model, "species_id"):
             self.model.species_id = sp.id
+
+        # Attach only after setting species_id.  Relationship assignment waits
+        # until after commit to avoid duplicate pending accessions on Species.
+        st = sa_inspect(self.model)
+        if st.transient:
+            orm_attributes.set_committed_value(self.model, "species", None)
+            self._remove_transient_species_accessions(sp)
+            self.session.add(self.model)
+        elif st.detached:
+            orm_attributes.set_committed_value(self.model, "species", None)
+            self._remove_transient_species_accessions(sp)
+            self.model = self.session.merge(self.model)
+            self.presenter.model = self.model
+            if hasattr(self.model, "species_id"):
+                self.model.species_id = sp.id
+
         # keep only this accession; expunge any other transient/new ones
         for obj in list(self.session.new):
             if isinstance(obj, Accession) and obj is not self.model:
@@ -2509,7 +2585,16 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             self.session.add(plant)
 
         super().commit_changes()
+        orm_attributes.set_committed_value(self.model, "species", sp)
         return True
+
+    def _remove_transient_species_accessions(self, species):
+        for accession in list(species.accessions):
+            if (
+                object_session(accession) is None
+                and getattr(accession, "id", None) is None
+            ):
+                species.accessions.remove(accession)
 
 
 # import at the bottom to avoid circular dependencies

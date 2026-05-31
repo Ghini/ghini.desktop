@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy.exc as saexc
+from sqlalchemy.orm.exc import DetachedInstanceError
 
 import bauble
 import bauble.connmgr as connmgr
@@ -27,6 +28,7 @@ from bauble.plugins.garden.location_editor import (
     LocationEditorView,
 )
 from bauble.plugins.garden.accession_editor import (
+    AccessionEditor,
     AccessionEditorPresenter,
     AccessionEditorView,
 )
@@ -34,6 +36,7 @@ from bauble.plugins.garden.models.accession import Accession
 from bauble.plugins.garden.models.contact import Contact
 from bauble.plugins.garden.models.location import Location
 from bauble.plugins.garden.models.plant import Plant
+from bauble.plugins.garden.models.source import Collection, Source
 from bauble.plugins.garden.plant_editor import (
     PlantEditorPresenter,
     PlantEditorView,
@@ -43,7 +46,11 @@ from bauble.plugins.garden.propagation_editor import (
     PropagationEditorPresenter,
     PropagationEditorView,
 )
-from bauble.plugins.garden.models.propagation import Propagation
+from bauble.plugins.garden.models.propagation import (
+    PropCutting,
+    PropSeed,
+    Propagation,
+)
 from bauble.plugins.garden.source import ContactPresenter
 from bauble.plugins.plants.family import (
     Family,
@@ -1106,6 +1113,25 @@ def test_species_vernacular_name_syncs_while_cell_is_edited(
     assert species_editor_view.widgets.sp_ok_button.get_sensitive()
 
 
+def test_species_editor_notes_add_button_adds_note_box(session, species_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    notes_box = presenter.notes_presenter.box
+
+    assert len(notes_box.get_children()) == 0
+
+    presenter.notes_presenter.widgets.notes_add_button.emit("clicked")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert len(notes_box.get_children()) == 1
+
+
 def test_location_editor_presenter_populates_and_edits_fields(
     session, location_editor_view
 ):
@@ -1320,6 +1346,8 @@ def test_accession_editor_presenter_populates_and_edits_core_fields(
 
     presenter = AccessionEditorPresenter(accession, accession_editor_view)
 
+    species_text = accession_editor_view.widget_get_value("acc_species_entry")
+    assert species_text.replace("\u200b", "") == "Cocos nucifera"
     assert accession_editor_view.widget_get_value("acc_code_entry") == "2026.001"
     assert accession_editor_view.widget_get_value("acc_quantity_recvd_entry") == "1"
     assert (
@@ -1381,6 +1409,73 @@ def test_accession_editor_blocks_overlong_code(session, accession_editor_view):
     assert accession.code == "2026.002"
     assert not presenter.has_problems()
     assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_accession_editor_reloads_detached_species_for_id_qual_rank(session):
+    accession = make_test_accession(session)
+    species = accession.species
+
+    class DetachedSpecies:
+        @property
+        def genus(self):
+            raise DetachedInstanceError("detached species")
+
+    presenter = AccessionEditorPresenter.__new__(AccessionEditorPresenter)
+    presenter.session = session
+    presenter.model = SimpleNamespace(
+        species=DetachedSpecies(),
+        species_id=species.id,
+    )
+
+    assert presenter._species_for_id_qual_rank() is species
+    assert presenter.model.species is species
+
+
+def test_accession_editor_does_not_pending_disabled_source_placeholders(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    accession.source = None
+
+    AccessionEditorPresenter(accession, accession_editor_view)
+
+    source_placeholder_types = (
+        Collection,
+        PropCutting,
+        PropSeed,
+        Propagation,
+        Source,
+    )
+    assert not any(isinstance(obj, source_placeholder_types) for obj in session.new)
+
+
+def test_accession_editor_from_species_id_populates_taxon_and_commits(session):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.commit()
+    species_id = species.id
+
+    accession_editor = AccessionEditor(Accession(species_id=species_id))
+    try:
+        species_text = accession_editor.presenter.view.widget_get_value(
+            "acc_species_entry"
+        )
+        assert species_text.replace("\u200b", "") == "Cocos nucifera"
+
+        accession_editor.model.code = "DAILY-ACC-001"
+        accession_editor.model.recvd_type = "PLNT"
+        accession_editor.model.quantity_recvd = 1
+        accession_editor.model.private = False
+
+        assert accession_editor.commit_changes()
+        assert accession_editor.model.id is not None
+        assert accession_editor.model.species_id == species_id
+    finally:
+        accession_editor.presenter.cleanup()
+        accession_editor.presenter.view.get_window().destroy()
+        accession_editor.session.close()
 
 
 def test_contact_editor_blocks_overlong_source_name(session, contact_editor_view):

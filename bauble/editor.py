@@ -2136,8 +2136,14 @@ class ChildPresenter(GenericEditorPresenter):
 
     _view_ref: Any
 
-    def __init__(self, model, view, prefs: Optional[Any] = None) -> None:
-        super().__init__(model, view, prefs=prefs)
+    def __init__(
+        self,
+        model,
+        view,
+        prefs: Optional[Any] = None,
+        session: Optional[Any] = None,
+    ) -> None:
+        super().__init__(model, view, prefs=prefs, session=session)
         # self._view_ref = weakref.ref(view)
 
     def _get_view(self):

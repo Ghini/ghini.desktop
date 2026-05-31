@@ -150,7 +150,7 @@ class CollectionPresenter(editor.ChildPresenter):
     PROBLEM_INVALID_LOCALE: Any = str(random())
 
     def __init__(self, parent, model, view, session) -> None:
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.refresh_view()
@@ -502,7 +502,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
     PROBLEM_INVALID_DATE: Any = random()
 
     def __init__(self, parent, model, view, session) -> None:
-        super().__init__(model, view)
+        super().__init__(model, view, session=session)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self._dirty = False
@@ -552,14 +552,19 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             logger.debug("in PropagationChooserPresenter:plant_get_completions")
             from bauble.plugins.garden.models import Accession, Plant
 
+            parent = self.parent_ref()
+            source_accession = self.model.accession or getattr(parent, "model", None)
+            source_accession_id = getattr(source_accession, "id", None)
             stmt = (
                 select(Plant)
                 .join(Accession, Plant.accession_id == Accession.id)
                 .where(Plant.propagations.any())
-                .where(Accession.id != self.model.accession.id)
                 .order_by(Accession.code, Plant.code)
             )
-            plants = self.session.execute(stmt).scalars()
+            if source_accession_id is not None:
+                stmt = stmt.where(Accession.id != source_accession_id)
+            with self.session.no_autoflush:
+                plants = list(self.session.execute(stmt).scalars())
             result_store = self.view.widgets.source_prop_plant_liststore
             result_store.clear()
 
