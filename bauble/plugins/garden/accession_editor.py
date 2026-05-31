@@ -1100,20 +1100,15 @@ class SourcePresenter(editor.GenericEditorPresenter):
         return problems
 
     def _attach_source_to_model(self) -> None:
-        if self.model.source is self.source:
+        if self.model.source is self.source and self.source.accession is self.model:
             return
 
         source_accession = getattr(self.source, "accession", None)
-        source_accession_id = getattr(source_accession, "id", None)
-        model_id = getattr(self.model, "id", None)
-        if source_accession is self.model or (
-            source_accession_id is not None
-            and model_id is not None
-            and source_accession_id == model_id
-        ):
-            orm_attributes.set_committed_value(self.model, "source", self.source)
-        else:
-            self.model.source = self.source
+        if source_accession is not None and source_accession is not self.model:
+            orm_attributes.set_committed_value(source_accession, "source", None)
+            orm_attributes.set_committed_value(self.source, "accession", None)
+        orm_attributes.set_committed_value(self.model, "source", self.source)
+        orm_attributes.set_committed_value(self.source, "accession", self.model)
 
     def cleanup(self) -> None:
         super().cleanup()
@@ -1173,14 +1168,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         if entry_text:
             model = combo.get_model()
-            source_detail = None
-            if model is not None:
-                for row in model:
-                    value = row[0]
-                    if value and value != self.garden_prop_str:
-                        if _source_exact_text_match(value, entry_text):
-                            source_detail = value
-                            break
+            source_detail = self._source_detail_from_text(model, entry_text)
             if source_detail is not None:
                 self._attach_source_to_model()
                 self.source.source_detail = source_detail
@@ -1190,6 +1178,24 @@ class SourcePresenter(editor.GenericEditorPresenter):
             self._attach_source_to_model()
         elif not self.source.collection and not self.source.propagation:
             self.model.source = None
+
+    def _source_detail_from_text(self, model: Any, text: str) -> Optional[Any]:
+        if model is None:
+            return None
+
+        matches = []
+        for row in model:
+            value = row[0]
+            if not value or value == self.garden_prop_str:
+                continue
+            if _source_exact_text_match(value, text):
+                return value
+            if _source_matches_text(value, text):
+                matches.append(value)
+
+        if len(matches) == 1:
+            return matches[0]
+        return None
 
     def on_coll_add_button_clicked(self, *args) -> None:
         self._attach_source_to_model()
@@ -2537,7 +2543,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         self.presenter.source_presenter.sync_from_view()
 
-        source = self.model.source
+        source = self.model.source or self.presenter.source_presenter.source
         if source:
             has_source_data = any(
                 (
@@ -2549,7 +2555,45 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 )
             )
             if has_source_data:
-                source.accession = self.model
+                source_accession = getattr(source, "accession", None)
+                if source_accession is not None and source_accession is not self.model:
+                    orm_attributes.set_committed_value(source_accession, "source", None)
+                    orm_attributes.set_committed_value(source, "accession", None)
+                source_state = sa_inspect(source, raiseerr=False)
+                model_state = sa_inspect(self.model, raiseerr=False)
+                if (
+                    source_state is not None
+                    and (source_state.pending or source_state.transient)
+                    and model_state is not None
+                    and model_state.pending
+                ):
+                    # Flush the accession first and wire the pending Source by
+                    # foreign key.  This avoids SQLAlchemy's single-parent
+                    # guard when the source presenter has held onto an older
+                    # transient Accession while the editor normalized the one
+                    # being committed.
+                    orm_attributes.set_committed_value(self.model, "source", None)
+                    orm_attributes.set_committed_value(source, "accession", None)
+                    if source_state.pending:
+                        self.session.expunge(source)
+                    self.session.flush([self.model])
+                    source.accession_id = self.model.id
+                    orm_attributes.set_committed_value(source, "accession", self.model)
+                    orm_attributes.set_committed_value(self.model, "source", source)
+                elif (
+                    source_state is not None
+                    and (source_state.pending or source_state.transient)
+                    and model_state is not None
+                    and model_state.persistent
+                ):
+                    source.accession_id = self.model.id
+                    orm_attributes.set_committed_value(source, "accession", self.model)
+                    orm_attributes.set_committed_value(self.model, "source", source)
+                elif (
+                    self.model.source is not source
+                    or source.accession is not self.model
+                ):
+                    self.model.source = source
                 self.session.add(source)
             else:
                 self.model.source = None

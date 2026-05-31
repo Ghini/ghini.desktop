@@ -316,7 +316,7 @@ run_test_smoke() {
         "${script_dir}/docker-dev" gui-e2e \
         bauble/test/test_gui_e2e.py \
         -q \
-        -k "connection_manager or search_existing_species or create_family or create_location"
+        -k "connection_manager or search_existing_species or create_family or create_location or daily_species_editor_add_accession"
 }
 
 run_test_regression() {

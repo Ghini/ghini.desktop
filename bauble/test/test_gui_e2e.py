@@ -814,6 +814,223 @@ def test_can_create_accession_from_species_editor_chain(
     ), f"accession_total={accession_total}, species_total={species_total}"
 
 
+def test_daily_species_editor_add_accession_creates_plant_with_source(
+    dogtail_modules, sqlite_connection, ghini_process_factory
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEDAILYACEAE"
+    genus_name = "Eedailygenus"
+    species_name = "eodaily"
+    accession_code = "DAILY-E2E-001"
+    plant_code = "1"
+    location_code = "EDLY"
+    location_name = "E2E Daily Workflow Bed"
+    source_name = "E2E Daily Workflow Nursery"
+    source_code = "DW-2026-001"
+
+    seed_family_genus_location_source_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        location_code=location_code,
+        location_name=location_name,
+        source_name=source_name,
+    )
+
+    ghini_process = ghini_process_factory()
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Species", role_name="menu item")
+
+    species_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+    )
+    species_entries = find_visible_text_entries_by_position(species_editor)
+    assert len(species_entries) >= 3, describe_text_entries(species_editor)
+    genus_entry, species_entry = species_name_entries(species_entries)
+
+    enter_text(genus_entry, genus_name, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    enter_text(species_entry, species_name, dogtail_rawinput)
+
+    add_accessions_button = find_named_child(
+        species_editor, "Add Accessions", role_name="push button"
+    )
+    assert add_accessions_button is not None, dump_accessible_tree(species_editor)
+    assert getattr(add_accessions_button, "sensitive", True), dump_accessible_tree(
+        species_editor
+    )
+    add_accessions_button.click()
+
+    accession_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+    )
+    assert (
+        find_text_entry_containing(accession_editor, f"{genus_name} {species_name}")
+        is not None
+    ), describe_text_entries(accession_editor)
+
+    accession_entries = find_visible_text_entries_by_position(accession_editor)
+    assert len(accession_entries) >= 2, dump_accessible_tree(accession_editor)
+    enter_text(accession_entries[1], accession_code, dogtail_rawinput)
+
+    source_tab = find_named_child(accession_editor, "Source", showing_only=True)
+    assert source_tab is not None, dump_accessible_tree(accession_editor)
+    click_node_center(source_tab, dogtail_rawinput)
+
+    source_entries = wait_for_visible_text_entries(accession_editor, minimum=1)
+    enter_text(source_entries[0], source_name, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    source_entries = wait_for_visible_text_entries(accession_editor, minimum=2)
+    enter_text_by_keyboard(source_entries[1], source_code, dogtail_rawinput)
+    source_field_values = [accessible_text(entry) for entry in source_entries]
+
+    add_plants_button = find_named_child(
+        accession_editor, "Add plants", role_name="push button"
+    )
+    assert add_plants_button is not None, dump_accessible_tree(accession_editor)
+    assert getattr(add_plants_button, "sensitive", True), dump_accessible_tree(
+        accession_editor
+    )
+    add_plants_button.click()
+
+    plant_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+    )
+    plant_entries = find_children_by_role(plant_editor, "text")
+    assert len(plant_entries) >= 4, dump_accessible_tree(plant_editor)
+    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
+    enter_text(plant_entries[3], "1", dogtail_rawinput)
+    enter_text(plant_entries[2], location_code, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+
+    plant_ok = find_named_child(plant_editor, "OK", role_name="push button")
+    assert plant_ok is not None, dump_accessible_tree(plant_editor)
+    wait_for_sensitive(plant_ok)
+    plant_ok.click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name.startswith("Plant Editor"),
+        timeout=20,
+    )
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+
+    terminate_process(ghini_process)
+    stderr = ghini_process.stderr.read() if ghini_process.stderr is not None else ""
+
+    daily_rows = fetch_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select family.epithet, genus.epithet, species.epithet, "
+            "accession.code, source.sources_code, contact.name, plant.code, "
+            "location.code, location.name "
+            "from species "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "join accession on accession.species_id = species.id "
+            "join source on source.accession_id = accession.id "
+            "join contact on source.source_detail_id = contact.id "
+            "join plant on plant.accession_id = accession.id "
+            "join location on plant.location_id = location.id "
+            "where accession.code = ?"
+        ),
+        accession_code,
+    )
+    diagnostic_rows = {
+        "accession": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            "select code, species_id from accession where code = ?",
+            accession_code,
+        ),
+        "species": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            "select id, epithet, genus_id from species where epithet = ?",
+            species_name,
+        ),
+        "genus": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            "select id, epithet, family_id from genus where epithet = ?",
+            genus_name,
+        ),
+        "family": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            "select id, epithet from family where epithet = ?",
+            family_name,
+        ),
+        "full_left_join": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            (
+                "select accession.id, accession.code, species.id, species.epithet, "
+                "genus.id, genus.epithet, family.id, family.epithet, "
+                "source.id, source.sources_code, source.source_detail_id, "
+                "contact.id, contact.name, plant.id, plant.code, "
+                "location.id, location.code, location.name "
+                "from accession "
+                "left join species on accession.species_id = species.id "
+                "left join genus on species.genus_id = genus.id "
+                "left join family on genus.family_id = family.id "
+                "left join source on source.accession_id = accession.id "
+                "left join contact on source.source_detail_id = contact.id "
+                "left join plant on plant.accession_id = accession.id "
+                "left join location on plant.location_id = location.id "
+                "where accession.code = ?"
+            ),
+            accession_code,
+        ),
+        "source": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            (
+                "select source.sources_code, source.source_detail_id, "
+                "source.accession_id from source"
+            ),
+        ),
+        "source_contact": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            (
+                "select source.sources_code, source.source_detail_id, "
+                "source.accession_id, contact.id, contact.name "
+                "from source "
+                "left join contact on source.source_detail_id = contact.id"
+            ),
+        ),
+        "contact": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            "select id, name from contact where name = ?",
+            source_name,
+        ),
+        "plant": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            (
+                "select plant.code, accession.code, location.code "
+                "from plant "
+                "join accession on plant.accession_id = accession.id "
+                "join location on plant.location_id = location.id"
+            ),
+        ),
+    }
+    assert daily_rows == [
+        (
+            family_name,
+            genus_name,
+            species_name,
+            accession_code,
+            source_code,
+            source_name,
+            plant_code,
+            location_code,
+            location_name,
+        )
+    ], (
+        f"diagnostics={diagnostic_rows!r}\n"
+        f"source_field_values={source_field_values!r}\n"
+        f"stderr_tail={stderr[-1000:]!r}"
+    )
+
+
 def test_can_edit_existing_accession_from_result_context_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -1673,6 +1890,16 @@ def find_text_entry_with_value(node, value):
     )
 
 
+def find_text_entry_containing(node, value):
+    return node.findChild(
+        lambda child: child.roleName == "text"
+        and value in accessible_text(child).replace("\u200b", ""),
+        recursive=True,
+        retry=False,
+        requireResult=False,
+    )
+
+
 def node_contains_text(node, text):
     if text in getattr(node, "name", ""):
         return True
@@ -1735,6 +1962,44 @@ def wait_for_visible_text_entries(node, minimum=1, timeout=20):
         ],
     ]
     raise AssertionError("\n".join(details))
+
+
+def describe_text_entries(node):
+    return "\n".join(
+        [
+            dump_accessible_tree(node, max_depth=10),
+            *[
+                f"{index}: {accessible_text(entry)!r} "
+                f"pos={entry.position} size={entry.size} showing={entry.showing}"
+                for index, entry in enumerate(find_children_by_role(node, "text"))
+            ],
+        ]
+    )
+
+
+def species_name_entries(entries):
+    top_left_entry = min(
+        entries, key=lambda entry: (entry.position[1], entry.position[0])
+    )
+    left_column_x = top_left_entry.position[0]
+    left_column_entries = sorted(
+        [entry for entry in entries if abs(entry.position[0] - left_column_x) < 100],
+        key=lambda entry: entry.position[1],
+    )
+    assert len(left_column_entries) >= 2, "\n".join(
+        f"{index}: {accessible_text(entry)!r} pos={entry.position}"
+        for index, entry in enumerate(entries)
+    )
+    return left_column_entries[0], left_column_entries[1]
+
+
+def wait_for_sensitive(node, timeout=10):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if getattr(node, "sensitive", True):
+            return
+        time.sleep(0.25)
+    raise AssertionError(f"Node did not become sensitive: {node.name!r}")
 
 
 def enter_text(node, text, dogtail_rawinput):
@@ -1931,6 +2196,50 @@ def seed_taxonomy_location_fixture(
                 "values (?, ?, ?, ?)"
             ),
             (location_code, location_name, timestamp, timestamp),
+        )
+
+
+def seed_family_genus_location_source_fixture(
+    database_file,
+    *,
+    family_name,
+    genus_name,
+    location_code,
+    location_name,
+    source_name,
+):
+    timestamp = "2026-05-13 00:00:00"
+    with sqlite3.connect(database_file) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            (
+                "insert into family (epithet, author, qualifier, _created, _last_updated) "
+                "values (?, '', '', ?, ?)"
+            ),
+            (family_name, timestamp, timestamp),
+        )
+        family_id = cursor.lastrowid
+        cursor.execute(
+            (
+                "insert into genus "
+                "(epithet, author, qualifier, family_id, _created, _last_updated) "
+                "values (?, '', '', ?, ?, ?)"
+            ),
+            (genus_name, family_id, timestamp, timestamp),
+        )
+        cursor.execute(
+            (
+                "insert into location (code, name, _created, _last_updated) "
+                "values (?, ?, ?, ?)"
+            ),
+            (location_code, location_name, timestamp, timestamp),
+        )
+        cursor.execute(
+            (
+                "insert into contact (name, description, _created, _last_updated) "
+                "values (?, '', ?, ?)"
+            ),
+            (source_name, timestamp, timestamp),
         )
 
 

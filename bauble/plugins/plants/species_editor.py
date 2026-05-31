@@ -47,7 +47,7 @@ from bauble.plugins.plants.species_model import (
 )
 from bauble.prefs import prefs
 from bauble.utils import safe_set_props
-from sqlalchemy import func, select
+from sqlalchemy import func, inspect as sa_inspect, select
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm.session import object_session
 
@@ -1578,7 +1578,9 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
             from bauble.plugins.garden.accession_editor import AccessionEditor
             from bauble.plugins.garden.models import Accession
 
-            e = AccessionEditor(Accession(species_id=self.model.id), parent=self.parent)
+            state = sa_inspect(self.model)
+            species_id = state.identity[0] if state.identity else self.model.id
+            e = AccessionEditor(Accession(species_id=species_id), parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:
