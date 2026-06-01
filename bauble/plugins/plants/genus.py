@@ -24,9 +24,9 @@ import logging
 import os
 import traceback
 import weakref
-import xml
 from gettext import gettext as _
 from typing import Any, ClassVar, List, Optional
+from xml.sax.saxutils import escape as xml_escape
 
 import bauble
 import bauble.btypes as types
@@ -436,7 +436,7 @@ class Genus(Base, Serializable, WithNotes):
                     for s in [
                         genus.epithet,
                         genus.qualifier,
-                        xml.sax.saxutils.escape(genus.author),
+                        xml_escape(genus.author),
                     ]
                     if s not in ("", None)
                 ]

@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import DetachedInstanceError
 import bauble
 import bauble.connmgr as connmgr
 import bauble.paths as paths
+import bauble.pluginmgr as pluginmgr
 import bauble.prefs as prefs
 import bauble.ui as ui
 import bauble.view as view
@@ -24,6 +25,7 @@ from bauble.editor import (
 from bauble.gtkinit import Gtk
 from bauble.shared import InfoExpander
 from bauble.plugins.garden.location_editor import (
+    LocationInfoBox,
     LocationEditorPresenter,
     LocationEditorView,
 )
@@ -58,8 +60,12 @@ from bauble.plugins.plants.family import (
     FamilyEditorView,
     FamilyInfoBox,
 )
-from bauble.plugins.plants.genus import Genus, GenusEditorPresenter, GenusEditorView
-from bauble.plugins.plants.species import Species
+from bauble.plugins.plants.genus import (
+    Genus,
+    GenusEditorPresenter,
+    GenusEditorView,
+)
+from bauble.plugins.plants.species import Species, SpeciesInfoBox
 from bauble.plugins.plants.species_editor import (
     SpeciesEditorPresenter,
     SpeciesEditorView,
@@ -513,6 +519,79 @@ def test_family_infobox_updates_builder_widgets(session):
     try:
         infobox.update(family)
         assert infobox.general.widgets.fam_name_data.get_label()
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_family_infobox_renders_synonyms(session):
+    accepted = Family(epithet="Acceptedaceae", qualifier="")
+    synonym = Family(epithet="Synonymaceae", qualifier="")
+    accepted.synonyms.append(synonym)
+    session.add_all([accepted, synonym])
+    session.flush()
+
+    infobox = FamilyInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(accepted)
+        assert infobox.synonyms.get_widget().get_sensitive()
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_location_infobox_counts_plants(session):
+    family = Family(epithet="Locationaceae", qualifier="")
+    genus = Genus(family=family, epithet="Locationgenus")
+    species = Species(genus=genus, sp="locationensis")
+    accession = Accession(species=species, code="LOC-001")
+    location = Location(code="LOC", name="Location Bed")
+    plant = Plant(accession=accession, location=location, code="1", quantity=1)
+    session.add_all([family, genus, species, accession, location, plant])
+    session.flush()
+
+    infobox = LocationInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(location)
+        assert infobox.general.widgets.loc_nplants_data.get_label() == "1"
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_genus_author_markup_escapes_xml():
+    genus = Genus(epithet="Escapegenus", qualifier="", author="A & B")
+
+    assert Genus.str(genus, author=True) == "Escapegenus A &amp; B"
+
+
+def test_species_infobox_counts_garden_rows(session, monkeypatch):
+    monkeypatch.setitem(pluginmgr.plugins, "GardenPlugin", object())
+    family = Family(epithet="Speciescountaceae", qualifier="")
+    genus = Genus(family=family, epithet="Speciescountgenus")
+    species = Species(genus=genus, sp="countensis")
+    accession = Accession(species=species, code="SP-001")
+    location = Location(code="SPC", name="Species Count Bed")
+    plant = Plant(accession=accession, location=location, code="1", quantity=1)
+    session.add_all([family, genus, species, accession, location, plant])
+    session.flush()
+
+    infobox = SpeciesInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(species)
+        assert infobox.general.widgets.sp_nacc_data.get_label() == "1"
+        assert (
+            infobox.general.widgets.sp_nplants_data.get_label() == "1 in 1 accessions"
+        )
     finally:
         widget.destroy()
         while Gtk.events_pending():

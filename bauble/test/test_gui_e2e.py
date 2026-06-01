@@ -346,6 +346,54 @@ def test_can_search_existing_accession(
     assert accession_count == 1
 
 
+def test_daily_searches_do_not_log_infobox_tracebacks(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEINFOBOXACEAE"
+    genus_name = "Eeinfoboxgenus"
+    species_name = "eoinfobox"
+    location_code = "IB01"
+    location_name = "E2E Infobox Bed"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name=species_name,
+        accession_code="INFOBOX-SEARCH-001",
+        plant_code="1",
+        location_code=location_code,
+        location_name=location_name,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    searches = [
+        (f"family where epithet={family_name}", family_name),
+        (f"genus where epithet={genus_name}", genus_name),
+        (f"species where genus.epithet={genus_name}", species_name),
+        (f"location where code={location_code}", location_code),
+    ]
+    for query, expected_text in searches:
+        enter_text(search_entry, query, dogtail_rawinput)
+        dogtail_rawinput.pressKey("Enter")
+        wait_for_node(
+            dogtail_tree,
+            lambda node, text=expected_text: node.roleName in {"table cell", "label"}
+            and text in node.name,
+            timeout=20,
+        )
+        time.sleep(0.2)
+
+    terminate_process(ghini_process)
+    stderr = ghini_process.stderr.read() if ghini_process.stderr is not None else ""
+
+    assert "SearchView.update_infobox failed" not in stderr
+
+
 def test_search_entry_accepts_input_after_species_editor_save(
     dogtail_modules, sqlite_connection, ghini_process
 ):

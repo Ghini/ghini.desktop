@@ -52,7 +52,7 @@ from bauble.plugins.plants.species_model import VernacularName as VernacularName
 from bauble.prefs import prefs
 from bauble.shared import InfoExpander
 from bauble.view import Action, InfoBox, PropertiesExpander, select_in_search_results
-from sqlalchemy import distinct, select
+from sqlalchemy import distinct, func, select
 from sqlalchemy.orm.session import object_session
 
 logger: Any = logging.getLogger(__name__)
@@ -440,26 +440,18 @@ class GeneralSpeciesExpander(InfoExpander):
 
         from bauble.plugins.garden.models import Accession, Plant
 
-        nacc = (
-            session.execute(
-                select(Accession)
-                .join(Species, Accession.species_id == Species.id)
-                .where(Species.id == row.id)
-            )
-            .scalars()
-            .count()
+        nacc = session.scalar(
+            select(func.count())
+            .select_from(Accession)
+            .where(Accession.species_id == row.id)
         )
         self.widget_set_value("sp_nacc_data", nacc)
 
-        nplants = (
-            session.execute(
-                select(Plant)
-                .join(Accession, Plant.accession_id == Accession.id)
-                .join(Species, Accession.species_id == Species.id)
-                .where(Species.id == row.id)
-            )
-            .scalars()
-            .count()
+        nplants = session.scalar(
+            select(func.count())
+            .select_from(Plant)
+            .join(Accession, Plant.accession_id == Accession.id)
+            .where(Accession.species_id == row.id)
         )
         if nplants == 0:
             self.widget_set_value("sp_nplants_data", nplants)

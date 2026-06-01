@@ -490,10 +490,8 @@ class GeneralLocationExpander(InfoExpander):
         session = object_session(row)
         from sqlalchemy import func
 
-        nplants = (
-            session.execute(select(func.count()))
-            .select_from(Plant)
-            .where(location_id=row.id)
+        nplants = session.scalar(
+            select(func.count()).select_from(Plant).where(Plant.location_id == row.id)
         )
         self.widget_set_value("loc_nplants_data", nplants)
 

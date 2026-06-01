@@ -1197,7 +1197,7 @@ class SynonymsExpander(InfoExpander):
             box.add(label)
             utils.make_label_clickable(label, on_clicked, row.accepted)
             syn_box.pack_start(box, False, False, 0)
-            self.show_all()
+            self.get_widget().show_all()
             self.set_sensitive(True)
         elif len(row.synonyms) == 0:
             self.set_sensitive(False)
@@ -1216,7 +1216,7 @@ class SynonymsExpander(InfoExpander):
                 box.add(label)
                 utils.make_label_clickable(label, on_clicked, syn)
                 syn_box.pack_start(box, False, False, 0)
-            self.show_all()
+            self.get_widget().show_all()
             self.set_sensitive(True)
 
 
