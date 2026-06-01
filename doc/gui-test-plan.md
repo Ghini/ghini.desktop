@@ -167,8 +167,8 @@ Use this gate sequence before a release candidate:
 1. `scripts/docker-dev test-smoke`
 2. `scripts/docker-dev test-regression`
 3. `scripts/docker-dev postgres-check`
-4. `scripts/docker-dev postgres-smoke` against a disposable representative
-   PostgreSQL database copy
+4. `scripts/docker-dev postgres-copy-smoke` against a disposable
+   representative PostgreSQL database copy
 5. Optional guided visual scenarios for startup, connection, taxonomy creation,
    location creation, record editing, delete confirmation, daily accession
    workflow, and propagation workflow
