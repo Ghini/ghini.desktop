@@ -21,7 +21,19 @@ export GHINI_SOURCE_POSTGRES_URI='postgresql://readonly_user:secret@postgres.exa
 
 ## Create The Dump
 
-Create an ignored dump artifact under `test-results/`:
+The normal release gate is one command:
+
+```sh
+scripts/docker-dev postgres-copy-smoke
+```
+
+This command creates an ignored dump artifact under `test-results/`, restores it
+into a disposable local PostgreSQL container, runs `postgres-smoke`, and removes
+the disposable container.
+
+Use the manual steps below only when you need to inspect or debug the copy.
+
+Create the ignored dump artifact yourself:
 
 ```sh
 scripts/docker-dev run -- bash -lc '

@@ -239,6 +239,12 @@ PostgreSQL copy. Do not use a production database for release testing.
 For the release-candidate procedure that copies a representative database into
 a disposable local PostgreSQL container first, see
 [`doc/postgresql-release-smoke.md`](postgresql-release-smoke.md).
+The one-command release path is:
+
+```sh
+GHINI_SOURCE_POSTGRES_URI=postgresql://readonly_user:secret@postgres.example.net/ghini \
+  scripts/docker-dev postgres-copy-smoke
+```
 
 ## Formatting And Checks
 

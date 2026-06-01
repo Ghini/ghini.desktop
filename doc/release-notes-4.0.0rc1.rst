@@ -186,9 +186,9 @@ Pending Release Gates
 The following must be completed before tagging ``v4.0.0rc1``:
 
 * A real PostgreSQL smoke pass against a disposable representative database
-  copy, not a production database. Use ``scripts/docker-dev postgres-smoke``
-  for the automated read-only portion of this gate. See
-  ``doc/postgresql-release-smoke.md``.
+  copy, not a production database. Use
+  ``scripts/docker-dev postgres-copy-smoke`` for the automated copy and
+  read-only smoke gate. See ``doc/postgresql-release-smoke.md``.
 * Final review of open GitLab issues to confirm only release-deferred work
   remains open.
 * Tag ``v4.0.0rc1`` after the pending gates pass.

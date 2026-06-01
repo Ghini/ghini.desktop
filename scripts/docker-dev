@@ -14,6 +14,7 @@ Usage:
   scripts/docker-dev test-regression [pytest args...]
   scripts/docker-dev postgres-check [pytest args...]
   scripts/docker-dev postgres-smoke [pytest args...]
+  scripts/docker-dev postgres-copy-smoke [pytest args...]
   scripts/docker-dev gtk-smoke [pytest args...]
   scripts/docker-dev gui-e2e [pytest args...]
   scripts/docker-dev gui-guided [scenario]
@@ -45,6 +46,7 @@ Useful overrides:
   GHINI_POSTGRES_SMOKE_TIMEOUT=<seconds, default 300>
   GHINI_EXTERNAL_POSTGRES_URI=<read-only smoke target URI>
   GHINI_SOURCE_POSTGRES_URI=<source URI for read-only pg_dump copy>
+  GHINI_POSTGRES_COPY_DUMP=test-results/postgres-smoke/representative.dump
   GHINI_WARNING_TIMEOUT=<seconds, default 900>
   GHINI_POSTGRES_IMAGE=postgres:16-alpine
 EOF
@@ -225,6 +227,7 @@ run_container() {
         GHINI_TEST_POSTGRES_URI \
         GHINI_EXTERNAL_POSTGRES_URI \
         GHINI_SOURCE_POSTGRES_URI \
+        GHINI_POSTGRES_COPY_DUMP \
         KRB5_CONFIG \
         KRB5_CLIENT_KTNAME \
         GHINI_GUIDED_WRITE_DEFAULT_CONFIG \
@@ -418,6 +421,90 @@ run_postgres_smoke() {
         python -m pytest "${pytest_args[@]}"
 }
 
+run_postgres_copy_smoke() {
+    local pg_container="${GHINI_POSTGRES_COPY_CONTAINER:-ghini-postgres-copy-smoke-$$}"
+    local pg_image="${GHINI_POSTGRES_IMAGE:-postgres:16-alpine}"
+    local pg_user="${GHINI_POSTGRES_USER:-ghini}"
+    local pg_password="${GHINI_POSTGRES_PASSWORD:-ghini}"
+    local pg_database="${GHINI_POSTGRES_DB:-ghini_copy}"
+    local dump_path="${GHINI_POSTGRES_COPY_DUMP:-test-results/postgres-smoke/representative.dump}"
+    local target_uri="postgresql://${pg_user}:${pg_password}@127.0.0.1:5432/${pg_database}"
+    local status=0
+
+    if [[ -z "${GHINI_SOURCE_POSTGRES_URI:-}" ]]; then
+        echo "Set GHINI_SOURCE_POSTGRES_URI to the PostgreSQL database to copy." >&2
+        echo "Use a read-only source role and do not point schema-reset tests at production." >&2
+        return 2
+    fi
+
+    case "${dump_path}" in
+        /*|../*|*/../*)
+            echo "GHINI_POSTGRES_COPY_DUMP must be a repository-relative path." >&2
+            return 2
+            ;;
+    esac
+
+    mkdir -p "${repo_root}/$(dirname "${dump_path}")"
+
+    echo "==> Dumping source PostgreSQL database into ${dump_path}"
+    GHINI_XHOST=0 \
+        GHINI_SKIP_CONFIG_MOUNT=1 \
+        GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-postgres-copy-dump-$$}" \
+        run_container postgres-copy-dump \
+        bash -lc 'pg_dump --format=custom --no-owner --no-acl --file="/app/${GHINI_POSTGRES_COPY_DUMP:-test-results/postgres-smoke/representative.dump}" "$GHINI_SOURCE_POSTGRES_URI"'
+
+    docker run \
+        --detach \
+        --rm \
+        --name "${pg_container}" \
+        --env "POSTGRES_USER=${pg_user}" \
+        --env "POSTGRES_PASSWORD=${pg_password}" \
+        --env "POSTGRES_DB=${pg_database}" \
+        "${pg_image}" >/dev/null
+
+    local ready=0
+    for _ in {1..30}; do
+        if docker exec "${pg_container}" \
+            pg_isready -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
+            ready=1
+            break
+        fi
+        sleep 1
+    done
+    if [[ "${ready}" != "1" ]]; then
+        docker logs "${pg_container}" >&2 || true
+        docker stop "${pg_container}" >/dev/null 2>&1 || true
+        echo "PostgreSQL copy-smoke container did not become ready." >&2
+        return 1
+    fi
+
+    set +e
+    echo "==> Restoring dump into disposable PostgreSQL container ${pg_container}"
+    GHINI_XHOST=0 \
+        GHINI_SKIP_CONFIG_MOUNT=1 \
+        GHINI_DOCKER_NETWORK="container:${pg_container}" \
+        GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-postgres-copy-restore-$$}" \
+        run_container postgres-copy-restore \
+        pg_restore \
+        "--dbname=${target_uri}" \
+        --no-owner \
+        "--role=${pg_user}" \
+        "/app/${dump_path}"
+    status=$?
+
+    if [[ "${status}" == "0" ]]; then
+        echo "==> Running read-only PostgreSQL smoke against restored copy"
+        GHINI_DOCKER_NETWORK="container:${pg_container}" \
+            GHINI_EXTERNAL_POSTGRES_URI="${target_uri}" \
+            run_postgres_smoke "$@"
+        status=$?
+    fi
+    set -e
+
+    docker stop "${pg_container}" >/dev/null 2>&1 || true
+    return "${status}"
+}
+
 run_gui_guided() {
     local skip_config_mount=0
     local arg
@@ -468,6 +555,9 @@ case "${command}" in
         ;;
     postgres-smoke)
         run_postgres_smoke "$@"
+        ;;
+    postgres-copy-smoke)
+        run_postgres_copy_smoke "$@"
         ;;
     gtk-smoke)
         run_gtk_smoke "$@"

@@ -217,7 +217,9 @@ of the user's PostgreSQL database or another representative PostgreSQL database.
 Do not run destructive schema-reset tests against a production database.
 Use ``scripts/docker-dev postgres-smoke`` for the automated read-only portion
 of this gate; any manual read/write checks must still use a disposable copy.
-See ``doc/postgresql-release-smoke.md`` for the copy-and-smoke procedure.
+Use ``scripts/docker-dev postgres-copy-smoke`` to copy representative data into
+a disposable local PostgreSQL container and run the read-only smoke in one
+step. See ``doc/postgresql-release-smoke.md`` for the manual procedure.
 
 Release Decisions
 -----------------
