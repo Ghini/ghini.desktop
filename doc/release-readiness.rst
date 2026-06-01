@@ -175,10 +175,12 @@ Run this before tagging a release candidate:
 
    scripts/docker-dev test-regression
    scripts/docker-dev postgres-check
+   GHINI_EXTERNAL_POSTGRES_URI=postgresql://... scripts/docker-dev postgres-smoke
 
 ``test-regression`` is the no-intervention release gate. ``postgres-check`` is
 separate because it owns a disposable PostgreSQL schema and should never point
-at a real garden database.
+at a real garden database. ``postgres-smoke`` is the read-only external
+PostgreSQL smoke lane for a disposable representative database copy.
 
 Guided visual release gate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,6 +208,8 @@ Real database gate
 Before final release, perform a read/write smoke pass against a disposable copy
 of the user's PostgreSQL database or another representative PostgreSQL database.
 Do not run destructive schema-reset tests against a production database.
+Use ``scripts/docker-dev postgres-smoke`` for the automated read-only portion
+of this gate; any manual read/write checks must still use a disposable copy.
 
 Release Decisions
 -----------------

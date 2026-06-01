@@ -221,6 +221,21 @@ GHINI_TEST_POSTGRES_URI=postgresql://ghini:ghini@postgres/ghini_test \
 Do not point `GHINI_TEST_POSTGRES_URI` at a real garden database. The lane owns
 the target schema and recreates it.
 
+Run the external PostgreSQL smoke lane against a disposable representative
+database copy:
+
+```sh
+GHINI_EXTERNAL_POSTGRES_URI=postgresql://ghini:secret@postgres.example.net/ghini_copy \
+  scripts/docker-dev postgres-smoke
+```
+
+This lane does not call `db.create()` and does not recreate the target schema.
+It opens the database the same way the application does, tolerates the version
+warning path used for older Ghini databases, and performs read-only checks for
+required tables, basic counts, a daily accession/taxonomy join, and session
+rollback recovery. Use this for release confidence against a representative
+PostgreSQL copy. Do not use a production database for release testing.
+
 ## Formatting And Checks
 
 Format changed Python files with Black:

@@ -150,7 +150,7 @@ Known Scope Limits
 Test Evidence
 -------------
 
-Completed on ``ghini-4-dev-clean`` at ``9919e220`` on 2026-05-31:
+Application release gates completed on ``ghini-4-dev-clean`` at ``9919e220``:
 
 * ``scripts/docker-dev test-smoke`` passed:
 
@@ -167,6 +167,11 @@ Completed on ``ghini-4-dev-clean`` at ``9919e220`` on 2026-05-31:
 * ``scripts/docker-dev postgres-check`` passed:
 
   * PostgreSQL lane: 3 passed.
+
+* ``scripts/docker-dev postgres-smoke`` was validated against a temporary
+  PostgreSQL database seeded by the disposable PostgreSQL lane:
+
+  * external read-only smoke lane: 4 passed.
 
 Earlier release hardening also verified ``scripts/docker-dev build`` and a live
 WFO provider smoke query from the Docker image. Those checks should be rerun if
@@ -197,7 +202,8 @@ The following must be completed before tagging ``v4.0.0rc1``:
   automated evidence above.
 
 * A real PostgreSQL smoke pass against a disposable representative database
-  copy, not a production database.
+  copy, not a production database. Use ``scripts/docker-dev postgres-smoke``
+  for the automated read-only portion of this gate.
 * Final review of open GitLab issues to confirm only release-deferred work
   remains open.
 * Tag ``v4.0.0rc1`` after the pending gates pass.
