@@ -37,6 +37,7 @@ Useful overrides:
   GHINI_CONFIG_DIR=$HOME/.bauble/3.1
   GHINI_SKIP_CONFIG_MOUNT=1
   GHINI_KRB5_DIR=$HOME/krb5
+  GHINI_PGPASSFILE=$HOME/.pgpass
   GHINI_XHOST=1
   GHINI_TZ=<IANA timezone>
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
@@ -75,6 +76,7 @@ container="${GHINI_CONTAINER:-ghini-dev}"
 project_dir="${GHINI_PROJECT_DIR:-${repo_root}}"
 config_dir="${GHINI_CONFIG_DIR:-${HOME}/.bauble/3.1}"
 krb5_dir="${GHINI_KRB5_DIR:-${HOME}/krb5}"
+pgpassfile="${GHINI_PGPASSFILE:-${PGPASSFILE:-${HOME}/.pgpass}}"
 xauthority="${GHINI_XAUTHORITY:-${XAUTHORITY:-${HOME}/.Xauthority}}"
 dri_dir="${GHINI_DRI_DIR:-/usr/lib/dri}"
 
@@ -195,6 +197,13 @@ run_container() {
 
     if [[ -d "${krb5_dir}" ]]; then
         docker_args+=("--volume" "${krb5_dir}:/krb5:ro")
+    fi
+
+    if [[ -f "${pgpassfile}" ]]; then
+        docker_args+=(
+            --env "PGPASSFILE=/home/ghini/.pgpass"
+            --volume "${pgpassfile}:/home/ghini/.pgpass:ro"
+        )
     fi
 
     if [[ -d "${dri_dir}" ]]; then
