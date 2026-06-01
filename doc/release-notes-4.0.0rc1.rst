@@ -171,8 +171,10 @@ Automated release evidence for current application code at ``1b42bd57``:
 
   * PostgreSQL lane: 3 passed.
 
-* ``scripts/docker-dev postgres-smoke`` was validated against a temporary
-  PostgreSQL database seeded by the disposable PostgreSQL lane:
+* ``scripts/docker-dev postgres-copy-smoke`` was validated at ``a20a3f12``
+  against temporary PostgreSQL containers. The test seeded a disposable source
+  database, dumped and restored it into a second disposable PostgreSQL
+  container, then ran the read-only smoke lane:
 
   * external read-only smoke lane: 4 passed.
 
