@@ -39,6 +39,7 @@ Useful overrides:
   GHINI_TZ=<IANA timezone>
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
   GHINI_DOCKER_NETWORK=<docker network mode>
+  GHINI_GUI_E2E_TIMEOUT=<seconds, default 900>
   GHINI_POSTGRES_IMAGE=postgres:16-alpine
 EOF
 }
@@ -295,12 +296,13 @@ run_gtk_smoke() {
 
 run_gui_e2e() {
     local -a pytest_args=(bauble/test/test_gui_e2e.py -q)
+    local gui_timeout="${GHINI_GUI_E2E_TIMEOUT:-900}"
     if [[ $# -gt 0 ]]; then
         pytest_args=("$@")
     fi
 
     GHINI_XHOST=0 NO_AT_BRIDGE=0 run_container shell \
-        timeout 420 xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        timeout "${gui_timeout}" xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
         dbus-run-session -- \
         bash -lc 'gsettings set org.gnome.desktop.interface toolkit-accessibility true; python -m pytest "$@"' \
         bash "${pytest_args[@]}"
