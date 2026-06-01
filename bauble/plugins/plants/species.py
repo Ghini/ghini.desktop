@@ -299,12 +299,13 @@ class SynonymsExpander(InfoExpander):
             # in the search results
             box = Gtk.EventBox()
             label = Gtk.Label()
-            label.set_alignment(0, 0.5)
+            label.set_xalign(0)
+            label.set_yalign(0.5)
             label.set_markup(accepted.str(markup=True, authors=True))
             box.add(label)
             utils.make_label_clickable(label, on_label_clicked, accepted)
             syn_box.pack_start(box, False, False, 0)
-            self.show_all()
+            self.get_widget().show_all()
             self.set_sensitive(True)
             self.set_expanded(True)
         elif len(row.synonyms) == 0:
@@ -318,12 +319,13 @@ class SynonymsExpander(InfoExpander):
                 # in the search results
                 box = Gtk.EventBox()
                 label = Gtk.Label()
-                label.set_alignment(0, 0.5)
+                label.set_xalign(0)
+                label.set_yalign(0.5)
                 label.set_markup(syn.str(markup=True, authors=True))
                 box.add(label)
                 utils.make_label_clickable(label, on_label_clicked, syn)
                 syn_box.pack_start(box, False, False, 0)
-            self.show_all()
+            self.get_widget().show_all()
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)

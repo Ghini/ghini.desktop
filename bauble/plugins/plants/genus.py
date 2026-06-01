@@ -1314,12 +1314,13 @@ class SynonymsExpander(InfoExpander):
             # in the search results
             box = Gtk.EventBox()
             label = Gtk.Label()
-            label.set_alignment(0, 0.5)
+            label.set_xalign(0)
+            label.set_yalign(0.5)
             label.set_markup(Genus.str(row.accepted, author=True))
             box.add(label)
             utils.make_label_clickable(label, on_clicked, row.accepted)
             syn_box.pack_start(box, False, False, 0)
-            self.show_all()
+            self.get_widget().show_all()
             self.set_sensitive(True)
         elif len(row.synonyms) == 0:
             self.set_sensitive(False)
@@ -1333,12 +1334,13 @@ class SynonymsExpander(InfoExpander):
                 # in the search results
                 box = Gtk.EventBox()
                 label = Gtk.Label()
-                label.set_alignment(0, 0.5)
+                label.set_xalign(0)
+                label.set_yalign(0.5)
                 label.set_markup(Genus.str(syn, author=True))
                 box.add(label)
                 utils.make_label_clickable(label, on_clicked, syn)
                 syn_box.pack_start(box, False, False, 0)
-            self.show_all()
+            self.get_widget().show_all()
             self.set_sensitive(True)
 
 
