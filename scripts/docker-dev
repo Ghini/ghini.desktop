@@ -40,6 +40,7 @@ Useful overrides:
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
   GHINI_DOCKER_NETWORK=<docker network mode>
   GHINI_GUI_E2E_TIMEOUT=<seconds, default 900>
+  GHINI_WARNING_TIMEOUT=<seconds, default 900>
   GHINI_POSTGRES_IMAGE=postgres:16-alpine
 EOF
 }
@@ -283,9 +284,16 @@ run_warning_check() {
         -W error::sqlalchemy.exc.LegacyAPIWarning
         -W error::sqlalchemy.exc.MovedIn20Warning
     )
+    local warning_timeout="${GHINI_WARNING_TIMEOUT:-900}"
+    if [[ -n "${PYTEST_ARGS:-}" ]]; then
+        local -a extra_args
+        read -r -a extra_args <<< "${PYTEST_ARGS}"
+        warning_args+=("${extra_args[@]}")
+    fi
 
-    GHINI_XHOST=0 PYTEST_ARGS="${warning_args[*]} ${PYTEST_ARGS:-}" \
-        run_container pytest "$@"
+    GHINI_XHOST=0 run_container shell \
+        timeout "${warning_timeout}" xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        python -m pytest "${warning_args[@]}" "$@"
 }
 
 run_gtk_smoke() {
