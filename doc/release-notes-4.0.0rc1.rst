@@ -73,6 +73,8 @@ GUI workflow
 * Restored autocomplete behavior in primary search and daily workflow
   selectors.
 * Stabilized result-tree context-menu editing after search refreshes.
+* Fixed result infobox tracebacks in daily searches for location, family,
+  genus, and species results.
 * Added automated GUI E2E coverage for search, edit, delete confirmation,
   creation, location, source, plant, and propagation workflows.
 * Fixed propagation persistence and redisplay behavior found during guided
@@ -116,6 +118,12 @@ candidate:
 * #35 Daily editor fields should validate or safely handle database length
   limits.
 * #36 PlantsPlugin initialization fails when preferences are unavailable.
+* #38 Main search field unusable after species editor save.
+* #39 Species Notes editor can hang during routine species entry.
+* #40 Daily searches log infobox tracebacks during result display.
+* #41 Add Accession from new Species can fail with detached Species instance.
+* #42 Add Accession can autoflush incomplete seed propagation during editor
+  startup.
 
 Deferred Issues
 ---------------
@@ -142,26 +150,28 @@ Known Scope Limits
 Test Evidence
 -------------
 
-Completed on ``ghini-4-dev-clean`` at ``b45fe619``:
+Completed on ``ghini-4-dev-clean`` at ``9919e220`` on 2026-05-31:
 
-* ``scripts/docker-dev build`` completed after adding the WFO intermediate
-  certificate to the Docker trust store.
-* Live WFO provider smoke query returned one result for ``Iris florentina``.
 * ``scripts/docker-dev test-smoke`` passed:
 
   * warning-gated base check: 16 passed;
-  * GTK smoke suite: 129 passed;
-  * core GUI E2E subset: 4 passed, 15 deselected.
+  * GTK smoke suite: 142 passed;
+  * core GUI E2E subset: 5 passed, 17 deselected.
 
 * ``scripts/docker-dev test-regression`` passed:
 
-  * warning-gated suite: 399 passed, 25 skipped;
-  * GTK smoke suite: 129 passed;
-  * full GUI E2E suite: 19 passed.
+  * warning-gated suite: 415 passed, 28 skipped;
+  * GTK smoke suite: 142 passed;
+  * full GUI E2E suite: 22 passed.
 
 * ``scripts/docker-dev postgres-check`` passed:
 
   * PostgreSQL lane: 3 passed.
+
+Earlier release hardening also verified ``scripts/docker-dev build`` and a live
+WFO provider smoke query from the Docker image. Those checks should be rerun if
+the release candidate is rebuilt after additional dependency or certificate
+changes.
 
 Pending Release Gates
 ---------------------
@@ -178,6 +188,13 @@ The following must be completed before tagging ``v4.0.0rc1``:
   * ``delete-confirmation``
   * ``daily-accession-workflow``
   * ``propagation-workflow``
+
+  These guided scenarios were used to find and verify several release blockers,
+  and the current automated GUI E2E suite covers those regressions. They have
+  not been rerun on ``9919e220`` because the current release work is using
+  no-intervention testing. Before tagging, either rerun them as a visual
+  confirmation pass or record an explicit release decision to rely on the
+  automated evidence above.
 
 * A real PostgreSQL smoke pass against a disposable representative database
   copy, not a production database.
