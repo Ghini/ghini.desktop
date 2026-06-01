@@ -346,6 +346,67 @@ def test_can_search_existing_accession(
     assert accession_count == 1
 
 
+def test_search_entry_accepts_input_after_species_editor_save(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEAFTERSPECIESACEAE"
+    genus_name = "Eeafterspeciesgenus"
+    species_name = "eoafterspecies"
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Family", role_name="menu item")
+
+    family_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Family Editor",
+    )
+    family_entry = find_child_by_role(family_editor, "text")
+    assert family_entry is not None, dump_accessible_tree(family_editor)
+    enter_text(family_entry, family_name, dogtail_rawinput)
+
+    find_named_child(family_editor, "Add Genera", role_name="push button").click()
+
+    genus_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Genus Editor",
+    )
+    genus_entries = find_children_by_role(genus_editor, "text")
+    assert len(genus_entries) >= 2, dump_accessible_tree(genus_editor)
+    enter_text(genus_entries[1], genus_name, dogtail_rawinput)
+
+    find_named_child(genus_editor, "Add Species", role_name="push button").click()
+
+    species_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+    )
+    species_entries = find_children_by_role(species_editor, "text")
+    assert species_entries, dump_accessible_tree(species_editor)
+    enter_text(species_entries[0], species_name, dogtail_rawinput)
+
+    find_named_child(species_editor, "OK", role_name="push button").click()
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+        timeout=20,
+    )
+
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+    enter_text(search_entry, f"family where epithet={family_name}", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and family_name in node.name,
+        timeout=20,
+    )
+
+
 def test_can_edit_existing_family_from_result_context_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):
