@@ -40,6 +40,7 @@ Useful overrides:
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
   GHINI_DOCKER_NETWORK=<docker network mode>
   GHINI_GUI_E2E_TIMEOUT=<seconds, default 900>
+  GHINI_POSTGRES_CHECK_TIMEOUT=<seconds, default 300>
   GHINI_WARNING_TIMEOUT=<seconds, default 900>
   GHINI_POSTGRES_IMAGE=postgres:16-alpine
 EOF
@@ -345,6 +346,7 @@ run_postgres_check() {
     local pg_user="${GHINI_POSTGRES_USER:-ghini}"
     local pg_password="${GHINI_POSTGRES_PASSWORD:-ghini}"
     local pg_database="${GHINI_POSTGRES_DB:-ghini_test}"
+    local pg_timeout="${GHINI_POSTGRES_CHECK_TIMEOUT:-300}"
     local -a pytest_args=(bauble/test/test_postgresql_lane.py -q)
     if [[ $# -gt 0 ]]; then
         pytest_args=("$@")
@@ -381,6 +383,7 @@ run_postgres_check() {
         GHINI_DOCKER_NETWORK="container:${pg_container}" \
         GHINI_TEST_POSTGRES_URI="postgresql://${pg_user}:${pg_password}@127.0.0.1:5432/${pg_database}" \
         run_container postgres-check \
+        timeout "${pg_timeout}" xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
         python -m pytest "${pytest_args[@]}"
     local status=$?
     set -e
