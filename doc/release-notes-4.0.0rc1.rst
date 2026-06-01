@@ -150,7 +150,7 @@ Known Scope Limits
 Test Evidence
 -------------
 
-Application release gates completed on ``ghini-4-dev-clean`` at ``9919e220``:
+Application release gates completed on ``ghini-4-dev-clean`` at ``1b42bd57``:
 
 * ``scripts/docker-dev test-smoke`` passed:
 
@@ -160,7 +160,7 @@ Application release gates completed on ``ghini-4-dev-clean`` at ``9919e220``:
 
 * ``scripts/docker-dev test-regression`` passed:
 
-  * warning-gated suite: 415 passed, 28 skipped;
+  * warning-gated suite: 415 passed, 32 skipped;
   * GTK smoke suite: 142 passed;
   * full GUI E2E suite: 22 passed.
 
@@ -196,7 +196,7 @@ The following must be completed before tagging ``v4.0.0rc1``:
 
   These guided scenarios were used to find and verify several release blockers,
   and the current automated GUI E2E suite covers those regressions. They have
-  not been rerun on ``9919e220`` because the current release work is using
+  not been rerun on ``1b42bd57`` because the current release work is using
   no-intervention testing. Before tagging, either rerun them as a visual
   confirmation pass or record an explicit release decision to rely on the
   automated evidence above.
