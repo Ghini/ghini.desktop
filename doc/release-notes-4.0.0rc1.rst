@@ -178,6 +178,11 @@ Automated release evidence for current application code at ``1b42bd57``:
 
   * external read-only smoke lane: 4 passed.
 
+* Open GitLab issue review completed at ``32b59e85``:
+
+  * #31 remains open as the release tracker;
+  * #7 and #37 remain open and are marked ``release-deferred``.
+
 Earlier release hardening also verified a live WFO provider smoke query from
 the Docker image. That check should be rerun if the release candidate is
 rebuilt after additional dependency or certificate changes.
@@ -191,8 +196,6 @@ The following must be completed before tagging ``v4.0.0rc1``:
   copy, not a production database. Use
   ``scripts/docker-dev postgres-copy-smoke`` for the automated copy and
   read-only smoke gate. See ``doc/postgresql-release-smoke.md``.
-* Final review of open GitLab issues to confirm only release-deferred work
-  remains open.
 * Tag ``v4.0.0rc1`` after the pending gates pass.
 
 Guided visual scenarios are not a required ``v4.0.0rc1`` gate after the
