@@ -228,7 +228,7 @@ def test_note_box_date_entry_uses_editor_date_validator() -> None:
 
     box.on_date_entry_changed(entry)
 
-    assert box.model.date.date() == datetime.date(2026, 5, 25)
+    assert box.model.date == datetime.date(2026, 5, 25)
     assert box.presenter.problems == []
 
 
