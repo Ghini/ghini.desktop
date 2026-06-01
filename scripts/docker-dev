@@ -44,6 +44,7 @@ Useful overrides:
   GHINI_POSTGRES_CHECK_TIMEOUT=<seconds, default 300>
   GHINI_POSTGRES_SMOKE_TIMEOUT=<seconds, default 300>
   GHINI_EXTERNAL_POSTGRES_URI=<read-only smoke target URI>
+  GHINI_SOURCE_POSTGRES_URI=<source URI for read-only pg_dump copy>
   GHINI_WARNING_TIMEOUT=<seconds, default 900>
   GHINI_POSTGRES_IMAGE=postgres:16-alpine
 EOF
@@ -223,6 +224,7 @@ run_container() {
         DB_SSLMODE \
         GHINI_TEST_POSTGRES_URI \
         GHINI_EXTERNAL_POSTGRES_URI \
+        GHINI_SOURCE_POSTGRES_URI \
         KRB5_CONFIG \
         KRB5_CLIENT_KTNAME \
         GHINI_GUIDED_WRITE_DEFAULT_CONFIG \

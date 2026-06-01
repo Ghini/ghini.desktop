@@ -185,27 +185,15 @@ Pending Release Gates
 
 The following must be completed before tagging ``v4.0.0rc1``:
 
-* Guided visual release scenarios:
-
-  * ``visual-smoke``
-  * ``connect-main-window``
-  * ``taxonomy-create``
-  * ``location-create``
-  * ``edit-record``
-  * ``delete-confirmation``
-  * ``daily-accession-workflow``
-  * ``propagation-workflow``
-
-  These guided scenarios were used to find and verify several release blockers,
-  and the current automated GUI E2E suite covers those regressions. They have
-  not been rerun on ``1b42bd57`` because the current release work is using
-  no-intervention testing. Before tagging, either rerun them as a visual
-  confirmation pass or record an explicit release decision to rely on the
-  automated evidence above.
-
 * A real PostgreSQL smoke pass against a disposable representative database
   copy, not a production database. Use ``scripts/docker-dev postgres-smoke``
-  for the automated read-only portion of this gate.
+  for the automated read-only portion of this gate. See
+  ``doc/postgresql-release-smoke.md``.
 * Final review of open GitLab issues to confirm only release-deferred work
   remains open.
 * Tag ``v4.0.0rc1`` after the pending gates pass.
+
+Guided visual scenarios are not a required ``v4.0.0rc1`` gate after the
+automated GUI E2E suite passes. The guided scenarios were used to find release
+blockers, and the current automated suite covers those regressions. They remain
+available for optional visual confirmation before tagging.

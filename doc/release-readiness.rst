@@ -185,7 +185,13 @@ PostgreSQL smoke lane for a disposable representative database copy.
 Guided visual release gate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Run the guided scenarios that cover the supported daily workflow:
+Guided visual scenarios are discovery and human-confirmation tools, not the
+primary release gate. For ``v4.0.0rc1``, the release decision is to rely on the
+automated no-intervention GUI E2E suite after guided findings have been fixed,
+automated, or explicitly deferred. Rerun guided scenarios only when a visual
+confirmation pass is wanted before tagging.
+
+The guided scenarios that cover the supported daily workflow are:
 
 .. code-block:: sh
 
@@ -199,8 +205,9 @@ Run the guided scenarios that cover the supported daily workflow:
    scripts/docker-dev gui-guided propagation-workflow --sqlite-fixture
 
 Guided tests are not a substitute for automated assertions. They are used for
-workflow confirmation, visual behavior, and tester notes. Any failure must be
-fixed, automated, or recorded as a release-deferred issue.
+workflow confirmation, visual behavior, and tester notes. Any failure found
+during a guided pass must be fixed, automated, or recorded as a
+release-deferred issue.
 
 Real database gate
 ~~~~~~~~~~~~~~~~~~
@@ -210,6 +217,7 @@ of the user's PostgreSQL database or another representative PostgreSQL database.
 Do not run destructive schema-reset tests against a production database.
 Use ``scripts/docker-dev postgres-smoke`` for the automated read-only portion
 of this gate; any manual read/write checks must still use a disposable copy.
+See ``doc/postgresql-release-smoke.md`` for the copy-and-smoke procedure.
 
 Release Decisions
 -----------------
@@ -235,7 +243,9 @@ Release Candidate Process
    fixes.
 4. Run the fast development gate.
 5. Run the release regression gate.
-6. Run the guided visual release gate.
+6. Review the guided visual decision. For ``v4.0.0rc1``, guided reruns are
+   optional once the automated no-intervention GUI suite passes and prior
+   guided findings are fixed, automated, or deferred.
 7. Run the real PostgreSQL database gate against a disposable copy.
 8. Update release notes with fixed issues, deferred issues, supported
    platforms, and test evidence.

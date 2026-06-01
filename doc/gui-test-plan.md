@@ -167,16 +167,22 @@ Use this gate sequence before a release candidate:
 1. `scripts/docker-dev test-smoke`
 2. `scripts/docker-dev test-regression`
 3. `scripts/docker-dev postgres-check`
-4. Guided visual scenarios for startup, connection, taxonomy creation, location
-   creation, record editing, delete confirmation, daily accession workflow, and
-   propagation workflow
-5. A real PostgreSQL smoke pass against a disposable copy of representative
-   data
+4. `scripts/docker-dev postgres-smoke` against a disposable representative
+   PostgreSQL database copy
+5. Optional guided visual scenarios for startup, connection, taxonomy creation,
+   location creation, record editing, delete confirmation, daily accession
+   workflow, and propagation workflow
 
 Known failures are acceptable only when they are marked `xfail` or recorded in
 GitLab with a release decision. A defect should block release when it affects
 startup, database connection, data integrity, search/navigation, or the daily
 taxonomy-to-accession-to-plant workflow.
+
+For `v4.0.0rc1`, the guided visual scenarios are not a required gate after the
+automated GUI E2E suite passes. Guided runs remain useful for discovery and
+visual confirmation, but release confidence comes from the no-intervention
+smoke/regression/PostgreSQL gates and from converting guided findings into
+automated tests or tracked release decisions.
 
 ## Bug Recording Policy
 

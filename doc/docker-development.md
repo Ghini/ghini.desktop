@@ -236,6 +236,10 @@ required tables, basic counts, a daily accession/taxonomy join, and session
 rollback recovery. Use this for release confidence against a representative
 PostgreSQL copy. Do not use a production database for release testing.
 
+For the release-candidate procedure that copies a representative database into
+a disposable local PostgreSQL container first, see
+[`doc/postgresql-release-smoke.md`](postgresql-release-smoke.md).
+
 ## Formatting And Checks
 
 Format changed Python files with Black:
