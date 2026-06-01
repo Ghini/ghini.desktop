@@ -150,7 +150,10 @@ Known Scope Limits
 Test Evidence
 -------------
 
-Application release gates completed on ``ghini-4-dev-clean`` at ``1b42bd57``:
+Automated release evidence for current application code at ``1b42bd57``:
+
+* ``scripts/docker-dev build`` completed and produced
+  ``ghini-desktop-dev:latest``.
 
 * ``scripts/docker-dev test-smoke`` passed:
 
@@ -173,10 +176,9 @@ Application release gates completed on ``ghini-4-dev-clean`` at ``1b42bd57``:
 
   * external read-only smoke lane: 4 passed.
 
-Earlier release hardening also verified ``scripts/docker-dev build`` and a live
-WFO provider smoke query from the Docker image. Those checks should be rerun if
-the release candidate is rebuilt after additional dependency or certificate
-changes.
+Earlier release hardening also verified a live WFO provider smoke query from
+the Docker image. That check should be rerun if the release candidate is
+rebuilt after additional dependency or certificate changes.
 
 Pending Release Gates
 ---------------------
