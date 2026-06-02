@@ -113,6 +113,41 @@ sqlalchemy_debug(SQLALCHEMY_DEBUG)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
+
+def _default_postgresql_connect_timeout() -> int:
+    """Return the configured PostgreSQL connection timeout in seconds."""
+    import bauble.prefs
+
+    try:
+        timeout = bauble.prefs.prefs.get(bauble.prefs.ask_timeout_pref, 4)
+    except Exception:
+        timeout = 4
+
+    try:
+        timeout = int(timeout)
+    except (TypeError, ValueError):
+        timeout = 4
+
+    return max(timeout, 1)
+
+
+def _connect_args_for_uri(uri: str) -> dict[str, Any]:
+    """Return DBAPI connect arguments for a SQLAlchemy URI."""
+    import bauble.prefs
+
+    connect_args: dict[str, Any] = {}
+    url = sa.engine.make_url(uri)
+    backend = url.get_backend_name()
+
+    if backend == "sqlite" and bauble.prefs.testing:
+        connect_args["timeout"] = 30
+
+    if backend.startswith("postgresql") and "connect_timeout" not in url.query:
+        connect_args["connect_timeout"] = _default_postgresql_connect_timeout()
+
+    return connect_args
+
+
 COMPATIBLE_DATABASE_SERIES: dict[tuple[int, int], set[tuple[int, int]]] = {
     (4, 0): {(3, 1)},
 }
@@ -477,16 +512,14 @@ def open(uri, verify: bool = True, show_error_dialogs: bool = False):
             else NullPool
         )
 
-        connect_args = {}
-        if "sqlite" in uri and bauble.prefs.testing:
-            connect_args["timeout"] = 30  # SQLite supports this, PostgreSQL does not
+        connect_args = _connect_args_for_uri(uri)
 
         new_engine = sa.create_engine(
             uri,
             echo=SQLALCHEMY_DEBUG,
             poolclass=poolclass,
             future=True,  # Enable SQLAlchemy 2.0 features
-            connect_args=connect_args,  # Add connect_args here
+            connect_args=connect_args,
         )
         # TODO: there is a problem here: the code may cause an exception, but we
         # immediately loose the 'new_engine', which should know about the

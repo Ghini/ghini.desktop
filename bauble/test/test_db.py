@@ -50,3 +50,32 @@ def test_class_of_object_not_existing() -> None:
     """
     with pytest.raises(ValueError, match="Class not found for object: not_existing"):
         db.class_of_object("not_existing")
+
+
+def test_postgresql_connection_uses_default_connect_timeout() -> None:
+    """
+    PostgreSQL connection attempts should not wait on the OS TCP timeout.
+    """
+    connect_args = db._connect_args_for_uri("postgresql://ghini@example.net/ghini")
+
+    assert connect_args["connect_timeout"] == 4
+
+
+def test_postgresql_connection_keeps_uri_connect_timeout() -> None:
+    """
+    Do not override a PostgreSQL timeout explicitly supplied in the URI.
+    """
+    connect_args = db._connect_args_for_uri(
+        "postgresql://ghini@example.net/ghini?connect_timeout=9"
+    )
+
+    assert "connect_timeout" not in connect_args
+
+
+def test_sqlite_testing_connection_uses_sqlite_timeout() -> None:
+    """
+    Keep the existing SQLite testing timeout behavior.
+    """
+    connect_args = db._connect_args_for_uri("sqlite:////tmp/ghini-test.sqlite")
+
+    assert connect_args["timeout"] == 30
