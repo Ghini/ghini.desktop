@@ -214,7 +214,7 @@ run_container() {
         docker_args+=("--device" /dev/dri:/dev/dri)
     fi
 
-    if [[ -n "${GHINI_DOCKER_ADD_HOSTS:-}" ]]; then
+    if [[ -n "${GHINI_DOCKER_ADD_HOSTS:-}" && "${GHINI_DOCKER_NETWORK:-}" != container:* ]]; then
         local add_host
         IFS=',' read -r -a add_hosts <<< "${GHINI_DOCKER_ADD_HOSTS}"
         for add_host in "${add_hosts[@]}"; do
