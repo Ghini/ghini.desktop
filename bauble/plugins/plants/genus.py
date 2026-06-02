@@ -1073,7 +1073,12 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         not_ok_msg = _("Are you sure you want to lose your changes?")
         if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
-                if self.presenter.dirty():
+                if (
+                    self.presenter.dirty()
+                    or self.session.new
+                    or self.session.dirty
+                    or self.session.deleted
+                ):
                     self.commit_changes()
                     self._committed.append(self.model)
             except DBAPIError as e:

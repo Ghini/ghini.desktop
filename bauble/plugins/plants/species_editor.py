@@ -609,10 +609,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         if self.model.genus is not None:
             genus = self.model.genus
             epithet = self.view.widget_get_value("sp_species_entry")
+            genus_state = sa_inspect(genus)
+            genus_id = genus_state.identity[0] if genus_state.identity else genus.id
+            if genus_id is None:
+                return
 
             omonym = self.session.scalars(
                 select(Species).where(
-                    Species.genus == genus, Species.epithet == epithet
+                    Species.genus_id == genus_id, Species.epithet == epithet
                 )
             ).first()
 

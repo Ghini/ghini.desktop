@@ -1283,6 +1283,28 @@ def test_species_editor_presenter_populates_and_edits_fields(
     assert species_editor_view.widgets.sp_next_button.get_sensitive()
 
 
+def test_species_editor_pending_genus_initializes_fullname(
+    session, species_editor_view
+):
+    family = Family(epithet="Guidedchainaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    genus = Genus(family=family, epithet="Guidedchaingenus")
+    species = Species(genus=genus, epithet="guidedchainspecies", hybrid=False)
+    session.add_all([genus, species])
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+
+    assert genus.id is None
+    assert species.genus == genus
+    assert species_editor_view.widget_get_value("sp_genus_entry") == "Guidedchaingenus"
+    assert (
+        "Guidedchaingenus" in species_editor_view.widgets.sp_fullname_label.get_text()
+    )
+    assert not presenter.has_problems(species_editor_view.widgets.sp_genus_entry)
+
+
 def test_species_editor_blocks_overlong_names(session, species_editor_view):
     family = Family(epithet="Arecaceae", qualifier="")
     genus = Genus(family=family, epithet="Cocos", author="L.")
