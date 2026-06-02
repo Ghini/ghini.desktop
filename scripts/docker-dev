@@ -40,6 +40,7 @@ Useful overrides:
   GHINI_PGPASSFILE=$HOME/.pgpass
   GHINI_XHOST=1
   GHINI_TZ=<IANA timezone>
+  GHINI_DOCKER_AUTO_ADD_HOSTS=1
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
   GHINI_DOCKER_NETWORK=<docker network mode>
   GHINI_GUI_E2E_TIMEOUT=<seconds, default 900>
@@ -138,6 +139,67 @@ detect_host_timezone() {
     printf 'UTC\n'
 }
 
+trim_value() {
+    local value="$1"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    printf '%s\n' "${value}"
+}
+
+extract_uri_host() {
+    local uri="$1"
+    [[ -n "${uri}" && "${uri}" == *"://"* ]] || return 1
+
+    local rest="${uri#*://}"
+    local authority="${rest%%/*}"
+    authority="${authority%%\?*}"
+    authority="${authority##*@}"
+
+    # IPv6 literals require bracket-aware Docker add-host handling. Skip them
+    # here and let callers use GHINI_DOCKER_ADD_HOSTS explicitly if needed.
+    [[ "${authority}" == \[*\]* ]] && return 1
+
+    local host="${authority%%:*}"
+    host="$(trim_value "${host}")"
+    [[ -n "${host}" ]] || return 1
+    printf '%s\n' "${host}"
+}
+
+is_ip_literal() {
+    local host="$1"
+    [[ "${host}" =~ ^[0-9]+(\.[0-9]+){3}$ || "${host}" == *:* ]]
+}
+
+should_auto_map_host() {
+    local host="$1"
+    [[ -n "${host}" ]] || return 1
+
+    case "${host}" in
+        localhost|localhost.localdomain|127.*|0.0.0.0|::1)
+            return 1
+            ;;
+    esac
+
+    if is_ip_literal "${host}"; then
+        return 1
+    fi
+}
+
+resolve_host_ipv4() {
+    local host="$1"
+    local address
+
+    while read -r address _; do
+        [[ -n "${address}" ]] || continue
+        if [[ "${address}" != *:* ]]; then
+            printf '%s\n' "${address}"
+            return 0
+        fi
+    done < <(getent hosts "${host}" 2>/dev/null || true)
+
+    return 1
+}
+
 allow_xhost() {
     if [[ "${GHINI_XHOST:-1}" != "1" || -z "${DISPLAY:-}" ]]; then
         return
@@ -214,15 +276,54 @@ run_container() {
         docker_args+=("--device" /dev/dri:/dev/dri)
     fi
 
-    if [[ -n "${GHINI_DOCKER_ADD_HOSTS:-}" && "${GHINI_DOCKER_NETWORK:-}" != container:* ]]; then
+    local -A docker_host_mappings=()
+    add_docker_host_mapping() {
+        local mapping
+        mapping="$(trim_value "$1")"
+        [[ -n "${mapping}" ]] || return 0
+
+        local host_key="${mapping%%=*}"
+        host_key="${host_key%%:*}"
+        host_key="$(trim_value "${host_key}")"
+        [[ -n "${host_key}" ]] || return 0
+
+        if [[ -n "${docker_host_mappings[${host_key}]:-}" ]]; then
+            return 0
+        fi
+
+        docker_host_mappings["${host_key}"]=1
+        docker_args+=("--add-host" "${mapping}")
+    }
+
+    add_auto_resolved_host_mapping() {
+        local host
+        host="$(trim_value "$1")"
+        should_auto_map_host "${host}" || return 0
+
+        local address
+        address="$(resolve_host_ipv4 "${host}")" || return 0
+        add_docker_host_mapping "${host}:${address}"
+    }
+
+    if [[ "${GHINI_DOCKER_NETWORK:-}" != container:* ]]; then
         local add_host
-        IFS=',' read -r -a add_hosts <<< "${GHINI_DOCKER_ADD_HOSTS}"
+        IFS=',' read -r -a add_hosts <<< "${GHINI_DOCKER_ADD_HOSTS:-}"
         for add_host in "${add_hosts[@]}"; do
-            add_host="${add_host#"${add_host%%[![:space:]]*}"}"
-            add_host="${add_host%"${add_host##*[![:space:]]}"}"
-            [[ -n "${add_host}" ]] || continue
-            docker_args+=("--add-host" "${add_host}")
+            add_docker_host_mapping "${add_host}"
         done
+
+        if [[ "${GHINI_DOCKER_AUTO_ADD_HOSTS:-1}" != "0" ]]; then
+            add_auto_resolved_host_mapping "${DB_HOST:-}"
+
+            local uri_name uri_host
+            for uri_name in \
+                GHINI_TEST_POSTGRES_URI \
+                GHINI_EXTERNAL_POSTGRES_URI \
+                GHINI_SOURCE_POSTGRES_URI; do
+                uri_host="$(extract_uri_host "${!uri_name:-}")" || true
+                add_auto_resolved_host_mapping "${uri_host}"
+            done
+        fi
     fi
 
     local env_name

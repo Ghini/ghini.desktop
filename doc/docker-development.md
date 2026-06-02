@@ -325,15 +325,28 @@ typelib packages from the Docker image as the reference runtime.
 
 ## Private Hostnames
 
-Docker does not automatically inherit host-only `/etc/hosts` aliases. If your
-database hostname resolves on the host but not inside the container, add a
-local-only host mapping to `.env`:
+Docker does not automatically inherit host-only `/etc/hosts` aliases. By
+default, `scripts/docker-dev` resolves configured database hosts on the host and
+passes matching `--add-host` entries to Docker. This covers `DB_HOST` and the
+hosts in `GHINI_TEST_POSTGRES_URI`, `GHINI_EXTERNAL_POSTGRES_URI`, and
+`GHINI_SOURCE_POSTGRES_URI` when they resolve to an IPv4 address on the host.
+
+Disable this behavior when you want Docker DNS or a custom Docker network to
+handle all names:
+
+```sh
+GHINI_DOCKER_AUTO_ADD_HOSTS=0
+```
+
+For extra aliases, add explicit local-only host mappings to `.env`:
 
 ```sh
 GHINI_DOCKER_ADD_HOSTS=postgres.example.net:192.0.2.10,postgres:192.0.2.10
 ```
 
-Each comma-separated value is passed to Docker as `--add-host`.
+Each comma-separated value is passed to Docker as `--add-host`. Explicit
+mappings remain useful when a saved Ghini connection uses a short alias, such as
+`postgres`, while `.env` uses a fully qualified name.
 
 ## Debugging
 
