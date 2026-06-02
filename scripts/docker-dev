@@ -200,6 +200,53 @@ resolve_host_ipv4() {
     return 1
 }
 
+saved_connection_hosts() {
+    local config_path="${config_dir}/config"
+    [[ "${GHINI_SKIP_CONFIG_MOUNT:-0}" != "1" ]] || return 0
+    [[ -r "${config_path}" ]] || return 0
+
+    local python_bin=""
+    if command -v python3 >/dev/null 2>&1; then
+        python_bin="python3"
+    elif command -v python >/dev/null 2>&1; then
+        python_bin="python"
+    else
+        return 0
+    fi
+
+    "${python_bin}" - "${config_path}" <<'PY'
+import ast
+import configparser
+import sys
+
+config_path = sys.argv[1]
+config = configparser.RawConfigParser()
+config.read(config_path)
+
+try:
+    connection_text = config.get("conn", "list")
+except (configparser.Error, ValueError):
+    raise SystemExit(0)
+
+try:
+    connections = ast.literal_eval(connection_text)
+except (SyntaxError, ValueError):
+    raise SystemExit(0)
+
+if not isinstance(connections, dict):
+    raise SystemExit(0)
+
+for connection in connections.values():
+    if not isinstance(connection, dict):
+        continue
+    if connection.get("type") != "PostgreSQL":
+        continue
+    host = connection.get("host")
+    if isinstance(host, str) and host.strip():
+        print(host.strip())
+PY
+}
+
 allow_xhost() {
     if [[ "${GHINI_XHOST:-1}" != "1" || -z "${DISPLAY:-}" ]]; then
         return
@@ -314,6 +361,11 @@ run_container() {
 
         if [[ "${GHINI_DOCKER_AUTO_ADD_HOSTS:-1}" != "0" ]]; then
             add_auto_resolved_host_mapping "${DB_HOST:-}"
+
+            local saved_host
+            while IFS= read -r saved_host; do
+                add_auto_resolved_host_mapping "${saved_host}"
+            done < <(saved_connection_hosts)
 
             local uri_name uri_host
             for uri_name in \

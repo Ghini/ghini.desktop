@@ -327,8 +327,9 @@ typelib packages from the Docker image as the reference runtime.
 
 Docker does not automatically inherit host-only `/etc/hosts` aliases. By
 default, `scripts/docker-dev` resolves configured database hosts on the host and
-passes matching `--add-host` entries to Docker. This covers `DB_HOST` and the
-hosts in `GHINI_TEST_POSTGRES_URI`, `GHINI_EXTERNAL_POSTGRES_URI`, and
+passes matching `--add-host` entries to Docker. This covers saved Ghini
+PostgreSQL connection hosts from the mounted configuration directory, `DB_HOST`,
+and the hosts in `GHINI_TEST_POSTGRES_URI`, `GHINI_EXTERNAL_POSTGRES_URI`, and
 `GHINI_SOURCE_POSTGRES_URI` when they resolve to an IPv4 address on the host.
 
 Disable this behavior when you want Docker DNS or a custom Docker network to
