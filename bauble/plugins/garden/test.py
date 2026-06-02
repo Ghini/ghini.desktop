@@ -809,6 +809,32 @@ def test_legacy_nullable_propagation_fields(db_session) -> None:
     assert seed.nseedlings is None
 
 
+def test_seed_propagation_clean_removes_blank_seed_detail(db_session) -> None:
+    """Blank seed editor scratch rows should not be flushed on parent commit."""
+    propagation = Propagation(prop_type="Seed")
+    seed = PropSeed(propagation=propagation)
+    db_session.add(propagation)
+
+    propagation.clean()
+
+    assert propagation._seed is None
+    assert seed not in db_session.new
+
+
+def test_seed_propagation_clean_keeps_partially_filled_seed_detail(
+    db_session,
+) -> None:
+    """Partially filled seed details should stay visible for validation."""
+    propagation = Propagation(prop_type="Seed")
+    seed = PropSeed(propagation=propagation, nseeds=12)
+    db_session.add(propagation)
+
+    propagation.clean()
+
+    assert propagation._seed is seed
+    assert seed in db_session.new
+
+
 def test_seed_propagation_clean_tolerates_missing_cutting(db_session) -> None:
     """Seed cleanup should not require an inactive cutting detail row."""
     propagation = Propagation(prop_type="Seed")

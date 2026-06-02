@@ -282,6 +282,9 @@ class Propagation(Base, WithNotes):
             if self._cutting is not None:
                 utils.delete_or_expunge(self._cutting)
             self._cutting = None
+            if self._seed is not None and self._seed.is_empty():
+                utils.delete_or_expunge(self._seed)
+                self._seed = None
 
 
 PropagationNote: Any = make_note_class("Propagation", Propagation)
@@ -485,6 +488,28 @@ class PropSeed(Base):
     propagation: Mapped["Propagation"] = relationship(
         "Propagation", back_populates="_seed", uselist=False, active_history=True
     )
+
+    def is_empty(self) -> bool:
+        """Return True when no seed detail fields have been filled in."""
+        return all(
+            getattr(self, field) in (None, "")
+            for field in (
+                "pretreatment",
+                "nseeds",
+                "date_sown",
+                "container",
+                "media",
+                "covered",
+                "location",
+                "moved_from",
+                "moved_to",
+                "moved_date",
+                "germ_date",
+                "nseedlings",
+                "germ_pct",
+                "date_planted",
+            )
+        )
 
     def __str__(self) -> str:
         # what would the string be...???

@@ -1823,7 +1823,7 @@ def test_propagation_editor_seed_fields_enable_accept(session, propagation_edito
     propagation_editor_view.widget_set_value("seed_nseeds_entry", "12")
     propagation_editor_view.widget_set_value("seed_sown_entry", date_text)
 
-    assert propagation._seed.nseeds == "12"
+    assert propagation._seed.nseeds == 12
     assert propagation._seed.date_sown == propagation.date
     assert presenter.is_dirty()
     presenter.refresh_sensitivity()

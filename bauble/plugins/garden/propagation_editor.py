@@ -566,9 +566,8 @@ class SeedPresenter(editor.GenericEditorPresenter):
             "pretreatment",
             editor.UnicodeOrNoneValidator(),
         )
-        # TODO: this should validate to an integer
         self.assign_simple_handler(
-            "seed_nseeds_entry", "nseeds", editor.UnicodeOrNoneValidator()
+            "seed_nseeds_entry", "nseeds", editor.IntOrNoneStringValidator()
         )
         self.assign_simple_handler(
             "seed_sown_entry", "date_sown", editor.DateValidator()
@@ -599,14 +598,19 @@ class SeedPresenter(editor.GenericEditorPresenter):
         utils.setup_date_button(
             self.view, "seed_germdate_entry", "seed_germdate_button"
         )
-        self.assign_simple_handler("seed_ngerm_entry", "nseedlings")
-        self.assign_simple_handler("seed_pctgerm_entry", "germ_pct")
+        self.assign_simple_handler(
+            "seed_ngerm_entry", "nseedlings", editor.IntOrNoneStringValidator()
+        )
+        self.assign_simple_handler(
+            "seed_pctgerm_entry", "germ_pct", editor.IntOrNoneStringValidator()
+        )
         self.assign_simple_handler(
             "seed_date_planted_entry", "date_planted", editor.DateValidator()
         )
         utils.setup_date_button(
             self.view, "seed_date_planted_entry", "seed_date_planted_button"
         )
+        self.parent_ref().refresh_sensitivity()
 
     def is_dirty(self):
         return self._dirty

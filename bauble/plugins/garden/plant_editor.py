@@ -862,6 +862,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
             or self.model not in self.session.new
             and not self.branched_plant
         ):
+            for propagation in self.model.propagations:
+                propagation.clean()
             change = self.presenter.change
             if self.branched_plant:
                 self.compute_plant_split_changes()
