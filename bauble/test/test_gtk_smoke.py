@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy.exc as saexc
+from sqlalchemy import select
 from sqlalchemy.orm.exc import DetachedInstanceError
 
 import bauble
@@ -34,12 +35,14 @@ from bauble.plugins.garden.accession_editor import (
     AccessionEditorPresenter,
     AccessionEditorView,
 )
+from bauble.plugins.garden.constants import acc_type_values
 from bauble.plugins.garden.models.accession import Accession
 from bauble.plugins.garden.models.contact import Contact
 from bauble.plugins.garden.models.location import Location
 from bauble.plugins.garden.models.plant import Plant
 from bauble.plugins.garden.models.source import Collection, Source
 from bauble.plugins.garden.plant_editor import (
+    PlantEditor,
     PlantEditorPresenter,
     PlantEditorView,
     PlantInfoBox,
@@ -1561,6 +1564,17 @@ def test_plant_editor_presenter_populates_and_edits_code(
     assert plant_editor_view.widgets.pad_next_button.get_sensitive()
 
 
+def test_plant_material_choices_match_release_baseline():
+    assert acc_type_values == {
+        None: "",
+        "Plant": "Planting",
+        "Seed": "Seed/Spore",
+        "Vegetative": "Vegetative Part",
+        "Tissue": "Tissue Culture",
+        "Other": "Other",
+    }
+
+
 def test_plant_editor_quantity_changes_update_model(
     monkeypatch, session, plant_editor_view
 ):
@@ -1615,6 +1629,32 @@ def test_plant_editor_blocks_overlong_code(session, plant_editor_view):
     assert plant.code == "2"
     assert not presenter.has_problems()
     assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+
+def test_plant_editor_commit_discards_blank_seed_propagation_detail(
+    session, plant_editor_view
+):
+    plant = make_test_plant(session)
+    propagation = Propagation(prop_type="Seed", plants=[plant])
+    blank_seed = PropSeed(propagation=propagation)
+    session.add(propagation)
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    plant_editor_view.widget_set_value("plant_quantity_entry", "2")
+    presenter.on_quantity_changed(plant_editor_view.widgets.plant_quantity_entry)
+    editor = PlantEditor.__new__(PlantEditor)
+    editor.session = session
+    editor.model = plant
+    editor.presenter = presenter
+    editor.branched_plant = None
+    editor._committed = []
+
+    assert blank_seed in session.new
+
+    editor.commit_changes()
+
+    assert blank_seed not in session.new
+    assert session.scalars(select(PropSeed)).all() == []
+    assert session.get(Propagation, propagation.id) is not None
 
 
 def test_accession_editor_presenter_populates_and_edits_core_fields(
