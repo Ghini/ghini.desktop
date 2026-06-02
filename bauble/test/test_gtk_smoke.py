@@ -1192,6 +1192,26 @@ def test_genus_editor_presenter_populates_and_edits_fields(session, genus_editor
     assert genus_editor_view.widgets.gen_next_button.get_sensitive()
 
 
+def test_genus_editor_family_completion_selects_family_object(
+    session, genus_editor_view
+):
+    family = Family(epithet="Tulipaceae", qualifier="")
+    genus = Genus(epithet="Guidedvisualgenus")
+    session.add(family)
+    session.flush()
+    session.add(genus)
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+    genus_editor_view.widgets.gen_family_entry.set_text("Tulipaceae")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.family == family
+    assert genus_editor_view.widget_get_value("gen_family_entry") == "Tulipaceae"
+    assert not presenter.has_problems(genus_editor_view.widgets.gen_family_entry)
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+
 def test_genus_editor_blocks_overlong_epithet_and_author(session, genus_editor_view):
     family = Family(epithet="Arecaceae", qualifier="")
     genus = Genus(family=family, epithet="Cocos", author="L.")

@@ -753,7 +753,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             clause = utils.ilike(Family.family, f"{text_val}%")
             stmt = select(Family).where(clause).order_by(Family.family)
 
-            result = list(self.session.scalars(stmt))
+            with self.session.no_autoflush:
+                result = list(self.session.scalars(stmt))
             logger.debug(
                 "Family completion query returned: %s", [g.family for g in result]
             )
@@ -768,20 +769,23 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         def on_select(value):
             from bauble.plugins.plants.family import FamilySynonym
 
+            Family = get_family_class()
+            if isinstance(value, str):
+                with self.session.no_autoflush:
+                    value = self.session.scalars(
+                        select(Family).where(Family.family == value)
+                    ).first()
+
             for kid in self.view.widgets.message_box_parent.get_children():
                 self.view.widgets.remove_parent(kid)
             self.set_model_attr("family", value)
             if not value:
                 return
-            syn = (
-                self.session.execute(
-                    select(FamilySynonym)
-                    .where(FamilySynonym.synonym_id == value.id)
-                    .first()
-                )
-            ).scalars()
+            with self.session.no_autoflush:
+                syn = self.session.scalars(
+                    select(FamilySynonym).where(FamilySynonym.synonym_id == value.id)
+                ).first()
             if not syn:
-                self.set_model_attr("family", value)
                 return
             msg = _(
                 "The family <b>%(synonym)s</b> is a synonym of "
