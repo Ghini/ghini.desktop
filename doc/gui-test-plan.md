@@ -22,8 +22,8 @@ finish quickly enough to run before committing focused changes. It combines:
 
 - formatting and version/database checks
 - GTK smoke checks
-- a small stable subset of Dogtail GUI E2E tests for startup, search, and
-  simple create workflows
+- a small stable subset of Dogtail GUI E2E tests for startup, main-search
+  autocomplete, search, and simple create workflows
 
 Keep this suite conservative. Add a test to smoke only when it is deterministic,
 fast, and covers a workflow whose failure should stop normal development.
@@ -151,12 +151,14 @@ explicitly deferred in GitLab and release notes. See
 | Connection manager opens | yes | yes | Validates startup and saved connection UI. |
 | Connect to database and open main window | yes | yes | Use SQLite for automation; PostgreSQL for guided local checks. |
 | Search existing records | yes | yes | Species, accession, and plant searches covered by Dogtail E2E. |
+| Main search autocomplete | yes | yes | Dogtail E2E verifies database completions before a search is submitted; included in `test-smoke`. |
 | Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`. |
 | Create accession from species | yes | optional | Covered by Dogtail E2E. |
 | Select existing accession source | yes | yes | Covered by Dogtail E2E; guided in `daily-accession-workflow`. |
 | Create location | yes | yes | Guided scenario: `location-create`. |
 | Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
 | Create seed propagation from plant | yes | yes | Dogtail E2E verifies seed propagation and database state. |
+| Species notes and vernacular details | yes | yes | GTK smoke covers vernacular editing and tab navigation; Dogtail E2E verifies Species Editor note persistence. |
 | Edit existing family/genus/species/accession/plant/location | partial | yes | Family, accession, location, and plant edit pass; genus/species edit remain covered by creation-chain and guided workflows. |
 | Delete/remove confirmation dialogs | yes | yes | Family delete cancel/confirm covered by Dogtail E2E. |
 

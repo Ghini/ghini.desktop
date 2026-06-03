@@ -285,14 +285,28 @@ scripts/docker-dev build
 scripts/docker-dev app
 scripts/docker-dev format
 scripts/docker-dev check
+scripts/docker-dev test-smoke
 scripts/docker-dev pytest
 scripts/docker-dev warnings
 ```
 
-`format` and `check` are quick changed-file checks. `pytest` gives full
-behavioral coverage. `warnings` repeats the full suite with deprecation
-warnings promoted to errors, which is the final gate for dependency migration
-work.
+`format` and `check` are quick changed-file checks. `test-smoke` is the normal
+pre-commit gate for focused changes; it runs version/database checks, GTK smoke
+coverage, and a small deterministic Dogtail GUI E2E set that includes startup,
+main-search autocomplete, search, simple creation, and the daily accession
+workflow. `pytest` gives broader behavioral coverage. `warnings` repeats the
+full suite with deprecation warnings promoted to errors, which is the final
+gate for dependency migration work.
+
+Before release-candidate work, run the larger no-intervention release gate:
+
+```sh
+scripts/docker-dev test-regression
+```
+
+`test-regression` runs the warning-gated suite, GTK smoke coverage, and the full
+Dogtail GUI E2E suite. PostgreSQL release checks remain separate because they
+use disposable PostgreSQL databases and representative data copies.
 
 ## SQLAlchemy Migration Policy
 
