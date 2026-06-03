@@ -23,7 +23,7 @@ from bauble.editor import (
     UnicodeOrNoneValidator,
     ValidatorError,
 )
-from bauble.gtkinit import Gtk
+from bauble.gtkinit import Gdk, Gtk
 from bauble.shared import InfoExpander
 from bauble.plugins.garden.location_editor import (
     LocationInfoBox,
@@ -1454,6 +1454,35 @@ def test_species_vernacular_name_syncs_while_cell_is_edited(
     assert vernacular_name.name == "Coconut palm"
     assert presenter.is_dirty()
     assert species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+
+def test_species_vernacular_name_tab_moves_from_name_to_language(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    vern_presenter = presenter.vern_presenter
+    vern_presenter.on_add_button_clicked(species_editor_view.widgets.sp_vern_add_button)
+    vernacular_name = species.vernacular_names[0]
+    cell_editor = Gtk.Entry()
+    tab_event = SimpleNamespace(keyval=Gdk.KEY_Tab, state=0)
+
+    vern_presenter.on_cell_editing_started(
+        species_editor_view.widgets.vn_name_cell, cell_editor, "0", "name"
+    )
+    cell_editor.set_text("Coconut palm")
+
+    assert vern_presenter.on_cell_editing_key_press(cell_editor, tab_event, "0", "name")
+
+    cursor_path, cursor_column = species_editor_view.widgets.vern_treeview.get_cursor()
+    assert vernacular_name.name == "Coconut palm"
+    assert cursor_path.to_string() == "0"
+    assert cursor_column is species_editor_view.widgets.vn_lang_column
 
 
 def test_species_editor_notes_add_button_adds_note_box(session, species_editor_view):

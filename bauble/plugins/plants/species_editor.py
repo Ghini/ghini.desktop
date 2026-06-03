@@ -30,7 +30,7 @@ import bauble
 import bauble.editor as editor
 import bauble.paths as paths
 import bauble.utils as utils
-from bauble.gtkinit import GLib, Gtk
+from bauble.gtkinit import Gdk, GLib, Gtk
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.geography import GeographicAreaMenu
@@ -1076,6 +1076,13 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
                 path_text,
                 prop,
             )
+            self.view.connect(
+                editable,
+                "key-press-event",
+                self.on_cell_editing_key_press,
+                path_text,
+                prop,
+            )
 
     def on_cell_editing_changed(self, editable, path, prop) -> None:
         self._set_cell_value(path, editable.get_text(), prop)
@@ -1083,6 +1090,38 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
     def on_cell_editing_focus_out(self, editable, event, path, prop) -> bool:
         self._set_cell_value(path, editable.get_text(), prop)
         return False
+
+    def on_cell_editing_key_press(self, editable, event, path, prop) -> bool:
+        if (
+            prop == "name"
+            and event.keyval == Gdk.KEY_Tab
+            and not (event.state & Gdk.ModifierType.SHIFT_MASK)
+        ):
+            self._set_cell_value(path, editable.get_text(), prop)
+            self._edit_vernacular_cell(path, self.view.widgets.vn_lang_column)
+            return True
+        if (
+            prop == "language"
+            and event.keyval
+            in (
+                Gdk.KEY_ISO_Left_Tab,
+                Gdk.KEY_Tab,
+            )
+            and (event.state & Gdk.ModifierType.SHIFT_MASK)
+        ):
+            self._set_cell_value(path, editable.get_text(), prop)
+            self._edit_vernacular_cell(path, self.view.widgets.vn_name_column)
+            return True
+        return False
+
+    def _edit_vernacular_cell(self, path, column) -> None:
+        tree_path = (
+            path
+            if isinstance(path, Gtk.TreePath)
+            else Gtk.TreePath.new_from_string(str(path))
+        )
+        self._active_cell_edit = None
+        self.treeview.set_cursor(tree_path, column, True)
 
     def sync_active_cell_edit(self) -> None:
         active_edit = self._active_cell_edit
