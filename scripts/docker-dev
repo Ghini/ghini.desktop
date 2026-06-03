@@ -490,6 +490,13 @@ run_gui_e2e() {
 
 run_test_smoke() {
     echo "==> Fast development smoke: formatting, version/database checks, GTK smoke, core GUI E2E"
+    local gui_smoke_selector="connection_manager"
+    gui_smoke_selector+=" or main_search_shows_database_completion_before_search"
+    gui_smoke_selector+=" or search_existing_species"
+    gui_smoke_selector+=" or create_family"
+    gui_smoke_selector+=" or create_location"
+    gui_smoke_selector+=" or daily_species_editor_add_accession"
+
     GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-smoke-check}" \
         "${script_dir}/docker-dev" check
     GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-smoke-gtk}" \
@@ -498,7 +505,7 @@ run_test_smoke() {
         "${script_dir}/docker-dev" gui-e2e \
         bauble/test/test_gui_e2e.py \
         -q \
-        -k "connection_manager or search_existing_species or create_family or create_location or daily_species_editor_add_accession"
+        -k "${gui_smoke_selector}"
 }
 
 run_test_regression() {
