@@ -502,6 +502,17 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             or self.notes_presenter.is_dirty()
         )
 
+    def has_child_problems(self) -> bool:
+        return bool(
+            self.problems
+            or self.vern_presenter.problems
+            or self.synonyms_presenter.problems
+            or self.dist_presenter.problems
+            or self.notes_presenter.problems
+            or self.pictures_presenter.problems
+            or self.infrasp_presenter.problems
+        )
+
     def set_model_attr(self, field, value, validator: Optional[Any] = None) -> None:
         """
         Resets the sensitivity on the ok buttons and the name widgets
@@ -510,12 +521,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         super().set_model_attr(field, value, validator)
         self._dirty = True
         sensitive = True
-        if (
-            len(self.problems) != 0
-            or len(self.vern_presenter.problems) != 0
-            or len(self.synonyms_presenter.problems) != 0
-            or len(self.dist_presenter.problems) != 0
-        ):
+        if self.has_child_problems():
             sensitive = False
         elif not self.model.genus:
             sensitive = False
@@ -525,7 +531,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         """
         :param self:
         """
-        self.view.set_accept_buttons_sensitive(self.is_dirty())
+        self.view.set_accept_buttons_sensitive(
+            self.is_dirty()
+            and self.model.genus is not None
+            and not self.has_child_problems()
+        )
 
     def init_fullname_widgets(self):
         """

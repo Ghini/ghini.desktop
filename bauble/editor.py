@@ -1736,7 +1736,7 @@ class GenericEditorPresenter:
                 or (widget is None and p == problem_id)
                 or (w == widget and problem_id is None)
             ):
-                if isinstance(w, Gtk.Widget) and not prefs.testing:
+                if isinstance(w, Gtk.Widget):
                     w.get_style_context().remove_class("problem")
                     # w.set_property('background-color', None)
                     w.queue_draw()
@@ -2352,6 +2352,7 @@ class NoteBox:
         except Exception as e:
             logger.debug(e)
             self.presenter.add_problem(PROBLEM, entry)
+            self.presenter.parent_ref().refresh_sensitivity()
         else:
             self.presenter.remove_problem(PROBLEM, entry)
             self.set_model_attr("date", text)
@@ -2431,14 +2432,17 @@ class NoteBox:
         setattr(self.model, attr, value)
         self.presenter._dirty = True
 
+        if self.model not in self.presenter.notes and any(
+            (self.model.date, self.model.user, self.model.category, self.model.note)
+        ):
+            self.presenter.notes.append(self.model)
+
         # Ensure date is set when modifying other attributes
         if attr != "date" and not self.model.date:
             entry = self.widgets.date_entry
             tmp = entry.get_text()
             safe_set_props(entry, "text", "")
             safe_set_props(entry, "text", tmp)
-            if self.model not in self.presenter.notes:
-                self.presenter.notes.append(self.model)
 
         self.update_label()
         self.presenter.parent_ref().refresh_sensitivity()

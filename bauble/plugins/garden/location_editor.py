@@ -39,7 +39,7 @@ from bauble.editor import (
 from bauble.editor import MaxLengthValidator as MaxLengthValidator
 from bauble.editor import NotesPresenter as NotesPresenter
 from bauble.editor import UnicodeOrNoneValidator as UnicodeOrNoneValidator
-from bauble.gtkinit import Gtk
+from bauble.gtkinit import Gdk, Gtk
 from bauble.shared import InfoExpander
 from bauble.view import Action, InfoBox, MapInfoExpander, PropertiesExpander
 
@@ -157,6 +157,25 @@ class LocationEditorView(GenericEditorView):
         # a hack but it serves our purposes
         if bauble.gui and parent != bauble.gui.window:
             self.use_ok_and_add = False
+        self.widgets.loc_code_entry.connect("key-press-event", self._on_code_key_press)
+        self.widgets.loc_name_entry.connect("key-press-event", self._on_name_key_press)
+
+    def _on_code_key_press(self, _widget, event):
+        if (
+            event.keyval == Gdk.KEY_Tab
+            and not event.state & Gdk.ModifierType.SHIFT_MASK
+        ):
+            self.widgets.loc_name_entry.grab_focus()
+            return True
+        return False
+
+    def _on_name_key_press(self, _widget, event):
+        if event.keyval in (Gdk.KEY_ISO_Left_Tab, Gdk.KEY_Tab) and (
+            event.state & Gdk.ModifierType.SHIFT_MASK
+        ):
+            self.widgets.loc_code_entry.grab_focus()
+            return True
+        return False
 
     def get_window(self):
         return self.widgets.location_dialog

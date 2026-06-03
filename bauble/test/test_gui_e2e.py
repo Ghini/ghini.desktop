@@ -394,6 +394,51 @@ def test_daily_searches_do_not_log_infobox_tracebacks(
     assert "SearchView.update_infobox failed" not in stderr
 
 
+def test_main_search_no_match_recovers_with_search_button(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EERECOVERACEAE"
+    genus_name = "Eerecovergenus"
+    species_name = "eorecover"
+    location_code = "RC01"
+    location_name = "E2E Recovery Bed"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name=species_name,
+        accession_code="RECOVER-E2E-001",
+        plant_code="1",
+        location_code=location_code,
+        location_name=location_name,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    enter_text(search_entry, "location where code=DOESNOTEXIST", dogtail_rawinput)
+    dogtail_rawinput.pressKey("Enter")
+    time.sleep(0.5)
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+
+    enter_text(search_entry, f"location where code={location_code}", dogtail_rawinput)
+    search_button = find_main_search_button(main_window, search_entry)
+    assert search_button is not None, dump_accessible_tree(main_window)
+    click_node_center(search_button, dogtail_rawinput)
+
+    wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName in {"table cell", "label"}
+        and location_code in node.name
+        and location_name in node.name,
+        timeout=20,
+    )
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+
+
 def test_search_entry_accepts_input_after_species_editor_save(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -720,6 +765,70 @@ def test_can_create_genus_from_family_editor_chain(
     wait_for_node(
         dogtail_tree,
         lambda node: node.roleName == "frame" and node.name.startswith("Ghini"),
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    genus_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select count(*) from genus "
+            "join family on genus.family_id = family.id "
+            "where genus.epithet = ? and family.epithet = ?"
+        ),
+        genus_name,
+        family_name,
+    )
+    assert genus_count == 1
+
+
+def test_genus_editor_partial_family_keeps_accept_disabled_until_exact_match(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEPARTIALACEAE"
+    genus_name = "Eepartialgenus"
+    timestamp = "2026-05-13 00:00:00"
+
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into family (epithet, author, qualifier, _created, _last_updated) "
+            "values (?, '', '', ?, ?)"
+        ),
+        family_name,
+        timestamp,
+        timestamp,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Genus", role_name="menu item")
+
+    genus_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Genus Editor",
+    )
+    entries = find_visible_text_entries_by_position(genus_editor)
+    assert len(entries) >= 2, describe_text_entries(genus_editor)
+    family_entry, genus_entry = entries[0], entries[1]
+    ok_button = find_named_child(genus_editor, "OK", role_name="push button")
+    assert ok_button is not None, dump_accessible_tree(genus_editor)
+    assert not getattr(ok_button, "sensitive", True)
+
+    enter_text(family_entry, family_name[:5], dogtail_rawinput)
+    enter_text(genus_entry, genus_name, dogtail_rawinput)
+    assert not getattr(ok_button, "sensitive", True), describe_text_entries(
+        genus_editor
+    )
+
+    enter_text(family_entry, family_name, dogtail_rawinput)
+    wait_for_sensitive(ok_button)
+    ok_button.click()
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Genus Editor",
         timeout=20,
     )
     terminate_process(ghini_process)
@@ -1502,6 +1611,58 @@ def test_can_create_location_from_insert_menu(
     assert location_count == 1
 
 
+def test_location_editor_tab_moves_code_to_name_and_enables_accept(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    location_code = "TAB1"
+    location_name = "E2E Keyboard Bed"
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Location", role_name="menu item")
+
+    location_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog"
+        and find_named_child(node, "OK", role_name="push button") is not None
+        and find_named_child(node, "Add plants", role_name="push button") is not None,
+    )
+    location_entries = find_visible_text_entries_by_position(location_editor)
+    assert len(location_entries) >= 3, dump_accessible_tree(location_editor)
+    code_entry = location_entries[0]
+    name_entry = location_entries[1]
+
+    enter_text_by_keyboard(code_entry, location_code, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    dogtail_rawinput.typeText(location_name)
+    time.sleep(0.1)
+    assert accessible_text(code_entry) == location_code
+    assert accessible_text(name_entry) == location_name
+
+    ok_button = find_named_child(location_editor, "OK", role_name="push button")
+    assert ok_button is not None, dump_accessible_tree(location_editor)
+    wait_for_sensitive(ok_button)
+    ok_button.click()
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog"
+        and find_named_child(node, "Add plants", role_name="push button") is not None,
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    location_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        "select count(*) from location where code = ? and name = ?",
+        location_code,
+        location_name,
+    )
+    assert location_count == 1
+
+
 def test_can_edit_existing_location_from_result_context_menu(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -2109,6 +2270,28 @@ def wait_for_sensitive(node, timeout=10):
             return
         time.sleep(0.25)
     raise AssertionError(f"Node did not become sensitive: {node.name!r}")
+
+
+def find_main_search_button(main_window, search_entry):
+    entry_x, entry_y = search_entry.position
+    entry_width, entry_height = search_entry.size
+    entry_center_y = entry_y + entry_height // 2
+    buttons = [
+        button
+        for button in find_children_by_role(main_window, "push button")
+        if getattr(button, "showing", True)
+        and button.size[0] > 10
+        and button.size[1] > 10
+    ]
+    candidates = [
+        button
+        for button in buttons
+        if button.position[0] > entry_x + entry_width
+        and abs((button.position[1] + button.size[1] // 2) - entry_center_y) < 40
+    ]
+    if not candidates:
+        return None
+    return min(candidates, key=lambda button: button.position[0])
 
 
 def enter_text(node, text, dogtail_rawinput):

@@ -80,6 +80,11 @@ prefs.testing = True
 LIB_DIR = Path(paths.lib_dir())
 
 
+def drain_gtk_events() -> None:
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+
 class DummyInfoExpander(InfoExpander):
     def __init__(self, label="Dummy") -> None:
         super().__init__(label)
@@ -1168,6 +1173,31 @@ def test_family_editor_blocks_overlong_epithet(session, family_editor_view):
     assert family_editor_view.widgets.fam_ok_button.get_sensitive()
 
 
+def test_family_editor_validation_marks_and_clears_problem_style(
+    session, family_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    presenter = FamilyEditorPresenter(family, family_editor_view)
+    entry = family_editor_view.widgets.fam_family_entry
+
+    entry.set_text("X" * 46)
+    drain_gtk_events()
+
+    assert presenter.has_problems(entry)
+    assert entry.get_style_context().has_class("problem")
+    assert not family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+    entry.set_text("Guidedaceae")
+    drain_gtk_events()
+
+    assert not presenter.has_problems(entry)
+    assert not entry.get_style_context().has_class("problem")
+    assert family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+
 def test_genus_editor_presenter_populates_and_edits_fields(session, genus_editor_view):
     family = Family(epithet="Arecaceae", qualifier="")
     genus = Genus(family=family, epithet="Cocos", author="L.")
@@ -1212,6 +1242,35 @@ def test_genus_editor_family_completion_selects_family_object(
     assert genus.family == family
     assert genus_editor_view.widget_get_value("gen_family_entry") == "Tulipaceae"
     assert not presenter.has_problems(genus_editor_view.widgets.gen_family_entry)
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+
+def test_genus_editor_family_completion_keeps_partial_input_pending(
+    session, genus_editor_view
+):
+    family = Family(epithet="Tulipaceae", qualifier="")
+    genus = Genus(epithet="Guidedvisualgenus")
+    session.add(family)
+    session.flush()
+    session.add(genus)
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+    family_entry = genus_editor_view.widgets.gen_family_entry
+    genus_editor_view.widgets.gen_genus_entry.set_text("Guidedvisualgenus")
+    drain_gtk_events()
+
+    family_entry.set_text("Tuli")
+    drain_gtk_events()
+
+    assert genus.family is None
+    assert not presenter.has_problems(family_entry)
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    family_entry.set_text("Tulipaceae")
+    drain_gtk_events()
+
+    assert genus.family == family
+    assert not presenter.has_problems(family_entry)
     assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
 
 
@@ -1411,6 +1470,44 @@ def test_species_editor_notes_add_button_adds_note_box(session, species_editor_v
         Gtk.main_iteration_do(False)
 
     assert len(notes_box.get_children()) == 1
+
+
+def test_species_editor_note_fields_validate_and_update_model(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    note_box = presenter.notes_presenter.add_note()
+    date_entry = note_box.widgets.date_entry
+    category_entry = note_box.widgets.category_comboentry.get_child()
+    note_textview = note_box.widgets.note_textview
+
+    assert date_entry.get_property("editable")
+    assert category_entry.get_property("editable")
+
+    date_entry.set_text("not-a-date")
+    drain_gtk_events()
+
+    assert presenter.notes_presenter.has_problems(date_entry)
+    assert date_entry.get_style_context().has_class("problem")
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    date_entry.set_text("13-05-2026")
+    category_entry.set_text("label")
+    note_textview.get_buffer().set_text("Useful on plant labels")
+    drain_gtk_events()
+
+    assert not presenter.notes_presenter.has_problems(date_entry)
+    assert not date_entry.get_style_context().has_class("problem")
+    assert species.notes[0].date.isoformat() == "2026-05-13"
+    assert species.notes[0].category == "label"
+    assert species.notes[0].note == "Useful on plant labels"
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
 
 
 def test_location_editor_presenter_populates_and_edits_fields(
@@ -1631,6 +1728,41 @@ def test_plant_editor_blocks_overlong_code(session, plant_editor_view):
     assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
 
 
+def test_plant_editor_duplicate_code_marks_entry_error_and_recovers(
+    session, plant_editor_view
+):
+    plant = make_test_plant(session)
+    existing = Plant(
+        accession=plant.accession,
+        location=plant.location,
+        code="2",
+        quantity=1,
+        acc_type="Plant",
+        memorial=False,
+    )
+    session.add(existing)
+    session.flush()
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    entry = plant_editor_view.widgets.plant_code_entry
+
+    entry.set_text("2")
+    drain_gtk_events()
+
+    assert plant.code == "2"
+    assert presenter.has_problems(entry)
+    assert entry.get_style_context().has_class("entry-error")
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+    entry.set_text("3")
+    drain_gtk_events()
+
+    assert plant.code == "3"
+    assert not presenter.has_problems(entry)
+    assert not entry.get_style_context().has_class("entry-error")
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+
 def test_plant_editor_commit_discards_blank_seed_propagation_detail(
     session, plant_editor_view
 ):
@@ -1726,6 +1858,30 @@ def test_accession_editor_blocks_overlong_code(session, accession_editor_view):
 
     assert accession.code == "2026.002"
     assert not presenter.has_problems()
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_accession_editor_date_validation_marks_problem_and_recovers(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    entry = accession_editor_view.widgets.acc_date_accd_entry
+
+    entry.set_text("not-a-date")
+    drain_gtk_events()
+
+    assert accession.date_accd is None
+    assert presenter.has_problems(entry)
+    assert entry.get_style_context().has_class("problem")
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("13-05-2026")
+    drain_gtk_events()
+
+    assert accession.date_accd.isoformat() == "2026-05-13"
+    assert not presenter.has_problems(entry)
+    assert not entry.get_style_context().has_class("problem")
     assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
 
 
