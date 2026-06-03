@@ -346,6 +346,41 @@ def test_can_search_existing_accession(
     assert accession_count == 1
 
 
+def test_main_search_shows_database_completion_before_search(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    location_code = "GLC1"
+    location_name = "E2E Completion Bed"
+
+    seed_plant_fixture(
+        sqlite_connection["database_file"],
+        family_name="EECOMPLETEACEAE",
+        genus_name="Eecompletegenus",
+        species_name="eocomplete",
+        accession_code="COMPLETE-E2E-001",
+        plant_code="1",
+        location_code=location_code,
+        location_name=location_name,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    search_entry = find_child_by_role(main_window, "text")
+    assert search_entry is not None, dump_accessible_tree(main_window)
+
+    click_node_center(search_entry, dogtail_rawinput)
+    dogtail_rawinput.keyCombo("<Control>a")
+    dogtail_rawinput.pressKey("BackSpace")
+    dogtail_rawinput.typeText(location_code[:2])
+
+    wait_for_node(
+        dogtail_tree,
+        lambda node: getattr(node, "showing", True)
+        and location_code in getattr(node, "name", ""),
+        timeout=10,
+    )
+
+
 def test_daily_searches_do_not_log_infobox_tracebacks(
     dogtail_modules, sqlite_connection, ghini_process
 ):
@@ -913,6 +948,99 @@ def test_can_create_species_from_genus_editor_chain(
         family_name,
     )
     assert species_count == 1
+
+
+def test_species_editor_notes_tab_adds_note_and_persists(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EENOTEACEAE"
+    genus_name = "Eenotegenus"
+    species_name = "eonote"
+    note_user = "e2e-user"
+    note_category = "label"
+    note_text = "Use this note on generated labels."
+
+    seed_taxonomy_location_fixture(
+        sqlite_connection["database_file"],
+        family_name=family_name,
+        genus_name=genus_name,
+        species_name="seed",
+        location_code="NT01",
+        location_name="E2E Note Bed",
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Species", role_name="menu item")
+
+    species_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+    )
+    species_entries = find_visible_text_entries_by_position(species_editor)
+    assert len(species_entries) >= 3, describe_text_entries(species_editor)
+    genus_entry, species_entry = species_name_entries(species_entries)
+
+    enter_text(genus_entry, genus_name, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    enter_text(species_entry, species_name, dogtail_rawinput)
+
+    notes_tab = find_named_child(species_editor, "Notes", showing_only=True)
+    assert notes_tab is not None, dump_accessible_tree(species_editor)
+    click_node_center(notes_tab, dogtail_rawinput)
+
+    add_button = find_named_child(
+        species_editor, "Add", role_name="push button", showing_only=True
+    )
+    assert add_button is not None, dump_accessible_tree(species_editor)
+    click_node_center(add_button, dogtail_rawinput)
+
+    note_entries = wait_for_visible_text_entries(species_editor, minimum=4)
+    note_body = max(note_entries, key=lambda entry: entry.size[1])
+    note_fields = [entry for entry in note_entries if entry is not note_body]
+    empty_fields = [entry for entry in note_fields if accessible_text(entry) == ""]
+    assert len(empty_fields) >= 2, describe_text_entries(species_editor)
+    user_entry = min(
+        empty_fields, key=lambda entry: (entry.position[1], entry.position[0])
+    )
+    category_entry = max(
+        empty_fields, key=lambda entry: (entry.position[1], -entry.position[0])
+    )
+
+    enter_text_by_keyboard(user_entry, note_user, dogtail_rawinput)
+    enter_text_by_keyboard(category_entry, note_category, dogtail_rawinput)
+    enter_text_by_keyboard(note_body, note_text, dogtail_rawinput)
+
+    ok_button = find_named_child(species_editor, "OK", role_name="push button")
+    assert ok_button is not None, dump_accessible_tree(species_editor)
+    wait_for_sensitive(ok_button)
+    ok_button.click()
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    note_rows = fetch_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select species_note.user, species_note.category, species_note.note "
+            "from species_note "
+            "join species on species_note.species_id = species.id "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "where species.epithet = ? "
+            "and genus.epithet = ? "
+            "and family.epithet = ?"
+        ),
+        species_name,
+        genus_name,
+        family_name,
+    )
+    assert note_rows == [(note_user, note_category, note_text)]
 
 
 def test_can_create_accession_from_species_editor_chain(
