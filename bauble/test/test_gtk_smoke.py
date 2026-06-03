@@ -34,6 +34,9 @@ from bauble.plugins.garden.accession_editor import (
     AccessionEditor,
     AccessionEditorPresenter,
     AccessionEditorView,
+    _source_display_text,
+    _source_matches_text,
+    _unique_source_contacts,
 )
 from bauble.plugins.garden.constants import acc_type_values
 from bauble.plugins.garden.models.accession import Accession
@@ -1923,6 +1926,83 @@ def test_accession_editor_does_not_pending_disabled_source_placeholders(
     assert not any(isinstance(obj, source_placeholder_types) for obj in session.new)
 
 
+def test_source_contacts_are_sorted_and_deduplicated_for_selection():
+    contacts = [
+        Contact(id=4, name="Zulu Nursery"),
+        Contact(id=2, name="alpha nursery"),
+        Contact(id=1, name="Alpha Nursery"),
+        Contact(id=3, name="Beta Nursery"),
+        Contact(id=5, name=""),
+        Contact(id=6, name=None),
+    ]
+
+    values = [
+        _source_display_text(contact) for contact in _unique_source_contacts(contacts)
+    ]
+
+    assert values == ["Alpha Nursery", "Beta Nursery", "Zulu Nursery"]
+
+
+def test_accession_source_combo_orders_dedupes_and_matches_text(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    alpha = Contact(name="Alpha Nursery")
+    alpha_duplicate = Contact(name="alpha nursery")
+    beta = Contact(name="Beta Nursery")
+    zulu = Contact(name="Zulu Nursery")
+    session.add_all([zulu, alpha_duplicate, beta, alpha])
+    session.flush()
+
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    source_presenter = presenter.source_presenter
+    source_presenter.start()
+    combo = accession_editor_view.widgets.acc_source_comboentry
+    model = combo.get_model()
+    entry = combo.get_child()
+    completion = entry.get_completion()
+
+    values = [_source_display_text(row[0]) for row in model]
+
+    assert values[:2] == ["", source_presenter.garden_prop_str]
+    assert [value.casefold() for value in values[2:]] == [
+        "alpha nursery",
+        "beta nursery",
+        "zulu nursery",
+    ]
+    assert completion.get_model() is model
+    assert completion.get_minimum_key_length() == 1
+    assert completion.get_property("popup_completion")
+    assert completion.get_property("inline_completion")
+    assert _source_matches_text(beta, "eta")
+    assert _source_matches_text(beta, str(beta.id))
+    assert source_presenter._source_detail_from_text(model, "Beta") is beta
+    assert source_presenter._source_detail_from_text(model, "Nursery") is None
+
+
+def test_accession_source_entry_exact_match_attaches_source_detail(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    source = Contact(name="Exact Match Nursery")
+    session.add(source)
+    session.flush()
+
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    source_presenter = presenter.source_presenter
+    source_presenter.start()
+    entry = accession_editor_view.widgets.acc_source_comboentry.get_child()
+
+    entry.set_text("Exact Match Nursery")
+    drain_gtk_events()
+
+    assert accession.source is source_presenter.source
+    assert accession.source.source_detail is source
+    assert not source_presenter.has_problems(entry)
+    assert accession_editor_view.widgets.source_sw.get_visible()
+    assert not accession_editor_view.widgets.source_none_label.get_visible()
+
+
 def test_accession_editor_from_species_id_populates_taxon_and_commits(session):
     family = Family(epithet="Arecaceae", qualifier="")
     genus = Genus(family=family, epithet="Cocos", author="L.")
@@ -1950,6 +2030,35 @@ def test_accession_editor_from_species_id_populates_taxon_and_commits(session):
         accession_editor.presenter.cleanup()
         accession_editor.presenter.view.get_window().destroy()
         accession_editor.session.close()
+
+
+def test_accession_species_completion_waits_for_full_species_text(
+    session, accession_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+    accession = Accession(code="2026.001", quantity_recvd=1, recvd_type="PLNT")
+
+    presenter = AccessionEditorPresenter(
+        accession, accession_editor_view, session=session
+    )
+    entry = accession_editor_view.widgets.acc_species_entry
+
+    entry.set_text("Cocos")
+    drain_gtk_events()
+
+    assert accession.species is None
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("Cocos nucifera")
+    drain_gtk_events()
+
+    assert accession.species is species
+    assert not presenter.has_problems(entry)
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
 
 
 def test_contact_editor_blocks_overlong_source_name(session, contact_editor_view):
