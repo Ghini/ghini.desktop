@@ -166,6 +166,15 @@ class MapViewer:
         self.clutter_view.set_zoom_level(1)
         self.dialog.show_all()
 
+    def run(self):
+        return self.dialog.run()
+
+    def destroy(self):
+        return self.dialog.destroy()
+
+    def hide(self):
+        return self.dialog.hide()
+
     def make_button(self, text):
         black = Clutter.Color.new(0x00, 0x00, 0x00, 0xFF)
         white = Clutter.Color.new(0xFF, 0xFF, 0xFF, 0xFF)
@@ -256,7 +265,7 @@ class MapViewer:
             self.place_button = None
 
     def on_view_button_release(self, widget, event) -> None:
-        if event.get_button() == 3:  # 1. issue_gdkevent_structs
+        if event.button == 3:
             self.on_clutter_place_button(widget, event)
 
     def on_clutter_ok_button(self, widget, event) -> None:
