@@ -63,12 +63,19 @@ def setup_test_data(request, clean_db, db_session):
     from bauble.plugins.plants.family import Family
     from bauble.plugins.plants.genus import Genus
 
-    # Populate test data
-    family1 = Family(family="family1", qualifier="s. lat.")
-    genus1 = Genus(family=family1, genus="genus1")
+    family1 = (db_session.query(Family)
+               .filter_by(family="family1")
+               .one_or_none())
+    genus1 = (db_session.query(Genus)
+              .filter_by(family=family1, genus="genus1")
+              .one_or_none())
+    if family1 is None:
+        # Populate test data
+        family1 = Family(family="family1", qualifier="s. lat.")
+        genus1 = Genus(family=family1, genus="genus1")
 
-    db_session.add_all([family1, genus1])
-    db_session.flush()
+        db_session.add_all([family1, genus1])
+        db_session.flush()
 
     return {
         "family1": family1,
@@ -492,7 +499,7 @@ class TestSearch:
         from bauble.plugins.plants.family import Family
 
         # Populate test data in setup_test_data
-        family1 = Family(family="family1", qualifier="s. lat.")
+        family1 = Family(family="family10", qualifier="s. lat.")
         genus1 = Genus(family=family1, genus="genus1")
 
         # ✅ Step 1: Insert test data
@@ -949,12 +956,6 @@ class TestSearch:
         """
         Query with MapperSearch, joined tables, fields starting with an underscore.
         """
-        import datetime
-
-        from bauble.plugins.garden.models import Accession, Location, Plant
-        from bauble.plugins.plants.family import Family
-        from bauble.plugins.plants.genus import Genus
-        from bauble.plugins.plants.species_model import Species
 
         # Data setup
         family2 = Family(family="family2")
@@ -965,7 +966,7 @@ class TestSearch:
         ac = Accession(species=sp, code="1979.0001")
         lc = Location(name="loc1", code="loc1")
         pp = Plant(accession=ac, code="01", location=lc, quantity=1)
-        pp._last_updated = datetime.datetime(2009, 2, 13)
+        pp._last_updated = datetime(2009, 2, 13)
         db_session.add_all([family2, g2, f3, g3, sp, ac, lc, pp])
         db_session.flush()
 
@@ -1161,11 +1162,11 @@ def setup_in_operator_search(db_session):
     g4 = Genus(family=family, genus="genus4", id=4)
     db_session.add_all([family, g1, g2, g3, g4])
     if db_session.in_transaction():
-        db_session.commit()
+        db_session.flush()
     return {"g1": g1, "g2": g2, "g3": g3, "g4": g4}
 
 
-class InOperatorSearch:
+class TestInOperatorSearch:
     def test_in_singleton(self, db_session, setup_in_operator_search) -> None:
         """
         Test 'IN' operator with a single value.
@@ -1258,7 +1259,7 @@ def setup_binomial_search(db_session):
 
     db_session.add_all([f1, f2, g1, g2, f3, g3, sp, sp2, sp3, g4, sp4])
     if db_session.in_transaction():
-        db_session.commit()
+        db_session.flush()
 
     return {"ixora": g3, "ic": sp, "pc": sp4}
 
@@ -1680,6 +1681,10 @@ class BuildingSQLStatements:
 @pytest.fixture(scope="function")
 def setup_filter_then_match(db_session):
     """Fixture to set up FilterThenMatchTests data."""
+    db_session.execute(text("DELETE FROM accession"))
+    db_session.execute(text("DELETE FROM species"))
+    db_session.execute(text("DELETE FROM genus"))
+    db_session.execute(text("DELETE FROM family"))
     family = Family(family="family1", qualifier="s. lat.")
     genus1 = Genus(family=family, genus="genus1")
     genus2 = Genus(family=family, genus="genus2")
@@ -1694,11 +1699,12 @@ def setup_filter_then_match(db_session):
     ]
     db_session.add_all([family, genus1, genus2, genus3, genus4] + notes)
     if db_session.in_transaction():
-        db_session.commit()
+        db_session.flush()
     return genus1, genus2, genus3, genus4
 
 
-class FilterThenMatchTests:
+@pytest.mark.usefixtures("db_session", "setup_test_data")
+class TestFilterThenMatch:
     def test_can_filter_match_notes(self, db_session, setup_filter_then_match) -> None:
         mapper_search = search.get_strategy("MapperSearch")
         genus1, genus2, genus3, genus4 = setup_filter_then_match
@@ -1727,6 +1733,35 @@ class FilterThenMatchTests:
         results = mapper_search.search(s, db_session)
         assert results == {genus4}
 
+    def test_can_find_is_empty_set(self, db_session, setup_filter_then_match) -> None:
+        mapper_search = search.get_strategy("MapperSearch")
+        _, _, _, genus4 = setup_filter_then_match
+
+        s = "genus where notes is Empty"
+        results = mapper_search.search(s, db_session)
+        assert results == {genus4}
+
+    def test_can_find_location_with_empty_plants(self, db_session) -> None:
+        mapper_search = search.get_strategy("MapperSearch")
+
+        # Data setup
+        family2 = Family(family="family12")
+        g2 = Genus(family=family2, genus="genus12")
+        f3 = Family(family="fam13", qualifier="s. lat.")
+        g3 = Genus(family=f3, genus="Ixora")
+        sp = Species(sp="coccinea", genus=g3)
+        ac = Accession(species=sp, code="1979.0001")
+        l1 = Location(name="loc1", code="loc1")
+        l2 = Location(name="loc2", code="loc2")
+        pp = Plant(accession=ac, code="01", location=l1, quantity=1)
+        pp._last_updated = datetime(2009, 2, 13)
+        db_session.add_all([family2, g2, f3, g3, sp, ac, l1, l2, pp])
+        db_session.flush()
+
+        s = "location where plants=Empty"
+        results = mapper_search.search(s, db_session)
+        assert results == {l2}
+    
     def test_can_find_non_empty_set(self, db_session, setup_filter_then_match) -> None:
         mapper_search = search.get_strategy("MapperSearch")
         genus1, genus2, genus3, _ = setup_filter_then_match
@@ -1775,7 +1810,7 @@ class ParseTypedValue:
         assert result == expected
 
 
-class EmptySetEqualityTest:
+class TestEmptySetEquality:
     def test_EmptyToken_equals(self) -> None:
         """
         Test equality of EmptyToken instances.
@@ -1819,11 +1854,10 @@ def setup_aggregating_functions(db_session):
     """
     Fixture to set up the database for AggregatingFunctions tests.
     """
-    with db_session.connection() as conn:
-        conn.execute(text("DELETE FROM genus"))
-        conn.execute(text("DELETE FROM family"))
-        conn.execute(text("DELETE FROM species"))
-        conn.execute(text("DELETE FROM accession"))
+    db_session.execute(text("DELETE FROM accession"))
+    db_session.execute(text("DELETE FROM species"))
+    db_session.execute(text("DELETE FROM genus"))
+    db_session.execute(text("DELETE FROM family"))
 
     f1 = Family(family="Rutaceae", qualifier="")
     g1 = Genus(family=f1, genus="Citrus")
@@ -1843,12 +1877,12 @@ def setup_aggregating_functions(db_session):
 
     db_session.add_all([f1, f2, f3, g1, g2, g3, g4, sp1, sp2, sp3, sp4, sp5, sp6])
     if db_session.in_transaction():
-        db_session.commit()
+        db_session.flush()
 
     return db_session
 
 
-class AggregatingFunctions:
+class TestAggregatingFunctions:
     def test_count(self, setup_aggregating_functions) -> None:
         """
         Test count function in MapperSearch.
@@ -1881,7 +1915,7 @@ class AggregatingFunctions:
         )
 
 
-class BaubleSearchSearchTest:
+class TestBaubleSearchSearch:
     def test_search_search_uses_Mapper_Search(self, db_session, mock_logger) -> None:
         """
         Test that MapperSearch is used for searches.

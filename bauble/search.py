@@ -68,7 +68,7 @@ from pyparsing import (
 )
 
 # Core SQLAlchemy
-from sqlalchemy import and_, func, inspect, or_, select
+from sqlalchemy import and_, false, func, inspect, or_, select, true
 
 # Errors
 from sqlalchemy.exc import NoResultFound, UnboundExecutionError
@@ -640,11 +640,11 @@ class IdentExpression:
             is_null_check = False
 
         if not isinstance(
-            comparison_value, (str, int, float, bool, type(None), datetime, date)
+            comparison_value, (str, int, float, bool, type(None), datetime, date, set)
         ):
             raise ValueError(f"Invalid comparison value: {comparison_value}")
 
-        logger.debug(
+        logger.warning(
             "Evaluating search expression: %s %s %r (%s)",
             attr,
             self.op,
@@ -763,9 +763,11 @@ class ElementSetExpression(IdentExpression):
         comparison_value = self.operands[1].express()
         if not isinstance(comparison_value, (str, int, float, bool, list, tuple, set)):
             raise ValueError(f"Invalid comparison value: {comparison_value}")
+        if isinstance(comparison_value, (set, list, tuple)) and len(comparison_value) == 0:
+            return stmt, false()        
 
         # Apply filtering directly if stmt is already a select() statement
-        if isinstance(stmt, select):
+        if isinstance(stmt, Select):
             stmt = stmt.where(attr.in_(comparison_value))
         else:
             stmt = select(stmt).where(attr.in_(comparison_value))
