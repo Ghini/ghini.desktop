@@ -96,28 +96,31 @@ class AskTPL(threading.Thread):
         return self._stop
 
     def run(self) -> None:
+        if self.gui:
+            from bauble.gtkinit import GLib
+
         provider = WfoTaxonLookupProvider()
 
         def ask_wfo(name: str) -> Optional[list[TaxonLookupResult]]:
             try:
                 return provider.lookup(TaxonLookupRequest(name=name)).results
             except requests.exceptions.SSLError:
-                bauble.gui.show_error_box(
+                GLib.idle_add(
+                    bauble.gui.show_error_box,
                     _("World Flora Online is temporarily unavailable over HTTPS."),
-                    _(
-                        "The connection was closed during TLS handshake. Please try again later."
-                    ),
-                )
+                    _("The connection was closed during TLS handshake. Please try again later."))
                 return None
             except requests.exceptions.Timeout:
-                bauble.gui.show_error_box(_("WFO request timed out."), _("Try again."))
+                GLib.idle_add(
+                    bauble.gui.show_error_box,
+                    _("WFO request timed out."), _("Try again."))
                 return None
             except Exception as unknown_exception:
                 # Other network errors: log and surface a concise message
                 logger.warning("ask_wfo: %s", unknown_exception, exc_info=True)
-                bauble.gui.show_error_box(
-                    _("Could not contact WFO."), str(unknown_exception)
-                )
+                GLib.idle_add(
+                    bauble.gui.show_error_box,
+                    _("Could not contact WFO."), str(unknown_exception))
                 return None
 
         class ShouldStopNow(Exception):
@@ -202,8 +205,6 @@ class AskTPL(threading.Thread):
         accepted_dict = accepted.as_ask_tpl_dict() if accepted else None
 
         if self.gui:
-            from bauble.gtkinit import GLib
-
             GLib.idle_add(self.callback, found_dict, accepted_dict)
         else:
             self.callback(found_dict, accepted_dict)
