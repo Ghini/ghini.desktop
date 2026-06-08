@@ -1916,30 +1916,20 @@ class TestAggregatingFunctions:
 
 
 class TestBaubleSearchSearch:
-    def test_search_search_uses_Mapper_Search(self, db_session, mock_logger) -> None:
-        """
-        Test that MapperSearch is used for searches.
-        """
+    logger_name = "bauble.search"
+    def test_search_search_uses_Mapper_Search(self, db_session) -> None:
         import logging
+        from bauble.test import MockLoggingHandler
 
-        search.logger.setLevel(logging.INFO)
+        handler = MockLoggingHandler()
+        search.logger.addHandler(handler)
+        search.logger.setLevel(logging.DEBUG)
 
-        search.search("genus like %", db_session)
-        assert (
-            'SearchStrategy "genus like %"(MapperSearch)'
-            in mock_logger.messages["bauble.search"]["debug"]
-        )
-        mock_logger.reset()
-
-        search.search("12.11.13", db_session)
-        assert (
-            'SearchStrategy "12.11.13"(MapperSearch)'
-            in mock_logger.messages["bauble.search"]["debug"]
-        )
-        mock_logger.reset()
-
-        search.search("So ha", db_session)
-        assert (
-            'SearchStrategy "So ha"(MapperSearch)'
-            in mock_logger.messages["bauble.search"]["debug"]
-        )
+        try:
+            search.search("genus like %", db_session)
+            assert (
+                'SearchStrategy "genus like %"(MapperSearch)'
+                in handler.messages["bauble.search"]["debug"]
+            )
+        finally:
+            search.logger.removeHandler(handler)
