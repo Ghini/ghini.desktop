@@ -88,8 +88,11 @@ class InfoExpander:
         :param prefix: The identifier for the label and data widgets.
         :param value: The value to set. If empty, hides the widgets.
         """
-        label_widget = self.widgets.get(f"{prefix}_label")
-        data_widget = self.widgets.get(f"{prefix}_data")
+        try:
+            label_widget = self.widgets[f"{prefix}_label"]
+            data_widget = self.widgets[f"{prefix}_data"]
+        except KeyError:
+            pass
 
         if data_widget and label_widget:
             if value:
