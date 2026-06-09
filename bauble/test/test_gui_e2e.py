@@ -986,31 +986,13 @@ def test_species_editor_notes_tab_adds_note_and_persists(
     dogtail_rawinput.pressKey("Tab")
     enter_text(species_entry, species_name, dogtail_rawinput)
 
-    notes_tab = find_named_child(species_editor, "Notes", showing_only=True)
-    assert notes_tab is not None, dump_accessible_tree(species_editor)
-    click_node_center(notes_tab, dogtail_rawinput)
-
-    add_button = find_named_child(
-        species_editor, "Add", role_name="push button", showing_only=True
+    add_species_note(
+        species_editor,
+        note_user,
+        note_category,
+        note_text,
+        dogtail_rawinput,
     )
-    assert add_button is not None, dump_accessible_tree(species_editor)
-    click_node_center(add_button, dogtail_rawinput)
-
-    note_entries = wait_for_visible_text_entries(species_editor, minimum=4)
-    note_body = max(note_entries, key=lambda entry: entry.size[1])
-    note_fields = [entry for entry in note_entries if entry is not note_body]
-    empty_fields = [entry for entry in note_fields if accessible_text(entry) == ""]
-    assert len(empty_fields) >= 2, describe_text_entries(species_editor)
-    user_entry = min(
-        empty_fields, key=lambda entry: (entry.position[1], entry.position[0])
-    )
-    category_entry = max(
-        empty_fields, key=lambda entry: (entry.position[1], -entry.position[0])
-    )
-
-    enter_text_by_keyboard(user_entry, note_user, dogtail_rawinput)
-    enter_text_by_keyboard(category_entry, note_category, dogtail_rawinput)
-    enter_text_by_keyboard(note_body, note_text, dogtail_rawinput)
 
     ok_button = find_named_child(species_editor, "OK", role_name="push button")
     assert ok_button is not None, dump_accessible_tree(species_editor)
@@ -1174,6 +1156,11 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
     source_name = "E2E Daily Workflow Nursery"
     source_code = "DW-2026-001"
     plant_quantity = "7"
+    vernacular_name = "Daily workflow label"
+    vernacular_language = "English"
+    note_user = "e2e-daily"
+    note_category = "label"
+    note_text = "Daily workflow note for label review."
 
     seed_family_genus_location_source_fixture(
         sqlite_connection["database_file"],
@@ -1201,6 +1188,20 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
     enter_text(genus_entry, genus_name, dogtail_rawinput)
     dogtail_rawinput.pressKey("Tab")
     enter_text(species_entry, species_name, dogtail_rawinput)
+    add_species_vernacular_name(
+        species_editor,
+        vernacular_name,
+        vernacular_language,
+        dogtail_tree,
+        dogtail_rawinput,
+    )
+    add_species_note(
+        species_editor,
+        note_user,
+        note_category,
+        note_text,
+        dogtail_rawinput,
+    )
 
     add_accessions_button = find_named_child(
         species_editor, "Add Accessions", role_name="push button"
@@ -1415,6 +1416,30 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
                 "join location on plant.location_id = location.id"
             ),
         ),
+        "vernacular": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            (
+                "select vernacular_name.name, vernacular_name.language, "
+                "default_vernacular_name.vernacular_name_id is not null "
+                "from vernacular_name "
+                "join species on vernacular_name.species_id = species.id "
+                "left join default_vernacular_name "
+                "on default_vernacular_name.species_id = species.id "
+                "and default_vernacular_name.vernacular_name_id = vernacular_name.id "
+                "where species.epithet = ?"
+            ),
+            species_name,
+        ),
+        "notes": fetch_sqlite_database(
+            sqlite_connection["database_file"],
+            (
+                "select species_note.user, species_note.category, species_note.note "
+                "from species_note "
+                "join species on species_note.species_id = species.id "
+                "where species.epithet = ?"
+            ),
+            species_name,
+        ),
     }
     assert daily_rows == [
         (
@@ -1441,6 +1466,8 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
         f"source_field_values={source_field_values!r}\n"
         f"stderr_tail={stderr[-1000:]!r}"
     )
+    assert diagnostic_rows["vernacular"] == [(vernacular_name, vernacular_language, 1)]
+    assert diagnostic_rows["notes"] == [(note_user, note_category, note_text)]
 
 
 def test_can_edit_existing_accession_from_result_context_menu(
@@ -2515,6 +2542,99 @@ def species_name_entries(entries):
         for index, entry in enumerate(entries)
     )
     return left_column_entries[0], left_column_entries[1]
+
+
+def add_species_vernacular_name(
+    species_editor,
+    vernacular_name,
+    vernacular_language,
+    dogtail_tree,
+    dogtail_rawinput,
+):
+    additional_info_tab = find_named_child(
+        species_editor, "Additional info", showing_only=True
+    )
+    assert additional_info_tab is not None, dump_accessible_tree(species_editor)
+    click_node_center(additional_info_tab, dogtail_rawinput)
+
+    vernacular_label = wait_for_node(
+        dogtail_tree,
+        lambda node: node.name == "Vernacular names" and getattr(node, "showing", True),
+        timeout=10,
+    )
+    add_button = visible_button_near(
+        species_editor,
+        None,
+        x_min=vernacular_label.position[0],
+        x_max=vernacular_label.position[0] + 360,
+        y_min=vernacular_label.position[1] - 40,
+    )
+    assert add_button is not None, dump_accessible_tree(species_editor, max_depth=10)
+    click_node_center(add_button, dogtail_rawinput)
+    time.sleep(0.2)
+
+    dogtail_rawinput.typeText(vernacular_name)
+    dogtail_rawinput.pressKey("Tab")
+    time.sleep(0.2)
+    dogtail_rawinput.typeText(vernacular_language)
+    dogtail_rawinput.pressKey("Tab")
+    time.sleep(0.2)
+
+
+def add_species_note(
+    species_editor,
+    note_user,
+    note_category,
+    note_text,
+    dogtail_rawinput,
+):
+    notes_tab = find_named_child(species_editor, "Notes", showing_only=True)
+    assert notes_tab is not None, dump_accessible_tree(species_editor)
+    click_node_center(notes_tab, dogtail_rawinput)
+
+    add_button = find_named_child(
+        species_editor, "Add", role_name="push button", showing_only=True
+    )
+    assert add_button is not None, dump_accessible_tree(species_editor)
+    click_node_center(add_button, dogtail_rawinput)
+
+    note_entries = wait_for_visible_text_entries(species_editor, minimum=4)
+    note_body = max(note_entries, key=lambda entry: entry.size[1])
+    note_fields = [entry for entry in note_entries if entry is not note_body]
+    empty_fields = [entry for entry in note_fields if accessible_text(entry) == ""]
+    assert len(empty_fields) >= 2, describe_text_entries(species_editor)
+    user_entry = min(
+        empty_fields, key=lambda entry: (entry.position[1], entry.position[0])
+    )
+    category_entry = max(
+        empty_fields, key=lambda entry: (entry.position[1], -entry.position[0])
+    )
+
+    enter_text_by_keyboard(user_entry, note_user, dogtail_rawinput)
+    enter_text_by_keyboard(category_entry, note_category, dogtail_rawinput)
+    enter_text_by_keyboard(note_body, note_text, dogtail_rawinput)
+
+
+def visible_button_near(node, name, x_min=None, x_max=None, y_min=None, y_max=None):
+    candidates = []
+    for button in find_children_by_role(node, "push button"):
+        if name is not None and button.name != name:
+            continue
+        if not getattr(button, "showing", True):
+            continue
+        x, y = button.position
+        if x_min is not None and x < x_min:
+            continue
+        if x_max is not None and x > x_max:
+            continue
+        if y_min is not None and y < y_min:
+            continue
+        if y_max is not None and y > y_max:
+            continue
+        candidates.append(button)
+    if not candidates:
+        return None
+    return min(candidates, key=lambda button: (button.position[1], button.position[0]))
 
 
 def wait_for_sensitive(node, timeout=10):

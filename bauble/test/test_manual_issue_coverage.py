@@ -229,6 +229,7 @@ MANUAL_ISSUE_REGRESSION_COVERAGE = {
     32: (
         "Vernacular-name entry persists without special Enter handling",
         (
+            "test_daily_species_editor_add_accession_creates_plant_with_source",
             "test_species_vernacular_name_syncs_while_cell_is_edited",
             "test_export_single_species_with_vernacular_name",
         ),

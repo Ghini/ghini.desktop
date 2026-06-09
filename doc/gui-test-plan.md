@@ -158,7 +158,7 @@ explicitly deferred in GitLab and release notes. See
 | Create location | yes | yes | Guided scenario: `location-create`. |
 | Create plant from accession | yes | yes | Dogtail E2E covers plant material selection, quantity, location completion, and persisted plant/location rows; guided test checks usability. |
 | Create seed propagation from plant | yes | yes | Dogtail E2E verifies seed propagation and database state. |
-| Species notes and vernacular details | yes | yes | GTK smoke covers vernacular editing and tab navigation; Dogtail E2E verifies Species Editor note persistence. |
+| Species notes and vernacular details | yes | yes | GTK smoke covers vernacular editing and tab navigation; Dogtail E2E verifies daily-workflow vernacular/default-name and note persistence. |
 | Edit existing family/genus/species/accession/plant/location | partial | yes | Family, accession, location, and plant edit pass; genus/species edit remain covered by creation-chain and guided workflows. |
 | Delete/remove confirmation dialogs | yes | yes | Family delete cancel/confirm covered by Dogtail E2E. |
 
