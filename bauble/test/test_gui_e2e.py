@@ -1220,8 +1220,40 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
     ), describe_text_entries(accession_editor)
 
     accession_entries = find_visible_text_entries_by_position(accession_editor)
-    assert len(accession_entries) >= 2, dump_accessible_tree(accession_editor)
+    assert len(accession_entries) >= 6, describe_text_entries(accession_editor)
     enter_text(accession_entries[1], accession_code, dogtail_rawinput)
+
+    left_column_entries = text_entries_in_column(
+        accession_entries, accession_entries[1]
+    )
+    assert len(left_column_entries) >= 4, describe_text_entries(accession_editor)
+    enter_text(left_column_entries[2], "Seed", dogtail_rawinput)
+    enter_text(left_column_entries[3], "7", dogtail_rawinput)
+
+    right_column_entries = text_entries_to_right_of(
+        accession_entries,
+        accession_entries[1],
+        minimum_x_offset=220,
+    )
+    assert len(right_column_entries) >= 3, describe_text_entries(accession_editor)
+    enter_text(right_column_entries[1], "13-05-2026", dogtail_rawinput)
+    enter_text(right_column_entries[2], "14-05-2026", dogtail_rawinput)
+
+    accession_combos = find_visible_combo_boxes_by_position(accession_editor)
+    assert len(accession_combos) >= 2, describe_combo_boxes(accession_editor)
+    select_combo_item_by_text(
+        accession_combos[-2],
+        "Accession of wild source",
+        dogtail_tree,
+        dogtail_rawinput,
+    )
+    wait_for_sensitive(accession_combos[-1])
+    select_combo_item_by_text(
+        accession_combos[-1],
+        "Wild native",
+        dogtail_tree,
+        dogtail_rawinput,
+    )
 
     source_tab = find_named_child(accession_editor, "Source", showing_only=True)
     assert source_tab is not None, dump_accessible_tree(accession_editor)
@@ -1272,8 +1304,10 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
         sqlite_connection["database_file"],
         (
             "select family.epithet, genus.epithet, species.epithet, "
-            "accession.code, source.sources_code, contact.name, plant.code, "
-            "location.code, location.name "
+            "accession.code, accession.recvd_type, accession.quantity_recvd, "
+            "accession.date_accd, accession.date_recvd, accession.prov_type, "
+            "accession.wild_prov_status, source.sources_code, contact.name, "
+            "plant.code, location.code, location.name "
             "from species "
             "join genus on species.genus_id = genus.id "
             "join family on genus.family_id = family.id "
@@ -1364,6 +1398,12 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
             genus_name,
             species_name,
             accession_code,
+            "SEED",
+            7,
+            "2026-05-13",
+            "2026-05-14",
+            "Wild",
+            "WildNative",
             source_code,
             source_name,
             plant_code,
@@ -2338,6 +2378,59 @@ def find_visible_text_entries_by_position(node):
     return sorted(entries, key=lambda entry: (entry.position[1], entry.position[0]))
 
 
+def text_entries_in_column(entries, reference_entry, tolerance=90):
+    reference_x = reference_entry.position[0]
+    return sorted(
+        [
+            entry
+            for entry in entries
+            if abs(entry.position[0] - reference_x) <= tolerance
+            and entry.size[0] > 10
+            and entry.size[1] > 10
+        ],
+        key=lambda entry: entry.position[1],
+    )
+
+
+def text_entries_to_right_of(entries, reference_entry, minimum_x_offset=150):
+    reference_x = reference_entry.position[0]
+    return sorted(
+        [
+            entry
+            for entry in entries
+            if entry.position[0] >= reference_x + minimum_x_offset
+            and entry.size[0] > 10
+            and entry.size[1] > 10
+        ],
+        key=lambda entry: (entry.position[1], entry.position[0]),
+    )
+
+
+def find_visible_combo_boxes_by_position(node):
+    combos = [
+        combo
+        for combo in find_children_by_role(node, "combo box")
+        if getattr(combo, "showing", True) and combo.size[0] > 10 and combo.size[1] > 10
+    ]
+    return sorted(combos, key=lambda combo: (combo.position[1], combo.position[0]))
+
+
+def describe_combo_boxes(node):
+    return "\n".join(
+        [
+            dump_accessible_tree(node, max_depth=10),
+            *[
+                f"{index}: {combo.name!r} "
+                f"pos={combo.position} size={combo.size} "
+                f"sensitive={getattr(combo, 'sensitive', True)}"
+                for index, combo in enumerate(
+                    find_visible_combo_boxes_by_position(node)
+                )
+            ],
+        ]
+    )
+
+
 def wait_for_visible_text_entries(node, minimum=1, timeout=20):
     deadline = time.monotonic() + timeout
     entries = []
@@ -2398,6 +2491,19 @@ def wait_for_sensitive(node, timeout=10):
             return
         time.sleep(0.25)
     raise AssertionError(f"Node did not become sensitive: {node.name!r}")
+
+
+def select_combo_item_by_text(combo, text, dogtail_tree, dogtail_rawinput):
+    click_node_center(combo, dogtail_rawinput)
+    item = wait_for_node(
+        dogtail_tree,
+        lambda node: node.name == text
+        and getattr(node, "showing", True)
+        and node.roleName in {"menu item", "list item", "table cell", "label"},
+        timeout=10,
+    )
+    click_node_center(item, dogtail_rawinput)
+    time.sleep(0.2)
 
 
 def find_main_search_button(main_window, search_entry):
