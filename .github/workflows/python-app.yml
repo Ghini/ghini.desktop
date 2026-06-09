@@ -27,6 +27,7 @@ jobs:
             gettext \
             python3-gi \
             python3-gi-cairo \
+            libcairo2-dev \
             gir1.2-gtk-3.0 \
             gir1.2-champlain-0.12 \
             gir1.2-gtkchamplain-0.12 \
