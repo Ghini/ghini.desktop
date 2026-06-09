@@ -21,7 +21,7 @@ from unittest import TestCase
 import bauble.utils as utils
 
 
-class Utils(TestCase):
+class TestUtils(TestCase):
 
     def test_topological_sort_total(self) -> None:
         self.assertEqual(utils.topological_sort([1, 2, 3], [(2, 1), (3, 2)]), [3, 2, 1])
@@ -33,7 +33,7 @@ class Utils(TestCase):
         self.assertEqual(utils.topological_sort([1, 2], [(2, 1), (1, 2)]), None)
 
 
-class CacheTest(TestCase):
+class TestCache(TestCase):
     def test_create_store_retrieve(self):
         from functools import partial
 
@@ -130,7 +130,7 @@ class CacheTest(TestCase):
         self.assertEqual(sorted(cache.storage.keys()), [1, 4])
 
 
-class GlobalFuncs(TestCase):
+class TestGlobalFuncs(TestCase):
     def test_safe_int_valid(self) -> None:
         self.assertEqual(utils.safe_int("123"), 123)
 
