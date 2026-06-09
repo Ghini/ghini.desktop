@@ -36,6 +36,7 @@ jobs:
             gir1.2-champlain-0.12 \
             gir1.2-gtkchamplain-0.12 \
             gir1.2-clutter-1.0 \
+            xvfb \
             libpq-dev \
             python3-dev \
             pkg-config \
@@ -63,7 +64,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m pytest bauble/test/ \
+        xvfb-run python -m pytest bauble/test/ \
             --ignore=bauble/test/test_gui_e2e.py \
             --ignore=bauble/test/test_gtk_smoke.py \
             --ignore=bauble/test/test_postgresql_lane.py \
