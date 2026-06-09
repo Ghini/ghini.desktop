@@ -17,6 +17,7 @@ Usage:
   scripts/docker-dev postgres-copy-smoke [pytest args...]
   scripts/docker-dev gtk-smoke [pytest args...]
   scripts/docker-dev gui-e2e [pytest args...]
+  scripts/docker-dev gui-regression [pytest args...]
   scripts/docker-dev gui-guided [scenario]
   scripts/docker-dev pytest
   scripts/docker-dev pytest-debug
@@ -44,6 +45,7 @@ Useful overrides:
   GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
   GHINI_DOCKER_NETWORK=<docker network mode>
   GHINI_GUI_E2E_TIMEOUT=<seconds, default 900>
+  GHINI_GUI_REGRESSION_TIMEOUT=<seconds, default 1800>
   GHINI_POSTGRES_CHECK_TIMEOUT=<seconds, default 300>
   GHINI_POSTGRES_SMOKE_TIMEOUT=<seconds, default 300>
   GHINI_EXTERNAL_POSTGRES_URI=<read-only smoke target URI>
@@ -488,6 +490,12 @@ run_gui_e2e() {
         bash "${pytest_args[@]}"
 }
 
+run_gui_regression() {
+    echo "==> Full automated GUI regression: all Dogtail E2E scenarios"
+    GHINI_GUI_E2E_TIMEOUT="${GHINI_GUI_REGRESSION_TIMEOUT:-${GHINI_GUI_E2E_TIMEOUT:-1800}}" \
+        run_gui_e2e "$@"
+}
+
 run_test_smoke() {
     echo "==> Fast development smoke: formatting, version/database checks, GTK smoke, core GUI E2E"
     local gui_smoke_selector="connection_manager"
@@ -515,7 +523,7 @@ run_test_regression() {
     GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-regression-gtk}" \
         "${script_dir}/docker-dev" gtk-smoke
     GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-regression-gui}" \
-        "${script_dir}/docker-dev" gui-e2e
+        "${script_dir}/docker-dev" gui-regression
 }
 
 run_postgres_check() {
@@ -733,6 +741,9 @@ case "${command}" in
         ;;
     gui-e2e)
         run_gui_e2e "$@"
+        ;;
+    gui-regression)
+        run_gui_regression "$@"
         ;;
     gui-guided)
         run_gui_guided "$@"

@@ -34,15 +34,20 @@ Command:
 
 ```sh
 scripts/docker-dev test-regression
+scripts/docker-dev gui-regression
 ```
 
-This is the no-intervention release gate. It is expected to take longer than
-the smoke suite and should be run before release or merge-request review. It
-combines:
+`test-regression` is the complete no-intervention release gate. It is expected
+to take longer than the smoke suite and should be run before release or
+merge-request review. It combines:
 
 - warning-gated pytest coverage
 - GTK smoke checks
 - the full automated Dogtail GUI E2E suite
+
+`gui-regression` runs only the full automated Dogtail GUI E2E suite. Use it
+when a GUI workflow changed and the broad GUI lane should be rerun without
+also running the warning-gated and GTK smoke layers.
 
 Known failures must be marked `xfail` with a GitLab issue reference. When a
 guided visual run finds a bug and the fix is stable, add or update an automated
@@ -167,7 +172,8 @@ explicitly deferred in GitLab and release notes. See
 Use this gate sequence before a release candidate:
 
 1. `scripts/docker-dev test-smoke`
-2. `scripts/docker-dev test-regression`
+2. `scripts/docker-dev gui-regression` for GUI-heavy release blockers, or
+   `scripts/docker-dev test-regression` for the complete release gate
 3. `scripts/docker-dev postgres-check`
 4. `scripts/docker-dev postgres-copy-smoke` against a disposable
    representative PostgreSQL database copy
