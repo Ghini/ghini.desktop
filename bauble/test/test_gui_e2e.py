@@ -1173,6 +1173,7 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
     location_name = "E2E Daily Workflow Bed"
     source_name = "E2E Daily Workflow Nursery"
     source_code = "DW-2026-001"
+    plant_quantity = "7"
 
     seed_family_genus_location_source_fixture(
         sqlite_connection["database_file"],
@@ -1228,7 +1229,7 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
     )
     assert len(left_column_entries) >= 4, describe_text_entries(accession_editor)
     enter_text(left_column_entries[2], "Seed", dogtail_rawinput)
-    enter_text(left_column_entries[3], "7", dogtail_rawinput)
+    enter_text(left_column_entries[3], plant_quantity, dogtail_rawinput)
 
     right_column_entries = text_entries_to_right_of(
         accession_entries,
@@ -1281,8 +1282,29 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
     )
     plant_entries = find_children_by_role(plant_editor, "text")
     assert len(plant_entries) >= 4, dump_accessible_tree(plant_editor)
-    enter_text(plant_entries[1], plant_code, dogtail_rawinput)
-    enter_text(plant_entries[3], "1", dogtail_rawinput)
+    assert accessible_text(plant_entries[1]) == plant_code, describe_text_entries(
+        plant_editor
+    )
+    plant_material_combo = find_combo_box_named(plant_editor, "Planting")
+    assert plant_material_combo is not None, describe_combo_boxes(plant_editor)
+    select_combo_item_by_text(
+        plant_material_combo,
+        "Seed/Spore",
+        dogtail_tree,
+        dogtail_rawinput,
+    )
+    enter_text(plant_entries[3], plant_quantity, dogtail_rawinput)
+    click_node_center(plant_entries[2], dogtail_rawinput)
+    dogtail_rawinput.keyCombo("<Control>a")
+    dogtail_rawinput.pressKey("BackSpace")
+    dogtail_rawinput.typeText(location_code[:2])
+    wait_for_node(
+        dogtail_tree,
+        lambda node: getattr(node, "showing", True)
+        and location_code in getattr(node, "name", "")
+        and location_name in getattr(node, "name", ""),
+        timeout=10,
+    )
     enter_text(plant_entries[2], location_code, dogtail_rawinput)
     dogtail_rawinput.pressKey("Tab")
 
@@ -1307,7 +1329,8 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
             "accession.code, accession.recvd_type, accession.quantity_recvd, "
             "accession.date_accd, accession.date_recvd, accession.prov_type, "
             "accession.wild_prov_status, source.sources_code, contact.name, "
-            "plant.code, location.code, location.name "
+            "plant.code, plant.acc_type, plant.quantity, "
+            "location.code, location.name "
             "from species "
             "join genus on species.genus_id = genus.id "
             "join family on genus.family_id = family.id "
@@ -1385,7 +1408,8 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
         "plant": fetch_sqlite_database(
             sqlite_connection["database_file"],
             (
-                "select plant.code, accession.code, location.code "
+                "select plant.code, plant.acc_type, plant.quantity, "
+                "accession.code, location.code "
                 "from plant "
                 "join accession on plant.accession_id = accession.id "
                 "join location on plant.location_id = location.id"
@@ -1407,6 +1431,8 @@ def test_daily_species_editor_add_accession_creates_plant_with_source(
             source_code,
             source_name,
             plant_code,
+            "Seed",
+            int(plant_quantity),
             location_code,
             location_name,
         )
@@ -2413,6 +2439,13 @@ def find_visible_combo_boxes_by_position(node):
         if getattr(combo, "showing", True) and combo.size[0] > 10 and combo.size[1] > 10
     ]
     return sorted(combos, key=lambda combo: (combo.position[1], combo.position[0]))
+
+
+def find_combo_box_named(node, name):
+    for combo in find_visible_combo_boxes_by_position(node):
+        if combo.name == name:
+            return combo
+    return None
 
 
 def describe_combo_boxes(node):

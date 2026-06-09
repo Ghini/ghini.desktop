@@ -156,7 +156,7 @@ explicitly deferred in GitLab and release notes. See
 | Create accession from species | yes | optional | Dogtail E2E covers the daily fields: material type, quantity, accession/received dates, provenance, and wild status. |
 | Select existing accession source | yes | yes | Covered by Dogtail E2E, including source ID persistence; guided in `daily-accession-workflow`. |
 | Create location | yes | yes | Guided scenario: `location-create`. |
-| Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
+| Create plant from accession | yes | yes | Dogtail E2E covers plant material selection, quantity, location completion, and persisted plant/location rows; guided test checks usability. |
 | Create seed propagation from plant | yes | yes | Dogtail E2E verifies seed propagation and database state. |
 | Species notes and vernacular details | yes | yes | GTK smoke covers vernacular editing and tab navigation; Dogtail E2E verifies Species Editor note persistence. |
 | Edit existing family/genus/species/accession/plant/location | partial | yes | Family, accession, location, and plant edit pass; genus/species edit remain covered by creation-chain and guided workflows. |
