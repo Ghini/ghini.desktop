@@ -154,7 +154,7 @@ explicitly deferred in GitLab and release notes. See
 | Main search autocomplete | yes | yes | Dogtail E2E verifies database completions before a search is submitted; included in `test-smoke`. |
 | Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`. |
 | Create accession from species | yes | optional | Dogtail E2E covers the daily fields: material type, quantity, accession/received dates, provenance, and wild status. |
-| Select existing accession source | yes | yes | Covered by Dogtail E2E, including source ID persistence; guided in `daily-accession-workflow`. |
+| Select existing accession source | yes | yes | Dogtail E2E covers Source-tab save and exact contact/source-ID persistence with ambiguous source data; model/GTK tests cover deduplication, sorting, and completion because the popup is not reliably exposed through AT-SPI. |
 | Create location | yes | yes | Guided scenario: `location-create`. |
 | Create plant from accession | yes | yes | Dogtail E2E covers plant material selection, quantity, location completion, and persisted plant/location rows; guided test checks usability. |
 | Create seed propagation from plant | yes | yes | Dogtail E2E verifies seed propagation and database state. |

@@ -1553,6 +1553,13 @@ def test_can_select_existing_source_when_editing_accession(
     source_name = "Daily Workflow Nursery"
     source_code = "DW-2026-001"
     timestamp = "2026-05-13 00:00:00"
+    source_contact_names = [
+        source_name,
+        "daily workflow nursery",
+        "Aardvark Daily Workflow Source",
+        "Workflow Specialty Nursery",
+        "Zeta Daily Workflow Supplier",
+    ]
 
     seed_plant_fixture(
         sqlite_connection["database_file"],
@@ -1564,15 +1571,21 @@ def test_can_select_existing_source_when_editing_accession(
         location_code="E2SO",
         location_name="E2E Source Bed",
     )
-    execute_sqlite_database(
+    for contact_name in source_contact_names:
+        execute_sqlite_database(
+            sqlite_connection["database_file"],
+            (
+                "insert into contact (name, description, _created, _last_updated) "
+                "values (?, '', ?, ?)"
+            ),
+            contact_name,
+            timestamp,
+            timestamp,
+        )
+    target_contact_id = query_sqlite_database(
         sqlite_connection["database_file"],
-        (
-            "insert into contact (name, description, _created, _last_updated) "
-            "values (?, '', ?, ?)"
-        ),
+        "select id from contact where name = ?",
         source_name,
-        timestamp,
-        timestamp,
     )
 
     main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
@@ -1643,7 +1656,7 @@ def test_can_select_existing_source_when_editing_accession(
     source_rows = fetch_sqlite_database(
         sqlite_connection["database_file"],
         (
-            "select source.sources_code, contact.name "
+            "select source.sources_code, contact.name, contact.id "
             "from source "
             "join accession on source.accession_id = accession.id "
             "join contact on source.source_detail_id = contact.id "
@@ -1662,7 +1675,7 @@ def test_can_select_existing_source_when_editing_accession(
         ),
         accession_code,
     )
-    assert source_rows == [(source_code, source_name)], {
+    assert source_rows == [(source_code, source_name, target_contact_id)], {
         "accession_rows": accession_rows,
         "field_values": field_values,
         "stderr": stderr,
