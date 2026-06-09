@@ -150,39 +150,35 @@ Known Scope Limits
 Test Evidence
 -------------
 
-Automated release evidence for current application code at ``1b42bd57``:
-
-* ``scripts/docker-dev build`` completed and produced
-  ``ghini-desktop-dev:latest``.
+Automated release evidence for current application code at ``5ff50632``:
 
 * ``scripts/docker-dev test-smoke`` passed:
 
-  * warning-gated base check: 16 passed;
-  * GTK smoke suite: 142 passed;
-  * core GUI E2E subset: 5 passed, 17 deselected.
+  * changed-file check: 16 passed;
+  * GTK smoke suite: 156 passed;
+  * core GUI E2E subset: 6 passed, 23 deselected.
 
-* ``scripts/docker-dev test-regression`` passed:
+* ``scripts/docker-dev gui-regression`` passed:
 
-  * warning-gated suite: 415 passed, 32 skipped;
-  * GTK smoke suite: 142 passed;
-  * full GUI E2E suite: 22 passed.
+  * full automated Dogtail GUI E2E suite: 29 passed.
+
+* ``scripts/docker-dev warnings`` passed:
+
+  * warning-gated suite: 435 passed, 43 skipped.
 
 * ``scripts/docker-dev postgres-check`` passed:
 
-  * PostgreSQL lane: 3 passed.
+  * PostgreSQL lane against a disposable schema: 3 passed.
 
-* ``scripts/docker-dev postgres-copy-smoke`` was validated at ``a20a3f12``
-  against temporary PostgreSQL containers. The test seeded a disposable source
-  database, dumped and restored it into a second disposable PostgreSQL
-  container, then ran the read-only smoke lane:
+* ``scripts/docker-dev postgres-smoke`` passed against a disposable local
+  PostgreSQL database initialized through the PostgreSQL lane:
 
-  * external read-only smoke lane: 4 passed.
+  * external read-only smoke lane: 8 passed.
 
-* ``scripts/docker-dev postgres-copy-smoke`` passed against representative
-  PostgreSQL data from ``ghini_test3`` on ``postgres.wysechoice.net`` after
-  restoring the dump into a disposable local PostgreSQL container:
-
-  * representative PostgreSQL read-only smoke lane: 4 passed.
+Earlier release evidence verified ``scripts/docker-dev build`` and
+``postgres-copy-smoke`` against representative ``ghini_test3`` data. Rerun the
+new ``postgres-release`` gate against a fresh representative copy before
+tagging so the final PostgreSQL evidence matches the current commit.
 
 * Open GitLab issue review completed at ``32b59e85``:
 
@@ -198,7 +194,10 @@ Pending Release Gates
 
 The following must be completed before tagging ``v4.0.0rc1``:
 
-* Tag ``v4.0.0rc1`` after the pending gates pass.
+* Run ``GHINI_SOURCE_POSTGRES_URI=... scripts/docker-dev postgres-release``
+  against a fresh representative PostgreSQL copy.
+* Tag ``v4.0.0rc1`` after the PostgreSQL copy gate passes and final review is
+  complete.
 
 Guided visual scenarios are not a required ``v4.0.0rc1`` gate after the
 automated GUI E2E suite passes. The guided scenarios were used to find release
