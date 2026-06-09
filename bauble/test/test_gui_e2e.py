@@ -1234,6 +1234,106 @@ def test_can_create_accession_from_species_editor_chain(
     ), f"accession_total={accession_total}, species_total={species_total}"
 
 
+def test_add_accessions_from_unsaved_species_editor_commits_accession(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EEUNSAVEDACCACEAE"
+    genus_name = "Eeunsavedaccgenus"
+    species_name = "eounsavedacc"
+    accession_code = "UNSAVED-ACC-E2E"
+    timestamp = "2026-05-13 00:00:00"
+
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into family (epithet, author, qualifier, _created, _last_updated) "
+            "values (?, '', '', ?, ?)"
+        ),
+        family_name,
+        timestamp,
+        timestamp,
+    )
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into genus "
+            "(epithet, author, qualifier, family_id, _created, _last_updated) "
+            "values (?, '', '', (select id from family where epithet = ?), ?, ?)"
+        ),
+        genus_name,
+        family_name,
+        timestamp,
+        timestamp,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Species", role_name="menu item")
+
+    species_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+    )
+    species_entries = find_visible_text_entries_by_position(species_editor)
+    assert len(species_entries) >= 3, describe_text_entries(species_editor)
+    genus_entry, species_entry = species_name_entries(species_entries)
+    enter_text(genus_entry, genus_name, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    enter_text(species_entry, species_name, dogtail_rawinput)
+
+    add_accessions_button = find_named_child(
+        species_editor, "Add Accessions", role_name="push button"
+    )
+    assert add_accessions_button is not None, dump_accessible_tree(species_editor)
+    wait_for_sensitive(add_accessions_button)
+    add_accessions_button.click()
+
+    accession_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+    )
+    assert (
+        find_text_entry_containing(accession_editor, f"{genus_name} {species_name}")
+        is not None
+    ), describe_text_entries(accession_editor)
+
+    accession_entries = find_visible_text_entries_by_position(accession_editor)
+    assert len(accession_entries) >= 2, describe_text_entries(accession_editor)
+    enter_text(accession_entries[1], accession_code, dogtail_rawinput)
+
+    ok_button = find_named_child(accession_editor, "OK", role_name="push button")
+    assert ok_button is not None, dump_accessible_tree(accession_editor)
+    wait_for_sensitive(ok_button)
+    ok_button.click()
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Accession Editor",
+        timeout=20,
+    )
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    accession_rows = fetch_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select accession.code, species.epithet, genus.epithet, family.epithet "
+            "from accession "
+            "join species on accession.species_id = species.id "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "where accession.code = ?"
+        ),
+        accession_code,
+    )
+    assert accession_rows == [(accession_code, species_name, genus_name, family_name)]
+
+
 def test_daily_species_editor_add_accession_creates_plant_with_source(
     dogtail_modules, sqlite_connection, ghini_process_factory
 ):

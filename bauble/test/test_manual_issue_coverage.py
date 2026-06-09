@@ -97,6 +97,7 @@ MANUAL_ISSUE_REGRESSION_COVERAGE = {
         "Plant Editor saves plant from Accession Editor workflow",
         (
             "test_daily_species_editor_add_accession_creates_plant_with_source",
+            "test_add_accessions_from_unsaved_species_editor_commits_accession",
             "test_accession_editor_from_species_id_populates_taxon_and_commits",
         ),
     ),
