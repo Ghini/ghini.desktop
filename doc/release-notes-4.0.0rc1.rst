@@ -5,8 +5,7 @@ Status
 ------
 
 These are draft release-candidate notes for the Ghini 4 baseline. Do not tag
-``v4.0.0rc1`` until the pending release gates at the end of this document are
-complete.
+``v4.0.0rc1`` until final release review is complete.
 
 Supported Baseline
 ------------------
@@ -150,7 +149,7 @@ Known Scope Limits
 Test Evidence
 -------------
 
-Automated release evidence for current application code at ``5ff50632``:
+Automated release evidence for current application code at ``c961bfe2``:
 
 * ``scripts/docker-dev test-smoke`` passed:
 
@@ -175,10 +174,16 @@ Automated release evidence for current application code at ``5ff50632``:
 
   * external read-only smoke lane: 8 passed.
 
-Earlier release evidence verified ``scripts/docker-dev build`` and
-``postgres-copy-smoke`` against representative ``ghini_test3`` data. Rerun the
-new ``postgres-release`` gate against a fresh representative copy before
-tagging so the final PostgreSQL evidence matches the current commit.
+* ``GHINI_SOURCE_POSTGRES_URI=... scripts/docker-dev postgres-release`` passed
+  against representative PostgreSQL data from ``ghini_test3`` on
+  ``postgres.wysechoice.net`` after restoring the dump into a disposable local
+  PostgreSQL container:
+
+  * disposable PostgreSQL schema lane: 3 passed;
+  * representative PostgreSQL read-only smoke lane: 8 passed.
+
+Earlier release evidence verified ``scripts/docker-dev build``. Rerun the build
+if the release candidate is rebuilt from a fresh checkout before tagging.
 
 * Open GitLab issue review completed at ``32b59e85``:
 
@@ -192,12 +197,11 @@ rebuilt after additional dependency or certificate changes.
 Pending Release Gates
 ---------------------
 
-The following must be completed before tagging ``v4.0.0rc1``:
+No automated release gates remain pending in this draft evidence. Before
+tagging ``v4.0.0rc1``:
 
-* Run ``GHINI_SOURCE_POSTGRES_URI=... scripts/docker-dev postgres-release``
-  against a fresh representative PostgreSQL copy.
-* Tag ``v4.0.0rc1`` after the PostgreSQL copy gate passes and final review is
-  complete.
+* perform final review of the release notes and open issue classifications;
+* tag ``v4.0.0rc1`` after final review is complete.
 
 Guided visual scenarios are not a required ``v4.0.0rc1`` gate after the
 automated GUI E2E suite passes. The guided scenarios were used to find release
