@@ -1,0 +1,66 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python application
+
+on:
+  push:
+    branches: [ "ghini-3.1-dev" ]
+  pull_request:
+    branches: [ "ghini-3.1-dev" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: install system dependencies
+      run: |
+          sudo apt-get -qq update
+          sudo apt-get install -y \
+            gettext \
+            python3-gi \
+            python3-gi-cairo \
+            gir1.2-gtk-3.0 \
+            gir1.2-champlain-0.12 \
+            gir1.2-gtkchamplain-0.12 \
+            gir1.2-clutter-1.0 \
+            libpq-dev \
+            python3-dev \
+            pkg-config \
+            libjpeg-dev \
+            build-essential
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -e ".[test]"
+        
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Test with pytest
+      run: |
+        python -m pytest bauble/test/ \
+            --ignore=bauble/test/test_gui_e2e.py \
+            --ignore=bauble/test/test_gtk_smoke.py \
+            --ignore=bauble/test/test_postgresql_lane.py \
+            --ignore=bauble/test/test_postgresql_external_smoke.py \
+            -q
