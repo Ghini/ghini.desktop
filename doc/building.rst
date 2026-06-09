@@ -77,6 +77,36 @@ where necessary, delete the temporary branch.
 When ready for publication, merge the development line into the
 corresponding production line.
 
+Commit message convention
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We follow the `Conventional Commits <https://www.conventionalcommits.org/>`_
+specification. Commit messages should be of the form::
+
+    type(scope): short description
+
+The ``scope`` is optional and indicates the part of the codebase affected,
+for example ``fix(search):``, ``test(garden):``, ``build(docker):``.
+Common scopes include: ``search``, ``garden``, ``plants``, ``gui``,
+``db``, ``imex``, ``report``, ``docker``, ``deps``.
+
+Types in use:
+
+============  ========  =====================================================
+type          standard  description
+============  ========  =====================================================
+``fix``       ✓         bug fix
+``feat``      ✓         new feature
+``refactor``  ✓         code change with no functional impact
+``test``      ✓         adding or updating tests
+``docs``      ✓         documentation only
+``build``     ✓         build system or dependency changes
+``chore``     ✓         maintenance work with no functional impact
+``dev``                 development environment configuration (vscode, etc.)
+``tools``               development scripts and utilities
+``merge``               explicit merge commits
+============  ========  =====================================================
+
 Updating the set of translatable strings
 -------------------------------------------------------------
 
@@ -304,6 +334,8 @@ aspects. Two binary questions: 4 cases.
 where to put the tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Test class names must start with ``Test`` to be collected by pytest.
+
 Locate the test script and choose the class where to put the extra unit tests.
 
 https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2Ftest.py#L273
@@ -311,7 +343,7 @@ https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2F
 .. admonition:: what about skipped tests
    :class: note
 
-           The ``FamilyTests`` class contains a skipped test, implementing
+           The ``TestFamily`` class contains a skipped test, implementing
            it will be quite a bit of work because we need rewrite the
            FamilyEditorPresenter, separate it from the FamilyEditorView and
            reconsider what to do with the FamilyEditor class, which I think
@@ -320,7 +352,7 @@ https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2F
 writing the tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After the last test in the FamilyTests class, I add the four cases I want to
+After the last test in the TestFamily class, I add the four cases I want to
 describe, and I make sure they fail, and since I'm lazy, I write the most
 compact code I know for generating an error::
 
@@ -501,7 +533,7 @@ Putting all together
 
 From time to time you want to activate the test class you're working at::
 
-    nosetests bauble/plugins/plants/test.py:FamilyTests
+    nosetests bauble/plugins/plants/test.py:TestFamily
 
 And at the end of the process you want to update the statistics::
 
