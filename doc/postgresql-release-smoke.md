@@ -24,12 +24,19 @@ export GHINI_SOURCE_POSTGRES_URI='postgresql://readonly_user:secret@postgres.exa
 The normal release gate is one command:
 
 ```sh
-scripts/docker-dev postgres-copy-smoke
+scripts/docker-dev postgres-release
 ```
 
-This command creates an ignored dump artifact under `test-results/`, restores it
-into a disposable local PostgreSQL container, runs `postgres-smoke`, and removes
-the disposable container.
+This command first runs `postgres-check` against a fresh disposable PostgreSQL
+schema. It then creates an ignored dump artifact under `test-results/`, restores
+it into a disposable local PostgreSQL container, runs `postgres-smoke`, and
+removes the disposable container.
+
+When debugging only the representative-copy portion, run:
+
+```sh
+scripts/docker-dev postgres-copy-smoke
+```
 
 Use the manual steps below only when you need to inspect or debug the copy.
 
@@ -94,7 +101,8 @@ GHINI_EXTERNAL_POSTGRES_URI=postgresql://ghini:ghini@127.0.0.1:5432/ghini_copy \
 ```
 
 The smoke lane does not recreate the schema. It verifies required tables, basic
-counts, the daily accession/taxonomy join, and session rollback recovery.
+counts, daily accession/taxonomy, plant/location, source/contact/collection,
+vernacular/note, and propagation joins, plus session rollback recovery.
 
 ## Cleanup
 

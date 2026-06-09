@@ -131,6 +131,10 @@ MANUAL_ISSUE_REGRESSION_COVERAGE = {
             "test_postgresql_database_create_imports_defaults",
             "test_postgresql_can_persist_core_taxonomy_fixture",
             "test_external_postgresql_can_read_daily_join",
+            "test_external_postgresql_can_read_daily_plant_location_join",
+            "test_external_postgresql_can_read_source_contact_collection_join",
+            "test_external_postgresql_can_read_vernacular_names_and_species_notes",
+            "test_external_postgresql_can_read_propagation_join",
         ),
     ),
     17: (
