@@ -950,6 +950,98 @@ def test_can_create_species_from_genus_editor_chain(
     assert species_count == 1
 
 
+def test_species_editor_partial_genus_keeps_accept_disabled_until_exact_match(
+    dogtail_modules, sqlite_connection, ghini_process
+):
+    dogtail_tree, _dogtail_predicate, dogtail_rawinput = dogtail_modules
+    family_name = "EESPECGENACEAE"
+    genus_name = "Eespecautogenus"
+    species_name = "eoautogenus"
+    timestamp = "2026-05-13 00:00:00"
+
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into family (epithet, author, qualifier, _created, _last_updated) "
+            "values (?, '', '', ?, ?)"
+        ),
+        family_name,
+        timestamp,
+        timestamp,
+    )
+    execute_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "insert into genus "
+            "(epithet, author, qualifier, family_id, _created, _last_updated) "
+            "values (?, '', '', (select id from family where epithet = ?), ?, ?)"
+        ),
+        genus_name,
+        family_name,
+        timestamp,
+        timestamp,
+    )
+
+    main_window = connect_to_sqlite_database(dogtail_tree, sqlite_connection["name"])
+    activate_menu_item(main_window, "Insert", role_name="menu")
+    activate_menu_item(dogtail_tree.root, "Species", role_name="menu item")
+
+    species_editor = wait_for_node(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+    )
+    species_entries = find_visible_text_entries_by_position(species_editor)
+    assert len(species_entries) >= 3, describe_text_entries(species_editor)
+    genus_entry, species_entry = species_name_entries(species_entries)
+    ok_button = find_named_child(species_editor, "OK", role_name="push button")
+    add_accessions_button = find_named_child(
+        species_editor, "Add Accessions", role_name="push button"
+    )
+    assert ok_button is not None, dump_accessible_tree(species_editor)
+    assert add_accessions_button is not None, dump_accessible_tree(species_editor)
+    assert not getattr(ok_button, "sensitive", True)
+    assert not getattr(add_accessions_button, "sensitive", True)
+
+    enter_text(genus_entry, genus_name[:6], dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    enter_text(species_entry, species_name, dogtail_rawinput)
+    assert not getattr(ok_button, "sensitive", True), describe_text_entries(
+        species_editor
+    )
+    assert not getattr(add_accessions_button, "sensitive", True), describe_text_entries(
+        species_editor
+    )
+
+    enter_text(genus_entry, genus_name, dogtail_rawinput)
+    dogtail_rawinput.pressKey("Tab")
+    wait_for_sensitive(ok_button)
+    wait_for_sensitive(add_accessions_button)
+    ok_button.click()
+    fail_on_visible_error_alert(dogtail_tree, dogtail_rawinput, ghini_process)
+    wait_for_absence(
+        dogtail_tree,
+        lambda node: node.roleName == "dialog" and node.name == "Species Editor",
+        timeout=20,
+    )
+    terminate_process(ghini_process)
+
+    species_count = query_sqlite_database(
+        sqlite_connection["database_file"],
+        (
+            "select count(*) from species "
+            "join genus on species.genus_id = genus.id "
+            "join family on genus.family_id = family.id "
+            "where species.epithet = ? "
+            "and genus.epithet = ? "
+            "and family.epithet = ?"
+        ),
+        species_name,
+        genus_name,
+        family_name,
+    )
+    assert species_count == 1
+
+
 def test_species_editor_notes_tab_adds_note_and_persists(
     dogtail_modules, sqlite_connection, ghini_process
 ):

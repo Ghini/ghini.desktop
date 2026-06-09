@@ -224,6 +224,7 @@ MANUAL_ISSUE_REGRESSION_COVERAGE = {
             "test_main_search_database_completion_values_uses_seeded_records",
             "test_dynamic_completion_exact_match_ignores_zero_width_space",
             "test_genus_editor_family_completion_selects_family_object",
+            "test_species_editor_partial_genus_keeps_accept_disabled_until_exact_match",
         ),
     ),
     32: (

@@ -152,7 +152,7 @@ explicitly deferred in GitLab and release notes. See
 | Connect to database and open main window | yes | yes | Use SQLite for automation; PostgreSQL for guided local checks. |
 | Search existing records | yes | yes | Species, accession, and plant searches covered by Dogtail E2E. |
 | Main search autocomplete | yes | yes | Dogtail E2E verifies database completions before a search is submitted; included in `test-smoke`. |
-| Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`. |
+| Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`; Dogtail E2E verifies genus and species editor completion fields do not save partial text and resolve exact model objects. |
 | Create accession from species | yes | optional | Dogtail E2E covers the daily fields: material type, quantity, accession/received dates, provenance, and wild status. |
 | Select existing accession source | yes | yes | Dogtail E2E covers Source-tab save and exact contact/source-ID persistence with ambiguous source data; model/GTK tests cover deduplication, sorting, and completion because the popup is not reliably exposed through AT-SPI. |
 | Create location | yes | yes | Guided scenario: `location-create`. |
