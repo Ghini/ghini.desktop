@@ -551,7 +551,7 @@ run_postgres_check() {
     local ready=0
     for _ in {1..30}; do
         if docker exec "${pg_container}" \
-            pg_isready -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
+            pg_isready -h 127.0.0.1 -p 5432 -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
             ready=1
             break
         fi
@@ -643,7 +643,7 @@ run_postgres_copy_smoke() {
     local ready=0
     for _ in {1..30}; do
         if docker exec "${pg_container}" \
-            pg_isready -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
+            pg_isready -h 127.0.0.1 -p 5432 -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
             ready=1
             break
         fi
