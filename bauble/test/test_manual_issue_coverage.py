@@ -16,7 +16,7 @@ TEST_SOURCES = (
     "bauble/test/test_source_selector.py",
     "bauble/plugins/garden/test.py",
     "bauble/plugins/imex/test.py",
-    "bauble/plugins/plants/taxonomy_check_test.py",
+    "bauble/plugins/plants/test_taxonomy_check.py",
     "bauble/plugins/plants/test.py",
     "bauble/plugins/plants/test_asktpl.py",
 )
