@@ -288,6 +288,7 @@ class TestCSV:
             id: Mapped[int] = mapped_column(Integer, primary_key=True)
             col1: Mapped[bool] = mapped_column(Boolean, default=False)
 
+        BoolTest.__table__.drop(bind=db.engine, checkfirst=True)
         BoolTest.__table__.create(bind=db.engine)
 
         data = [
