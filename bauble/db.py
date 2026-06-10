@@ -1120,7 +1120,6 @@ def make_note_class(
     def is_empty(self):
         return not self.user and not self.category and not self.note
 
-    @classmethod
     def retrieve_or_create(cls, session, keys, create=True, update=True):
         """
         Retrieve or create a database object corresponding to keys.
@@ -1148,7 +1147,6 @@ def make_note_class(
             logger.error(f"Parent class does not implement retrieve_or_create: {e}")
             raise
 
-    @classmethod
     def retrieve_default(cls, session, keys):
         """
         Retrieve a default instance of the class based on the provided keys.
