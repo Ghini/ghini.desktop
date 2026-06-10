@@ -89,6 +89,16 @@ def test_legacy_nullable_tag_fields(session) -> None:
     assert tagged_obj_row == (None, None, None)
 
 
+def get_menu_item_label(item):
+    child = item.get_child()
+    if isinstance(child, Gtk.Box):
+        return next(
+            w.get_text() for w in child.get_children()
+            if isinstance(w, Gtk.Label)
+        )
+    return item.get_label()
+
+
 @pytest.mark.usefixtures("setup_tags")
 class TestTagMenu:
     def test_no_tags(self) -> None:
@@ -96,7 +106,7 @@ class TestTagMenu:
         menu = tags_menu_manager.build_menu()
         assert isinstance(menu, Gtk.Menu)
         assert len(menu.get_children()) == 1
-        assert menu.get_children()[0].get_label() == "Tag Selection"
+        assert get_menu_item_label(menu.get_children()[0]) == "Tag Selection"
 
     def test_one_tag(self, session) -> None:
         """Test menu creation with one tag."""
@@ -110,7 +120,7 @@ class TestTagMenu:
         assert isinstance(menu, Gtk.Menu)
         assert len(menu.get_children()) == 6
         assert isinstance(menu.get_children()[1], Gtk.SeparatorMenuItem)
-        assert menu.get_children()[2].get_label() == tag_name
+        assert get_menu_item_label(menu.get_children()[2]) == tag_name
         assert isinstance(menu.get_children()[3], Gtk.SeparatorMenuItem)
 
     def test_more_tags(self, session) -> None:
@@ -128,7 +138,7 @@ class TestTagMenu:
         assert len(menu.get_children()) == 10
 
         for i in range(5):
-            assert menu.get_children()[i + 2].get_label() == tag_name_template % i
+            assert get_menu_item_label(menu.get_children()[i + 2]) == tag_name_template % i
 
 
 @pytest.fixture
