@@ -97,6 +97,7 @@ MANUAL_ISSUE_REGRESSION_COVERAGE = {
         "Plant Editor saves plant from Accession Editor workflow",
         (
             "test_daily_species_editor_add_accession_creates_plant_with_source",
+            "test_add_accessions_from_unsaved_species_editor_commits_accession",
             "test_accession_editor_from_species_id_populates_taxon_and_commits",
         ),
     ),
@@ -130,6 +131,10 @@ MANUAL_ISSUE_REGRESSION_COVERAGE = {
             "test_postgresql_database_create_imports_defaults",
             "test_postgresql_can_persist_core_taxonomy_fixture",
             "test_external_postgresql_can_read_daily_join",
+            "test_external_postgresql_can_read_daily_plant_location_join",
+            "test_external_postgresql_can_read_source_contact_collection_join",
+            "test_external_postgresql_can_read_vernacular_names_and_species_notes",
+            "test_external_postgresql_can_read_propagation_join",
         ),
     ),
     17: (
@@ -224,11 +229,13 @@ MANUAL_ISSUE_REGRESSION_COVERAGE = {
             "test_main_search_database_completion_values_uses_seeded_records",
             "test_dynamic_completion_exact_match_ignores_zero_width_space",
             "test_genus_editor_family_completion_selects_family_object",
+            "test_species_editor_partial_genus_keeps_accept_disabled_until_exact_match",
         ),
     ),
     32: (
         "Vernacular-name entry persists without special Enter handling",
         (
+            "test_daily_species_editor_add_accession_creates_plant_with_source",
             "test_species_vernacular_name_syncs_while_cell_is_edited",
             "test_export_single_species_with_vernacular_name",
         ),

@@ -34,15 +34,20 @@ Command:
 
 ```sh
 scripts/docker-dev test-regression
+scripts/docker-dev gui-regression
 ```
 
-This is the no-intervention release gate. It is expected to take longer than
-the smoke suite and should be run before release or merge-request review. It
-combines:
+`test-regression` is the complete no-intervention release gate. It is expected
+to take longer than the smoke suite and should be run before release or
+merge-request review. It combines:
 
 - warning-gated pytest coverage
 - GTK smoke checks
 - the full automated Dogtail GUI E2E suite
+
+`gui-regression` runs only the full automated Dogtail GUI E2E suite. Use it
+when a GUI workflow changed and the broad GUI lane should be rerun without
+also running the warning-gated and GTK smoke layers.
 
 Known failures must be marked `xfail` with a GitLab issue reference. When a
 guided visual run finds a bug and the fix is stable, add or update an automated
@@ -152,13 +157,13 @@ explicitly deferred in GitLab and release notes. See
 | Connect to database and open main window | yes | yes | Use SQLite for automation; PostgreSQL for guided local checks. |
 | Search existing records | yes | yes | Species, accession, and plant searches covered by Dogtail E2E. |
 | Main search autocomplete | yes | yes | Dogtail E2E verifies database completions before a search is submitted; included in `test-smoke`. |
-| Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`. |
-| Create accession from species | yes | optional | Covered by Dogtail E2E. |
-| Select existing accession source | yes | yes | Covered by Dogtail E2E; guided in `daily-accession-workflow`. |
+| Create family/genus/species | yes | yes | Guided scenario: `taxonomy-create`; Dogtail E2E verifies genus and species editor completion fields do not save partial text and resolve exact model objects. |
+| Create accession from species | yes | optional | Dogtail E2E covers unsaved-species Add Accessions handoff plus daily fields: material type, quantity, accession/received dates, provenance, and wild status. |
+| Select existing accession source | yes | yes | Dogtail E2E covers Source-tab save and exact contact/source-ID persistence with ambiguous source data; model/GTK tests cover deduplication, sorting, and completion because the popup is not reliably exposed through AT-SPI. |
 | Create location | yes | yes | Guided scenario: `location-create`. |
-| Create plant from accession | yes | yes | Covered by Dogtail E2E; guided test checks usability. |
+| Create plant from accession | yes | yes | Dogtail E2E covers plant material selection, quantity, location completion, and persisted plant/location rows; guided test checks usability. |
 | Create seed propagation from plant | yes | yes | Dogtail E2E verifies seed propagation and database state. |
-| Species notes and vernacular details | yes | yes | GTK smoke covers vernacular editing and tab navigation; Dogtail E2E verifies Species Editor note persistence. |
+| Species notes and vernacular details | yes | yes | GTK smoke covers vernacular editing and tab navigation; Dogtail E2E verifies daily-workflow vernacular/default-name and note persistence. |
 | Edit existing family/genus/species/accession/plant/location | partial | yes | Family, accession, location, and plant edit pass; genus/species edit remain covered by creation-chain and guided workflows. |
 | Delete/remove confirmation dialogs | yes | yes | Family delete cancel/confirm covered by Dogtail E2E. |
 
@@ -167,10 +172,9 @@ explicitly deferred in GitLab and release notes. See
 Use this gate sequence before a release candidate:
 
 1. `scripts/docker-dev test-smoke`
-2. `scripts/docker-dev test-regression`
-3. `scripts/docker-dev postgres-check`
-4. `scripts/docker-dev postgres-copy-smoke` against a disposable
-   representative PostgreSQL database copy
+2. `scripts/docker-dev gui-regression` for GUI-heavy release blockers, or
+   `scripts/docker-dev test-regression` for the complete release gate
+3. `GHINI_SOURCE_POSTGRES_URI=postgresql://... scripts/docker-dev postgres-release`
 5. Optional guided visual scenarios for startup, connection, taxonomy creation,
    location creation, record editing, delete confirmation, daily accession
    workflow, and propagation workflow

@@ -232,9 +232,9 @@ GHINI_EXTERNAL_POSTGRES_URI=postgresql://ghini:secret@postgres.example.net/ghini
 This lane does not call `db.create()` and does not recreate the target schema.
 It opens the database the same way the application does, tolerates the version
 warning path used for older Ghini databases, and performs read-only checks for
-required tables, basic counts, a daily accession/taxonomy join, and session
-rollback recovery. Use this for release confidence against a representative
-PostgreSQL copy. Do not use a production database for release testing.
+required tables, basic counts, daily workflow joins, and session rollback
+recovery. Use this for release confidence against a representative PostgreSQL
+copy. Do not use a production database for release testing.
 
 For the release-candidate procedure that copies a representative database into
 a disposable local PostgreSQL container first, see
@@ -243,8 +243,13 @@ The one-command release path is:
 
 ```sh
 GHINI_SOURCE_POSTGRES_URI=postgresql://readonly_user:secret@postgres.example.net/ghini \
-  scripts/docker-dev postgres-copy-smoke
+  scripts/docker-dev postgres-release
 ```
+
+`postgres-release` first runs `postgres-check` against a fresh disposable
+schema, then runs `postgres-copy-smoke` against a restored representative copy.
+Use `postgres-copy-smoke` directly only when debugging the representative-copy
+part of the release gate.
 
 ## Formatting And Checks
 
@@ -286,6 +291,8 @@ scripts/docker-dev app
 scripts/docker-dev format
 scripts/docker-dev check
 scripts/docker-dev test-smoke
+scripts/docker-dev gui-regression
+scripts/docker-dev postgres-release
 scripts/docker-dev pytest
 scripts/docker-dev warnings
 ```
@@ -298,6 +305,13 @@ workflow. `pytest` gives broader behavioral coverage. `warnings` repeats the
 full suite with deprecation warnings promoted to errors, which is the final
 gate for dependency migration work.
 
+For GUI-heavy changes, run the full automated Dogtail GUI lane without the rest
+of the release gate:
+
+```sh
+scripts/docker-dev gui-regression
+```
+
 Before release-candidate work, run the larger no-intervention release gate:
 
 ```sh
@@ -305,8 +319,9 @@ scripts/docker-dev test-regression
 ```
 
 `test-regression` runs the warning-gated suite, GTK smoke coverage, and the full
-Dogtail GUI E2E suite. PostgreSQL release checks remain separate because they
-use disposable PostgreSQL databases and representative data copies.
+Dogtail GUI E2E suite through `gui-regression`. PostgreSQL release checks remain
+separate because they use disposable PostgreSQL databases and representative
+data copies; run `postgres-release` before tagging a release candidate.
 
 ## SQLAlchemy Migration Policy
 

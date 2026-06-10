@@ -5,8 +5,7 @@ Status
 ------
 
 These are draft release-candidate notes for the Ghini 4 baseline. Do not tag
-``v4.0.0rc1`` until the pending release gates at the end of this document are
-complete.
+``v4.0.0rc1`` until final release review is complete.
 
 Supported Baseline
 ------------------
@@ -150,39 +149,41 @@ Known Scope Limits
 Test Evidence
 -------------
 
-Automated release evidence for current application code at ``1b42bd57``:
-
-* ``scripts/docker-dev build`` completed and produced
-  ``ghini-desktop-dev:latest``.
+Automated release evidence for current application code at ``c961bfe2``:
 
 * ``scripts/docker-dev test-smoke`` passed:
 
-  * warning-gated base check: 16 passed;
-  * GTK smoke suite: 142 passed;
-  * core GUI E2E subset: 5 passed, 17 deselected.
+  * changed-file check: 16 passed;
+  * GTK smoke suite: 156 passed;
+  * core GUI E2E subset: 6 passed, 23 deselected.
 
-* ``scripts/docker-dev test-regression`` passed:
+* ``scripts/docker-dev gui-regression`` passed:
 
-  * warning-gated suite: 415 passed, 32 skipped;
-  * GTK smoke suite: 142 passed;
-  * full GUI E2E suite: 22 passed.
+  * full automated Dogtail GUI E2E suite: 29 passed.
+
+* ``scripts/docker-dev warnings`` passed:
+
+  * warning-gated suite: 435 passed, 43 skipped.
 
 * ``scripts/docker-dev postgres-check`` passed:
 
-  * PostgreSQL lane: 3 passed.
+  * PostgreSQL lane against a disposable schema: 3 passed.
 
-* ``scripts/docker-dev postgres-copy-smoke`` was validated at ``a20a3f12``
-  against temporary PostgreSQL containers. The test seeded a disposable source
-  database, dumped and restored it into a second disposable PostgreSQL
-  container, then ran the read-only smoke lane:
+* ``scripts/docker-dev postgres-smoke`` passed against a disposable local
+  PostgreSQL database initialized through the PostgreSQL lane:
 
-  * external read-only smoke lane: 4 passed.
+  * external read-only smoke lane: 8 passed.
 
-* ``scripts/docker-dev postgres-copy-smoke`` passed against representative
-  PostgreSQL data from ``ghini_test3`` on ``postgres.wysechoice.net`` after
-  restoring the dump into a disposable local PostgreSQL container:
+* ``GHINI_SOURCE_POSTGRES_URI=... scripts/docker-dev postgres-release`` passed
+  against representative PostgreSQL data from ``ghini_test3`` on
+  ``postgres.wysechoice.net`` after restoring the dump into a disposable local
+  PostgreSQL container:
 
-  * representative PostgreSQL read-only smoke lane: 4 passed.
+  * disposable PostgreSQL schema lane: 3 passed;
+  * representative PostgreSQL read-only smoke lane: 8 passed.
+
+Earlier release evidence verified ``scripts/docker-dev build``. Rerun the build
+if the release candidate is rebuilt from a fresh checkout before tagging.
 
 * Open GitLab issue review completed at ``32b59e85``:
 
@@ -196,9 +197,11 @@ rebuilt after additional dependency or certificate changes.
 Pending Release Gates
 ---------------------
 
-The following must be completed before tagging ``v4.0.0rc1``:
+No automated release gates remain pending in this draft evidence. Before
+tagging ``v4.0.0rc1``:
 
-* Tag ``v4.0.0rc1`` after the pending gates pass.
+* perform final review of the release notes and open issue classifications;
+* tag ``v4.0.0rc1`` after final review is complete.
 
 Guided visual scenarios are not a required ``v4.0.0rc1`` gate after the
 automated GUI E2E suite passes. The guided scenarios were used to find release

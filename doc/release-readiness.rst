@@ -174,14 +174,18 @@ Run this before tagging a release candidate:
 .. code-block:: sh
 
    scripts/docker-dev test-regression
-   scripts/docker-dev postgres-check
-   GHINI_SOURCE_POSTGRES_URI=postgresql://... scripts/docker-dev postgres-copy-smoke
+   scripts/docker-dev gui-regression
+   GHINI_SOURCE_POSTGRES_URI=postgresql://... scripts/docker-dev postgres-release
 
-``test-regression`` is the no-intervention release gate. ``postgres-check`` is
-separate because it owns a disposable PostgreSQL schema and should never point
-at a real garden database. ``postgres-copy-smoke`` copies representative data
-into a disposable PostgreSQL container and then runs the read-only external
-PostgreSQL smoke lane against that copy.
+``test-regression`` is the complete no-intervention release gate. It already
+runs ``gui-regression`` after the warning-gated and GTK smoke layers.
+``gui-regression`` is also available as a standalone full Dogtail GUI lane for
+GUI-heavy release blockers. ``postgres-release`` first creates and tests a
+fresh disposable PostgreSQL schema, then copies representative data into a
+disposable PostgreSQL container and runs the read-only external PostgreSQL
+smoke lane against that copy. Use ``postgres-check`` and
+``postgres-copy-smoke`` separately only when debugging one part of the
+PostgreSQL gate.
 
 Guided visual release gate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -220,7 +224,9 @@ Use ``scripts/docker-dev postgres-smoke`` for the automated read-only portion
 of this gate; any manual read/write checks must still use a disposable copy.
 Use ``scripts/docker-dev postgres-copy-smoke`` to copy representative data into
 a disposable local PostgreSQL container and run the read-only smoke in one
-step. See ``doc/postgresql-release-smoke.md`` for the manual procedure.
+step. Use ``scripts/docker-dev postgres-release`` for the full automated
+PostgreSQL release gate. See ``doc/postgresql-release-smoke.md`` for the manual
+procedure.
 
 Release Decisions
 -----------------
@@ -245,11 +251,12 @@ Release Candidate Process
 3. Freeze feature work except for release blockers and test-infrastructure
    fixes.
 4. Run the fast development gate.
-5. Run the release regression gate.
+5. Run ``gui-regression`` for GUI-heavy blockers, then run the complete release
+   regression gate.
 6. Review the guided visual decision. For ``v4.0.0rc1``, guided reruns are
    optional once the automated no-intervention GUI suite passes and prior
    guided findings are fixed, automated, or deferred.
-7. Run the real PostgreSQL database gate against a disposable copy.
+7. Run the PostgreSQL release gate against a disposable representative copy.
 8. Update release notes with fixed issues, deferred issues, supported
    platforms, and test evidence.
 9. Tag a release candidate, for example ``v4.0.0rc1``.
