@@ -66,7 +66,6 @@ jobs:
       run: |
         xvfb-run python -m pytest bauble/test/ \
             --ignore=bauble/test/test_gui_e2e.py \
-            --ignore=bauble/test/test_gtk_smoke.py \
             --ignore=bauble/test/test_postgresql_lane.py \
             --ignore=bauble/test/test_postgresql_external_smoke.py \
             -q
