@@ -654,6 +654,8 @@ def create_triggers(connection: Connection) -> None:
     if name == "sqlite":
         # SQLite cannot assign to NEW.*; use AFTER triggers and a single-row UPDATE keyed by rowid.
         for table in inspector.get_table_names():
+            while Gtk.events_pending():
+                Gtk.main_iteration()
             cols = inspector.get_columns(table)
             text_cols = [
                 c for c in cols if _is_textual(c["type"]) and c.get("nullable", True)
@@ -817,6 +819,81 @@ def ensure_relationships_wired() -> None:
     _REL_WIRED = True
 
 
+def create_schema_and_triggers(import_defaults: bool = True) -> None:
+    """
+    Create tables, triggers, and seed the meta table.
+
+    This is the part of db.create() that is pure SQL/SQLAlchemy with no
+    GTK calls, so it is safe to run from a background thread.
+    """
+    logger.debug("Entered db.create_schema_and_triggers()")
+
+    if not engine:
+        raise ValueError("Engine is None. Not connected to a database.")
+
+    import datetime
+    import time
+
+    import bauble
+    import bauble.meta as meta
+    from bauble import pluginmgr
+
+    pluginmgr.load()
+
+    from bauble.db import ensure_relationships_wired
+
+    ensure_relationships_wired()
+
+    with engine.begin() as connection:
+        import bauble.plugins.garden.models.accession as acc
+        import bauble.plugins.garden.models.plant as pl
+        from bauble.db import Base, MapperBase
+        from sqlalchemy.orm import configure_mappers
+
+        metadata = Base.metadata
+        logger.debug(
+            "accession in shared metadata? %s", "accession" in metadata.tables
+        )
+        logger.debug(
+            "Accession uses shared metadata? %s",
+            acc.Accession.__table__.metadata is metadata,
+        )
+        logger.debug(
+            "Plant uses shared metadata? %s",
+            pl.Plant.__table__.metadata is metadata,
+        )
+        logger.debug(
+            "Mapped class names seen so far: %s",
+            sorted(MapperBase._class_registry.keys()),
+        )
+        logger.debug(
+            "Tables in shared metadata: %s", sorted(metadata.tables.keys())
+        )
+        logger.debug("plant in shared metadata? %s", "plant" in metadata.tables)
+        configure_mappers()
+
+        logger.debug("Dropping and recreating all tables.")
+        metadata.drop_all(bind=connection, checkfirst=True)
+        metadata.create_all(bind=connection)
+
+        create_triggers(connection)
+
+        meta_table = meta.BaubleMeta.__table__
+
+        logger.debug("Inserting version key.")
+        version_stmt = insert(meta_table).values(
+            name=meta.VERSION_KEY, value=str(bauble.version)
+        )
+        connection.execute(version_stmt)
+
+        logger.debug("Inserting created timestamp.")
+        tzlocal = datetime.timezone(-datetime.timedelta(seconds=time.timezone))
+        created_stmt = insert(meta_table).values(
+            name=meta.CREATED_KEY, value=str(datetime.datetime.now(tz=tzlocal))
+        )
+        connection.execute(created_stmt)
+
+
 def create(import_defaults: bool = True) -> None:
     """
     Create a new Ghini database at the current connection.
@@ -828,80 +905,11 @@ def create(import_defaults: bool = True) -> None:
     """
     logger.debug("Entered db.create()")
 
-    if not engine:
-        raise ValueError("Engine is None. Not connected to a database.")
-
-    import datetime
-
-    import bauble
-    import bauble.meta as meta
     from bauble import pluginmgr
 
     try:
-        pluginmgr.load()
+        create_schema_and_triggers(import_defaults)
 
-        from bauble.db import ensure_relationships_wired
-
-        ensure_relationships_wired()
-
-        with engine.begin() as connection:
-            # Ensure all mappers are configured before creating tables
-            import bauble.plugins.garden.models.accession as acc
-            import bauble.plugins.garden.models.plant as pl
-            from bauble.db import Base, MapperBase
-            from sqlalchemy.orm import configure_mappers
-
-            metadata = Base.metadata
-            logger.debug(
-                "accession in shared metadata? %s", "accession" in metadata.tables
-            )
-            logger.debug(
-                "Accession uses shared metadata? %s",
-                acc.Accession.__table__.metadata is metadata,
-            )
-            logger.debug(
-                "Plant uses shared metadata? %s",
-                pl.Plant.__table__.metadata is metadata,
-            )
-            logger.debug(
-                "Mapped class names seen so far: %s",
-                sorted(MapperBase._class_registry.keys()),
-            )
-            logger.debug(
-                "Tables in shared metadata: %s", sorted(metadata.tables.keys())
-            )
-            logger.debug("plant in shared metadata? %s", "plant" in metadata.tables)
-            configure_mappers()
-
-            # Drop and recreate all tables
-            logger.debug("Dropping and recreating all tables.")
-            metadata.drop_all(bind=connection, checkfirst=True)
-            metadata.create_all(bind=connection)
-
-            # Add triggers or column constraints for text columns.
-            create_triggers(connection)
-
-            # Populate the Bauble meta table
-            meta_table = meta.BaubleMeta.__table__
-
-            # Insert VERSION_KEY
-            logger.debug("Inserting version key.")
-            version_stmt = insert(meta_table).values(
-                name=meta.VERSION_KEY, value=str(bauble.version)
-            )
-            connection.execute(version_stmt)
-
-            # Insert CREATED_KEY
-            logger.debug("Inserting created timestamp.")
-            import time
-
-            tzlocal = datetime.timezone(-datetime.timedelta(seconds=time.timezone))
-            created_stmt = insert(meta_table).values(
-                name=meta.CREATED_KEY, value=str(datetime.datetime.now(tz=tzlocal))
-            )
-            connection.execute(created_stmt)
-
-        # Install plugins
         try:
             logger.debug("Installing plugins.")
             pluginmgr.install("all", import_defaults, force=True)

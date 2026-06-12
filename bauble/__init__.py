@@ -451,6 +451,7 @@ class GhiniApp:
 
     def handle_open_errors(self):
         """Handles any errors encountered when opening the database."""
+        import threading
         import bauble
         import bauble.db as db
         import bauble.pluginmgr as pluginmgr
@@ -481,17 +482,45 @@ class GhiniApp:
             response = d.run()
             d.destroy()
             if response in (24, 42):
-                try:
-                    db.create(response == 42)
-                    pluginmgr.init()
-                    prefs["conn_default_pref"] = self.conn_name
-                except Exception as e:
+                bauble.pb_grab()
+
+                done_event = threading.Event()
+                result = {}
+
+                def pulse():
+                    bauble.pb_pulse()
+                    return not done_event.is_set()
+
+                def do_schema():
+                    try:
+                        db.create_schema_and_triggers(import_defaults=(response==42))
+                    except Exception as e:
+                        result["error"] = e
+                        result["tb"] = traceback.format_exc()
+                    done_event.set()
+
+                GLib.timeout_add(100, pulse)
+                thread = threading.Thread(target=do_schema, daemon=True)
+                thread.start()
+
+                # block GUI minimally by spinning the loop until done
+                while not done_event.is_set():
+                    while Gtk.events_pending():
+                        Gtk.main_iteration()
+
+                bauble.pb_release()
+
+                if "error" in result:
                     utils.message_details_dialog(
-                        _("Error creating database: %s") % e,
-                        traceback.format_exc(),
+                        _("Error creating database: %s") % result["error"],
+                        result["tb"],
                         Gtk.MessageType.ERROR,
                     )
-                    logger.error("Database creation failed: %s", e)
+                    logger.error("Database creation failed: %s", result["error"])
+                else:
+                    pluginmgr.install("all", response == 42, force=True)
+                    pluginmgr.init()
+                    prefs["conn_default_pref"] = self.conn_name
         else:
             pluginmgr.init()
 
