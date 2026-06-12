@@ -82,40 +82,54 @@ except:
     pass
 
 
+class _ProgressBar:
+    """Helper to coordinate progressbar pulsing vs determinate progress."""
+
+    def __init__(self):
+        self.pulsing = False
+
+    def grab(self) -> None:
+        self.pulsing = True
+        if gui is not None and gui.progressbar is not None:
+            gui.set_busy(True)
+            gui.progressbar.show()
+            gui.progressbar.set_fraction(0)
+
+    def release(self) -> None:
+        self.pulsing = False
+        if gui is not None and gui.progressbar is not None:
+            gui.progressbar.hide()
+            gui.set_busy(False)
+
+    def pulse(self) -> None:
+        if self.pulsing and gui is not None and gui.progressbar is not None:
+            gui.progressbar.pulse()
+
+    def set_fraction(self, fraction) -> None:
+        """set progressbar fraction safely
+
+        provides a safe way to handle the progress bar if the gui isn't
+        started, we use this in the tests where there is no gui
+        """
+        self.pulsing = False
+        if gui is not None and gui.progressbar is not None:
+            gui.progressbar.set_fraction(fraction)
+
+
+progressbar = _ProgressBar()
+
+
 def pb_set_fraction(fraction) -> None:
-    """set progressbar fraction safely
-
-    provides a safe way to handle the progress bar if the gui isn't started,
-    we use this in the tests where there is no gui
-    """
-    if gui is not None and gui.progressbar is not None:
-        gui.progressbar.set_fraction(fraction)
-
+    progressbar.set_fraction(fraction)
 
 def pb_grab() -> None:
-    if gui is not None and gui.progressbar is not None:
-        gui.set_busy(True)
-        gui.progressbar.show()
-        gui.progressbar.set_fraction(0)
-
+    progressbar.grab()
 
 def pb_release() -> None:
-    if gui is not None and gui.progressbar is not None:
-        gui.progressbar.hide()
-        gui.set_busy(False)
+    progressbar.release()
 
-
-
-# if not hasattr(Gtk.Widget, 'set_tooltip_markup'):
-#     msg = _('Ghini requires GTK+ version 2.12 or greater')
-#     utils.message_dialog(msg, Gtk.MessageType.ERROR)
-#     sys.exit(1)
-
-
-
-# if False:
-#    sys.stderr.write('sys.path: %s\n' % sys.path)
-#    sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
+def pb_pulse() -> None:
+    progressbar.pulse()
 
 
 # set SQLAlchemy logging level
