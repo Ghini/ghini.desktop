@@ -1588,6 +1588,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         # like remove the insfraspecific information that's attached to the
         # model if the infraspecific rank is None
         not_ok_msg = "Are you sure you want to lose your changes?"
+        next_genus = self.model.genus  # needed by RESPONSE_NEXT
         if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
                 if self.presenter.is_dirty():
@@ -1623,7 +1624,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = SpeciesEditor(Species(genus=self.model.genus), self.parent)
+            e = SpeciesEditor(Species(genus=next_genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden.accession_editor import AccessionEditor
