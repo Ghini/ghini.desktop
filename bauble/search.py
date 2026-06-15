@@ -644,7 +644,7 @@ class IdentExpression:
         ):
             raise ValueError(f"Invalid comparison value: {comparison_value}")
 
-        logger.warning(
+        logger.debug(
             "Evaluating search expression: %s %s %r (%s)",
             attr,
             self.op,
