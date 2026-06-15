@@ -217,10 +217,8 @@ class _prefs(dict):
             self.config.read(self._filename)
         version = self[config_version_pref]
         if version is None:
-            logger.warning(f"{self._filename} has no config version pref")
-            logger.warning(
-                "setting the config version to {}.{}".format(*config_version)
-            )
+            logger.warning("%s has no config version pref; setting the config version to %s.%s",
+                           self._filename, *config_version)
             self[config_version_pref] = config_version
 
         # set some defaults if they don't exist
