@@ -2027,7 +2027,7 @@ class MessageBox(GenericMessageBox):
         """
         Show the widget but hide the details expander if there is no text.
         """
-        self.box.show_all()
+        super().show_all()
         if not self.details_label.get_text():
             self.details_expander.hide()
 
