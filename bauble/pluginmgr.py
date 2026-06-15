@@ -434,9 +434,10 @@ def install(
 class PluginRegistry(Base):
     """
     The PluginRegistry contains a list of plugins that have been installed
-    in a particular instance of a Ghini database.  At the moment it only
-    includes the name and version of the plugin but this is likely to change
-    in future versions.
+    in a particular instance of a Ghini database.
+    A PluginRegistry row records a plugin that has been installed in a
+    particular Ghini database, storing its name and version. The registry
+    as a whole is the set of all such rows in the ``plugin`` table.
     """
 
     __tablename__: str = "plugin"

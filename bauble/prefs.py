@@ -370,8 +370,7 @@ class PrefsView(pluginmgr.View):
             plugins = session.scalars(stmt).all()
 
         for plugin in plugins:
-            name, version = plugin
-            self.plugins_ls.append((name, version))
+            self.plugins_ls.append((plugin.name, plugin.version))
         session.close()
 
 
