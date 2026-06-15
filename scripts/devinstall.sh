@@ -104,11 +104,56 @@ while true; do
                 sed -e 's/gir1.2-gtkchamplain-0.12/libchamplain/' |
                 sed -e 's/python3-dev/python-dev/')
             sudo pacman -S $MISSING
-        elif [ -x /usr/bin/rpm ]; then
-            echo 'your system looks like RedHat.'
-            exit 1
+        elif [ -x /usr/bin/dnf ] || [ -x /usr/bin/yum ]; then
+            echo 'your system looks like RedHat/Fedora, I give it a try'
+            PKG_MGR=dnf
+            [ -x /usr/bin/dnf ] || PKG_MGR=yum
+            MISSING=$(echo $MISSING |
+                          sed -e 's/build-essential/gcc make/' |
+                          sed -e 's/python3-venv/python3/' |
+                          sed -e 's/python3-dev/python3-devel/' |
+                          sed -e 's/python3-lxml/python3-lxml/' |
+                          sed -e 's/python3-gi/python3-gobject/' |
+                          sed -e 's/python3-gi-cairo/python3-gobject/' |
+                          sed -e 's/gir1.2-gtk-3.0/gtk3/' |
+                          sed -e 's/gir1.2-clutter-1.0/clutter/' |
+                          sed -e 's/gir1.2-gtkclutter-1.0/clutter-gtk/' |
+                          sed -e 's/gir1.2-champlain-0.12/libchamplain/' |
+                          sed -e 's/gir1.2-gtkchamplain-0.12/libchamplain/' |
+                          sed -e 's/libcairo2-dev/cairo-devel/' |
+                          sed -e 's/libpq-dev/libpq-devel/' |
+                          sed -e 's/libjpeg-dev/libjpeg-turbo-devel/' |
+                          sed -e 's/libxslt1-dev/libxslt-devel/' |
+                          sed -e 's/gettext/gettext/' |
+                          sed -e 's/pkg-config/pkgconf-pkg-config/')
+            sudo $PKG_MGR -y install $MISSING
+        elif [ -x /usr/bin/zypper ]; then
+            echo 'your system looks like openSUSE, I give it a try'
+            MISSING=$(echo $MISSING |
+                          sed -e 's/build-essential/gcc make/' |
+                          sed -e 's/python3-venv/python3-venv/' |
+                          sed -e 's/python3-dev/python3-devel/' |
+                          sed -e 's/python3-gi/python3-gobject/' |
+                          sed -e 's/python3-gi-cairo/python3-gobject-cairo/' |
+                          sed -e 's/gir1.2-gtk-3.0/typelib-1_0-Gtk-3_0/' |
+                          sed -e 's/gir1.2-clutter-1.0/typelib-1_0-Clutter-1_0/' |
+                          sed -e 's/gir1.2-gtkclutter-1.0/typelib-1_0-GtkClutter-1_0/' |
+                          sed -e 's/gir1.2-champlain-0.12/typelib-1_0-Champlain-0_12/' |
+                          sed -e 's/gir1.2-gtkchamplain-0.12/typelib-1_0-GtkChamplain-0_12/' |
+                          sed -e 's/libcairo2-dev/cairo-devel/' |
+                          sed -e 's/libpq-dev/postgresql-devel/' |
+                          sed -e 's/libjpeg-dev/libjpeg8-devel/' |
+                          sed -e 's/libxslt1-dev/libxslt-devel/' |
+                          sed -e 's/pkg-config/pkg-config/')
+            sudo zypper install -y $MISSING
         else
             echo 'so sorry, I have no clue about your system.'
+            echo 'You need the following libraries:'
+            echo '  - Python 3 with venv and dev headers'
+            echo '  - GTK 3.24 with GObject introspection'
+            echo '  - Clutter and Champlain with introspection'
+            echo '  - Cairo, libpq, libjpeg, libxslt dev headers'
+            echo '  - gettext, git, pkg-config, gcc'
             exit 1
         fi
         echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
