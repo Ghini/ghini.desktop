@@ -126,9 +126,9 @@ class WfoTaxonLookupProvider:
         session = requests.Session()
         if Retry:
             retry_kwargs: dict[str, Any] = {
-                "total": 3,
-                "connect": 3,
-                "read": 3,
+                "total": False,
+                "connect": 0,
+                "read": 0,
                 "backoff_factor": 0.6,
                 "status_forcelist": (429, 502, 503, 504),
                 "raise_on_status": False,
@@ -220,39 +220,7 @@ class WfoTaxonLookupProvider:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.SSLError as ssl_error:
-            logger.warning(
-                "WFO SSLError on first attempt (%s). Retrying with Connection: close...",
-                ssl_error,
-            )
-            try:
-                self.session.close()
-            except Exception:
-                pass
-            with requests.Session() as session:
-                session.headers.update(self.session.headers)
-                session.headers["Connection"] = "close"
-                try:
-                    response = session.post(
-                        self.endpoint,
-                        json={"query": query, "variables": variables},
-                        timeout=self.timeout,
-                    )
-                    response.raise_for_status()
-                    return response.json()
-                except requests.exceptions.SSLError as ssl_error2:
-                    logger.warning(
-                        "WFO SSLError on second attempt (%s). "
-                        "Backing off and trying once more...",
-                        ssl_error2,
-                    )
-                    time.sleep(0.8)
-                    response = session.post(
-                        self.endpoint,
-                        json={"query": query, "variables": variables},
-                        timeout=self.timeout,
-                    )
-                    response.raise_for_status()
-                    return response.json()
+            raise  # no point retrying, fall through caller.
         except requests.exceptions.RequestException as request_exception:
             logger.warning("WFO query failed: %s", request_exception)
             raise
@@ -330,3 +298,103 @@ class WfoTaxonLookupProvider:
         if role == TaxonLookupStatus.ACCEPTED:
             return TaxonLookupStatus.ACCEPTED
         return TaxonLookupStatus.UNPLACED
+
+
+TNRS_API_URL = "https://tnrsapi.xyz/tnrs_api.php"
+
+
+class TnrsTaxonLookupProvider:
+    name = "tnrs"
+
+    def __init__(
+        self,
+        endpoint: Optional[str] = None,
+        timeout: tuple[float, int] = (3.05, 15),
+    ) -> None:
+        self.endpoint = endpoint or os.environ.get("TNRS_API_URL", TNRS_API_URL)
+        self.timeout = timeout
+
+    def lookup(self, request: TaxonLookupRequest) -> TaxonLookupResponse:
+        payload = {
+            "opts": {
+                "sources": "wcvp",
+                "class": "wfo",
+                "mode": "resolve",
+                "matches": "best",
+                "acc": "0",
+            },
+            "data": [[1, request.name]],
+        }
+        try:
+            response = requests.post(
+                self.endpoint,
+                json=payload,
+                timeout=self.timeout,
+                headers={"Content-Type": "application/json"},
+            )
+            response.raise_for_status()
+            data = response.json()
+        except requests.exceptions.RequestException as e:
+            logger.warning("TNRS query failed: %s", e)
+            raise
+
+        results = []
+        for row in data if isinstance(data, list) else []:
+            result = self._map_row(request, row)
+            if result:
+                results.append(result)
+
+        return TaxonLookupResponse(
+            request=request,
+            provider=self.name,
+            results=results,
+            raw=data,
+        )
+
+    def _map_row(
+        self, request: TaxonLookupRequest, row: dict[str, Any]
+    ) -> Optional[TaxonLookupResult]:
+        matched = row.get("Name_matched")
+        if not matched:
+            return None
+        provider_id = row.get("Name_matched_id")
+        accepted_id = row.get("Accepted_name_id")
+        status_raw = str(row.get("Taxonomic_status") or "").lower()
+        if status_raw == "accepted":
+            status = TaxonLookupStatus.ACCEPTED
+        elif status_raw == "synonym":
+            status = TaxonLookupStatus.SYNONYM
+        else:
+            status = TaxonLookupStatus.UNPLACED
+        return TaxonLookupResult(
+            submitted_name=request.name,
+            provider=self.name,
+            provider_id=str(provider_id) if provider_id else None,
+            matched_name=matched,
+            genus=row.get("Genus_matched"),
+            species=row.get("Specific_epithet_matched"),
+            family=row.get("Accepted_family") or row.get("Name_matched_accepted_family"),
+            authorship=row.get("Canonical_author"),
+            rank=row.get("Name_matched_rank"),
+            status=status,
+            accepted_provider_id=str(accepted_id) if accepted_id else None,
+            raw=row,
+        )
+
+
+PROVIDERS: list[TaxonLookupProvider] = [
+    WfoTaxonLookupProvider(),
+    TnrsTaxonLookupProvider(),
+]
+
+
+def lookup_taxon(name: str) -> Optional[list[TaxonLookupResult]]:
+    """Try each provider in order, returning results from the first that succeeds."""
+    for provider in PROVIDERS:
+        try:
+            results = provider.lookup(TaxonLookupRequest(name=name)).results
+            if results:
+                return results
+        except Exception as e:
+            logger.warning("%s failed for %r: %s", provider.name, name, e)
+    return None

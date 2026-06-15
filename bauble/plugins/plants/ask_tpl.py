@@ -28,6 +28,7 @@ from bauble.plugins.plants.taxon_lookup import (
     TaxonLookupRequest,
     TaxonLookupResult,
     WfoTaxonLookupProvider,
+    lookup_taxon,
 )
 
 logger: Any = logging.getLogger(__name__)
@@ -103,24 +104,13 @@ class AskTPL(threading.Thread):
 
         def ask_wfo(name: str) -> Optional[list[TaxonLookupResult]]:
             try:
-                return provider.lookup(TaxonLookupRequest(name=name)).results
-            except requests.exceptions.SSLError:
-                GLib.idle_add(
-                    bauble.gui.show_error_box,
-                    _("World Flora Online is temporarily unavailable over HTTPS."),
-                    _("The connection was closed during TLS handshake. Please try again later."))
-                return None
-            except requests.exceptions.Timeout:
-                GLib.idle_add(
-                    bauble.gui.show_error_box,
-                    _("WFO request timed out."), _("Try again."))
-                return None
+                return lookup_taxon(name)
             except Exception as unknown_exception:
-                # Other network errors: log and surface a concise message
                 logger.warning("ask_wfo: %s", unknown_exception, exc_info=True)
                 GLib.idle_add(
                     bauble.gui.show_error_box,
-                    _("Could not contact WFO."), str(unknown_exception))
+                    _("Could not contact any taxonomic lookup provider."),
+                    str(unknown_exception))
                 return None
 
         class ShouldStopNow(Exception):
