@@ -88,6 +88,7 @@ Ghini Development
    :maxdepth: 2
 
    building
+   regression-checklist
    release-readiness
    release-notes-4.0.0rc1
    taxonomic-lookup
