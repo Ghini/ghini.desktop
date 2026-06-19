@@ -1979,9 +1979,9 @@ class MessageBox(GenericMessageBox):
 
         # Button Close Handler
         def on_close(*args):
-            parent = self.get_parent()
+            parent = self.event_box.get_parent()
             if parent is not None:
-                parent.remove(self)
+                parent.remove(self.event_box)
 
         button.connect("clicked", on_close, True)
 
