@@ -1745,7 +1745,7 @@ def topological_sort(items, partial_order):
 from bauble.gtkinit import Gtk, Pango
 
 
-class GenericMessageBox:  # identify_subclassing_issues (Consider using composition instead of subclassing GtkWidget)
+class GenericMessageBox:
     """
     Abstract class for showing a message box at the top of an editor.
     """
@@ -1767,26 +1767,6 @@ class GenericMessageBox:  # identify_subclassing_issues (Consider using composit
     def destroy(self):
         self.event_box.destroy()
 
-    # def set_color(self, attr, state, color) -> None:
-    #     """Sets background or foreground color dynamically using CSS."""
-    #     context = self.event_box.get_style_context()
-
-    #     # Convert the color to RGBA string
-    #     color_str = f"rgba({int(color.red * 255)}, {int(color.green * 255)}, {int(color.blue * 255)})"
-
-    #     # Create a dynamic CSS rule based on the provided attribute, state, and color
-    #     css_rule = f"""
-    #     .{attr}:{state} {{
-    #         {attr}: {color_str};
-    #     }}
-    #     """
-
-    #     # Create the CSS provider
-    #     css_provider = Gtk.CssProvider()
-    #     css_provider.load_from_data(css_rule.encode("utf-8"))
-
-    #     # Apply the CSS provider to the widget's style context
-    #     context.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
     def _ensure_widget_css_class(self):
         # one unique class per instance so rules don't leak
         if not hasattr(self, "_css_class"):
