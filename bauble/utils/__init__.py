@@ -1921,7 +1921,6 @@ class MessageBox(GenericMessageBox):
     """
 
     box: Any
-    vbox: Any
     label: Any
     buffer: Any
     details_expander: Any
@@ -1933,8 +1932,6 @@ class MessageBox(GenericMessageBox):
         super().__init__()
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.box.pack_start(content, True, True, 0)
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        content.pack_start(self.vbox, True, True, 0)
 
         self.label = Gtk.TextView()
         self.label.set_can_focus(False)
