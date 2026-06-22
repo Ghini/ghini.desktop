@@ -298,7 +298,7 @@ class WfoTaxonLookupProvider:
 
         # fallback to wfoPath if still None
         if species is None:
-            species = self._extract_species(wfo_path)
+            species = self._extract_species(wfo_path, genus)
 
         return TaxonLookupResult(
             submitted_name=request.name,
@@ -307,7 +307,7 @@ class WfoTaxonLookupProvider:
             matched_name=full_name.strip() or None,
             genus=genus,
             species=species,
-            family=self._extract_family(wfo_path),
+            family=self._extract_family(wfo_path, genus),
             authorship=node.get("authorsString"),
             rank=node.get("rank"),
             status=status,
@@ -337,15 +337,21 @@ class WfoTaxonLookupProvider:
         return has_name.get("id") if isinstance(has_name, dict) else None
 
     @staticmethod
-    def _extract_family(wfo_path: str) -> Optional[str]:
+    def _extract_family(wfo_path: str, genus: Optional[str] = None) -> Optional[str]:
         parts = wfo_path.split("$")[0].split("/")
+        if genus and genus in parts:
+            idx = parts.index(genus)
+            return parts[idx - 1] if idx > 0 else None
         if len(parts) > 3:
             return parts[-3]
         return None
 
     @staticmethod
-    def _extract_species(wfo_path: str) -> Optional[str]:
+    def _extract_species(wfo_path: str, genus: Optional[str] = None) -> Optional[str]:
         parts = wfo_path.split("$")[0].split("/")
+        if genus and genus in parts:
+            idx = parts.index(genus)
+            return parts[idx + 1] if idx + 1 < len(parts) else None
         if len(parts) > 3:
             return parts[-1]
         return None
