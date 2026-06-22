@@ -1941,16 +1941,11 @@ class MessageBox(GenericMessageBox):
             self.buffer.set_text(msg)
         content.pack_start(self.label, True, True, 0)
 
-        # Button Box
-        button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        content.pack_start(button_box, False, False, 0)
         button = Gtk.Button()
-        image = Gtk.Image.new_from_icon_name(
-            "window-close", Gtk.IconSize.BUTTON
-        )  # Pack the Gtk.Image manually inside Gtk.Button
+        image = Gtk.Image.new_from_icon_name("window-close", Gtk.IconSize.BUTTON)
         button.set_image(image)
         button.set_relief(Gtk.ReliefStyle.NONE)
-        button_box.pack_start(button, False, False, 0)
+        self.box.pack_start(button, False, False, 0)
 
         # Details Expander
         self.details_expander = Gtk.Expander()
