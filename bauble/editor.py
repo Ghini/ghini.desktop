@@ -786,12 +786,12 @@ class GenericEditorView:
         completion.pack_start(cell, True)
         completion.set_cell_data_func(cell, cell_data_func)
         completion.set_match_func(match_func)
-        completion.set_property("text-column", text_column)
+        completion.set_text_column(text_column)
         completion.set_minimum_key_length(minimum_key_length)
-        completion.set_property("popup_completion", True)
-        completion.set_property("inline_completion", True)
-        completion.set_property("inline_selection", True)
-        completion.set_property("popup-set-width", False)
+        completion.set_popup_completion(True)
+        completion.set_inline_completion(True)
+        completion.set_inline_selection(True)
+        completion.set_popup_set_width(False)
         completion.set_popup_single_match(False)
         if isinstance(entry, str):
             self.widgets[entry].set_completion(completion)
@@ -2076,8 +2076,6 @@ class GenericEditorPresenter:
 
         def on_match_select(completion, compl_model, treeiter):
             value = compl_model[treeiter][0]
-            # temporarily block the changed ID so that this function
-            # doesn't get called twice
             str_val = str(value)
             widget.handler_block(_changed_sid)
             widget.set_text(str_val)
