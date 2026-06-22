@@ -72,6 +72,7 @@ class TaxonLookupResult:
     genus_hybrid_marker: str = ""
     species_hybrid_marker: str = ""
     raw: Optional[dict[str, Any]] = None
+    accepted: Optional["TaxonLookupResult"] = None  # resolved accepted name for synonyms
 
     @property
     def canonical_name(self) -> str:
@@ -154,7 +155,41 @@ class WfoTaxonLookupProvider:
         )
         return session
 
+
+    def _query_by_id(self, name_id: str) -> Optional[dict[str, Any]]:
+        query = """
+        query ($nameId: String) {
+            taxonNameById(nameId: $nameId) {
+                id
+                title
+                fullNameStringPlain
+                genusString
+                speciesString
+                authorsString
+                role
+                rank
+                currentPreferredUsage {
+                    hasName {
+                        id
+                    }
+                }
+            }
+        }
+        """
+        try:
+            response = self.session.post(
+                self.endpoint,
+                json={"query": query, "variables": {"nameId": name_id}},
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+            return response.json().get("data", {}).get("taxonNameById")
+        except requests.exceptions.RequestException as e:
+            logger.warning("WFO _query_by_id failed: %s", e)
+            return None
+
     def lookup(self, request: TaxonLookupRequest) -> TaxonLookupResponse:
+        import dataclasses
         payload = self._query(request.name)
         data = payload.get("data", {}).get("taxonNameMatch", {})
         nodes = []
@@ -162,10 +197,27 @@ class WfoTaxonLookupProvider:
             nodes = [data["match"]]
         elif data.get("candidates"):
             nodes = data["candidates"]
+
+        results = []
+        for node in nodes:
+            result = self._map_node(request, node)
+            if result.status == TaxonLookupStatus.SYNONYM and result.accepted_provider_id:
+                accepted_node = self._query_by_id(result.accepted_provider_id)
+                if accepted_node:
+                    accepted_request = TaxonLookupRequest(name=result.accepted_provider_id)
+                    accepted_result = self._map_node(accepted_request, accepted_node)
+                    if accepted_result.family is None and result.family is not None:
+                        import dataclasses
+                        accepted_result = dataclasses.replace(
+                            accepted_result, family=result.family
+                        )
+                    result = dataclasses.replace(result, accepted=accepted_result)
+            results.append(result)
+
         return TaxonLookupResponse(
             request=request,
             provider=self.name,
-            results=[self._map_node(request, node) for node in nodes],
+            results=results,
             raw=payload,
         )
 
@@ -233,14 +285,27 @@ class WfoTaxonLookupProvider:
         role = str(node.get("role") or "").lower()
         status = self._status_for(role, provider_id, accepted_id)
         wfo_path = node.get("wfoPath") or ""
-        species = node.get("speciesString") or self._extract_species(wfo_path)
         full_name = node.get("fullNameStringPlain") or ""
+        genus = node.get("genusString")
+        species = node.get("speciesString")
+
+        # extract species epithet from full name when speciesString is absent
+        if species is None and genus and full_name.startswith(genus):
+            rest = full_name[len(genus):].strip()
+            parts = rest.split()
+            if parts:
+                species = parts[0]
+
+        # fallback to wfoPath if still None
+        if species is None:
+            species = self._extract_species(wfo_path)
+
         return TaxonLookupResult(
             submitted_name=request.name,
             provider=self.name,
             provider_id=provider_id,
-            matched_name=node.get("fullNameStringPlain"),
-            genus=node.get("genusString"),
+            matched_name=full_name.strip() or None,
+            genus=genus,
             species=species,
             family=self._extract_family(wfo_path),
             authorship=node.get("authorsString"),
@@ -366,6 +431,26 @@ class TnrsTaxonLookupProvider:
             status = TaxonLookupStatus.SYNONYM
         else:
             status = TaxonLookupStatus.UNPLACED
+
+        accepted = None
+        if status == TaxonLookupStatus.SYNONYM and row.get("Accepted_name"):
+            accepted_name = row["Accepted_name"]
+            accepted_parts = accepted_name.split()
+            accepted = TaxonLookupResult(
+                submitted_name=matched,
+                provider=self.name,
+                provider_id=str(accepted_id) if accepted_id else None,
+                matched_name=accepted_name,
+                genus=accepted_parts[0] if accepted_parts else None,
+                species=accepted_parts[1] if len(accepted_parts) > 1 else None,
+                family=row.get("Accepted_family"),
+                authorship=row.get("Accepted_name_author"),
+                rank=row.get("Accepted_name_rank"),
+                status=TaxonLookupStatus.ACCEPTED,
+                accepted_provider_id=None,
+                raw=row,
+            )
+
         return TaxonLookupResult(
             submitted_name=request.name,
             provider=self.name,
@@ -378,6 +463,7 @@ class TnrsTaxonLookupProvider:
             rank=row.get("Name_matched_rank"),
             status=status,
             accepted_provider_id=str(accepted_id) if accepted_id else None,
+            accepted=accepted,
             raw=row,
         )
 

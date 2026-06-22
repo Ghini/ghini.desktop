@@ -152,23 +152,21 @@ class AskTPL(threading.Thread):
 
             logger.debug("found this: %s", str(found))
 
-            acc_id = found.accepted_provider_id if found else None
-            is_accepted = bool(found and acc_id and acc_id == found.provider_id)
-            if found and not is_accepted and acc_id:
-                accepted_list = ask_wfo(acc_id)
-                accepted = accepted_list[0] if accepted_list else None
-
-                logger.debug("ask_tpl on the Accepted ID returns %s", accepted)
+            is_accepted = bool(found and found.accepted_provider_id and 
+                             found.accepted_provider_id == found.provider_id)
+            if found and not is_accepted:
+                accepted = found.accepted
                 if accepted is None:
                     logger.debug(
                         "taxon %s %s (%s) is marked as synonym. "
-                        "accepted form (%s) is at infraspecific rank.",
+                        "accepted form not resolved.",
                         found.genus,
                         found.species,
                         found.provider_id,
-                        acc_id,
                     )
-                logger.debug("%s after second query", self.name)
+                else:
+                    logger.debug("accepted name resolved: %s", accepted)
+
             if self.stopped():
                 raise ShouldStopNow("after second query")
         except ShouldStopNow:
