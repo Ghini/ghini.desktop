@@ -792,7 +792,7 @@ class GenericEditorView:
         completion.set_inline_completion(True)
         completion.set_inline_selection(True)
         completion.set_popup_set_width(False)
-        completion.set_popup_single_match(False)
+        completion.set_popup_single_match(True)
         if isinstance(entry, str):
             self.widgets[entry].set_completion(completion)
         else:
