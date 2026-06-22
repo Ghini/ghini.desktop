@@ -1465,8 +1465,9 @@ class SpeciesEditorView(editor.GenericEditorView):
         entering the genus name
         """
         genus = completion.get_model()[iter][0]
-        if (str(genus).lower().startswith(key.lower()) or
-            str(genus.genus).lower().startswith(key.lower())):
+        if ((str(genus).lower().startswith(key.lower())
+             or genus.epithet.lower().startswith(key.lower()))
+            and not genus.epithet.lower() == key.lower()):
             return True
         return False
 
