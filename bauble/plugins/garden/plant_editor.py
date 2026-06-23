@@ -787,7 +787,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
     presenter: Any
     _commited: Any
     RESPONSE_NEXT: int = 22
-    ok_responses: Any = (RESPONSE_NEXT,)
+    ok_responses: Any = (RESPONSE_NEXT, Gtk.ResponseType.OK)
 
     def __init__(
         self,
@@ -936,11 +936,12 @@ class PlantEditor(GenericModelViewPresenterEditor):
         from bauble.plugins.garden.models import Plant as Plant
 
         not_ok_msg = _("Are you sure you want to lose your changes?")
-        if response == Gtk.ResponseType.OK or response in self.ok_responses:
-            if self.presenter.dirty() or self.model in self.session.new:
+        if response in self.ok_responses:
+            if self.presenter.is_dirty() or self.model in self.session.new:
                 try:
                     self.commit_changes()
-                except Exception:
+                except Exception as e:
+                    logger.warning("commit_changes failed: %s", e, exc_info=True)
                     if self.session.in_transaction():
                         self.session.rollback()
                     return False
