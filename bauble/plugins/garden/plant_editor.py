@@ -893,22 +893,17 @@ class PlantEditor(GenericModelViewPresenterEditor):
             self._committed.append(self.model)
             return
 
-        # this method will create new plants from self.model even if
-        # the plant code is not a range....it's a small price to pay
+        ## we are adding one or more new plants
         plants = []
         mapper = object_mapper(self.model)
-
-        # TODO: precompute the _created and _last_updated attributes
-        # in case we have to create lots of plants. it won't be too slow
 
         # we have to set the properties on the new objects
         # individually since session.merge won't create a new object
         # since the object is already in the session
         for code in codes:
             new_plant = Plant()
-            self.session.add(new_plant)
 
-            # TODO: can't we use Plant.duplicate here?
+            # TODO: can't we self.model.duplicate here?
             ignore = ("changes", "notes", "propagations")
             for prop in mapper.iterate_properties:
                 if prop.key not in ignore:
@@ -917,17 +912,19 @@ class PlantEditor(GenericModelViewPresenterEditor):
             new_plant.id = None
             new_plant._created = None
             new_plant._last_updated = None
-            plants.append(new_plant)
             for note in self.model.notes:
                 new_note = PlantNote()
                 for prop in object_mapper(note).iterate_properties:
                     setattr(new_note, prop.key, getattr(note, prop.key))
                 new_note.plant = new_plant
+            self.session.add(new_plant)
+            plants.append(new_plant)
         try:
-            list(map(self.session.expunge, self.model.notes))
-            self.session.expunge(self.model)
+            for obj in [self.model] + self.model.notes:
+                self.session.expunge(obj)
             super().commit_changes()
-        except:
+        except Exception as e:
+            logger.warning("commit_changes failed: %s", e, exc_info=True)
             self.session.add(self.model)
             raise
         self._committed.extend(plants)
