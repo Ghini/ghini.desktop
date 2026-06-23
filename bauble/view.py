@@ -1504,7 +1504,10 @@ class SearchView(pluginmgr.View):
             ref = Gtk.TreeRowReference(model, paths[0])
         except:
             pass
-
+        # disable sorting to avoid DetachedInstanceError during expire_all
+        model.set_sort_column_id(
+            Gtk.TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, Gtk.SortType.ASCENDING
+        )
         self.session.expire_all()
 
         # the invalidate_str_cache() method are specific to Species
@@ -1513,20 +1516,23 @@ class SearchView(pluginmgr.View):
         # fix our string caching issues
         def invalidate_cache(model, path, treeiter, data=None):
             obj = model[path][0]
-            if hasattr(obj, "invalidate_str_cache"):
+            if any("invalidate_str_cache" in cls.__dict__ for cls in type(obj).__mro__):
                 obj.invalidate_str_cache()
 
         model.foreach(invalidate_cache)
         expanded_rows = self.get_expanded_rows()
         self.results_view.collapse_all()
         # expand_to_all_refs will invalidate the ref so get the path first
-        if not ref:
-            return
-        path = None
-        if ref.valid():
-            path = ref.get_path()
-        self.expand_to_all_refs(expanded_rows)
-        self.results_view.set_cursor(path)
+        if ref:
+            path = None
+            if ref.valid():
+                path = ref.get_path()
+            self.expand_to_all_refs(expanded_rows)
+            self.results_view.set_cursor(path)
+        # re-enable sorting
+        model.set_sort_column_id(
+            Gtk.TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, Gtk.SortType.ASCENDING
+        )
 
     def on_view_row_activated(
         self, view, path, column, data: Optional[Any] = None
