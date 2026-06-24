@@ -865,7 +865,7 @@ def test_generic_entry_completion_enables_inline_and_popup_behavior():
         assert completion.get_property("inline_completion")
         assert completion.get_property("inline_selection")
         assert completion.get_property("popup-set-width") is False
-        assert not completion.get_popup_single_match()
+        assert completion.get_popup_single_match()
     finally:
         entry.destroy()
 
