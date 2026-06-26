@@ -194,7 +194,7 @@ def command_handler(cmd, arg) -> None:
     :type arg: list
     """
     logger.debug(f"entering ui.command_handler {cmd} {arg}")
-    # from bauble.gtkinit import Gtk
+    from bauble.gtkinit import Gtk  # needed in exception handling
 
     import bauble.pluginmgr as pluginmgr
     import bauble.utils as utils
