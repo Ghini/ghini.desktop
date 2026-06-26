@@ -392,18 +392,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.initializing = True
 
         def on_location_select(location):
-            if isinstance(location, str):
-                from bauble.plugins.garden.models import Location
-
-                location = (
-                    self.session.execute(
-                        select(Location).where(
-                            utils.ilike(Location.code, utils.to_unicode(location))
-                        )
-                    )
-                    .scalars()
-                    .one_or_none()
-                )
             if self.initializing:
                 return
             location = self.session.merge(location)
