@@ -1278,7 +1278,6 @@ class GenericEditorPresenter:
         self.committing_results = committing_results
         self.running_threads = []
         self.owns_session = False
-        self.session = session
         self.clipboard_presenters = []
         self.init_problem_style()
         if not hasattr(self.__class__, "clipboard"):
@@ -1287,21 +1286,13 @@ class GenericEditorPresenter:
             )
             self.__class__.clipboard = {}
 
-        if session is None:
+        if session is not None:
+            self.session = session
+        else:
             try:
                 self.session = object_session(model)
             except Exception as e:
-                logger.debug(f"GenericEditorPresenter::__init__ - {type(e)}, {e}")
-
-            if self.session is None:  # object_session gave None without error
-                if Session is not None:
-                    self.session = Session()
-                    self.owns_session = True
-                    if isinstance(model, Base):
-                        self.model = model = self.session.merge(model)
-                else:
-                    logger.debug("Session was None, I cannot get a session.")
-                    self.session = None
+                logger.warning(f"GenericEditorPresenter::__init__ - {type(e)}, {e}")
 
         if view:
             view.accept_buttons = self.view_accept_buttons
@@ -2183,6 +2174,8 @@ class GenericModelViewPresenterEditor:
     ) -> None:
         self.session = Session()
         self.model = self.session.merge(model)
+        self.parent = parent
+        self.prefs = prefs
 
     def commit_changes(self):
         """
@@ -2216,13 +2209,6 @@ class GenericModelViewPresenterEditor:
             )  # Centralized error handling
             raise
         return True
-
-    def __del__(self) -> None:
-        if hasattr(self, "session"):
-            # in case one of the check()'s fail in __init__
-            if self.session.in_transaction():
-                self.session.commit()
-            self.session.close()
 
 
 class NoteBox:

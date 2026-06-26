@@ -184,11 +184,7 @@ def add_plants_callback(accessions):
     from bauble.plugins.garden import PlantEditor
     from bauble.plugins.garden.models import Plant
 
-    session = Session()
-    acc = session.merge(accessions[0])
-    e = PlantEditor(model=Plant(accession=acc))
-    # session creates unbound object.  editor decides what to do with it.
-    session.close()
+    e = PlantEditor(model=Plant(accession=accessions[0]))
     return e.start() is not None
 
 
@@ -2343,13 +2339,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         if model is None:
             model = Accession()
 
-        model_state = sa_inspect(model)
-        if model_state.transient:
-            self.session = Session()
-            self.model = model
-        else:
-            super().__init__(model, parent)
-        self.parent = parent
+        super().__init__(model, parent)
         self._committed = []
 
         view = AccessionEditorView(parent=parent)

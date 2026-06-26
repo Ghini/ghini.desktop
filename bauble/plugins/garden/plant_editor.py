@@ -406,6 +406,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 )
             if self.initializing:
                 return
+            location = self.session.merge(location)
             self.set_model_attr("location", location)
             if self.change.quantity is None:
                 self.change.quantity = self.model.quantity
@@ -419,10 +420,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.refresh_view()  # put model values in view
         self.initializing = False
 
-        self.change = PlantChange()
+        self.change = PlantChange(plant=self.model, from_location=self.model.location)
         self.session.add(self.change)
-        self.change.plant = self.model
-        self.change.from_location = self.model.location
         self.change.quantity = self.model.quantity
 
         def on_reason_changed(combo):
@@ -800,12 +799,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
         :param parent: None
         :param branch_mode:
         """
+        super().__init__(model, parent)
+
         from bauble.plugins.garden.models import Plant as Plant
 
         if branch_mode:
             if model is None:
                 raise CheckConditionError("branch_mode requires a model")
-            elif object_session(model) and model in object_session(model).new:
+            elif model in self.session.new:
                 raise CheckConditionError(_("cannot split a new plant"))
 
         if model is None:
@@ -816,8 +817,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
             # we work on 'model', we keep the original at 'branched_plant'.
             self.branched_plant, model = model, model.duplicate(code=None)
             model.quantity = 1
-
-        super().__init__(model, parent)
 
         if self.branched_plant and self.branched_plant not in self.session:
             # make a copy of the branched plant for this session
@@ -854,14 +853,17 @@ class PlantEditor(GenericModelViewPresenterEditor):
         from bauble.plugins.garden.models import PlantNote as PlantNote
 
         if self.model.id is None and self.model not in self.session:
+            if self.model.accession not in self.session:
+                self.model.accession = self.session.merge(self.model.accession)
+            if self.model.location not in self.session:
+                self.model.location = self.session.merge(self.model.location)
             self.session.add(self.model)
 
         codes = utils.range_builder(self.model.code)
-        if (
-            len(codes) <= 1
-            or self.model not in self.session.new
-            and not self.branched_plant
-        ):
+
+        ## we are changing an existing Plant
+        if ( self.model not in self.session.new
+             and not self.branched_plant ):
             for propagation in self.model.propagations:
                 propagation.clean()
             change = self.presenter.change
