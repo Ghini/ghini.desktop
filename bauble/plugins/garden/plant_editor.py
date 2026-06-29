@@ -914,7 +914,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self.session.expunge(obj)
             super().commit_changes()
         except Exception as e:
-            logger.warning("commit_changes failed: %s", e, exc_info=True)
+            logger.warning("commit_changes failed: %s", e, exc_info=False)
             self.session.add(self.model)
             raise
         self._committed.extend(plants)
@@ -928,7 +928,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 try:
                     self.commit_changes()
                 except Exception as e:
-                    logger.warning("commit_changes failed: %s", e, exc_info=True)
+                    logger.warning("commit_changes failed: %s", e, exc_info=False)
                     if self.session.in_transaction():
                         self.session.rollback()
                     return False
