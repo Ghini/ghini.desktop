@@ -172,38 +172,22 @@ plant_context_menu: Any = [
 
 def get_next_code(acc):
     """
-    Return the next available plant code for an accession.
+    Return the next suggested plant code for an accession.
 
-    This function should be specific to the institution.
+    The default implementation suggests the next numeric code based on
+    existing plants in the accession.
 
-    If there is an error getting the next code the None is returned.
+    Institutions with different numbering practices may replace this
+    function with their own implementation.
     """
     from bauble.plugins.garden import Plant
+    nums = [
+        Plant.main_number(p.code)
+        for p in acc.plants
+        if p.code
+    ]
 
-    # auto generate/increment the accession code
-    session = db.Session()
-    from bauble.plugins.garden.models import Accession
-
-    try:
-        codes = (
-            session.execute(
-                select(Plant.code)
-                .join(Accession, Plant.accession_id == Accession.id)
-                .where(Accession.id == acc.id)
-            )
-            .scalars()
-            .all()
-        )
-        next = 1
-        if codes:
-            try:
-                next = max([int(code[0]) for code in codes]) + 1
-            except Exception as e:
-                logger.debug(e)
-                return None
-        return utils.to_unicode(next)
-    finally:
-        session.close()
+    return str(max(nums, default=0) + 1)
 
 
 def is_code_unique(plant, code):

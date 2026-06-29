@@ -284,10 +284,18 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
 
     delimiter: Any = property(lambda self: self._get_delimiter())
 
+    @staticmethod
+    def main_number(code):
+        m = re.match(r'(\d+)', code)
+        if m:
+            return int(m.group(1))
+        return None
+
     def sort_key(self):
         return tuple(
-            int(x) if x.isdigit() else x.lower()
+            (0, int(x)) if x.isdigit() else (1, x.lower())
             for x in re.split(r'(\d+)', str(self))
+            if x
         )
 
     def __str__(self) -> str:
