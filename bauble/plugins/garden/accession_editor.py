@@ -1566,6 +1566,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         def on_loc_select(field_name, value):
             if self.initializing:
                 return
+            value = self.session.merge(value)
             self.set_model_attr(field_name, value)
             refresh_create_plant_checkbutton_sensitivity()
 

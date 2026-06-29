@@ -193,7 +193,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
         from bauble.plugins.garden import init_location_comboentry
 
         def on_location_select(location):
-            self.model.location = location.code
+            self.model.location = self.session.merge(location)
 
         init_location_comboentry(
             self, self.view.widgets.location_combobox, on_location_select
