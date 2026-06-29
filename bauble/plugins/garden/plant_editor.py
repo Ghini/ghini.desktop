@@ -762,7 +762,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
     def __init__(
         self,
-        model: Optional[Any] = None,
+        model: Plant = None,
         parent: Optional[Any] = None,
         branch_mode: bool = False,
     ) -> None:
@@ -771,24 +771,17 @@ class PlantEditor(GenericModelViewPresenterEditor):
         :param parent: None
         :param branch_mode:
         """
+        if model is None:
+            raise CheckConditionError("PlantEditor requires a model")
+        if branch_mode:
+            self.branched_plant, model = model, model.duplicate(code=None)
+            model.quantity = 1
+        else:
+            self.branched_plant = None
+
         super().__init__(model, parent)
 
         from bauble.plugins.garden.models import Plant as Plant
-
-        if branch_mode:
-            if model is None:
-                raise CheckConditionError("branch_mode requires a model")
-            elif model in self.session.new:
-                raise CheckConditionError(_("cannot split a new plant"))
-
-        if model is None:
-            model = Plant()
-
-        self.branched_plant = None
-        if branch_mode:
-            # we work on 'model', we keep the original at 'branched_plant'.
-            self.branched_plant, model = model, model.duplicate(code=None)
-            model.quantity = 1
 
         if self.branched_plant and self.branched_plant not in self.session:
             # make a copy of the branched plant for this session
@@ -811,6 +804,18 @@ class PlantEditor(GenericModelViewPresenterEditor):
             view.widgets.plant_acc_entry.grab_focus()
         else:
             view.widgets.plant_code_entry.grab_focus()
+
+        # The presenter's __init__ triggers cascade on relationships, which pulls the original
+        # transient `model` into the session as a side effect of merge(). We expunge it here to
+        # prevent a phantom Plant(code=None) from being committed. The exact access that triggers
+        # the cascade has not been identified; the same issue may exist in other editors.
+        logger.debug("merge: model id=0x%x, self.model id=0x%x, same=%s, model in session=%s",
+                     id(model), id(self.model), self.model is model, model in self.session)
+        if self.model is not model and model in self.session:
+            self.session.expunge(model)
+        logger.debug("session.new at end of PlantEditor.__init__: %s",
+                     [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
+
 
     def compute_plant_split_changes(self) -> None:
         move_quantity_between_plants(
@@ -894,8 +899,12 @@ class PlantEditor(GenericModelViewPresenterEditor):
             self.session.add(new_plant)
             plants.append(new_plant)
         try:
+            logger.debug("session.new before expunge: %s",
+                         [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
             for obj in [self.model] + self.model.notes:
                 self.session.expunge(obj)
+            logger.debug("session.new after expunge: %s",
+                         [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
             super().commit_changes()
         except Exception as e:
             logger.warning("commit_changes failed: %s", e, exc_info=False)
