@@ -26,6 +26,8 @@ from __future__ import annotations
 import logging
 from typing import Any, ClassVar, Optional
 
+import re
+
 import bauble.btypes as types
 import bauble.meta as meta
 import bauble.utils as utils
@@ -281,6 +283,12 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
         return Plant.get_delimiter(session=object_session(self))
 
     delimiter: Any = property(lambda self: self._get_delimiter())
+
+    def sort_key(self):
+        return tuple(
+            int(x) if x.isdigit() else x.lower()
+            for x in re.split(r'(\d+)', str(self))
+        )
 
     def __str__(self) -> str:
         return f"{self.accession}{self.delimiter}{self.code}"

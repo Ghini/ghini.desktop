@@ -1246,11 +1246,15 @@ class SearchView(pluginmgr.View):
         # Initialize a tree model for results
         model = Gtk.TreeStore(object)
 
+        def sortable(obj):
+            try:
+                return obj.sort_key()
+            except AttributeError:
+                return str(obj)
+
         def cmp(model, it1, it2, _data):
-            a = model.get_value(it1, 0)
-            b = model.get_value(it2, 0)
-            a = str(a) if not isinstance(a, str) else a
-            b = str(b) if not isinstance(b, str) else b
+            a = sortable(model.get_value(it1, 0))
+            b = sortable(model.get_value(it2, 0))
             return (a > b) - (a < b)
 
         model.set_default_sort_func(cmp)

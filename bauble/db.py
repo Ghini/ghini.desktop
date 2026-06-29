@@ -1305,6 +1305,9 @@ class Serializable:
     single_cap_re: Any = re.compile("([A-Z])")
     link_keys: Any = []
 
+    def sort_key(self):
+        return str(self)
+
     def as_dict(self):
         """
         Convert the object to a dictionary representation.
