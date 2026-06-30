@@ -1648,7 +1648,7 @@ def make_test_plant(session):
         memorial=False,
     )
     session.add_all([family, genus, species, accession, location, plant])
-    session.flush()
+    session.commit()
     return plant
 
 
@@ -1796,8 +1796,11 @@ def test_plant_editor_duplicate_code_marks_entry_error_and_recovers(
 
 
 def test_plant_editor_commit_discards_blank_seed_propagation_detail(
-    session, plant_editor_view
+    session, plant_editor_view, monkeypatch
 ):
+    import logging
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+    monkeypatch.setattr("bauble.utils.message_details_dialog", lambda *a, **k: None)
     plant = make_test_plant(session)
     propagation = Propagation(prop_type="Seed", plants=[plant])
     blank_seed = PropSeed(propagation=propagation)

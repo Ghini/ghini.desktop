@@ -315,7 +315,7 @@ def init_location_comboentry(presenter, combo, on_select, required: bool = True)
     combo.set_cell_data_func(cell, cell_data_func)
 
     model = Gtk.ListStore(object)
-    with db.Session() as session:
+    with db.TempSession() as session:
         for loc in sorted(
                 session.execute(select(Location)).scalars().all(),
                 key=lambda loc: utils.natsort_key(loc.code),

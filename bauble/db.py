@@ -392,7 +392,6 @@ from sqlalchemy.orm import scoped_session
 Session: scoped_session[SQLAlchemySession] = scoped_session(
     sessionmaker(autoflush=False, future=True)
 )
-
 """
 bauble.db.Session is created after the database has been opened with
 :func:`bauble.db.open()`. bauble.db.Session should be used when you need
@@ -405,6 +404,29 @@ When you are finished with the session be sure to close the session
 with :func:`session.close()`. Failure to close sessions can lead to
 database deadlocks, particularly when using PostgreSQL based
 databases.
+"""
+
+
+TempSession: sessionmaker[SQLAlchemySession] = sessionmaker(autoflush=False, future=True)
+"""
+bauble.db.TempSession produces standalone, unscoped Session instances bound
+to the same engine as :data:`bauble.db.Session`.
+
+Unlike bauble.db.Session, which is a scoped_session shared across the
+current thread/context, each call to TempSession() returns an
+independent session not registered anywhere. Use it for short-lived,
+self-contained ORM operations -- typically read-only lookups used to
+populate UI widgets -- where you need full control over the session's
+lifetime and must guarantee that closing it cannot affect any other
+session or detach objects another part of the application is relying
+on. To create and dispose of one::
+
+    with bauble.db.TempSession() as session:
+        rows = session.execute(select(SomeModel)).scalars().all()
+
+Do not use TempSession for objects that need to be edited or attached
+to long-lived presenters/editors; use bauble.db.Session (or an editor's
+own session, merging the model into it) for that instead.
 """
 
 
@@ -539,6 +561,7 @@ def open(uri, verify: bool = True, show_error_dialogs: bool = False):
         engine = new_engine
         Session.remove()
         Session.configure(bind=engine, future=True)
+        TempSession.configure(bind=engine, future=True)
 
     # Skip verification if not requested
     if not verify:

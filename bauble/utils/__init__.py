@@ -152,6 +152,7 @@ def handle_db_error(exception, context: str = "database operation") -> None:
         message = _(f"An unknown error occurred during {context}.")
 
     details = traceback.format_exc()
+    logger.error("handle_db_error: %s\n%s", message, details)
     utils.message_details_dialog(message, details, Gtk.MessageType.ERROR)
 
 
