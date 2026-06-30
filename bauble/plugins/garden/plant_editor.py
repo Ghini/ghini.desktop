@@ -805,18 +805,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         else:
             view.widgets.plant_code_entry.grab_focus()
 
-        # The presenter's __init__ triggers cascade on relationships, which pulls the original
-        # transient `model` into the session as a side effect of merge(). We expunge it here to
-        # prevent a phantom Plant(code=None) from being committed. The exact access that triggers
-        # the cascade has not been identified; the same issue may exist in other editors.
-        logger.debug("merge: model id=0x%x, self.model id=0x%x, same=%s, model in session=%s",
-                     id(model), id(self.model), self.model is model, model in self.session)
-        if self.model is not model and model in self.session:
-            self.session.expunge(model)
-        logger.debug("session.new at end of PlantEditor.__init__: %s",
-                     [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
-
-
     def compute_plant_split_changes(self) -> None:
         move_quantity_between_plants(
             from_plant=self.branched_plant,

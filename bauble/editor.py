@@ -2180,6 +2180,33 @@ class GenericModelViewPresenterEditor:
         self.parent = parent
         self.prefs = prefs
 
+        # If `model` was constructed with a kwarg that maps to a relationship with
+        # `back_populates` (e.g. Plant(accession=...)), its own `__init__`
+        # auto-appends it to the inverse collection (accession.plants) before this
+        # editor ever sees it. `session.merge(model)` above then creates a *new*,
+        # persistent instance (self.model) distinct from the original transient
+        # `model` -- but the original is left lingering as an orphan reference
+        # inside that backref collection. Unless detached here, it gets flushed as a
+        # phantom row with missing required fields (e.g. Plant(code=None)).
+        if model is not self.model:
+            self._purge_phantom_backrefs(model)
+
+    def _purge_phantom_backrefs(self, transient_model):
+        from sqlalchemy import inspect as sa_inspect
+
+        mapper = sa_inspect(type(transient_model)).mapper
+        for rel in mapper.relationships:
+            if rel.back_populates is None:
+                continue
+            related = getattr(transient_model, rel.key, None)
+            if related is None:
+                continue
+            targets = related if isinstance(related, list) else [related]
+            for target in targets:
+                collection = getattr(target, rel.back_populates, None)
+                if isinstance(collection, list) and transient_model in collection:
+                    collection.remove(transient_model)
+
     def commit_changes(self):
         """
         Commit the changes to self.session()
