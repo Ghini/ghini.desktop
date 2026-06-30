@@ -16,6 +16,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
     - uses: actions/checkout@v4
@@ -51,7 +52,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+        pip install flake8 pytest pytest-timeout
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e ".[test]"
 
@@ -68,4 +69,4 @@ jobs:
             --ignore=bauble/test/test_gui_e2e.py \
             --ignore=bauble/test/test_postgresql_lane.py \
             --ignore=bauble/test/test_postgresql_external_smoke.py \
-            -q
+            -q --timeout=60 --timeout-method=thread
