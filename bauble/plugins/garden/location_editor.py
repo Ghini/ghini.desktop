@@ -58,14 +58,13 @@ def edit_callback(locations):
 
 
 def add_plants_callback(locations):
-    session = db.Session()
-    loc = session.merge(locations[0])
-    from bauble.plugins.garden.models import Plant
-    from bauble.plugins.garden.plant_editor import PlantEditor
-
-    e = PlantEditor(model=Plant(location=loc))
-    # session creates unbound object.  editor decides what to do with it.
-    session.close()
+    with db.TempSession() as session:
+        loc = session.merge(locations[0])
+        from bauble.plugins.garden.models import Plant
+        from bauble.plugins.garden.plant_editor import PlantEditor
+        plant = Plant(location=loc)
+    # loc and plant are now detached; PlantEditor.merge will re-attach them
+    e = PlantEditor(model=plant)
     return e.start() is not None
 
 

@@ -405,20 +405,16 @@ class ABCDExporter:
         if os.path.exists(filename) and not os.path.isfile(filename):
             raise ValueError(f"{filename} exists and is not a a regular file")
 
-        # if plants is None then export all plants, this could be huge
+        # if `plants` is None then export all plants, this could be huge
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
-        session = None
         if plants is None:
             stmt = select(Plant)
-            session = db.Session()
-            plants = session.execute(stmt).scalars().all()
-
-        try:
+            with db.TempSession() as session:
+                plants = session.execute(stmt).scalars().all()
+                data = plants_to_abcd(plants)
+        else:
             data = plants_to_abcd(plants)
-        finally:
-            if session is not None:
-                session.close()
 
         data.write_c14n(filename)
 

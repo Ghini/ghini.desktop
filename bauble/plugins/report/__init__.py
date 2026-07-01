@@ -988,19 +988,17 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
     def run_thread(self, formatter, todo, settings) -> None:
         from bauble import db
-
-        session = db.Session()
-        try:
-            todo = [session.merge(i) for i in todo]
-            formatter.format(todo, **settings)
-        except Exception as e:
-            butils.idle_message(
-                f"formatting {len(todo)} objects of type {type((todo + [None])[0]).__name__}\n{type(e).__name__}({e})\n{traceback.format_exc()}",
-                type=Gtk.MessageType.ERROR,
-            )
-        finally:
-            session.close()
-            GLib.idle_add(self.stop_progress)
+        with db.TempSession() as session:
+            try:
+                todo = [session.merge(i) for i in todo]
+                formatter.format(todo, **settings)
+            except Exception as e:
+                butils.idle_message(
+                    f"formatting {len(todo)} objects of type {type((todo + [None])[0]).__name__}\n{type(e).__name__}({e})\n{traceback.format_exc()}",
+                    type=Gtk.MessageType.ERROR,
+                )
+            finally:
+                GLib.idle_add(self.stop_progress)
 
     def stop_progress(self) -> None:
         self.running = False

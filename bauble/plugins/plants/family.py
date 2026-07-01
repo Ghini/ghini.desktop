@@ -81,13 +81,14 @@ def add_genera_callback(families):
     """
     Callback to add a genus to the first family in the provided list.
     """
-    with db.Session() as session:
-        family = session.merge(families[0])  # Ensure family is in the session
-        genus_instance = get_genus_class()
-        genus_editor = get_genus_editor()
-        e = genus_editor(model=genus_instance(family=family))
-        # The editor decides what to do with the object
-        return e.start() is not None
+    genus_instance = get_genus_class()
+    genus_editor = get_genus_editor()
+    with db.TempSession() as session:
+        family = session.merge(families[0])
+        genus = genus_instance(family=family)
+    # family and genus are now detached; PlantEditor.merge will re-attach them
+    e = genus_editor(model=genus)
+    return e.start() is not None
 
 
 def remove_callback(families):
