@@ -3,6 +3,12 @@ import os
 from pathlib import Path
 from types import SimpleNamespace
 
+## this is highly helpful for understanding what happens to the database
+## if a test fails, but also highly noisy and slowing down. better not
+## keeping it active at all times.
+# import logging
+# logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
 import pytest
 import sqlalchemy.exc as saexc
 from sqlalchemy import select
@@ -1773,7 +1779,7 @@ def test_plant_editor_duplicate_code_marks_entry_error_and_recovers(
         memorial=False,
     )
     session.add(existing)
-    session.flush()
+    session.commit()
 
     presenter = PlantEditorPresenter(plant, plant_editor_view)
     entry = plant_editor_view.widgets.plant_code_entry
@@ -1862,7 +1868,7 @@ def test_accession_editor_duplicate_code_blocks_accept(session, accession_editor
     existing = make_test_accession(session)
     duplicate = Accession(code="2026.002", species=existing.species)
     session.add(duplicate)
-    session.flush()
+    session.commit()
 
     presenter = AccessionEditorPresenter(existing, accession_editor_view)
 
@@ -1984,7 +1990,7 @@ def test_accession_source_combo_orders_dedupes_and_matches_text(
     beta = Contact(name="Beta Nursery")
     zulu = Contact(name="Zulu Nursery")
     session.add_all([zulu, alpha_duplicate, beta, alpha])
-    session.flush()
+    session.commit()
 
     presenter = AccessionEditorPresenter(accession, accession_editor_view)
     source_presenter = presenter.source_presenter
@@ -2018,7 +2024,7 @@ def test_accession_source_entry_exact_match_attaches_source_detail(
     accession = make_test_accession(session)
     source = Contact(name="Exact Match Nursery")
     session.add(source)
-    session.flush()
+    session.commit()
 
     presenter = AccessionEditorPresenter(accession, accession_editor_view)
     source_presenter = presenter.source_presenter
@@ -2071,7 +2077,7 @@ def test_accession_species_completion_waits_for_full_species_text(
     genus = Genus(family=family, epithet="Cocos", author="L.")
     species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
     session.add_all([family, genus, species])
-    session.flush()
+    session.commit()
     accession = Accession(code="2026.001", quantity_recvd=1, recvd_type="PLNT")
 
     presenter = AccessionEditorPresenter(
