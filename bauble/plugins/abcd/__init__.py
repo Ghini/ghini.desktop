@@ -383,7 +383,7 @@ class ABCDExporter:
             from sqlalchemy import func, select
 
             stmt = select(func.count()).select_from(Plant)
-            with db.Session() as session:
+            with db.TempSession() as session:
                 nplants = session.execute(stmt).scalar_one()
 
         if nplants > 3000:

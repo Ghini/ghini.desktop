@@ -84,7 +84,7 @@ def remove_callback(locations):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        with db.Session() as session:
+        with db.TempSession() as session:
             obj = session.get(Location, loc.id)
             session.delete(obj)
             if session.in_transaction():

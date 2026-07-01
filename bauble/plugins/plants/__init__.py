@@ -102,7 +102,7 @@ class LabelUpdater(Thread):
 
     def run(self) -> None:
         try:
-            with db.Session() as session:  # Use a context manager for the session
+            with db.TempSession() as session:  # Use a context manager for the session
                 # Wrap the raw SQL string in text()
                 result = session.execute(text(self.query)).fetchone()
                 (value,) = result if result else (None,)
@@ -222,7 +222,7 @@ class SplashInfoBox(pluginmgr.View):
         statusbar.pop(sbcontext_id)
         safe_set_text(bauble.gui.widgets.main_comboentry.get_child(), "")
 
-        with db.Session() as session:
+        with db.TempSession() as session:
             stmt = select(bauble.meta.BaubleMeta).where(
                 bauble.meta.BaubleMeta.name.startswith("stqr")
             )
@@ -504,7 +504,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         """Set up default stored queries if not already initialized."""
         import bauble.meta as meta
 
-        with db.Session() as session:
+        with db.TempSession() as session:
             default = "false"
             q = session.execute(
                 select(bauble.meta.BaubleMeta).where(

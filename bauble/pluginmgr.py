@@ -44,7 +44,8 @@ import bauble
 import bauble.paths as paths
 import bauble.utils as utils
 import sqlalchemy.orm.exc as orm_exc
-from bauble.db import Base, Session
+from bauble import db
+from bauble.db import Base
 from bauble.error import BaubleError
 from bauble.gtkinit import GLib, Gtk
 from sqlalchemy import Integer, Unicode, select
@@ -458,7 +459,7 @@ class PluginRegistry(Base):
             name=plugin.__class__.__name__,
             version=plugin.version,
         )
-        with Session() as session:
+        with db.TempSession() as session:
             session.add(p)
             if session.in_transaction():
                 session.commit()
@@ -477,7 +478,7 @@ class PluginRegistry(Base):
         # Decode name if it's in bytes
         decoded_name = name.decode() if isinstance(name, bytes) else name
 
-        with Session() as session:
+        with db.TempSession() as session:
             stmt = PluginRegistry.query_with_default_order().where(
                 PluginRegistry.name == decoded_name
             )
@@ -489,16 +490,17 @@ class PluginRegistry(Base):
 
     @staticmethod
     def all(session=None) -> list[str]:
-        with Session() as local_session:
-            session = session or local_session
-            stmt = PluginRegistry.query_with_default_order()
+        stmt = PluginRegistry.query_with_default_order()
+        if session is not None:
+            return session.scalars(stmt).all()
+        with db.TempSession() as session:
             return session.scalars(stmt).all()
 
     @staticmethod
     def names() -> list[str]:
         t = PluginRegistry.__table__
         stmt = select(t.c.name)
-        with Session() as session:
+        with db.TempSession() as session:
             return session.execute(stmt).scalars().all()
 
     @staticmethod
@@ -517,7 +519,7 @@ class PluginRegistry(Base):
         # Decode name if it's in bytes
         name.decode() if isinstance(name, bytes) else name
 
-        with Session() as session:
+        with db.TempSession() as session:
             try:
                 logger.debug(f"not using value of version ({version}).")
                 # Apply the where clause to the select object

@@ -525,7 +525,7 @@ class TemplateFormatterPlugin(FormatterPlugin):
 
         from bauble import db
 
-        with db.Session() as session:
+        with db.TempSession() as session:
             values = list(map(session.merge, objs))
             report = template.render(values=values, options=kwargs)
         # Template name is guaranteed in the form

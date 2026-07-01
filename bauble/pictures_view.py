@@ -20,7 +20,7 @@ import logging
 from typing import Any, Optional
 
 import bauble.utils as utils
-from bauble.db import Session
+from bauble import db
 from bauble.gtkinit import Gtk
 from sqlalchemy.orm.exc import DetachedInstanceError
 
@@ -85,7 +85,7 @@ class PicturesView:
                 continue
             except DetachedInstanceError:
                 # Reattach to a short-lived session and retry once
-                with Session() as s:
+                with db.TempSession() as s:
                     try:
                         obj = s.merge(obj, load=False)  # cheap reattach
                         pics = getattr(obj, "pictures")

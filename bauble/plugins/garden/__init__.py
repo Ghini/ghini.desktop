@@ -118,7 +118,7 @@ class GardenPlugin(pluginmgr.Plugin):
         import bauble.meta as meta
 
         # Use the session context manager to ensure proper resource handling
-        with db.Session() as session:
+        with db.TempSession() as session:
             meta.get_default(plant_delimiter_key, default_plant_delimiter, session)
 
         # Prompt for institution setup if not already configured

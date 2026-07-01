@@ -39,7 +39,7 @@ from typing import Any, Optional
 import bauble.utils as utils
 import sqlalchemy as sa
 from bauble.btypes import Enum
-from bauble.db import Session
+from bauble import db
 from bauble.plugins.imex.unicode_utils import InvalidDataError as InvalidDataError
 from bauble.plugins.imex.unicode_utils import UnicodeReader as UnicodeReader
 from bauble.plugins.imex.unicode_utils import UnicodeWriter as UnicodeWriter
@@ -656,7 +656,7 @@ class CSVProcessor:
                 raise
             return
 
-        with Session() as s:
+        with db.TempSession() as s:
             try:
                 s.execute(self.insert_stmt, fixed)
                 if s.in_transaction():

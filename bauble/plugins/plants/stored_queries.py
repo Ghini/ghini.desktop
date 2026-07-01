@@ -43,7 +43,7 @@ class StoredQueriesModel:
         self._query = [""] * 11
 
         # Use a context manager to ensure session cleanup
-        with db.Session() as session:
+        with db.TempSession() as session:
             if session.in_transaction():
                 session.commit()  # Ensure session if fully initialized before querying
             query = select(meta.BaubleMeta).filter(
@@ -70,7 +70,7 @@ class StoredQueriesModel:
         Save the current state of stored queries to the database.
         """
         try:
-            with db.Session() as session:
+            with db.TempSession() as session:
                 for index in range(1, 11):
                     query_name = f"stqr_{index:02d}"
 
@@ -204,7 +204,7 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
 
 
 def edit_callback():
-    with db.Session() as session:
+    with db.TempSession() as session:
         view = editor.GenericEditorView(
             os.path.join(paths.lib_dir(), "plugins", "plants", "stored_queries.glade"),
             parent=None,

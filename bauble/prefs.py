@@ -363,13 +363,12 @@ class PrefsView(pluginmgr.View):
         self.plugins_ls.clear()
         from bauble.pluginmgr import PluginRegistry
 
-        with db.Session() as session:
+        with db.TempSession() as session:
             stmt = PluginRegistry.query_with_default_order()
             plugins = session.scalars(stmt).all()
 
         for plugin in plugins:
             self.plugins_ls.append((plugin.name, plugin.version))
-        session.close()
 
 
 class PrefsCommandHandler(pluginmgr.CommandHandler):

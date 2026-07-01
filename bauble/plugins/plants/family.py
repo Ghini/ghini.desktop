@@ -97,7 +97,7 @@ def remove_callback(families):
     family = families[0]
     from bauble.plugins.plants.genus import Genus
 
-    with db.Session() as session:
+    with db.TempSession() as session:
         family = session.merge(family)  # Ensure the family is in the session
 
         # Use SQLAlchemy 2.0-style query
