@@ -1675,17 +1675,15 @@ class AppendThousandRows(threading.Thread):
 
     def run(self) -> None:
         session = db.Session()
-        q = session.execute(
-            select(db.History).order_by(db.History.timestamp.desc())
-        ).scalars()
+        stmt = select(db.History).order_by(db.History.timestamp.desc())
         # add rows in small batches
         offset = 0
         step = 200
         # Query to count rows in the History table
         count = session.scalar(select(func.count()).select_from(db.History))
 
-        while offset < count and not self.__stopped.isSet():
-            rows = q.offset(offset).limit(step).all()
+        while offset < count and not self.__stopped.is_set():
+            rows = session.scalars(stmt.offset(offset).limit(step)).all()
             GLib.idle_add(self.callback, rows)
             offset += step
         if offset < count:
