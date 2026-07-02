@@ -321,7 +321,6 @@ class FlatFileExporter(GenericEditorPresenter):
                 if session is not None:
                     if session.in_transaction():
                         session.rollback()
-                    session.close()
         return {"count": rows_count, "filename": filename}
 
 

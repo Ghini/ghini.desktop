@@ -636,7 +636,6 @@ class CountResultsTask(threading.Thread):
             GLib.idle_add(self.update_status, status_text)
 
         self.dots_thread.cancel()
-        session.close()
 
     def update_status(self, text) -> None:
         """Update the status bar message on the main thread."""
@@ -1135,7 +1134,12 @@ class SearchView(pluginmgr.View):
     nresults_statusbar_context: str = "searchview.nresults"
 
     def reset_session(self) -> None:
-        """Close the current session and attach a fresh default session."""
+        """Reset the SearchView session after a connection failure.
+
+        Closes and removes the current scoped session from the registry,
+        then obtains a fresh one. Called by _search_with_reconnect when
+        the database connection has been invalidated.
+        """
         current_session = getattr(self, "session", None)
         if current_session is not None:
             try:
@@ -1684,7 +1688,6 @@ class AppendThousandRows(threading.Thread):
             rows = q.offset(offset).limit(step).all()
             GLib.idle_add(self.callback, rows)
             offset += step
-        session.close()
         if offset < count:
             GLib.idle_add(self.cancel_callback)
 

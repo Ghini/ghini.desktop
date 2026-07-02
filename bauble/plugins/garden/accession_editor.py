@@ -217,8 +217,6 @@ def remove_callback(accessions):
         utils.message_details_dialog(
             msg, traceback.format_exc(), type=Gtk.MessageType.ERROR
         )
-    finally:
-        session.close()
     return True
 
 
@@ -1915,7 +1913,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.populate_code_formats(values=values)
             if presenter.session.in_transaction():
                 presenter.session.commit()
-        presenter.session.close()
 
     def refresh_id_qual_rank_combo(self) -> None:
         """
@@ -2444,7 +2441,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             if self.handle_response(response):
                 break
 
-        self.session.close()  # cleanup session
         self.presenter.cleanup()
         return self._committed
 

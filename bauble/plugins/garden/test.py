@@ -919,7 +919,6 @@ def test_location_editor_interactions(db_session, setup_location) -> None:
 
     # Cleanup editor
     editor.handle_response(Gtk.ResponseType.OK)
-    editor.session.close()
 
 
 @pytest.fixture

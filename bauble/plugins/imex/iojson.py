@@ -385,6 +385,35 @@ class JSONExporter(editor.GenericEditorPresenter):
     def on_btncancel_clicked(self, widget) -> None:
         pass
 
+    def _do_export(self, filename, objects):
+        count = len(objects)
+        if count > 3000:
+            msg = _(
+                "You are exporting %(nplants)s objects to JSON format.  "
+                "Exporting this many objects may take several minutes.  "
+                "\n\n<i>Would you like to continue?</i>"
+            ) % ({"nplants": count})
+            if not self.view.run_yes_no_dialog(msg):
+                return
+
+        import codecs
+
+        with codecs.open(filename, "wb", "utf-8") as output:
+            output.write("[")
+            output.write(
+                ",\n ".join(
+                    [
+                        json.dumps(
+                            obj.as_dict(),
+                            default=serializedatetime,
+                            sort_keys=True,
+                        )
+                        for obj in objects
+                    ]
+                )
+            )
+            output.write("]")
+
     def run(self) -> None:
         "perform the export"
 
@@ -395,48 +424,19 @@ class JSONExporter(editor.GenericEditorPresenter):
         objects = self.get_objects()
         # if objects is None then export all objects under classes Familia,
         # Genus, Species, Accession, Plant, Location.
-        session = None
         if objects is None:
-            session = db.Session()
-            objects = session.execute(select(Familia)).scalars().all()
-            objects.extend(session.execute(select(Genus)).scalars().all())
-            objects.extend(session.execute(select(Species)).scalars().all())
-            objects.extend(session.execute(select(VernacularName)).scalars().all())
-            objects.extend(session.execute(select(Accession)).scalars().all())
-            objects.extend(session.execute(select(Plant)).scalars().all())
-            objects.extend(session.execute(select(Location)).scalars().all())
+            with db.Session() as session:
+                objects = session.execute(select(Familia)).scalars().all()
+                objects.extend(session.execute(select(Genus)).scalars().all())
+                objects.extend(session.execute(select(Species)).scalars().all())
+                objects.extend(session.execute(select(VernacularName)).scalars().all())
+                objects.extend(session.execute(select(Accession)).scalars().all())
+                objects.extend(session.execute(select(Plant)).scalars().all())
+                objects.extend(session.execute(select(Location)).scalars().all())
+                self._do_export(filename, objects)
+        else:
+            self._do_export(filename, objects)
 
-        try:
-            count = len(objects)
-            if count > 3000:
-                msg = _(
-                    "You are exporting %(nplants)s objects to JSON format.  "
-                    "Exporting this many objects may take several minutes.  "
-                    "\n\n<i>Would you like to continue?</i>"
-                ) % ({"nplants": count})
-                if not self.view.run_yes_no_dialog(msg):
-                    return
-
-            import codecs
-
-            with codecs.open(filename, "wb", "utf-8") as output:
-                output.write("[")
-                output.write(
-                    ",\n ".join(
-                        [
-                            json.dumps(
-                                obj.as_dict(),
-                                default=serializedatetime,
-                                sort_keys=True,
-                            )
-                            for obj in objects
-                        ]
-                    )
-                )
-                output.write("]")
-        finally:
-            if session is not None:
-                session.close()
 
 
 class JSONImporter(editor.GenericEditorPresenter):
@@ -521,13 +521,9 @@ class JSONImporter(editor.GenericEditorPresenter):
             yield
         if session.in_transaction():
             session.commit()
-        session.close()
-        try:
-            from bauble import gui
+        from bauble import gui
 
-            gui.get_view().update()
-        except:
-            pass
+        gui.get_view().update()
 
 
 #

@@ -487,7 +487,6 @@ class PictureImporterPresenter(GenericEditorPresenter):
                     session.rollback()
             finally:
                 self.lock.release()
-                session.close()
 
     def on_picture_importer_dialog_response(self, widget, response, **kwargs) -> None:
         self.keep_running = None

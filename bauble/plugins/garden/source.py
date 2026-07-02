@@ -685,17 +685,13 @@ def source_detail_edit_callback(details, parent: Optional[Any] = None):
         glade_path, parent=parent, root_widget_name="source_details_dialog"
     )
 
-    session_factory = sessionmaker(bind=db.engine, autoflush=False, future=True)
-    session = session_factory()
-    try:
+    with db.TempSession() as session:
         model = session.merge(details[0])
         presenter = ContactPresenter(model, view, session=session)
         result = presenter.start()
         if presenter.response_commits(result):
             return presenter.model
         return None
-    finally:
-        session.close()
 
 
 def source_detail_remove_callback(details):
@@ -715,8 +711,6 @@ def source_detail_remove_callback(details):
         utils.message_details_dialog(
             msg, traceback.format_exc(), type=Gtk.MessageType.ERROR
         )
-    finally:
-        session.close()
     return True
 
 

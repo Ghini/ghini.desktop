@@ -67,16 +67,6 @@ logger: Any = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-@contextmanager
-def session_scope() -> Generator[Any, None, None]:
-    """Provide a transactional scope around a series of operations."""
-    session = db.Session()
-    try:
-        yield session
-    finally:
-        session.close()
-
-
 class TagsMenuManager:
     menu_item: Any
     active_tag_name: Any
@@ -209,7 +199,7 @@ class TagsMenuManager:
 
         tags_menu.append(add_tag_menu_item)
 
-        with session_scope() as session:
+        with db.Session() as session:
             # Fetch Tag query with ordering
             query = select(Tag).order_by(Tag.tag)
             tags = session.execute(query).scalars().all()  # Retrieve all tags
@@ -463,8 +453,8 @@ class TagItemGUI(editor.GenericEditorView):
                 model = self.tag_tree.get_model()
                 model.append([False, tag.tag, False])
                 tags_menu_manager.reset(tag)
-        finally:
-            session.close()
+        except Exception as e:
+            logger.debug("Could not add a new Tag", exc_info=True)
 
     def on_toggled(self, renderer, path, data: Optional[Any] = None) -> None:
         """
@@ -527,8 +517,6 @@ class TagItemGUI(editor.GenericEditorView):
                 traceback.format_exc(),
                 Gtk.MessageType.ERROR,
             )
-        finally:
-            session.close()
 
     def start(self) -> None:
         # we keep restarting the dialog here since the gui was created with
@@ -565,8 +553,8 @@ class TagItemGUI(editor.GenericEditorView):
 
             self.get_window().hide()
             self.disconnect_all()
-        finally:
-            session.close()
+        except Exception as e:
+            logger.debug("Something happened", exc_info=True)
 
 
 class Tag(db.Base, db.WithNotes):
@@ -619,7 +607,6 @@ class Tag(db.Base, db.WithNotes):
     def tag_objects(self, objects) -> None:
         """Add tags to the provided objects."""
         session = object_session(self) or db.Session()
-        owns_session = object_session(self) is None
         try:
             if self not in session:
                 session.add(self)
@@ -644,9 +631,8 @@ class Tag(db.Base, db.WithNotes):
                         )
                     )
             type(self)._Tag__last_objects = None
-        finally:
-            if owns_session:
-                session.close()
+        except Exception as e:
+            logger.debug("Something happened", exc_info=True)
 
     @property
     def objects(self) -> list:

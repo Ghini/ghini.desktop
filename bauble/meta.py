@@ -82,7 +82,6 @@ def get_default(name, default: Optional[Any] = None, session: Optional[Any] = No
             _ = meta.value
             _ = meta.name
         # close the session whether we added anything or not
-        session.close()
     return meta
 
 

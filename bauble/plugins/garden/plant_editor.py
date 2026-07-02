@@ -135,8 +135,6 @@ def remove_callback(plants):
         utils.message_details_dialog(
             msg, traceback.format_exc(), type=Gtk.MessageType.ERROR
         )
-    finally:
-        session.close()
     return True
 
 
@@ -209,10 +207,7 @@ def is_code_unique(plant, code):
     # reference accesssion.id instead of accession_id since
     # setting the accession on the model doesn't set the
     # accession_id until the session is flushed
-    session = object_session(plant)
-    should_close_session = session is None
-    if should_close_session:
-        session = db.Session()
+    session = object_session(plant) or db.Session()
 
     stmt = select(func.count()).select_from(
         select(Plant)
@@ -226,13 +221,9 @@ def is_code_unique(plant, code):
         .subquery()
     )
 
-    try:
-        with session.no_autoflush:
-            count = session.execute(stmt, {"codes": codes}).scalar_one()
-        return count == 0
-    finally:
-        if should_close_session:
-            session.close()
+    with session.no_autoflush:
+        count = session.execute(stmt, {"codes": codes}).scalar_one()
+    return count == 0
 
 
 class PlantEditorView(GenericEditorView):
@@ -1006,7 +997,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 if self.handle_response(response):
                     break
 
-        self.session.close()  # cleanup session
         self.presenter.cleanup()
         return self._committed
 

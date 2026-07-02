@@ -1468,9 +1468,6 @@ class GenericEditorPresenter:
             for o in objs:
                 self.session.add(o)
             raise
-        finally:
-            if self.owns_session:
-                self.session.close()
         return True
 
     def __set_model_attr(self, attr, value) -> None:

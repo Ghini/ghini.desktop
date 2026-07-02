@@ -952,83 +952,80 @@ class CSVExporter:
     def __export_task(self, path) -> Generator[None, None, Any]:
         filename_template = os.path.join(path, "%s.txt")
         self.session = sessionmaker(bind=db.engine, autoflush=False, future=True)()
-        try:
-            self.steps_so_far = 0
-            ntables = 0
+        self.steps_so_far = 0
+        ntables = 0
 
-            # Count the number of tables
-            for table in db.metadata.sorted_tables:
-                ntables += 1
-                filename = filename_template % table.name
-                if os.path.exists(filename):
-                    msg = _(
-                        "Export file <b>%(filename)s</b> for "
-                        "<b>%(table)s</b> table already exists.\n\n<i>Would "
-                        "you like to continue?</i>"
-                    ) % {"filename": filename, "table": table.name}
-                    if not utils.yes_no_dialog(msg):  # if NO: return
-                        return
+        # Count the number of tables
+        for table in db.metadata.sorted_tables:
+            ntables += 1
+            filename = filename_template % table.name
+            if os.path.exists(filename):
+                msg = _(
+                    "Export file <b>%(filename)s</b> for "
+                    "<b>%(table)s</b> table already exists.\n\n<i>Would "
+                    "you like to continue?</i>"
+                ) % {"filename": filename, "table": table.name}
+                if not utils.yes_no_dialog(msg):  # if NO: return
+                    return
 
-            def replace(s):
-                if s is None:
-                    return ""
-                if isinstance(s, str):
-                    return s.replace("\n", "\\n")
-                return s
+        def replace(s):
+            if s is None:
+                return ""
+            if isinstance(s, str):
+                return s.replace("\n", "\\n")
+            return s
 
-            def write_csv(filename, rows):
-                with open_file_safe(filename, "w") as f:
-                    writer = UnicodeWriter(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
-                    writer.writerows(rows)
+        def write_csv(filename, rows):
+            with open_file_safe(filename, "w") as f:
+                writer = UnicodeWriter(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
+                writer.writerows(rows)
 
-            update_every = 30
-            # spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
-            spinner = "⡆⠇⠋⠙⠸⢰⣠⣄"
-            # spinner = ('⣀⡀', '⣄ ', '⡆ ', '⠇ ', '⠋ ', '⠉⠁',
-            #           '⠈⠉', ' ⠙', ' ⠸', ' ⢰', ' ⣠', '⢀⣀')
+        update_every = 30
+        # spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
+        spinner = "⡆⠇⠋⠙⠸⢰⣠⣄"
+        # spinner = ('⣀⡀', '⣄ ', '⡆ ', '⠇ ', '⠋ ', '⠉⠁',
+        #           '⠈⠉', ' ⠙', ' ⠸', ' ⢰', ' ⣠', '⢀⣀')
 
-            for table in db.metadata.sorted_tables:
-                filename = filename_template % table.name
-                self.steps_so_far += 1
-                fraction = float(self.steps_so_far) / float(ntables)
-                pb_set_fraction(fraction)
-                spinner_index = 0
-                msg = _("exporting %(table)s table to %(filename)s") % {
-                    "table": table.name,
-                    "filename": filename,
-                }
-                msg = msg + "  " + spinner[0]
-                bauble.task.set_message(msg)
-                logger.info(f"exporting {table.name}")
+        for table in db.metadata.sorted_tables:
+            filename = filename_template % table.name
+            self.steps_so_far += 1
+            fraction = float(self.steps_so_far) / float(ntables)
+            pb_set_fraction(fraction)
+            spinner_index = 0
+            msg = _("exporting %(table)s table to %(filename)s") % {
+                "table": table.name,
+                "filename": filename,
+            }
+            msg = msg + "  " + spinner[0]
+            bauble.task.set_message(msg)
+            logger.info(f"exporting {table.name}")
 
-                # Query the data
-                stmt = select(table)
-                # results = self.session.execute(stmt).fetchall()  # Use the session for execution
-                results = self.session.execute(stmt).mappings().all()
+            # Query the data
+            stmt = select(table)
+            # results = self.session.execute(stmt).fetchall()  # Use the session for execution
+            results = self.session.execute(stmt).mappings().all()
 
-                # create empty files with only the column names
-                if len(results) == 0:
-                    write_csv(filename, [list(table.c.keys())])
+            # create empty files with only the column names
+            if len(results) == 0:
+                write_csv(filename, [list(table.c.keys())])
+                yield
+                continue
+
+            rows = []
+            rows.append(list(table.c.keys()))  # append col names
+            ctr = 0
+            for row in results:
+                # values = list(map(replace, list(row)))
+                values = list(map(replace, [row[col] for col in table.c.keys()]))
+                rows.append(values)
+                if ctr == update_every:
+                    spinner_index = (spinner_index + 1) % len(spinner)
+                    msg = msg[: -len(spinner[0])] + spinner[spinner_index]
+                    bauble.task.set_message(msg)
                     yield
-                    continue
-
-                rows = []
-                rows.append(list(table.c.keys()))  # append col names
-                ctr = 0
-                for row in results:
-                    # values = list(map(replace, list(row)))
-                    values = list(map(replace, [row[col] for col in table.c.keys()]))
-                    rows.append(values)
-                    if ctr == update_every:
-                        spinner_index = (spinner_index + 1) % len(spinner)
-                        msg = msg[: -len(spinner[0])] + spinner[spinner_index]
-                        bauble.task.set_message(msg)
-                        yield
-                        ctr = 0
-                    ctr += 1
-                write_csv(filename, rows)
-        finally:
-            self.session.close()
+                    ctr = 0
+                ctr += 1
+            write_csv(filename, rows)
 
 
 class CSVImportCommandHandler(pluginmgr.CommandHandler):

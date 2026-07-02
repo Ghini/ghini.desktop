@@ -983,7 +983,6 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
             if self.handle_response(response):
                 break
         self.presenter.cleanup()
-        self.session.close()  # cleanup session
         return self._committed
 
 

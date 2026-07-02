@@ -678,7 +678,6 @@ def start_institution_editor():
         if inst_pres.session.in_transaction():
             inst_pres.session.rollback()
         result = False
-    inst_pres.session.close()
     return result
 
 

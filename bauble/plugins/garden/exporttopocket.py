@@ -235,7 +235,6 @@ class ExportToPocketThread(threading.Thread):
         finally:
             if cn is not None:
                 cn.close()
-            session.close()
 
     def cancel(self) -> None:
         self.keep_running = False

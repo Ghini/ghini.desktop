@@ -100,7 +100,6 @@ def add_species_callback(genera):
 
     e = SpeciesEditor(model=Species(genus=genus))
     # session creates unbound object.  editor decides what to do with it.
-    session.close()
     return e.start() is not None
 
 
@@ -1144,7 +1143,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
             if self.handle_response(response):
                 break
         self.presenter.cleanup()
-        self.session.close()  # cleanup session
         return self._committed
 
 

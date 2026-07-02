@@ -949,6 +949,5 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         # don't close the session since the PropagationEditor depends
         # on an PlantEditor...?
         #
-        # self.session.close()  # cleanup session
         self.presenter.cleanup()
         return self._return

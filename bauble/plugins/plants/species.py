@@ -127,7 +127,6 @@ def add_accession_callback(values):
         species = species.species
     e = AccessionEditor(model=Accession(species=species))
     # session creates unbound object.  editor decides what to do with it.
-    session.close()
     return e.start() is not None
 
 

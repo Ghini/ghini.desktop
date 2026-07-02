@@ -472,7 +472,6 @@ class LocationEditor(GenericModelViewPresenterEditor):
             self.presenter.view.save_state()
             if self.handle_response(response):
                 break
-        self.session.close()
         self.presenter.cleanup()
         return self._committed
 

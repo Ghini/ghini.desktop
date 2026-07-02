@@ -484,10 +484,8 @@ class Accession(Base, Serializable, WithNotes):
             return num_fmt % next_number
 
         except Exception as e:
-            logger.debug(e)
+            logger.warning("Could not get_next_code", exc_info=True)
             return None
-        finally:
-            session.close()
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row."""

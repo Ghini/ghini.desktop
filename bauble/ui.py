@@ -223,9 +223,6 @@ def _main_search_database_completion_values(
     except Exception:
         logger.debug("Could not load main search database completions", exc_info=True)
         return []
-    finally:
-        if session is not None:
-            session.close()
 
     seen = set()
     completion_values = []

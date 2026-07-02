@@ -1383,16 +1383,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         # close it and then refresh the same object in
         # self.session
 
-        # make the change in synonym immediately available so that if
-        # we try to add the same species again we don't break the
-        # SpeciesSynonym UniqueConstraint
-
-        # tmp_session = db.Session()
-        # tmp_value = tmp.session.merge(value)
-        # tmp.session.commit()
-        # tmp.session.close()
-        # self.session.refresh(value)
-        # self.session.flush([value])
         self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
@@ -1681,7 +1671,6 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
                 break
 
         self.presenter.cleanup()
-        self.session.close()  # cleanup session
         return self._committed
 
 
