@@ -393,17 +393,18 @@ Session: scoped_session[SQLAlchemySession] = scoped_session(
     sessionmaker(autoflush=False, future=True)
 )
 """
-bauble.db.Session is created after the database has been opened with
-:func:`bauble.db.open()`. bauble.db.Session should be used when you need
-to do ORM based activities on a bauble database.  To create a new
-Session use::Uncategorized
+bauble.db.Session is a scoped_session: it returns the same instance for
+every call within the same thread. In the main (GTK) thread this means
+every call to Session() returns the SearchView's session — use it only
+when you explicitly need access to that shared session and its identity
+map.
 
-    session = bauble.db.Session()
+For everything else — short-lived queries, widget population, editors,
+background threads — use :data:`bauble.db.TempSession` instead.
 
-When you are finished with the session be sure to close the session
-with :func:`session.close()`. Failure to close sessions can lead to
-database deadlocks, particularly when using PostgreSQL based
-databases.
+Do NOT call session.close() on instances obtained from this registry:
+it expunges all tracked objects, detaching anything still in use
+elsewhere in the same thread.
 """
 
 
