@@ -506,12 +506,12 @@ class PlantsPlugin(pluginmgr.Plugin):
 
         with db.TempSession() as session:
             default = "false"
-            q = session.execute(
+            result = session.execute(
                 select(bauble.meta.BaubleMeta).where(
                     bauble.meta.BaubleMeta.name.startswith("stqr-")
                 )
             ).scalars()
-            for i in q.all():
+            for i in result.all():
                 default = i.name
                 session.delete(i)
                 if session.in_transaction():

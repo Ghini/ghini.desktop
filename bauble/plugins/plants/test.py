@@ -180,9 +180,9 @@ class TestFamily:
         session.delete(family)
         if session.in_transaction():
             session.commit()
-        query = session.execute(select(Genus).where(Genus.family_id == family.id))
+        result = session.execute(select(Genus).where(Genus.family_id == family.id))
         with pytest.raises(NoResultFound):
-            query.scalar_one()
+            result.scalar_one()
 
     def test_synonyms(self, session) -> None:
         family = Family(epithet="family")

@@ -736,17 +736,6 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view()  # put model values in view
 
-        # connect signals
-        #        def gen_get_completions(text):
-        #            clause = utils.ilike(Genus.genus, f"{text}%")
-        #            stmt = select(Genus).where(clause).order_by(Genus.genus)#
-        #
-        #            print(stmt.compile(compile_kwargs={"literal_binds": True}))  # optional debug
-        #
-        #            result = list(self.session.scalars(stmt))
-        #            print("Completion query returned:", [g.genus for g in result])
-        #            return result
-        # connect signals
         def fam_get_completions(text_val):
             Family = get_family_class()
             clause = utils.ilike(Family.family, f"{text_val}%")
@@ -758,12 +747,6 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                 "Family completion query returned: %s", [g.family for g in result]
             )
             return result
-
-        #        def fam_get_completions(text_val):
-        #            query = self.session.execute(select(family_instance)).scalars()
-        #            return query.where(family_instance.epithet.like("%s%%" % text_val)).order_by(
-        #                family_instance.epithet
-        #            )
 
         def on_select(value):
             from bauble.plugins.plants.family import FamilySynonym
@@ -904,8 +887,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                     Genus.id != self.model.id,
                 )
             )
-            query = self.session.execute(stmt).scalars()
-            return query
+            result = self.session.execute(stmt).scalars()
+            return result
 
         self._selected = None
 

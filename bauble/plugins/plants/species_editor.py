@@ -193,7 +193,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 stmt.compile(compile_kwargs={"literal_binds": True}),
             )
 
-            result = list(self.session.scalars(stmt))
+            result = self.session.scalars(stmt).all()
             logger.debug(
                 "Genus completion query returned: %s", [g.genus for g in result]
             )
@@ -1262,7 +1262,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.init_treeview()
 
         def sp_get_completions(text):
-            query = (
+            iterable = (
                 self.session.execute(
                     select(Species)
                     .join(Genus, Species.genus_id == Genus.id)
@@ -1271,7 +1271,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                     .order_by(Genus.genus, Species.epithet)
                 )
             ).scalars()
-            return query
+            return iterable
 
         def on_select(value):
             sensitive = True

@@ -71,7 +71,7 @@ def get_species_in_geographic_area(geo):
     master_ids.update(geokids)
     from sqlalchemy import bindparam
 
-    q = (
+    result = (
         session.execute(
             select(Species)
             .join(SpeciesDistribution)
@@ -83,7 +83,7 @@ def get_species_in_geographic_area(geo):
             .params(master_ids=master_ids)
         )
     ).scalars()
-    return list(q)
+    return result.all()
 
 
 class GeographicAreaMenu:

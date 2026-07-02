@@ -43,11 +43,6 @@ from sqlalchemy import Integer, text
 # from sqlalchemy.exc import *
 from sqlalchemy.exc import ProgrammingError
 
-# from sqlalchemy.ext.declarative import declarative_base
-# from sqlalchemy.ext.declarative import DeclarativeMeta
-# from sqlalchemy.orm.exc import *
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -86,36 +81,6 @@ logger = logging.getLogger(__name__)
 #     def __init__(self, ):
 #         """
 #         """
-
-
-# TODO: removed connect_as_user since for "set role" to be successful
-# the current user has to be a member of the role/name passed to
-# connect_as_user() which makes it not very useful
-
-# def connect_as_user(name=None):
-#     """
-#     Return a connection where the user is set to name.
-
-#     The returned connection should be closed when it is no longer
-#     needed or deadlocks may occur.
-#     """
-#     conn = db.engine.connect()
-#     # detach connection so when it's closed it doesn't go back to the
-#     # pool where there could be the possibility of it being reused and
-#     # having future sql commands run as the user afer this connection
-#     # has been closed
-#     conn.detach()
-#     trans = conn.begin()
-#     try:
-#         conn.execute('set role %s' % name)
-#     except Exception, e:
-#         warning(utils.to_unicode(e))
-#         trans.rollback()
-#         conn.close()
-#         return None
-#     else:
-#         trans.commit()
-#     return conn
 
 
 def safe_set_text(gtk_widget, text) -> None:

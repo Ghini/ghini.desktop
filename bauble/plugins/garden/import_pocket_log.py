@@ -224,15 +224,19 @@ def process_pending_edit_line(session, baseline, timestamp, parameters) -> None:
     plant = (
         session.execute(
             select(Plant)
-            .where(code=plant_code)
+            .where(Plant.code=plant_code)
             .join(Accession)
-            .where(code=accession_code)
+            .where(Accession.code=accession_code)
         )
         .scalars()
         .first()
     )
     accession = (
-        session.execute(select(Accession).where(code=accession_code)).scalars().first()
+        session.execute(
+            select(Accession)
+            .where(Accession.code=accession_code))
+        .scalars()
+        .first()
     )
     if plant is None:
         # if it does not, we have work to do …
@@ -312,81 +316,3 @@ def process_line(session, line, baseline) -> None:
     else:
         logger.error(f"unhandled category in your pocket data line ›{line}‹")
 
-
-# if False:
-#     q = (
-#         session.execute(select(Species)).scalars()
-#         .where(Species.infrasp1 == "sp")
-#         .join(Genus, Species.genus_id == Genus.id)
-#         .where(Genus.epithet == "Zzz")
-#     )
-#     zzz = q.one()
-
-#     import sys
-
-#     header = ["timestamp", "location", "acc_code", "imei", "species"]
-#     last_loc = None
-
-#     import fileinput
-
-#     for line in fileinput.input():
-#         sys.stdout.flush()
-#         obj = dict(
-#             list(zip(header, [i.strip() for i in str(line).split(":")]))
-#         )
-#         if len(obj) < 3:
-#             continue  # ignore blank lines
-#         obj.setdefault("species", "Zzz sp")
-
-#         if not obj["location"]:
-#             obj["location"] = last_loc
-#         last_loc = obj["location"]
-
-#         loc = lookup(session, Location, code=last_loc)
-#         genus = get_genus(session, obj)  # alters obj
-#         species = get_species(session, obj, genus)
-
-#         try:
-#             q = (
-#                 session.execute(select(Plant)).scalars()
-#                 .join(Accession, Plant.accession_id == Accession.id)
-#                 .where(Accession.code == obj["acc_code"])
-#                 .where(Plant.code == "1")
-#             )
-#             plant = q.one()
-#             if plant.location != loc:
-#                 plant.location = loc
-#                 sys.stdout.write(":")  # we altered a plant location
-#             else:
-#                 sys.stdout.write(".")  # we confirmed a plant location
-#         except Exception:
-#             try:
-#                 accession = (
-#                     session.execute(select(Accession)).scalars()
-#                     .where(Accession.code == obj["acc_code"])
-#                     .one()
-#                 )
-#             except Exception:
-#                 accession = Accession(species=species, code=obj["acc_code"])
-#                 session.add(accession)
-#                 sys.stdout.write("a")  # we added a new accession
-#             plant = Plant(
-#                 accession=accession, location=loc, quantity=1, code="1"
-#             )
-#             session.add(plant)
-#             session.flush()
-#             sys.stdout.write("p")  # we added a new plant
-#         # operación perro - mark the plant as seen today
-#         q = session.execute(select(PlantNote)).scalars()
-#         q = q.where(PlantNote.plant == plant)
-#         q = q.where(PlantNote.category == "inventario")
-#         q = q.where(PlantNote.note == obj["timestamp"][:8])
-#         if q.count() == 0:
-#             note = PlantNote(
-#                 plant=plant, category="inventario", note=obj["timestamp"][:8]
-#             )
-#             session.add(note)
-#             session.flush()
-
-#     print()
-#     session.commit()

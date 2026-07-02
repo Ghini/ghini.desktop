@@ -325,12 +325,13 @@ class PocketServerPresenter(GenericEditorPresenter):
             self.clients_ls.append((i, key, elems[key]))
 
     def commit_changes(self) -> None:
-        result = list(
+        row = (
             self.session.execute(
                 select(meta.BaubleMeta).where(name="pocket-clients")
-            ).scalars()
+            )
+            .scalars()
+            .one_or_none()
         )
-        row = result[0] if result else None
         if row is None:
             row = meta.BaubleMeta(name="pocket-clients")
             self.session.add(row)

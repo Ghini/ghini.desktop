@@ -733,17 +733,6 @@ class IdentExpression:
 class ElementSetExpression(IdentExpression):
     # currently only implements `in`
 
-    # def evaluate(self, env):
-    #     q, a = self.operands[0].evaluate(env)
-
-    #     # Ensure 'q' is turned into a subquery
-    #     #if not isinstance(q, AliasedClass):
-    #     #    q = q.subquery()
-    #     q = q.subquery()
-
-    #     stmt = select(q).where(a.in_(self.operands[1].express()))
-    #     return env.session.scalars(stmt)
-
     def evaluate(self, env: Dict[str, Any]) -> Tuple[Select, Any]:
         """
         Evaluates the IdentExpression and returns a statement and attribute.

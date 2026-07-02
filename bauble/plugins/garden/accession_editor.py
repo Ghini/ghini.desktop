@@ -1875,8 +1875,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             .where(meta.BaubleMeta.name.like("acidf_%"))
             .order_by(meta.BaubleMeta.name)
         )
-        query = self.session.execute(stmt).scalars()
-        for i, row in enumerate(query):
+        rows = self.session.execute(stmt).scalars()
+        for i, row in enumerate(rows):
             ls.append([i + 1, row.value])
         ls.append([len(ls) + 1, ""])
 
