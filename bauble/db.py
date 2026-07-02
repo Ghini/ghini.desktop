@@ -1329,8 +1329,10 @@ class Serializable:
     single_cap_re: Any = re.compile("([A-Z])")
     link_keys: Any = []
 
+    _rank = -99
+
     def sort_key(self):
-        return str(self)
+        return ((self._rank, str(self)),)
 
     def as_dict(self):
         """
