@@ -667,9 +667,6 @@ class TestAddConnection:
             ["name_combo", "new_conn", ()],
         ) in presenter.view.invoked_detailed
 
-        # Simulate unresolved issue (Skipping test)
-        pytest.skip("related to issue #194")
-
 
 @pytest.fixture
 def mock_renderer():
