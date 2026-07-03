@@ -182,7 +182,6 @@ def test_format_qr_postscript_templates(session) -> None:
         assert isinstance(report, bytes)
 
 
-@pytest.mark.skip(reason="Related to issue #363")
 def test_format_qr_svg_templates(session) -> None:
     """
     Test formatting mako templates with QR codes and SVG.
