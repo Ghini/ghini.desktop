@@ -273,7 +273,7 @@ class TestFamily:
         f.qualifier = "s. lat."
         assert str(f) == "fam s. lat."
 
-    @pytest.mark.skip(reason="Not implemented")
+    @pytest.mark.skip(reason="placeholder — FamilyEditor tests not yet written")
     def test_editor(self) -> None:
         """Placeholder for FamilyEditor tests."""
         pass
@@ -727,31 +727,31 @@ class TestSpecies:
                 f"'{lower_str}' (ID: {lower_id}) in lexicographic order."
             )
 
-    # def test_dirty_string(self, session):
-    #     """
-    #     Test that the cached string representation of a Species object
-    #     is invalidated when the object is modified or expired.
-    #     """
-    #     # Step 1: Create and commit initial species
-    #     family = Family(epithet="family")
-    #     genus = Genus(family=family, epithet="genus")
-    #     sp = Species(genus=genus, epithet="sp")
-    #     session.add_all([family, genus, sp])
-    #     session.commit()
+    def test_dirty_string(self, session):
+        """
+        Test that the cached string representation of a Species object
+        is invalidated when the object is modified or expired.
+        """
+        # Step 1: Create and commit initial species
+        family = Family(epithet="family")
+        genus = Genus(family=family, epithet="genus")
+        sp = Species(genus=genus, epithet="sp")
+        session.add_all([family, genus, sp])
+        session.commit()
 
-    #     # Step 2: Capture initial string representation
-    #     str1 = sp.str()
+        # Step 2: Capture initial string representation
+        str1 = sp.str()
 
-    #     # Step 3: Modify the species and commit the changes
-    #     sp.epithet = "sp2"
-    #     session.commit()
+        # Step 3: Modify the species and commit the changes
+        sp.epithet = "sp2"
+        session.commit()
 
-    #     # Step 4: Refresh and reload the species from the database
-    #     session.refresh(sp)
-    #     sp = session.get(Species, sp.id)
+        # Step 4: Refresh and reload the species from the database
+        session.refresh(sp)
+        sp = session.get(Species, sp.id)
 
-    #     # Step 5: Verify that the string representation has changed
-    #     assert sp.str() != str1, "String cache was not invalidated after modification."
+        # Step 5: Verify that the string representation has changed
+        assert sp.str() != str1, "String cache was not invalidated after modification."
 
     def test_vernacular_name(self, session) -> None:
         """Test the `Species.vernacular_name` property."""
@@ -1349,7 +1349,7 @@ class TestFromAndToDict:
         session_families = session.execute(select(Family)).scalars().all()
         assert fab in session_families, "Family not found in session after creation."
 
-    @pytest.mark.skip(reason="Not Implemented")
+    @pytest.mark.xfail(reason="fails — isolation semantics between sessions unclear, needs review", strict=True)
     def test_where_can_object_be_found_before_commit(self, db_session) -> None:
         """Test visibility of created objects in other sessions before commit."""
         fab = Family.retrieve_or_create(
@@ -1358,7 +1358,7 @@ class TestFromAndToDict:
 
         # Use a new session bound to same connection with SAVEPOINT
         nested_transaction = db_session.connection().begin_nested()
-        other_session = db.Session(bind=db_session.connection())
+        other_session = sessionmaker(bind=db.engine.connect())()
         try:
             db_families = other_session.execute(select(Family)).scalars().all()
             Family.retrieve_or_create(
@@ -1368,6 +1368,8 @@ class TestFromAndToDict:
         finally:
             if nested_transaction.in_transaction():
                 nested_transaction.rollback()
+            db_session.rollback()
+            other_session.rollback()
 
     def test_where_can_object_be_found_after_commit(self, db_session) -> None:
         """Test visibility of created objects in other sessions after commit."""
@@ -1388,6 +1390,9 @@ class TestFromAndToDict:
             }, "Family not found in other session after commit."
         except Exception as e:
             logger.debug("Something happened", exc_info=True)
+        finally:
+            other_session.rollback()
+            db_session.rollback()
 
     def test_grabbing_same_params_same_output_new(self, session) -> None:
         """Test that retrieving the same parameters returns the same new object."""
@@ -2213,7 +2218,7 @@ class TestPresenter:
         presenter.commit_changes()
         assert species.author == "Asher"
 
-    @pytest.mark.skip(reason="Not Implemented: Presenter uses view internals")
+    @pytest.mark.xfail(reason="Not implemented: Presenter uses view internals", strict=True)
     def test_cant_insert_same_twice(self, session) -> None:
         model = Species.retrieve_or_create(
             session,
@@ -2230,9 +2235,9 @@ class TestPresenter:
         presenter = SpeciesEditorPresenter(model, MockView())
         presenter.on_text_entry_changed("sp_species_entry", "grandiflora")
 
-    @pytest.mark.skip(reason="Not Implemented: Presenter uses view internals")
+    @pytest.mark.skip(reason="Placeholder, test not written")
     def test_cant_insert_same_twice_warn_once(self, session) -> None:
-        # Implementation skipped
+        # Not implemented: Presenter uses view internals
         pass
 
 
