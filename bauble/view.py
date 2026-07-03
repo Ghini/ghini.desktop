@@ -1259,7 +1259,12 @@ class SearchView(pluginmgr.View):
         def cmp(model, it1, it2, _data):
             a = sortable(model.get_value(it1, 0))
             b = sortable(model.get_value(it2, 0))
-            return (a > b) - (a < b)
+            try:
+                return (a > b) - (a < b)
+            except TypeError:
+                logger.warning(f"cmp() fallita: a={a!r} (tipo {type(a).__name__}), "
+                               f"b={b!r} (tipo {type(b).__name__})")
+                return 0
 
         model.set_default_sort_func(cmp)
         model.set_sort_column_id(

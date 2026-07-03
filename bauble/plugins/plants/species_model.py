@@ -228,6 +228,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         """Enable SQL querying on ht_epithet by joining with Genus."""
         return get_genus().epithet
 
+    _sorting_rank = 7
+
     @classmethod
     def retrieve(cls, session, keys):
         """

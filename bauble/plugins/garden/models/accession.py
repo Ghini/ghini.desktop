@@ -437,6 +437,8 @@ class Accession(Base, Serializable, WithNotes):
         "Location", primaryjoin="Accession.intended2_location_id==Location.id"
     )
 
+    _sorting_rank = 10
+
     @classmethod
     def get_next_code(cls, code_format: Optional[Any] = None):
         """

@@ -71,6 +71,8 @@ class Location(Base, Serializable, WithNotes):
     description: Mapped[Optional[str]] = mapped_column(UnicodeText)
     order_by: ClassVar[list[Any]] = [asc(name)]
 
+    _sorting_rank = 12
+
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row."""
         if self.description is not None:

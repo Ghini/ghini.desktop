@@ -256,6 +256,8 @@ class Family(Base, Serializable, WithNotes):
     rank: str = "familia"
     link_keys: Any = ["accepted"]
 
+    _sorting_rank = 1
+
     @validates("epithet", "author")
     def validate_stripping(self, key, value):
         if value is None:

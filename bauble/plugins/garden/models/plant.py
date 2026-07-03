@@ -284,6 +284,8 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
 
     delimiter: Any = property(lambda self: self._get_delimiter())
 
+    _sorting_rank = 11
+
     @staticmethod
     def main_number(code):
         m = re.match(r'(\d+)', code)
@@ -293,9 +295,10 @@ class Plant(Base, Serializable, DefiningPictures, WithNotes):
 
     def sort_key(self):
         return tuple(
+            [(self._sorting_rank, str(self.accession))] + [
             (0, int(x)) if x.isdigit() else (1, x.lower())
-            for x in re.split(r'(\d+)', str(self))
-            if x
+            for x in re.split(r'(\d+)', self.code)
+            if x]
         )
 
     def __str__(self) -> str:

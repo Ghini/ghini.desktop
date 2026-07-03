@@ -262,6 +262,8 @@ class Genus(Base, Serializable, WithNotes):
         active_history=True,
     )
 
+    _sorting_rank = 5
+
     def __init__(self, **kwargs) -> None:
         self.species_editor = get_species_editor()
         # Use keyword arguments to initialize attributes
