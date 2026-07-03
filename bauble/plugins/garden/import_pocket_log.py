@@ -224,9 +224,9 @@ def process_pending_edit_line(session, baseline, timestamp, parameters) -> None:
     plant = (
         session.execute(
             select(Plant)
-            .where(Plant.code=plant_code)
             .join(Accession)
-            .where(Accession.code=accession_code)
+            .where(Plant.code == plant_code)
+            .where(Accession.code == accession_code)
         )
         .scalars()
         .first()
@@ -234,7 +234,7 @@ def process_pending_edit_line(session, baseline, timestamp, parameters) -> None:
     accession = (
         session.execute(
             select(Accession)
-            .where(Accession.code=accession_code))
+            .where(Accession.code == accession_code))
         .scalars()
         .first()
     )
