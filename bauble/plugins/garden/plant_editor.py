@@ -771,6 +771,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
             self.branched_plant = None
 
         super().__init__(model, parent)
+        logger.debug(f"[DEBUG __init__] "
+                     f"branch_mode={branch_mode} branched_plant={self.branched_plant!r} "
+                     f"self.model.id={self.model.id!r} self.model.quantity={self.model.quantity!r}")
 
         from bauble.plugins.garden.models import Plant as Plant
 
@@ -805,6 +808,12 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
     def commit_changes(self) -> None:
         """ """
+        logger.debug(f"[DEBUG commit_changes] "
+                     f"self.model.id={self.model.id!r} "
+                     f"in session.new={self.model in self.session.new} "
+                     f"branched_plant={self.branched_plant!r} "
+                     f"branched_plant.quantity={getattr(self.branched_plant, 'quantity', None)!r} "
+                     f"self.model.quantity={self.model.quantity!r}")
         from bauble.plugins.garden.models import Plant as Plant
         from bauble.plugins.garden.models import PlantNote as PlantNote
 
@@ -820,6 +829,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         ## we are changing an existing Plant
         if ( self.model not in self.session.new
              and not self.branched_plant ):
+            logger.debug("[DEBUG commit_changes] --> ramo: existing plant")
             for propagation in self.model.propagations:
                 propagation.clean()
             change = self.presenter.change
@@ -851,6 +861,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             self._committed.append(self.model)
             return
 
+        logger.debug("[DEBUG commit_changes] --> ramo: adding new plant(s)")
         ## we are adding one or more new plants
         plants = []
         mapper = object_mapper(self.model)
@@ -882,11 +893,12 @@ class PlantEditor(GenericModelViewPresenterEditor):
                          [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
             for obj in [self.model] + self.model.notes:
                 self.session.expunge(obj)
+                self._purge_phantom_backrefs(obj)
             logger.debug("session.new after expunge: %s",
                          [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
             super().commit_changes()
         except Exception as e:
-            logger.warning("commit_changes failed: %s", e, exc_info=False)
+            logger.warning("commit_changes failed: %s", e, exc_info=True)
             self.session.add(self.model)
             raise
         self._committed.extend(plants)
@@ -900,7 +912,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 try:
                     self.commit_changes()
                 except Exception as e:
-                    logger.warning("commit_changes failed: %s", e, exc_info=False)
+                    logger.warning("commit_changes failed: %s", e, exc_info=True)
                     if self.session.in_transaction():
                         self.session.rollback()
                     return False
