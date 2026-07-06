@@ -215,7 +215,7 @@ if [ -n "${MYSQL:-}" ]; then
     pip install mysqlclient
 fi
 
-pip install -e ".[test]"
+pip install --editable ".[test]"
 
 # ── 5. Generate launcher script ───────────────────────────────────────────────
 
@@ -232,12 +232,12 @@ while getopts us:mp f; do
   case \$f in
     u)  cd \$GITHOME
         git pull --ff-only
-        pip install -e ".[test]"
+        pip install --editable ".[test]"
         exit 0 ;;
     s)  [[ -n "\${OPTARG:-}" ]] || { echo "usage: ghini -s VERSION" >&2; exit 2; }
         cd \$GITHOME
         git checkout "ghini-\$OPTARG" || exit 1
-        pip install -e ".[test]"
+        pip install --editable ".[test]"
         exit 0 ;;
     m)  pip install mysqlclient; exit 0 ;;
     p)  pip install psycopg2; exit 0 ;;
