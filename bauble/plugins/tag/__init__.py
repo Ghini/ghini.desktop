@@ -55,12 +55,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.exc import DBAPIError
 
-# from sqlalchemy.exc import InvalidRequestError
-# from sqlalchemy.orm import Session as SASession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.orm.exc import DetachedInstanceError
 
-# from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import object_session
 
 logger: Any = logging.getLogger(__name__)
@@ -598,7 +594,7 @@ class Tag(db.Base, db.WithNotes):
     def __str__(self) -> str:
         try:
             return str(self.tag)
-        except DetachedInstanceError:
+        except orm_exc.DetachedInstanceError:
             return db.Base.__str__(self)
 
     def markup(self) -> str:
