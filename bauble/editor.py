@@ -42,6 +42,7 @@ from bauble.utils import handle_db_error, parse_date, safe_set_props
 from sqlalchemy import select
 from sqlalchemy.orm import object_mapper, object_session
 import sqlalchemy.orm.exc
+from sqlalchemy import inspect as sa_inspect
 
 logger: Any = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -1446,8 +1447,6 @@ class GenericEditorPresenter:
         """
         Commit the changes to self.session()
         """
-        from sqlalchemy import inspect as sa_inspect
-
         # snapshot ONLY persistent objects (already saved in DB)
         objs = [o for o in list(self.session) if sa_inspect(o).persistent]
         try:
@@ -2178,20 +2177,12 @@ class GenericModelViewPresenterEditor:
         self.parent = parent
         self.prefs = prefs
 
-        # If `model` was constructed with a kwarg that maps to a relationship with
-        # `back_populates` (e.g. Plant(accession=...)), its own `__init__`
-        # auto-appends it to the inverse collection (accession.plants) before this
-        # editor ever sees it. `session.merge(model)` above then creates a *new*,
-        # persistent instance (self.model) distinct from the original transient
-        # `model` -- but the original is left lingering as an orphan reference
-        # inside that backref collection. Unless detached here, it gets flushed as a
-        # phantom row with missing required fields (e.g. Plant(code=None)).
-        if model is not self.model:
+        # Non-persistent objects may have been auto-linked into back_populates
+        # collections. Purge those references to avoid flushing phantom rows.
+        if not sa_inspect(model).persistent:
             self._purge_phantom_backrefs(model)
 
     def _purge_phantom_backrefs(self, transient_model):
-        from sqlalchemy import inspect as sa_inspect
-
         mapper = sa_inspect(type(transient_model)).mapper
         for rel in mapper.relationships:
             if rel.back_populates is None:
@@ -2209,8 +2200,6 @@ class GenericModelViewPresenterEditor:
         """
         Commit the changes to self.session()
         """
-        from sqlalchemy import inspect as sa_inspect
-
         # snapshot ONLY persistent objects (already saved in DB)
         objs = [o for o in list(self.session) if sa_inspect(o).persistent]
         try:
