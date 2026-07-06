@@ -827,8 +827,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         codes = utils.range_builder(self.model.code)
 
         ## we are changing an existing Plant
-        if ( self.model not in self.session.new
-             and not self.branched_plant ):
+        if ( self.model not in self.session.new or self.branched_plant ):
             logger.debug("[DEBUG commit_changes] --> ramo: existing plant")
             for propagation in self.model.propagations:
                 propagation.clean()
