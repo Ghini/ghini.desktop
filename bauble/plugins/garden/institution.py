@@ -40,7 +40,6 @@ from bauble.gtkinit import Champlain, Clutter, Gdk, Gtk, GtkChamplain, GtkClutte
 from sqlalchemy import insert, select, update
 from sqlalchemy.orm import sessionmaker
 
-# from sqlalchemy.orm import Session
 
 # Ensure GTK is initialized and get the display
 display: Any = Gdk.Display.get_default()
