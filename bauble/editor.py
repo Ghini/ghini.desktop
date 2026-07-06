@@ -34,7 +34,8 @@ import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
 import lxml.etree as etree
-from bauble.db import Base, Session
+from bauble import db
+from bauble.db import Base
 from bauble.error import CheckConditionError, check
 from bauble.gtkinit import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango
 from bauble.utils import handle_db_error, parse_date, safe_set_props
@@ -2172,7 +2173,7 @@ class GenericModelViewPresenterEditor:
     def __init__(
         self, model, parent: Optional[Any] = None, prefs: Optional[Any] = None
     ) -> None:
-        self.session = Session()
+        self.session = db.TempSession()
         self.model = self.session.merge(model)
         self.parent = parent
         self.prefs = prefs
