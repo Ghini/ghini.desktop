@@ -30,7 +30,6 @@ import bauble.pluginmgr as pluginmgr
 import bauble.search as search
 import bauble.utils as utils
 import bauble.view as view
-from bauble.db import Session
 from bauble.gtkinit import Gtk
 from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_editor import (
@@ -121,8 +120,7 @@ def add_accession_callback(values):
     from bauble.plugins.garden.accession_editor import AccessionEditor
     from bauble.plugins.garden.models import Accession
 
-    session = Session()
-    species = session.merge(values[0])
+    species = values[0]
     if isinstance(species, VernacularName):
         species = species.species
     e = AccessionEditor(model=Accession(species=species))

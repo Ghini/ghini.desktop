@@ -36,7 +36,7 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
 import bauble.view as view
-from bauble.db import Base, Serializable, Session, WithNotes, make_note_class
+from bauble.db import Base, Serializable, WithNotes, make_note_class
 from bauble.gtkinit import Gtk
 from bauble.plugins.plants.family import Family
 from bauble.prefs import prefs
@@ -93,8 +93,7 @@ def edit_callback(genera):
 
 
 def add_species_callback(genera):
-    session = Session()
-    genus = session.merge(genera[0])
+    genus = genera[0]
     from bauble.plugins.plants.species import SpeciesEditor
     from bauble.plugins.plants.species_model import Species
 
