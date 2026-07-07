@@ -245,3 +245,58 @@ def test_note_box_appends_new_note_once_when_date_is_missing() -> None:
 
 def test_note_box_defaults_to_global_preferences() -> None:
     assert NoteBox._resolve_prefs(None) is prefs
+
+
+def test_editing_persistent_model_does_not_corrupt_other_session(
+    db_session,
+) -> None:
+    """
+    GenericModelViewPresenterEditor merges `model` into its own
+    (Temp)Session so that editing never dirties the session `model` came
+    from -- e.g. the ResultsView's shared session.
+
+    `_purge_phantom_backrefs()` exists to detach a *transient* model
+    (freshly constructed as e.g. ``Plant(accession=some_accession)``) from
+    the backref collection its own ``__init__`` auto-populated, before that
+    orphan reference gets flushed. It must never run against a *persistent*
+    model such as an existing Accession row selected in the ResultsView:
+    doing so removes the object from its parent's already-loaded
+    relationship collection and, because of ``back_populates``, nulls the
+    object's own scalar reference to that parent -- corrupting live state
+    in a session the editor was never supposed to touch.
+    """
+    from sqlalchemy.orm import object_session
+
+    from bauble.editor import GenericModelViewPresenterEditor
+    from bauble.plugins.garden.models import Accession
+    from bauble.plugins.plants.family import Family
+    from bauble.plugins.plants.genus import Genus
+    from bauble.plugins.plants.species_model import Species
+
+    family = Family(epithet="Cactaceae")
+    genus = Genus(family=family, epithet="Echinocactus")
+    species = Species(genus=genus, sp="grusonii")
+    accession = Accession(species=species, code="1")
+    db_session.add_all([family, genus, species, accession])
+    db_session.commit()
+
+    # simulate the ResultsView: the species row has been expanded, so its
+    # `accessions` collection is loaded and backs the accession's child row.
+    assert accession in species.accessions
+
+    # simulate: right-click on the accession row -> "Edit".
+    editor = GenericModelViewPresenterEditor(accession)
+    try:
+        # the object handed to the editor is still the one attached to the
+        # ResultsView's own session and must be left untouched.
+        assert object_session(accession) is db_session
+        assert accession.species is species, (
+            "opening the editor must not clear the `species` backref of "
+            "the accession still displayed by the ResultsView"
+        )
+        assert accession in species.accessions, (
+            "opening the editor must not remove the accession from its "
+            "parent's already-loaded `accessions` collection"
+        )
+    finally:
+        editor.session.close()
