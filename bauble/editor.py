@@ -2182,19 +2182,22 @@ class GenericModelViewPresenterEditor:
         if not sa_inspect(model).persistent:
             self._purge_phantom_backrefs(model)
 
-    def _purge_phantom_backrefs(self, transient_model):
-        mapper = sa_inspect(type(transient_model)).mapper
+    def _purge_phantom_backrefs(self, model):
+        mapper = sa_inspect(type(model)).mapper
+        if sa_inspect(model).persistent:
+            logger.warning("called _purge_phantom_backrefs on a persistent object; ignoring the call.")
+            return
         for rel in mapper.relationships:
             if rel.back_populates is None:
                 continue
-            related = getattr(transient_model, rel.key, None)
+            related = getattr(model, rel.key, None)
             if related is None:
                 continue
             targets = related if isinstance(related, list) else [related]
             for target in targets:
                 collection = getattr(target, rel.back_populates, None)
-                if isinstance(collection, list) and transient_model in collection:
-                    collection.remove(transient_model)
+                if isinstance(collection, list) and model in collection:
+                    collection.remove(model)
 
     def commit_changes(self):
         """
