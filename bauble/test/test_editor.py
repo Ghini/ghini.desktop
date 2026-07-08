@@ -25,14 +25,14 @@ import os
 from types import SimpleNamespace
 
 import bauble.paths as paths
-import bauble.prefs as prefs
+import bauble.prefs as bprefs
 import bauble.utils as utils
 import pytest
 from bauble.editor import GenericEditorView, NoteBox
 from bauble.utils import parse_date
 
 # Ensure testing environment
-prefs.testing = True
+bprefs.testing = True
 
 
 @pytest.fixture
@@ -216,7 +216,7 @@ def _note_box_with_date_entry(text="25-05-2026"):
     parent = _FakeParent()
     box.presenter = _FakePresenter(parent)
     box.model = SimpleNamespace(date=None, user=None, category=None, note=None)
-    box.prefs = prefs
+    box.prefs = bprefs
     box.widgets = SimpleNamespace(date_entry=_FakeEntry(text))
     box.update_label = lambda: None
     return box, parent
@@ -244,7 +244,7 @@ def test_note_box_appends_new_note_once_when_date_is_missing() -> None:
 
 
 def test_note_box_defaults_to_global_preferences() -> None:
-    assert NoteBox._resolve_prefs(None) is prefs
+    assert NoteBox._resolve_prefs(None) is bprefs
 
 
 def test_editing_persistent_model_does_not_corrupt_other_session(

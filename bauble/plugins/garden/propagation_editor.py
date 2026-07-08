@@ -29,7 +29,7 @@ from typing import Any, Optional
 
 import bauble
 import bauble.paths as paths
-import bauble.prefs as prefs
+import bauble.prefs as bprefs
 import bauble.utils as utils
 from bauble import editor
 from bauble.plugins.garden.constants import (
@@ -86,7 +86,7 @@ class PropagationHandler:
         from bauble.btypes import DateTime
 
         date = DateTime().process_bind_param(propagation.date, None)
-        date_format = prefs.prefs[prefs.date_format_pref]
+        date_format = bprefs.prefs[bprefs.date_format_pref]
         date_str = date.strftime(date_format) if date else _("unknown date")
         expander.set_label(f"{prop_type} on {date_str}")
 
@@ -352,7 +352,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         )
 
         # set default units
-        units = prefs.prefs[prefs.units_pref]
+        units = bprefs.prefs[bprefs.units_pref]
         if units == "imperial":
             self.model.length_unit = "in"
             self.model.bottom_heat_unit = "F"
@@ -375,7 +375,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
             store_cell = rooted_liststore[treeiter][0]
             value = getattr(store_cell, attr_name)
             if isinstance(value, datetime.date):
-                format = prefs.prefs[prefs.date_format_pref]
+                format = bprefs.prefs[bprefs.date_format_pref]
                 value = value.strftime(format)
             cell.set_property("text", f"{value}")
 
@@ -622,7 +622,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.parent_ref().refresh_sensitivity()
 
     def refresh_view(self) -> None:
-        date_format = prefs.prefs[prefs.date_format_pref]
+        date_format = bprefs.prefs[bprefs.date_format_pref]
         for widget, attr in list(self.widget_to_field_map.items()):
             value = getattr(self.model, attr)
             if isinstance(value, datetime.date):
@@ -668,7 +668,7 @@ class PropagationPresenter(editor.ChildPresenter):
 
         self.assign_simple_handler("prop_date_entry", "date", editor.DateValidator())
         ensure_propagation_date(self.model)
-        format = prefs.prefs[prefs.date_format_pref]
+        format = bprefs.prefs[bprefs.date_format_pref]
         date_str = self.model.date.strftime(format)
         self.view.widget_set_value(self.view.widgets.prop_date_entry, date_str)
 

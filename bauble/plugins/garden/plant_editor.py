@@ -33,7 +33,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import bauble.db as db
 import bauble.paths as paths
-import bauble.prefs as prefs
+import bauble.prefs as bprefs
 import bauble.utils as utils
 import bauble.view as view
 from bauble.editor import GenericEditorPresenter as GenericEditorPresenter
@@ -1105,7 +1105,7 @@ class ChangesExpander(InfoExpander):
         if not row.changes:
             return
         len(row.changes)
-        date_format = prefs.prefs[prefs.date_format_pref]
+        date_format = bprefs.prefs[bprefs.date_format_pref]
         current_row = 0
 
         for change in sorted(
@@ -1215,7 +1215,7 @@ class PropagationExpander(InfoExpander):
         for child in self.vbox.get_children():
             self.vbox.remove(child)
 
-        date_format = prefs.prefs[prefs.date_format_pref]
+        date_format = bprefs.prefs[bprefs.date_format_pref]
 
         for prop in row.propagations:
             # Create horizontal box (h1) containing v1 (date) and v2 (accessions)

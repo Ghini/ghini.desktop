@@ -39,7 +39,7 @@ from typing import Any
 
 # import bauble.db as db
 import bauble.paths as bpaths
-import bauble.prefs as prefs
+import bauble.prefs as bprefs
 import bauble.utils as butils
 from bauble.plugins.abcd import ABCDAdapter, ABCDElement, create_abcd
 from bauble.plugins.garden.models import Accession, Plant
@@ -118,7 +118,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
         self.session = object_session(species)
         self.for_labels = for_labels
         self.species = species
-        self._date_format = prefs.prefs[prefs.date_format_pref]
+        self._date_format = bprefs.prefs[bprefs.date_format_pref]
 
     def get_UnitID(self):
         # **** Returning the empty string for the UnitID makes the

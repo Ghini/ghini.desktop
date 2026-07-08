@@ -25,7 +25,7 @@ from gettext import gettext as _
 from typing import TYPE_CHECKING, Any, ClassVar, List, Optional
 
 import bauble.btypes as types
-import bauble.prefs as prefs
+import bauble.prefs as bprefs
 import bauble.utils as utils
 from bauble.db import Base, WithNotes, make_note_class
 from bauble.plugins.garden.constants import (
@@ -164,7 +164,7 @@ class Propagation(Base, WithNotes):
         partial==2 means we do not want the list of resulting accessions.
 
         """
-        date_format = prefs.prefs[prefs.date_format_pref]
+        date_format = bprefs.prefs[bprefs.date_format_pref]
 
         def get_date(date):
             if isinstance(date, datetime.date):

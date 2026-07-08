@@ -291,10 +291,10 @@ class DateTime(types.TypeDecorator):
 
         if isinstance(value, str):
             # Dynamically fetch preferences for date parsing
-            from bauble import prefs
+            import bauble.prefs as bprefs
 
-            dayfirst = prefs.parse_dayfirst_pref
-            yearfirst = prefs.parse_yearfirst_pref
+            dayfirst = bprefs.parse_dayfirst_pref
+            yearfirst = bprefs.parse_yearfirst_pref
 
             # Parse the string into a datetime object
             from bauble.utils import parse_date  # Ensure this is available
@@ -368,10 +368,10 @@ class Date(types.TypeDecorator):
         # global _prefs_lock
         with _prefs_lock:
             if self._dayfirst is None or self._yearfirst is None:
-                from bauble import prefs
+                import bauble.prefs as bprefs
 
-                self._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
-                self._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+                self._dayfirst = bprefs.prefs[bprefs.parse_dayfirst_pref]
+                self._yearfirst = bprefs.prefs[bprefs.parse_yearfirst_pref]
                 logger.debug(
                     f"Date preferences initialized: dayfirst={self._dayfirst}, yearfirst={self._yearfirst}"
                 )

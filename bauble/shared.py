@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Optional
 
-from bauble import prefs
+import bauble.prefs as bprefs
 from bauble.gtkinit import Gio, Gtk
 
 # from bauble.gtkinit import Pango
@@ -75,8 +75,8 @@ class InfoExpander:
         Save the expanded state in preferences, if specified.
         """
         if self.expanded_pref:
-            prefs.prefs[self.expanded_pref] = expander.get_expanded()
-            prefs.prefs.save()
+            bprefs.prefs[self.expanded_pref] = expander.get_expanded()
+            bprefs.prefs.save()
 
     def set_labeled_value(self, prefix, value) -> None:
         """

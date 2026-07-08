@@ -40,15 +40,22 @@ logger.setLevel(logging.INFO)
 
 testing: bool = False  # set this to True when testing
 
-"""
-The prefs module exposes an API for getting and setting user
+"""The prefs module exposes an API for getting and setting user
 preferences in the Ghini config file.
 
-To use the preferences import bauble.prefs and access the prefs object
-using a dictionary like interface. e.g. ::
+To use the preferences, import bauble.prefs and access the prefs object
+using a dictionary like interface.  To reduce chances of confusion in
+reading the code, the following is advised::
 
-    import bauble.prefs
-    prefs.prefs[key] = value
+    import bauble.prefs as bprefs
+    bprefs.prefs[key] = value
+
+For imports that happen in function scope, consider explicitly
+importing the objects that you need.  E.g.::
+
+    from bauble.prefs import prefs, picture_root_pref
+    filename = os.path.join(prefs[picture_root_pref], name)
+
 """
 
 # TODO: maybe we should have a create method that creates the preferences

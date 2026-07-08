@@ -25,7 +25,7 @@ from unittest.mock import Mock
 
 import pytest
 from bauble import db as db
-from bauble import prefs as prefs
+import bauble.prefs as bprefs
 from bauble import querybuilder as querybuilder
 from bauble import search as search
 from bauble.editor import GenericEditorView
@@ -1071,7 +1071,7 @@ class TestSearch:
         db_session.flush()
 
         # Enable synonym search
-        prefs.prefs["bauble.search.return_synonyms"] = True
+        bprefs.prefs["bauble.search.return_synonyms"] = True
         from bauble.plugins.plants.species import SynonymSearch
 
         # Perform the query
@@ -1102,7 +1102,7 @@ class TestSearch:
         db_session.flush()
 
         # Disable synonym search
-        prefs.prefs["bauble.search.return_synonyms"] = False
+        bprefs.prefs["bauble.search.return_synonyms"] = False
 
         # Perform the query
         mapper_search = search.get_strategy("SynonymSearch")

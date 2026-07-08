@@ -17,11 +17,11 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 import pytest
 
-from bauble import prefs
+import bauble.prefs as bprefs
 from bauble.plugins.garden.picture_importer import decode_parts
 
 # Set testing mode
-prefs.testing = True
+bprefs.testing = True
 
 
 @pytest.mark.usefixtures("db_session")

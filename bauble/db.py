@@ -116,10 +116,10 @@ from sqlalchemy.orm import sessionmaker
 
 def _default_postgresql_connect_timeout() -> int:
     """Return the configured PostgreSQL connection timeout in seconds."""
-    import bauble.prefs
+    from bauble.prefs import prefs, ask_timout_pref
 
     try:
-        timeout = bauble.prefs.prefs.get(bauble.prefs.ask_timeout_pref, 4)
+        timeout = prefs.get(ask_timeout_pref, 4)
     except Exception:
         timeout = 4
 
@@ -133,13 +133,13 @@ def _default_postgresql_connect_timeout() -> int:
 
 def _connect_args_for_uri(uri: str) -> dict[str, Any]:
     """Return DBAPI connect arguments for a SQLAlchemy URI."""
-    import bauble.prefs
+    from bauble.prefs import testing
 
     connect_args: dict[str, Any] = {}
     url = sa.engine.make_url(uri)
     backend = url.get_backend_name()
 
-    if backend == "sqlite" and bauble.prefs.testing:
+    if backend == "sqlite" and testing:
         connect_args["timeout"] = 30
 
     if backend.startswith("postgresql") and "connect_timeout" not in url.query:
@@ -523,7 +523,7 @@ def open(uri, verify: bool = True, show_error_dialogs: bool = False):
     :type show_error_dialogs: bool
     """
     logger.debug(f"db.open({uri})")
-    import bauble.prefs
+    from bauble.prefs import testing
     from sqlalchemy.exc import SQLAlchemyError
     from sqlalchemy.pool import NullPool, SingletonThreadPool
 
@@ -531,7 +531,7 @@ def open(uri, verify: bool = True, show_error_dialogs: bool = False):
     try:
         poolclass = (
             SingletonThreadPool
-            if bauble.prefs.testing and "sqlite" in uri
+            if testing and "sqlite" in uri
             else NullPool
         )
 

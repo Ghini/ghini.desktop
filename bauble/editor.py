@@ -31,7 +31,7 @@ from typing import Any, Optional
 
 import bauble
 import bauble.paths as paths
-import bauble.prefs as prefs
+import bauble.prefs as bprefs
 import bauble.utils as utils
 import lxml.etree as etree
 from bauble import db
@@ -90,8 +90,8 @@ class DateValidator(Validator):
     def to_python(self, value):
         if not value:
             return None
-        dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
-        yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+        dayfirst = bprefs.prefs[bprefs.parse_dayfirst_pref]
+        yearfirst = bprefs.prefs[bprefs.parse_yearfirst_pref]
         default_year = 1999
         default = datetime.date(default_year, 1, 1)
         try:
@@ -2247,7 +2247,7 @@ class NoteBox:
 
     @staticmethod
     def _resolve_prefs(prefs_module: Optional[Any] = None):
-        return prefs_module or globals()["prefs"]
+        return prefs_module or bprefs
 
     def __init__(
         self, presenter, model: Optional[Any] = None, prefs: Optional[Any] = None
@@ -2298,7 +2298,7 @@ class NoteBox:
 
         # Set initial values
         date_str = (
-            self.model.date.strftime(prefs.prefs[prefs.date_format_pref])
+            self.model.date.strftime(bprefs.prefs[bprefs.date_format_pref])
             if self.model.date
             else utils.today_str()
         )
@@ -2478,9 +2478,9 @@ class PictureBox(NoteBox):
             im = Gtk.Image()
             try:
                 thumbname = os.path.join(
-                    prefs.prefs[prefs.picture_root_pref], "thumbs", basename
+                    bprefs.prefs[bprefs.picture_root_pref], "thumbs", basename
                 )
-                filename = os.path.join(prefs.prefs[prefs.picture_root_pref], basename)
+                filename = os.path.join(bprefs.prefs[bprefs.picture_root_pref], basename)
                 if os.path.isfile(thumbname):
                     pixbuf = GdkPixbuf.Pixbuf.new_from_file(thumbname)
                 else:

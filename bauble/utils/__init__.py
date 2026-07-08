@@ -282,17 +282,17 @@ def copy_picture_with_thumbnail(path, basename: Optional[Any] = None):
         path, basename = os.path.split(filename)
     else:
         filename = os.path.join(path, basename)
-    from bauble import prefs
+    from bauble.prefs import prefs, picture_root_pref
 
-    if not filename.startswith(prefs.prefs[prefs.picture_root_pref]):
+    if not filename.startswith(prefs[picture_root_pref]):
         import shutil
 
-        shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
+        shutil.copy(filename, prefs[picture_root_pref])
     # make thumbnail in thumbs subdirectory
     from PIL import Image
 
     full_dest_path = os.path.join(
-        prefs.prefs[prefs.picture_root_pref], "thumbs", basename
+        bprefs.prefs[picture_root_pref], "thumbs", basename
     )
     result = ""
     try:
@@ -334,9 +334,9 @@ class ImageLoader(threading.Thread):
             self.url = url
         else:
             self.reader_function = self.read_local_url
-            from bauble import prefs
+            from bauble.prefs import prefs, picture_root_pref
 
-            pfolder = prefs.prefs[prefs.picture_root_pref]
+            pfolder = prefs[picture_root_pref]
             self.url = os.path.join(pfolder, url)
 
     def callback(self) -> None:
@@ -680,10 +680,10 @@ def set_widget_value(
 
     # assume that if value is a date then we want to display it with
     # the default date format
-    import bauble.prefs as prefs
+    from bauble.prefs import prefs, date_format_pref
 
     if isinstance(value, datetime.date):
-        date_format = prefs.prefs[prefs.date_format_pref]
+        date_format = prefs[date_format_pref]
         value = value.strftime(date_format)
 
     if isinstance(widget, Gtk.Label):
@@ -1156,10 +1156,10 @@ def today_str(format: Optional[Any] = None):
 
     If format=None then the format uses the prefs.date_format_pref
     """
-    import bauble.prefs as prefs
+    from bauble.prefs import prefs, date_format_pref
 
     if not format:
-        format = prefs.prefs[prefs.date_format_pref]
+        format = prefs[date_format_pref]
     today = local_today()
     return today.strftime(format)
 

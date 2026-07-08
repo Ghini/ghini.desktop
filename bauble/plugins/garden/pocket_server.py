@@ -184,9 +184,9 @@ class PocketServer(Thread):
                     or not isinstance(base64_content, str)
                 ):
                     return self.WRONG_TYPE_IN_PARAMETERS
-                from bauble import prefs
+                from bauble.prefs import prefs, picture_root_pref
 
-                filename = os.path.join(prefs.prefs[prefs.picture_root_pref], name)
+                filename = os.path.join(prefs[picture_root_pref], name)
                 try:
                     with open(filename, "xb") as picture_file:
                         import base64
@@ -221,9 +221,9 @@ class PocketServer(Thread):
                 self.receiving[name][chunk_no] = content
                 if len(self.receiving[name]) < chunk_count:
                     return self.SEND_MORE
-                from bauble import prefs
+                from bauble.prefs import prefs, picture_root_pref
 
-                filename = os.path.join(prefs.prefs[prefs.picture_root_pref], name)
+                filename = os.path.join(prefs[picture_root_pref], name)
                 try:
                     with open(filename, "xb") as picture_file:
                         content = b"".join(

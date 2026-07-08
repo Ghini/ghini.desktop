@@ -33,7 +33,7 @@ import bauble
 import bauble.editor as editor
 import bauble.meta as meta
 import bauble.paths as paths
-import bauble.prefs as prefs
+import bauble.prefs as bprefs
 import bauble.utils as utils
 import bauble.view as view
 from bauble.db import Session
@@ -384,14 +384,14 @@ class AccessionEditorView(editor.GenericEditorView):
         save the current state of the gui to the preferences
         """
         for expander, pref in list(self.expanders_pref_map.items()):
-            prefs.prefs[pref] = self.widgets[expander].get_expanded()
+            bprefs.prefs[pref] = self.widgets[expander].get_expanded()
 
     def restore_state(self) -> None:
         """
         restore the state of the gui from the preferences
         """
         for expander, pref in list(self.expanders_pref_map.items()):
-            expanded = prefs.prefs.get(pref, True)
+            expanded = bprefs.prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
     def start(self):
@@ -2274,7 +2274,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         get the values from the model and put them in the view
         """
         species = self._bind_model_species()
-        prefs.prefs[prefs.date_format_pref]
+        bprefs.prefs[bprefs.date_format_pref]
         for widget, field in list(self.widget_to_field_map.items()):
             if field == "species_id":
                 value = self.model.species

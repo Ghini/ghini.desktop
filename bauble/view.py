@@ -32,7 +32,6 @@ from typing import Any, Optional
 import bauble
 import sqlalchemy.exc as saexc
 
-# from bauble import prefs
 from bauble import db as db
 from bauble import editor as editor
 from bauble import gui as gui
