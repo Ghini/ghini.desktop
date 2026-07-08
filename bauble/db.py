@@ -116,7 +116,7 @@ from sqlalchemy.orm import sessionmaker
 
 def _default_postgresql_connect_timeout() -> int:
     """Return the configured PostgreSQL connection timeout in seconds."""
-    from bauble.prefs import prefs, ask_timout_pref
+    from bauble.prefs import prefs, ask_timeout_pref
 
     try:
         timeout = prefs.get(ask_timeout_pref, 4)
