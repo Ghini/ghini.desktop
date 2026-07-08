@@ -633,23 +633,21 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         """Triggered when the family name text box loses focus."""
         # Check if the entered family name exists in the database
         family_name = widget.get_text().strip()
-        family = (
-            self.session.execute(select(Family).where(Family.epithet == family_name))
-            .scalars()
-            .first()
-        )
+
+        stmt = select(Family).where(Family.epithet == family_name)
+        family = self.session.execute(stmt).scalars().first()
 
         if family_name:
             # If family is found, update the model and refresh synonyms view
             if family:
-                family._synonyms = (
-                    self.session.execute(select(FamilySynonym))
-                    .scalars()
+                synonyms_stmt = (
+                    select(FamilySynonym)
                     .join(Family, FamilySynonym.synonym_id == Family.id)
                     .where(FamilySynonym.family_id == family.id)
-                    .all()
                 )
                 # Set the model to the retrieved family
+                family._synonyms = self.session.execute(synonyms_stmt).scalars().all()
+
                 self.synonyms_presenter.model = family
                 # Refresh the synonyms view with the current list of synonyms
                 self.synonyms_presenter.refresh_view()
@@ -716,17 +714,14 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.synonyms_to_add = []
 
         def fam_get_completions(text):
-            query = self.session.execute(
-                select(Family)
-                .where(
-                    and_(
-                        Family.epithet.like(f"{text}%"),
-                        Family.id != self.model.id,
-                    )
-                )
-                .order_by(Family.epithet)
-            ).scalars()
-            return query
+            stmt = (select(Family)
+                    .where(
+                        and_(
+                            Family.epithet.like(f"{text}%"),
+                            Family.id != self.model.id,))
+                    .order_by(Family.epithet))
+
+            return self.session.execute(stmt).scalars().all()
 
         # Populate initial synonym list in the view
         self.refresh_view()
