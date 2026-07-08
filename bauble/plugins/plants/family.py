@@ -836,8 +836,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
         # Add each synonym of the family to the treeview
         for synonym_entry in self.model._synonyms:
-            synonym_name = synonym_entry.synonym.epithet
-            tree_model.append([synonym_name])
+            tree_model.append([synonym_entry])
 
     def on_add_button_clicked(self, button, data: Optional[Any] = None) -> None:
         """
@@ -854,12 +853,11 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
         # Create new FamilySynonym association
         syn = FamilySynonym(family=self.model, synonym=self._selected)
-        self.model._synonyms.append(syn)
+        self.session.add(syn)
 
         # Update the tree view with the new synonym
         tree_model = self.treeview.get_model()
-        tree_model.append([self._selected.epithet])  # Display the epithet
-        # tree_model.append([syn])
+        tree_model.append([syn])  # Add the object, it will display the epithet
 
         # Clear selection and entry field
         self._selected = None
