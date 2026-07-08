@@ -48,17 +48,37 @@ except ImportError as e:
         print(_("Please make sure that GTK_ROOT\\bin is in your PATH."))
     sys.exit(1)
 
-def _gtk_warning_filter(domain, level, message, user_data=None):
-    # Drop only the noisy GtkEditable/int marshalling warning
-    if ("g_value_get_int" in message and "G_VALUE_HOLDS_INT" in message):
-        return
-    # Otherwise, forward to the default handler
-    GLib.log_default_handler(domain, level, message, user_data)
 
-for domain in ("Gtk", "GObject", "GLib-GObject"):
-    GLib.log_set_handler(
-        domain,
-        GLib.LogLevelFlags.LEVEL_WARNING | GLib.LogLevelFlags.LEVEL_CRITICAL,
-        _gtk_warning_filter,
-        None,
-    )
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Known-noisy, harmless GTK/GLib messages we choose not to show on the
+# console. GLib.log_set_handler has no effect once structured logging is
+# in use (the case on modern GLib), so filtering must happen in a writer
+# function registered via GLib.log_set_writer_func instead.
+_KNOWN_NOISY_SUBSTRINGS = (
+    # GtkEditable/int marshalling warning
+    ("g_value_get_int", "G_VALUE_HOLDS_INT"),
+    # combo/completion on a Gtk.ListStore(object) model: GTK's internal
+    # entry-text handling chokes on the object column; harmless, the
+    # actual entry text is always set explicitly by our own code.
+    ("gtk_entry_set_text",),
+)
+
+
+def _gtk_log_writer(log_level, fields, user_data=None):
+    if log_level & (
+        GLib.LogLevelFlags.LEVEL_WARNING | GLib.LogLevelFlags.LEVEL_CRITICAL
+    ):
+        message = GLib.log_writer_format_fields(log_level, fields, False)
+        if any(
+            all(needle in message for needle in needles)
+            for needles in _KNOWN_NOISY_SUBSTRINGS
+        ):
+            logger.debug(message)
+            return GLib.LogWriterOutput.HANDLED
+    return GLib.log_writer_default(log_level, fields, user_data)
+
+
+GLib.log_set_writer_func(_gtk_log_writer)
