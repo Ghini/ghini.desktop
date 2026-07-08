@@ -789,7 +789,8 @@ class GenericEditorView:
         completion.pack_start(cell, True)
         completion.set_cell_data_func(cell, cell_data_func)
         completion.set_match_func(match_func)
-        completion.set_text_column(text_column)
+        if text_column > -1:
+            completion.set_text_column(text_column)
         completion.set_minimum_key_length(minimum_key_length)
         completion.set_popup_completion(True)
         completion.set_inline_completion(True)
