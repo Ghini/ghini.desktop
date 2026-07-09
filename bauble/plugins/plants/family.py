@@ -640,13 +640,13 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         if family_name:
             # If family is found, update the model and refresh synonyms view
             if family:
-                synonyms_stmt = (
+                stmt = (
                     select(FamilySynonym)
                     .join(Family, FamilySynonym.synonym_id == Family.id)
                     .where(FamilySynonym.family_id == family.id)
                 )
                 # Set the model to the retrieved family
-                family._synonyms = self.session.execute(synonyms_stmt).scalars().all()
+                family._synonyms = self.session.execute(stmt).scalars().all()
 
                 self.synonyms_presenter.model = family
                 # Refresh the synonyms view with the current list of synonyms
