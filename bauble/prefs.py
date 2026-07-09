@@ -58,14 +58,6 @@ importing the objects that you need.  E.g.::
 
 """
 
-# TODO: maybe we should have a create method that creates the preferences
-# todo a one time thing if the files doesn't exist
-
-# TODO: Consider using ConfigObj since it does validation, type
-# conversion and unicode automatically...the cons are that it adds
-# another dependency and we would have to change the prefs interface
-# throughout bauble
-
 default_filename = "config"
 default_prefs_file: Any = os.path.join(paths.appdata_dir(), default_filename)
 """

@@ -647,8 +647,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         Show a dialog with and entry and return the value entered.
         """
-        # TODO: if self.dialog is None then ask from the command line
-        # or just set dialog parent to None
         passwd = self.view.run_entry_dialog(
             title=title,
             parent=self.view.get_window(),

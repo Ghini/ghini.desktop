@@ -251,7 +251,6 @@ class VernacularExpander(InfoExpander):
                     names.append(f"{vn.name} - {vn.language}")
             self.widget_set_value("sp_vernacular_data", "\n".join(names))
             self.set_sensitive(True)
-            # TODO: get expanded state from prefs
             self.set_expanded(True)
 
 
@@ -324,7 +323,6 @@ class SynonymsExpander(InfoExpander):
                 syn_box.pack_start(box, False, False, 0)
             self.get_widget().show_all()
             self.set_sensitive(True)
-            # TODO: get expanded state from prefs
             self.set_expanded(True)
 
 
