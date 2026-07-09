@@ -30,7 +30,8 @@ from gettext import gettext as _
 from typing import Any, Optional
 
 import bauble
-import sqlalchemy.exc as saexc
+from sqlalchemy.exc import InvalidRequestError, SQLAlchemyError
+from sqlalchemy.orm.exc import ObjectDeletedError
 
 from bauble import db as db
 from bauble import editor as editor
@@ -1084,7 +1085,7 @@ class SearchView(pluginmgr.View):
         """Attach a detached result row value to the view session."""
         try:
             return self.session.merge(value, load=False)
-        except saexc.InvalidRequestError:
+        except InvalidRequestError:
             logger.debug("falling back to regular merge for dirty result value")
             return self.session.merge(value)
 
@@ -1151,7 +1152,7 @@ class SearchView(pluginmgr.View):
     def _search_with_reconnect(self, text):
         try:
             return search.search(text, self.session)
-        except saexc.SQLAlchemyError as e:
+        except SQLAlchemyError as e:
             if not db.is_connection_invalidated_error(e):
                 raise
             logger.warning(
@@ -1310,7 +1311,7 @@ class SearchView(pluginmgr.View):
                 # Keep the lazy-load expander available for a later retry.
                 model.append(treeiter, ["-"])
                 return True
-        except saexc.InvalidRequestError as e:
+        except InvalidRequestError as e:
             logger.debug(utils.to_unicode(e))
             model = self.results_view.get_model()
             for found in utils.search_tree_model(model, row):
@@ -1382,7 +1383,7 @@ class SearchView(pluginmgr.View):
                     f"{_mainstr_tmpl % utils.to_unicode(main)}\n{_substr_tmpl % utils.to_unicode(substr)}",
                 )
 
-            except (saexc.InvalidRequestError, TypeError) as e:
+            except (InvalidRequestError, TypeError) as e:
                 logger.warning(
                     f"bauble.view.SearchView.cell_data_func(): \n({type(e)}){e}"
                 )
@@ -1539,8 +1540,41 @@ class SearchView(pluginmgr.View):
             path = None
             if ref.valid():
                 path = ref.get_path()
+                treeiter = model.get_iter(path)
+                obj = model[path][0]
+
+                deleted = False
+                if not isinstance(obj, str):
+                    try:
+                        obj.id  # touch an expired attribute to force a reload
+                    except ObjectDeletedError:
+                        deleted = True
+
+                if deleted:
+                    # 1. previous, else next, else parent, else None
+                    anchor = model.iter_previous(treeiter)
+                    went_to_previous = anchor is not None
+                    if anchor is None:
+                        anchor = model.iter_next(treeiter)
+                    if anchor is None:
+                        anchor = model.iter_parent(treeiter)
+
+                    # 2. delete the element
+                    model.remove(treeiter)
+
+                    # 3. if we had gone to the previous row, now go to its successor
+                    if anchor is not None:
+                        if went_to_previous:
+                            anchor = model.iter_next(anchor) or anchor
+                        path = model.get_path(anchor)
+                    else:
+                        path = None
+
             self.expand_to_all_refs(expanded_rows)
-            self.results_view.set_cursor(path)
+            if path:
+                self.results_view.set_cursor(path)
+            else:
+                self.update_infobox()
         # re-enable sorting
         model.set_sort_column_id(
             Gtk.TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, Gtk.SortType.ASCENDING
