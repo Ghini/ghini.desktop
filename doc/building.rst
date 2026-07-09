@@ -991,3 +991,26 @@ steps for a normal Windows :ref:`installation`.
             ``F`` = select Apache FOP
 
             ``C`` = select MS Visual C runtime
+
+
+Importing SQLAlchemy exceptions
+-------------------------------------------------------------
+
+Always import the specific exception names you need, explicitly, from
+their proper module — never a module alias (``as saexc``, ``as orm_exc``),
+never the fully-qualified path used inline::
+
+    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm.exc import ObjectDeletedError, NoResultFound
+
+Group multiple names from the same module on one line rather than
+repeating the ``from ... import`` statement.
+
+Note that ``sqlalchemy.exc`` and ``sqlalchemy.orm.exc`` are different
+modules: some names (e.g. ``NoResultFound``) exist as a compatibility
+alias in both, but always import from the canonical one,
+``sqlalchemy.orm.exc``, since the alias is not guaranteed to survive
+future SQLAlchemy versions.
+
+Function-local imports remain acceptable only to avoid circular
+imports, not as a stylistic shortcut.
