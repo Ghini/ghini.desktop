@@ -37,10 +37,8 @@ from bauble.error import check
 logger: Any
 from bauble.gtkinit import Gtk
 
-# from sqlalchemy import *
 from sqlalchemy import Integer, text
 
-# from sqlalchemy.exc import *
 from sqlalchemy.exc import ProgrammingError
 
 logger = logging.getLogger(__name__)

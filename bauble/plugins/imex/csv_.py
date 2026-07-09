@@ -43,11 +43,9 @@ from bauble.gtkinit import GLib, Gtk
 from bauble.plugins.imex.csv_processor import CSVProcessor
 from bauble.plugins.imex.unicode_utils import UnicodeWriter
 
-# from sqlalchemy import Boolean
 from sqlalchemy import ColumnDefault, inspect
 from sqlalchemy.exc import IntegrityError
 
-# from sqlalchemy.exc import DataError
 from sqlalchemy.orm import configure_mappers, sessionmaker
 
 logger: Any = logging.getLogger(__name__)

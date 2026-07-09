@@ -48,7 +48,6 @@ from sqlalchemy import Boolean
 # from sqlalchemy import ColumnDefault
 # from sqlalchemy import inspect
 # from sqlalchemy import func
-# from sqlalchemy.exc import DataError
 # from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.elements import ClauseElement
 

@@ -10,7 +10,7 @@ from types import SimpleNamespace
 # logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
 import pytest
-import sqlalchemy.exc as saexc
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy import select
 from sqlalchemy.orm.exc import DetachedInstanceError
 
@@ -657,7 +657,7 @@ def test_search_retries_once_after_invalidated_connection(monkeypatch):
     original_session = FakeSession("original")
     session_factory = FakeSessionFactory()
     calls = []
-    connection_error = saexc.DBAPIError(
+    connection_error = DBAPIError(
         "select 1",
         {},
         Exception("connection already closed"),

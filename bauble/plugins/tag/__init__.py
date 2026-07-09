@@ -31,7 +31,7 @@ from typing import Any, ClassVar, Optional
 
 import bauble
 import sqlalchemy.orm
-import sqlalchemy.orm.exc as orm_exc
+from sqlalchemy.orm.exc import NoResultFound, DetachedInstanceError
 
 # from bauble import ui
 from bauble import db, editor, paths, pluginmgr, search, utils
@@ -594,7 +594,7 @@ class Tag(db.Base, db.WithNotes):
     def __str__(self) -> str:
         try:
             return str(self.tag)
-        except orm_exc.DetachedInstanceError:
+        except DetachedInstanceError:
             return db.Base.__str__(self)
 
     def markup(self) -> str:
@@ -797,7 +797,7 @@ def create_named_empty_tag(name: str) -> None:
     session = db.Session()
     try:
         session.execute(select(Tag).where(Tag.tag == name)).scalars().one()
-    except orm_exc.NoResultFound:
+    except NoResultFound:
         logger.debug(f"Tag '{name}' not found, creating it.")
         session.add(Tag(tag=name))
         if session.in_transaction():
@@ -828,7 +828,7 @@ def untag_objects(name: str, objs: list) -> None:
     try:
         # Retrieve the tag
         tag = session.execute(select(Tag).where(Tag.tag == name)).scalars().one()
-    except orm_exc.NoResultFound:
+    except NoResultFound:
         logger.info(f"Tag '{name}' does not exist. Nothing to remove.")
         return
     except Exception as e:
@@ -873,7 +873,7 @@ def tag_objects(name: str, objects: list) -> None:
     session = object_session(objects[0])
     try:
         tag = session.execute(select(Tag).where(Tag.tag == name)).scalars().one()
-    except orm_exc.NoResultFound:
+    except NoResultFound:
         logger.debug(f"Tag '{name}' not found, creating it.")
         tag = Tag(tag=name)
         session.add(tag)

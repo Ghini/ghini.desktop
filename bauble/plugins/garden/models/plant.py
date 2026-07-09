@@ -49,8 +49,6 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, object_mapper, relationship, validates
 from sqlalchemy.orm.session import object_session
 
-# from sqlalchemy.exc import DBAPIError
-
 
 logger: Any = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -44,9 +44,10 @@ from bauble import utils as utils
 from bauble.error import check
 from bauble.gtkinit import Gdk, GdkPixbuf, GLib, GObject, Gtk
 
-# from sqlalchemy.exc import DBAPIError
 from sqlalchemy import distinct, select
 from sqlalchemy.orm.session import object_session
+from sqlalchemy.exc import IntegrityError, InvalidRequestError, OperationalError, ProgrammingError
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 logger: Logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -101,13 +102,13 @@ def sorted_relationship(relationship, key):
 
 def handle_deletion_error(e) -> None:
     """Handle errors specific to deletion."""
-    if isinstance(e, sqlalchemy.exc.IntegrityError):
+    if isinstance(e, IntegrityError):
         message = _(
             "Could not delete: The item is referenced elsewhere (foreign key constraint)."
         )
-    elif isinstance(e, sqlalchemy.orm.exc.UnmappedInstanceError):
+    elif isinstance(e, UnmappedInstanceError):
         message = _("Could not delete: The item is not managed by the session.")
-    elif isinstance(e, sqlalchemy.exc.InvalidRequestError):
+    elif isinstance(e, InvalidRequestError):
         message = _("Could not delete: The request was invalid.")
     else:
         message = _("Could not delete the item. Unknown error.")
@@ -118,11 +119,11 @@ def handle_deletion_error(e) -> None:
 
 def handle_generic_error(e) -> None:
     """Handle database-specific errors."""
-    if isinstance(e, sqlalchemy.exc.IntegrityError):
+    if isinstance(e, IntegrityError):
         message = _("Integrity error: Check constraints or data conflicts.")
-    elif isinstance(e, sqlalchemy.exc.OperationalError):
+    elif isinstance(e, OperationalError):
         message = _("Operational error: Database operation failed.")
-    elif isinstance(e, sqlalchemy.exc.ProgrammingError):
+    elif isinstance(e, ProgrammingError):
         message = _("Programming error: Syntax or command issue.")
     else:
         message = _("Database error occurred.")
@@ -140,13 +141,13 @@ def handle_db_error(exception, context: str = "database operation") -> None:
     """
     import traceback
 
-    if isinstance(exception, sqlalchemy.exc.IntegrityError):
+    if isinstance(exception, IntegrityError):
         message = _(
             f"Integrity error during {context}: Check constraints or data conflicts."
         )
-    elif isinstance(exception, sqlalchemy.exc.OperationalError):
+    elif isinstance(exception, OperationalError):
         message = _(f"Operational error during {context}: Database operation failed.")
-    elif isinstance(exception, sqlalchemy.exc.ProgrammingError):
+    elif isinstance(exception, ProgrammingError):
         message = _(f"Programming error during {context}: Syntax or command issue.")
     else:
         message = _(f"An unknown error occurred during {context}.")
@@ -1580,8 +1581,6 @@ def ilike(col, val, engine: Optional[Any] = None):
     Return a cross platform ilike function.
     """
     from sqlalchemy import func
-
-    # from sqlalchemy.engine import Engine
 
     if not engine:
         from bauble.db import engine as default_engine

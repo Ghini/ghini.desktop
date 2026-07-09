@@ -41,7 +41,7 @@ from bauble.gtkinit import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango
 from bauble.utils import handle_db_error, parse_date, safe_set_props
 from sqlalchemy import select
 from sqlalchemy.orm import object_mapper, object_session
-import sqlalchemy.orm.exc
+from sqlalchemy.orm.exc import UnmappedInstanceError
 from sqlalchemy import inspect as sa_inspect
 
 logger: Any = logging.getLogger(__name__)
@@ -1295,7 +1295,7 @@ class GenericEditorPresenter:
         else:
             try:
                 self.session = object_session(model)
-            except sqlalchemy.orm.exc.UnmappedInstanceError:
+            except UnmappedInstanceError:
                 pass  # model is not an ORM entity, session remains unset
             except Exception as e:
                 logger.warning(f"GenericEditorPresenter::__init__ - {type(e)}, {e}")

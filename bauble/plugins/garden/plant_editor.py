@@ -58,10 +58,8 @@ from bauble.view import (
     select_in_search_results,
 )
 
-# from sqlalchemy import text
 from sqlalchemy import and_, bindparam, func, select
 
-# from sqlalchemy.exc import DBAPIError
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import object_mapper
 from sqlalchemy.orm.session import object_session

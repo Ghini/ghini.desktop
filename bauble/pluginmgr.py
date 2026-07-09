@@ -43,7 +43,7 @@ from typing import Any, Optional
 import bauble
 import bauble.paths as paths
 import bauble.utils as utils
-import sqlalchemy.orm.exc as orm_exc
+from sqlalchemy.orm.exc import NoResultFound
 from bauble import db
 from bauble.db import Base
 from bauble.error import BaubleError
@@ -528,7 +528,7 @@ class PluginRegistry(Base):
                 )
                 session.execute(stmt).scalar_one()
                 return True
-            except orm_exc.NoResultFound as e:
+            except NoResultFound as e:
                 logger.debug(e)
                 return False
 
