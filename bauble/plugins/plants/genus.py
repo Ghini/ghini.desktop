@@ -971,6 +971,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             this species
         """
         syn = GenusSynonym(genus=self.model, synonym=self._selected)
+        self.session.add(syn)
         tree_model = self.treeview.get_model()
         tree_model.append([syn])
         self._selected = None
