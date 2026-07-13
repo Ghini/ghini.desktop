@@ -394,8 +394,10 @@ class FormatterPlugin(pluginmgr.Plugin):
 
         (extend in derived classes)
         """
+        import bauble.prefs as bprefs
         cls.install()  # plugins still not versioned...
         ReportToolDialogPresenter.formatter_class_map[cls.title] = cls
+        bprefs.prefs.setdefault(config_list_pref, {})
 
     @staticmethod
     def format(objs, **kwargs) -> None:
@@ -593,12 +595,12 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         """
         This will overwrite any other report settings with name
         """
-        template_options = prefs[config_list_pref] or {}
+        template_options = prefs[config_list_pref]
         template_options[name] = settings
         prefs[config_list_pref] = template_options
 
     def thaw_templates(self, *args) -> None:
-        template_options = prefs[config_list_pref] or {}
+        template_options = prefs[config_list_pref]
         thawn = 0
         for key in template_options:
             try:
