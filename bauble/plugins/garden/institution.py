@@ -525,7 +525,8 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
     def __init__(self, model, view) -> None:
         self.message_box = None
         self.email_regexp = re.compile(r".+@.+\..+")
-        super().__init__(model, view, refresh_view=True)
+        session = db.TempSession()
+        super().__init__(model, view, refresh_view=True, session=session)
         self.view.widget_grab_focus("inst_name")
         self.on_non_empty_text_entry_changed("inst_name")
         self.on_email_text_entry_changed("inst_email")
