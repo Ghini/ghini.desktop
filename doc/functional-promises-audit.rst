@@ -1,7 +1,7 @@
-Ghini — checklist of promised functionality
+Ghini — functional-promises audit
 ================================================
 
-A reminder of the functionality declared by the software, to be used as a minimal usability / manual regression check.
+A reminder of the functionality declared by the software, to be used as a minimal usability / functional-promises audit.
 This is not an introductory manual: it's a list of features with a corresponding reproducible test.
 
 Sources:

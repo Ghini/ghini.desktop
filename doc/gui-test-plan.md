@@ -129,6 +129,9 @@ areas not yet automated. The current GTK checklist is:
 doc/gtk-smoke-checklist.md
 ```
 
+A broader, promise-level audit (not scoped to this release) is maintained
+separately in `doc/functional-promises-audit.rst`.
+
 Manual-only checks should be converted to guided or automated tests only when
 the workflow is important enough to justify maintenance.
 
