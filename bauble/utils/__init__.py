@@ -180,7 +180,9 @@ def safe_set_text(gtk_widget, text) -> None:
             text = text.decode("utf-8", errors="replace")  # Safely decode bytes
         elif not isinstance(text, str):
             text = str(text)  # Ensure it's a string
-        if hasattr(gtk_widget, "set_text"):
+        if isinstance(gtk_widget, Gtk.Entry):
+            gtk_widget.get_buffer().set_text(text, -1)
+        elif hasattr(gtk_widget, "set_text"):
             gtk_widget.set_text(text)
         else:
             gtk_widget.set_property("text", text)

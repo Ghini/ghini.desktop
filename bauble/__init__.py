@@ -73,6 +73,15 @@ logger: Any = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 consoleLevel: Any = logging.INFO
 
+if logger.isEnabledFor(logging.DEBUG):
+    _orig_showwarning = warnings.showwarning
+
+    def _showwarning_with_stack(message, category, filename, lineno, file=None, line=None):
+        _orig_showwarning(message, category, filename, lineno, file, line)
+        traceback.print_stack()
+
+    warnings.showwarning = _showwarning_with_stack
+
 
 try:
     import faulthandler
