@@ -753,13 +753,10 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
         # Retrieve template options
         option_fields = plugin.get_options(name)
+        current_row = 1
 
         # Populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:
-            row = Gtk.Box(
-                orientation=Gtk.Orientation.HORIZONTAL, spacing=5
-            )  # Replaces Gtk.HBox
-
             label = Gtk.Label(label=f"{fname.replace('_', ' ')}:")
             label.set_xalign(0)  # Instead of set_alignment(0, 0.5)
             label.set_yalign(0.5)
@@ -780,21 +777,17 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
             entry.set_tooltip_text(ftooltip)
 
-            # Add entry to the row
-            row.pack_start(label, False, False, 0)
-            row.pack_start(entry, True, True, 0)
-
             # Store default values
             self.defaults.append((entry, fdefault))
-
-            # Add to options box
-            options_box.pack_start(row, False, False, 0)
+            options_box.attach(label, 0, current_row, 1, 1)
+            options_box.attach(entry, 1, current_row, 1, 1)
+            current_row += 1
 
         # Reset Button
         if self.defaults:
             reset_button = Gtk.Button(label=_("Reset to defaults"))
             reset_button.connect("clicked", self.reset_options)
-            options_box.pack_start(reset_button, False, False, 0)
+            options_box.attach(reset_button, 3, current_row-1, 2, 1)
 
         options_box.show_all()
 
