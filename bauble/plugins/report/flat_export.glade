@@ -379,6 +379,10 @@
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-6">cancel_button</action-widget>
+      <action-widget response="-5">confirm_button</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkListStore" id="searchable_ls">
     <columns>

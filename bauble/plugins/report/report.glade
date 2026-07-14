@@ -101,6 +101,10 @@
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-6">choose_cancel</action-widget>
+      <action-widget response="-5">choose_ok</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkImage" id="key_image">
     <property name="can-focus">False</property>
@@ -626,5 +630,9 @@
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-6">cancel_button</action-widget>
+      <action-widget response="-5">ok_button</action-widget>
+    </action-widgets>
   </object>
 </interface>
