@@ -210,7 +210,7 @@ def is_standard() -> bool:
 # pylint: disable=import-outside-toplevel, redefined-builtin
 
 
-def open_url(
+def open(
     url: str,
     _desktop: Optional[str] = None,
     _wait: int = 0,
