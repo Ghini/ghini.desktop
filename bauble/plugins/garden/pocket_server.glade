@@ -528,5 +528,8 @@
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-5">close_button</action-widget>
+    </action-widgets>
   </object>
 </interface>
