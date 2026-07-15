@@ -46,8 +46,8 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
     domain_pattern: Any = re.compile(r"^##\s*DOMAIN\s+([a-z_]*)\s*$")
     option_pattern: Any = re.compile(
         r"^## OPTION ([a-z_]*): \("
-        "type: ([a-z_]*), "
-        "default: '(.*)', "
+        r"type: ([a-z_]*), "
+        r"default: '(.*)', "
         r"tooltip: '(.*)'\)$"
     )
     paths: Any = []
