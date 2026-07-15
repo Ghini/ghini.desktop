@@ -577,16 +577,13 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
     def __init__(self, view) -> None:
         super().__init__(model=self, view=view, refresh_view=False)
-        self.start_thread(Thread(target=self.populate_names_combo))
+
+        default = prefs[default_config_pref]
+        self.start_thread(Thread(target=self.populate_names_combo, args=(default,)))
 
         self.view.widget_set_sensitive("ok_button", False)
         self.view.widget_set_sensitive("names_combo", False)
 
-        # set the names combo to the default. this activates
-        # on_names_combo_changes, which does the rest of the work
-        self.view.widgets.names_combo
-        default = prefs[default_config_pref]
-        self.view.widget_set_value("names_combo", default)
         # hard_coded_options are part of the glade interface, we do not
         # remove them when selecting a different template.
         self.hard_coded_options = set(self.view.widgets.options_box.get_children())
@@ -619,7 +616,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         signaller = view.widgets.choose_thaw
         handler_id = signaller.connect("clicked", self.thaw_templates)
 
-        names = {i[0] + i[3] for i in self.view.widgets.names_ls}
+        names = {name + extension for (name, _, _, extension) in self.view.widgets.names_ls}
         while True:
             if view.get_window().run() != Gtk.ResponseType.OK:
                 break
@@ -696,8 +693,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         self.options = {}  # reset options before idle action
         index = self.view.widgets.names_combo.get_active()
         if index != -1:
-            row = self.view.widgets.names_ls[index]
-            name = row[0] + row[3]
+            name, _, _, extension = self.view.widgets.names_ls[index]
+            name = name + extension
             prefs[default_config_pref] = name  # set the default to the new name
         GLib.idle_add(self._names_combo_changed_idle, combo)
 
@@ -705,11 +702,13 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         index = self.view.widgets.names_combo.get_active()
         self.view.widget_set_sensitive("details_box", (index != -1))
         if index != -1:
-            row = self.view.widgets.names_ls[index]
-            name = row[0] + row[3]
+            name, title, is_package_template, extension = self.view.widgets.names_ls[index]
+            name_with_extension = name + extension
         else:
             row = None
             name = ""
+            title = ""
+            name_with_extension = ""
 
         settings = prefs[config_list_pref].get(name, {})
 
@@ -720,27 +719,26 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         self.view.widget_set_value("domain_entry", "")
 
         try:
-            title = row[1]
-            is_package_template = row[2]
             plugin = self.formatter_class_map[title]
-            domain = plugin.get_iteration_domain(name)
+            domain = plugin.get_iteration_domain(name_with_extension)
             if domain == "":
-                raise IndexError(name)
+                raise IndexError(name_with_extension)
             if domain == "raw":
                 search_result = bauble.gui.get_results_model()
                 top_left_content = search_result[0][0]
                 domain = f"({top_left_content.__class__.__name__.lower()})"
 
-            self.view.widget_set_value("basename_entry", row[0])
+            self.view.widget_set_value("basename_entry", name)
             self.view.widget_set_value("formatter_entry", title)
             self.view.widget_set_value("domain_entry", domain)
             self.view.widget_set_sensitive("ok_button", True)
             self.view.widget_set_value("is_package_template", is_package_template)
         except Exception as e:
-            logger.debug(f"Template {name} raised {type(e).__name__}({e}).")
+            msg = f"Template {name_with_extension} raised {type(e).__name__}({e})."
+            logger.warning(msg)
             return
 
-        self.set_prefs_for(name, settings)
+        self.set_prefs_for(name_with_extension, settings)
 
         self.defaults = []
         options_box = self.view.widgets.options_box
@@ -752,7 +750,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             options_box.remove(child)
 
         # Retrieve template options
-        option_fields = plugin.get_options(name)
+        option_fields = plugin.get_options(name_with_extension)
         current_row = 1
 
         # Populate the options box
@@ -826,11 +824,11 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
 
         names_ls = self.view.widgets.names_ls
         item = names_ls.get_iter_first()
-        for row in names_ls:
-            if row[1] >= plugin.title and row[0] >= name:
+        for (iname, ititle, _, _) in names_ls:
+            if ititle >= plugin.title and iname >= name:
                 break
             item = names_ls.iter_next(item)
-        if row[1] == plugin.title and row[0] == name:
+        if ititle == plugin.title and iname == name:
             names_ls.set(item, [2], [False])
         elif item:
             item = names_ls.insert_before(item, new_row)
@@ -838,7 +836,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
             item = names_ls.append(new_row)
         GLib.idle_add(butils.none, self.view.widgets.names_combo.set_active_iter, item)
 
-    def populate_names_combo(self) -> None:
+    def populate_names_combo(self, select_name=None) -> None:
         """populate names_ls from package- and user-templates
 
         please note: prefs[config_list_pref] are just user defined settings.
@@ -861,36 +859,43 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 for b in os.listdir(p)
             ]
         )
-        self.view.widgets.names_ls.clear()
-        for title in sorted(self.formatter_class_map):  # sort templates by plugin
+        rows = []  # don't write to a GTK model while in background thread
+        names_seen = set()
+        for title in sorted(self.formatter_class_map):
             plugin = self.formatter_class_map[title]
-            logger.debug(f"scanning {title} templates for {plugin}")
-            for candidate, index, _path in basenames_fullnames:  # then by name
+            for candidate, index, _path in basenames_fullnames:
                 name = candidate[: -len(plugin.extension)]
                 if options.get(name, {}).get("__is_frozen__"):
                     continue
-                if candidate in names:
-                    # user template overrides homonymous package template
+                if candidate in names_seen:
                     continue
                 if plugin.can_handle(candidate):
-                    logger.debug(
-                        "{} accepts {}-template {}".format(
-                            title,
-                            index == 1 and "package" or "user",
-                            candidate,
-                        )
-                    )
-                    self.view.widgets.names_ls.append(
-                        (name, title, index == 1, plugin.extension)
-                    )
-                    names.add(candidate)
-                else:
-                    logger.debug(f"{title} refuses {candidate}")
-        GLib.idle_add(butils.none, self.view.widget_set_sensitive, "names_combo", True)
+                    rows.append((name, title, index == 1, plugin.extension))
+                    names_seen.add(candidate)
+
+        # handle accumulated rows to the main GTK loop
+        GLib.idle_add(self._finish_populate_names_combo, rows, select_name)
+
+    def _finish_populate_names_combo(self, rows, select_name) -> None:
+        self.view.widgets.names_ls.clear()
+        for row in rows:
+            self.view.widgets.names_ls.append(row)
+        self.view.widget_set_sensitive("names_combo", True)
+        if select_name is not None:
+            self.set_active_by_name(select_name)
+
+    def set_active_by_name(self, select_name):
+        for row in self.view.widgets.names_ls:
+            name, _, _, extension = row
+            if name + extension == select_name:
+                self.view.widgets.names_combo.set_active_iter(row.iter)
+                break
 
     def save_formatter_settings(self) -> None:
         template_options = prefs[config_list_pref]
-        name = self.view.widget_get_value("names_combo")
+        index = self.view.widgets.names_combo.get_active()
+        name, _, _, extension = self.view.widgets.names_ls[index]
+        name = name + extension
         template_options[name] = self.options
         prefs[config_list_pref] = template_options
 
@@ -939,8 +944,8 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 break
 
             index = self.view.widgets.names_combo.get_active()
-            row = self.view.widgets.names_ls[index]
-            name = row[0] + row[3]
+            name, _, _, extension = self.view.widgets.names_ls[index]
+            name = name + extension
             prefs[default_config_pref] = name
             self.save_formatter_settings()
             settings = prefs[config_list_pref].get(name, {})
@@ -988,10 +993,10 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 todo = [session.merge(i) for i in todo]
                 formatter.format(todo, **settings)
             except Exception as e:
-                butils.idle_message(
-                    f"formatting {len(todo)} objects of type {type((todo + [None])[0]).__name__}\n{type(e).__name__}({e})\n{traceback.format_exc()}",
-                    type=Gtk.MessageType.ERROR,
-                )
+                msg = (f"formatting {len(todo)} objects of type {type((todo + [None])[0]).__name__}\n"
+                       f"{type(e).__name__}({e})")
+                butils.idle_message(msg, type=Gtk.MessageType.ERROR)
+                logger.warning(msg + f"\n{traceback.format_exc()}")
             finally:
                 GLib.idle_add(self.stop_progress)
 
