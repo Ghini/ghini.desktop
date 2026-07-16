@@ -650,7 +650,8 @@ def _col_preserves_empty(metadata, table, column):
 
         if isinstance(sa_col.type, BaubleEnum):
             return not getattr(sa_col.type, "empty_to_none", False)
-    except Exception:
+    except Exception as e:
+        logger.exception("empty_to_none=False caused an exception")
         pass
 
     # 2) Any CHECK constraint that explicitly allows '' => preserve ''

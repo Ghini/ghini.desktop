@@ -1544,7 +1544,7 @@ class GenericEditorPresenter:
         try:
             value = int(value)
             self.__set_model_attr(attr, value)
-        except:
+        except (ValueError, TypeError):
             value = getattr(self.model, attr)
             self.view.widget_set_value(widget, value)
         return value
@@ -1718,7 +1718,7 @@ class GenericEditorPresenter:
         if not isinstance(widget, (Gtk.Widget, type(None))):
             try:
                 widget = getattr(self.view.widgets, widget)
-            except:
+            except AttributeError:
                 logger.info(f"can't get widget {widget}")
 
         tmp = self.problems.copy()
@@ -1757,7 +1757,7 @@ class GenericEditorPresenter:
         if not isinstance(widget, Gtk.Widget):
             try:
                 widget = getattr(self.view.widgets, widget)
-            except:
+            except AttributeError:
                 logger.info(f"can't get widget {widget}")
         self.problems.add((problem_id, widget))
         if isinstance(widget, str):

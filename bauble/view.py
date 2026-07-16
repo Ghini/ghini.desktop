@@ -1760,7 +1760,7 @@ class HistoryView(pluginmgr.View):
         try:
             eval(v)
             return v
-        except:
+        except Exception:
             return f"»{v}«"
 
     def add_row(self, item) -> None:

@@ -107,7 +107,7 @@ def newer_version_on_github(input_stream, force: bool = False):
         if len(valid_lines) == 1:
             try:
                 github_version = eval('"' + valid_lines[0].split('"')[1] + '"')
-            except:
+            except (IndexError, SyntaxError, ValueError):
                 logger.warning("can't parse github version.")
                 return False
             github_patch = github_version.split(".")[2]
@@ -341,9 +341,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
         logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
         view.image_set_from_file("logo_image", logo_path)
         view.set_title("{} {}".format("Ghini", bauble.version))
+        from bauble.gtkinit import GLib
         try:
             view.set_icon(GdkPixbuf.Pixbuf.new_from_file(bauble.default_icon))
-        except:
+        except GLib.GError:
             pass
 
         from bauble.paths import main_is_frozen
