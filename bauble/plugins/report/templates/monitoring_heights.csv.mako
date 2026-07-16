@@ -44,7 +44,7 @@ def smart_diameter(value):
         return ''
     value = value.split('#')[0]
     try:
-        value = float(value) * 113 / 335
+        value = float(value) * 113 / 355
         return "{0:.2f}".format(value)
     except:
         return ''
