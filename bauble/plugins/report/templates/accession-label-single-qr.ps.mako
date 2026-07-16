@@ -51,7 +51,6 @@ else:
 %%BeginPageSetup
 %%PageBoundingBox:  0 0 144 72
 %%EndPageSetup
-grestore
 </%text>\
 <%
 et = options.get('extra_text')
@@ -95,7 +94,6 @@ ${PS.add_text(8, 53, plant_code, 'sans', 2.6, align=0, maxwidth=212)}
 (Verdana-ItalicFID315HGSet2) cvn findfont 20 20 matrix scale makefont setfont
 ${PS.add_text(8, 28, genus_epithet, 'sans', 1.3)}
 ${PS.add_text(8, 8, species_epithet, 'sans', 1.3)}
-grestore
 grestore
 <%text filter="h">
 showpage

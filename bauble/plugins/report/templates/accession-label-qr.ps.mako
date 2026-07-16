@@ -51,7 +51,6 @@ else:
 <%text>%%Page: </%text>${page} ${page}
 <%text>%%BeginPageSetup
 %%EndPageSetup
-grestore
 </%text>\
 % for p, plant_code, accession in enumeration:
   % if xpos == 4:
@@ -113,7 +112,6 @@ ${PS.add_text(8, 53, plant_code, 'sans', 2.6, align=0, maxwidth=212)}
 (Verdana-ItalicFID315HGSet2) cvn findfont 20 20 matrix scale makefont setfont
 ${PS.add_text(8, 28, genus_epithet, 'sans', 1.3)}
 ${PS.add_text(8, 8, species_epithet, 'sans', 1.3)}
-grestore
 grestore
 <% xpos += 1 %>
 % endfor
