@@ -763,7 +763,7 @@ def _find_plugins(path):
         try:
             mod_plugin = mod.plugin()
             logger.debug(f"module {mod} contains callable plugin: {mod_plugin}")
-        except:
+        except TypeError:
             mod_plugin = mod.plugin
             logger.debug(f"module {mod} contains non callable plugin: {mod_plugin}")
 

@@ -589,6 +589,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
                 float(self.model.geo_diameter),
             )
         except Exception:
+            logger.debug(f"trying to map.set_centre with latitude={self.model.geo_latitude}, longitude={self.model.geo_longitude}, diameter={self.model.geo_diameter}")
             pass
         if map.run() == Gtk.ResponseType.OK:
             lat, lon, diam = map.result

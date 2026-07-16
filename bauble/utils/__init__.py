@@ -1884,6 +1884,7 @@ class GenericMessageBox:
             try:
                 parent.show_all()
             except Exception:
+                logger.exception("parent.show_all() caused an exception")
                 pass
 
         # Instead of forcing a fixed size, add margins for spacing

@@ -83,11 +83,12 @@ if logger.isEnabledFor(logging.DEBUG):
     warnings.showwarning = _showwarning_with_stack
 
 
+import io
+import faulthandler
 try:
-    import faulthandler
-
     faulthandler.enable()
-except:
+except (ValueError, io.UnsupportedOperation):
+    logger.debug("faulthandler.enable() failed: no usable fileno on stderr")
     pass
 
 
