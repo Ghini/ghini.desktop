@@ -1736,8 +1736,7 @@ class GenericEditorPresenter:
         logger.debug(f"problems now: {self.problems}")
 
     def add_problem(self, problem_id, problem_widgets: Optional[Any] = None) -> None:
-        """
-        Add problem_id to self.problems and change the background of widget(s)
+        """Add problem_id to self.problems and change the background of widget(s)
         in problem_widgets.
 
         :param problem_id: A unique id for the problem.
@@ -1745,6 +1744,11 @@ class GenericEditorPresenter:
         :param problem_widgets: either a widget or list of widgets
           whose background color should change to indicate a problem
           (default=None)
+
+        caveat: in other parts of the code, widgets MAY be identified
+        as a tuple, containing the path of containers leading to the
+        final intended widget. this will lead to misundestandings here.
+
         """
         # map case list of widget to list of cases single widget.
         logger.debug(f"add_problem({self}, {problem_id}, {problem_widgets})")
