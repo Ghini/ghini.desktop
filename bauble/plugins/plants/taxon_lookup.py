@@ -121,7 +121,13 @@ class WfoTaxonLookupProvider:
     ) -> None:
         self.endpoint = endpoint or os.environ.get("WFO_GRAPHQL_URL", WFO_GRAPHQL_URL)
         self.timeout = timeout
-        self.session = self._build_session()
+        self._session = None
+
+    @property
+    def session(self):
+        if self._session is None:
+            self._session = self._build_session()
+        return self._session
 
     def _build_session(self) -> requests.Session:
         session = requests.Session()
