@@ -37,6 +37,7 @@ from bauble.plugins.garden.models import (
 from bauble.plugins.plants import Family, Genus, Species
 from dateutil.parser import parse
 from sqlalchemy import delete, select
+from sqlalchemy.orm.exc import NoResultFound
 
 logger: Any = logging.getLogger(__name__)
 
@@ -72,11 +73,11 @@ def get_species(session, keys, genus):
                     .where(Species.infrasp1 == "sp")
                 )
                 .scalars()
-                .first()
+                .one()
             )
             if species != zzz:  # no hace falta mencionarlo
                 sys.stdout.write("+")  # encontramos fictive species
-        except:
+        except NoResultFound:
             species = Species(genus=genus, sp="", infrasp1="sp")
             session.add(species)
             session.flush()
@@ -94,7 +95,7 @@ def get_species(session, keys, genus):
                 .one()
             )
             sys.stdout.write("+")  # encontramos Species
-        except:
+        except NoResultFound:
             species = Species(genus=genus, sp="", epithet=keys["sp_epit"])
             session.add(species)
             session.flush()
