@@ -87,7 +87,20 @@ class JSONExporter(editor.GenericEditorPresenter):
         self.export_includes = "ei_referred"
         self.include_private = True
         self.filename = ""
+        self._session = None
         super().__init__(model=self, view=view, refresh_view=True)
+
+    @property
+    def session(self):
+        """Return the exporter's database session, creating it on first use.
+
+        Avoids opening a session until actually needed. Tests can inject
+        a mock by setting `self._session` before this property is first
+        read.
+        """
+        if self._session is None:
+            self._session = db.TempSession()
+        return self._session
 
     from sqlalchemy import bindparam
 
