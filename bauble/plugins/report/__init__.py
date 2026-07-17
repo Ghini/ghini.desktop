@@ -529,7 +529,22 @@ class TemplateFormatterPlugin(FormatterPlugin):
 
         with db.TempSession() as session:
             values = list(map(session.merge, objs))
-            report = template.render(values=values, options=kwargs)
+            try:
+                report = template.render(values=values, options=kwargs)
+            except Exception:
+                # Python's own traceback points at the compiled mako
+                # module and is essentially unreadable (e.g. "???" for
+                # the source line). mako's own formatter maps the
+                # failure back to the actual .mako source file and line.
+                from mako import exceptions as mako_exceptions
+
+                logger.error(
+                    "error rendering template %s:\n%s",
+                    template_name,
+                    mako_exceptions.text_error_template().render(),
+                )
+                raise  # do not silently swallow the exception
+
         # Template name is guaranteed in the form
         # ›<name>.<dotless-extension><cls.extension>‹.  Get the dotless
         # extension from the template file name, produce output with that
