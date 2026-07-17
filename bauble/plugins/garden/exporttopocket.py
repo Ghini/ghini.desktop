@@ -79,7 +79,7 @@ CREATE TABLE "plant" (
     try:
         # do not reuse it
         os.unlink(filename)
-    except:
+    except FileNotFoundError:
         pass
     import sqlite3
 

@@ -460,7 +460,7 @@ class FormatterPlugin(pluginmgr.Plugin):
                     ]
                     if m is not None
                 ]
-        except:
+        except OSError:
             option_lines = []
 
         return [i.groups() for i in option_lines]

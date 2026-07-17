@@ -95,7 +95,7 @@ def on_path(exe):
             # handle exceptions in case the path doesn't exist
             if exe in os.listdir(p):
                 return True
-        except:
+        except OSError:
             pass
     return False
 

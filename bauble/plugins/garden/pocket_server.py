@@ -49,7 +49,7 @@ def get_ip():
         # doesn't even have to be reachable
         s.connect(("10.255.255.255", 1))
         IP = s.getsockname()[0]
-    except:
+    except OSError:
         IP = "127.0.0.1"
     finally:
         s.close()
@@ -142,7 +142,7 @@ class PocketServer(Thread):
                     with open(self.presenter.pocket_fn, "rb") as pocket_file:
                         encoded_string = base64.b64encode(pocket_file.read())
                         return encoded_string.decode("utf-8")
-                except:
+                except OSError:
                     return self.GENERIC_ERROR
 
             def put_change(self, client_id, log_lines, baseline):
@@ -235,7 +235,7 @@ class PocketServer(Thread):
                         return self.OK
                 except FileExistsError:
                     return self.FILE_EXISTS_ALREADY
-                except:
+                except OSError:
                     return self.GENERIC_ERROR
 
         self.ip = presenter.model.ip_address

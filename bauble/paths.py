@@ -177,5 +177,5 @@ def is_portable_installation() -> bool:
             f.write("test")
         os.remove(test_file_name)
         return True
-    except:
+    except OSError:
         return False
