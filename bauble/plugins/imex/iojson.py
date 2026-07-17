@@ -535,8 +535,8 @@ class JSONImporter(editor.GenericEditorPresenter):
         if session.in_transaction():
             session.commit()
         from bauble import gui
-
-        gui.get_view().update()
+        if gui is not None:
+            gui.get_view().update()
 
 
 #
