@@ -1754,14 +1754,11 @@ class GenericEditorPresenter:
 
         # here single widget.
         widget = problem_widgets
-        if not isinstance(widget, Gtk.Widget):
+        if isinstance(widget, str):
             try:
                 widget = getattr(self.view.widgets, widget)
             except (KeyError, AttributeError):
                 logger.info(f"can't get widget {widget}")
-            except Exception:
-                logger.exception(f"something unexpected happened with {widget}")
-                #raise
         self.problems.add((problem_id, widget))
         if isinstance(widget, str):
             self.view.mark_problem(widget)
