@@ -111,6 +111,23 @@ def mock_requests() -> Iterator[None]:
         }
 
         input_string = (json or {}).get("variables", {}).get("inputString", "")
+        variables = (json or {}).get("variables", {})
+        if "nameId" in variables:
+            name_id = variables["nameId"]
+            by_id = {
+                "kew-321867": {
+                    "id": "kew-321867",
+                    "title": "Iris x germanica L.",
+                    "fullNameStringPlain": "Iris x germanica L.",
+                    "genusString": "Iris",
+                    "speciesString": "germanica",
+                    "authorsString": "L.",
+                    "role": "accepted",
+                    "rank": "species",
+                    "currentPreferredUsage": {"hasName": {"id": "kew-321867"}},
+                },
+            }
+            return MockResponse({"data": {"taxonNameById": by_id.get(name_id)}})
         return MockResponse(answers.get(input_string, wfo_payload()))
 
     class MockSession:
@@ -134,7 +151,12 @@ def mock_requests() -> Iterator[None]:
         def __exit__(self, *args: Any) -> None:
             pass
 
-    with patch("bauble.plugins.plants.taxon_lookup.requests.Session", MockSession):
+    def mock_tnrs_post(*args: Any, **kwargs: Any) -> MockResponse:
+        # TNRS non ha corrispondenze note nei test: nessun risultato.
+        return MockResponse({"data": []})
+
+    with patch("bauble.plugins.plants.taxon_lookup.requests.Session", MockSession), \
+         patch("bauble.plugins.plants.taxon_lookup.requests.post", mock_tnrs_post):
         yield
 
 
