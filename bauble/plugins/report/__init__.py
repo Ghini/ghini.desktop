@@ -631,7 +631,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
         signaller = view.widgets.choose_thaw
         handler_id = signaller.connect("clicked", self.thaw_templates)
 
-        names = {name + extension for (name, _, _, extension) in self.view.widgets.names_ls}
+        names = {name + extension for (name, __, __, extension) in self.view.widgets.names_ls}
         while True:
             if view.get_window().run() != Gtk.ResponseType.OK:
                 break
@@ -959,7 +959,7 @@ class ReportToolDialogPresenter(GenericEditorPresenter):
                 break
 
             index = self.view.widgets.names_combo.get_active()
-            name, _, _, extension = self.view.widgets.names_ls[index]
+            name, __, __, extension = self.view.widgets.names_ls[index]
             name = name + extension
             prefs[default_config_pref] = name
             self.save_formatter_settings()
