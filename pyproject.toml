@@ -156,3 +156,10 @@ reportMissingTypeStubs = false
 executionEnvironments = [
   { extraPaths = ["src", "lib", "bauble/plugins"] }
 ]
+
+[tool.coverage.run]
+omit = [
+    "*/test.py",
+    "*/test_*.py",
+    "bauble/test/*",
+]
