@@ -292,7 +292,7 @@ class ExpressionRow:
             self.value_widget.add_attribute(cell, "text", 1)
             model = Gtk.ListStore(str, str)
             if prop.columns[0].type.translations:
-                trans = prop.columns[0].type.translations
+                trans = dict(prop.columns[0].type.translations)
                 prop_values = [
                     (k, trans[k])
                     for k in sorted(
