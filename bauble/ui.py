@@ -1006,10 +1006,8 @@ class GUI:
                     self.add_to_tools_menu(
                         submenu, tool, self.on_tools_menu_item_activate, tool.icon_dir
                     )
-                except:
-                    self.add_to_tools_menu(
-                        submenu, tool, self.on_tools_menu_item_activate, tool.icon_dir
-                    )
+                except Exception:
+                    logger.exception(f"could not add tool {tool.label!r} to menu")
             submenu_item.show_all()
 
         # Ensure all menu items are visible
