@@ -199,9 +199,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         Unicode(64), index=True, nullable=True
     )
     genus_id: Mapped[int] = mapped_column(ForeignKey("genus.id"), nullable=False)
-    __table_args__: Any = (
-        UniqueConstraint("genus_id", "epithet", name="_genus_epithet_uc"),
-    )
 
     # Define relationship to Genus
     genus: Mapped["Genus"] = relationship(
