@@ -501,3 +501,87 @@ class TestReport:
         )
         ids = get_ids(locations)
         assert ids == list(range(1, 17))
+
+    def test_flat_export_deep_single_valued_chain(self):
+        """A multi-hop to-one chain resolves to the final attribute."""
+        species = self.get(Species, 1)
+        assert _resolve_export_value(species, "genus.family.family") == "fam1"
+
+    def test_flat_export_id_field_single_valued_returns_actual_id(self):
+        """For a to-one relationship, '.id' returns the real id, not a count."""
+        species = self.get(Species, 1)
+        assert _resolve_export_value(species, "genus.id") == species.genus.id
+
+    def test_flat_export_id_field_multivalued_returns_count(self):
+        """For a to-many relationship, '.id' counts the related objects."""
+        species = self.get(Species, 1)
+        assert len(species.accessions) == 2
+        assert _resolve_export_value(species, "accessions.id") == 2
+
+    def test_flat_export_numeric_field_multivalued_sums_and_treats_none_as_zero(self):
+        """Non-id numeric fields on a to-many relationship are summed;
+
+        unset (None) values count as zero rather than raising or being
+        skipped.
+        """
+        species = self.get(Species, 1)
+        assert all(a.quantity_recvd is None for a in species.accessions)
+        assert _resolve_export_value(species, "accessions.quantity_recvd") == 0
+
+    def test_flat_export_str_field_empty_when_relationship_missing(self):
+        """'<str>' on a missing (None) relationship yields '', not None."""
+        species = self.get(Species, 1)
+        assert species.habit is None
+        assert _resolve_export_value(species, "habit.<str>") == ""
+
+
+def test_resolve_export_value_str_field_strips_zero_width_space() -> None:
+    """'<str>' stringifies the object and strips zero-width spaces."""
+
+    class Stub:
+        def __str__(self) -> str:
+            return "genus\u200bname"
+
+    assert _resolve_export_value(Stub(), "<str>") == "genusname"
+
+
+def test_resolve_export_value_str_field_on_none_object_returns_empty() -> None:
+    """'<str>' on a None value (not merely a missing relationship) is ''."""
+
+    class Stub:
+        related = None
+
+    assert _resolve_export_value(Stub(), "related.<str>") == ""
+
+
+def test_resolve_export_value_multivalued_sum_with_mixed_values() -> None:
+    """Summing a to-many numeric field ignores None entries as zero."""
+    from sqlalchemy.orm.collections import InstrumentedList
+
+    class Child:
+        def __init__(self, amount) -> None:
+            self.amount = amount
+
+    class Parent:
+        children = InstrumentedList([Child(2), Child(None), Child(5)])
+
+    assert _resolve_export_value(Parent(), "children.amount") == 7
+
+
+def test_resolve_export_value_id_field_counts_none_entries_too() -> None:
+    """'.id' on a to-many relationship counts entries (len(values)), not
+
+    just the non-null ones: a None placeholder in the list still adds
+    to the count, even though its id is never actually looked up.
+    """
+    from sqlalchemy.orm.collections import InstrumentedList
+
+    class Child:
+        def __init__(self, id_) -> None:
+            self.id = id_
+
+    class Parent:
+        children = InstrumentedList([None, Child(10), Child(20)])
+
+    assert _resolve_export_value(Parent(), "children.id") == 3
+
