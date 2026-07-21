@@ -1264,7 +1264,7 @@ def setup_binomial_search(db_session):
     return {"ixora": g3, "ic": sp, "pc": sp4}
 
 
-class BinomialSearchTests:
+class TestBinomialSearch:
     def test_binomial_complete(self, db_session, setup_binomial_search) -> None:
         """
         Test searching with a complete binomial name.
@@ -1329,7 +1329,7 @@ class BinomialSearchTests:
         )
         db_session.add(sp5)
         if db_session.in_transaction():
-            db_session.rollback()
+            db_session.commit()
 
         query = "Ixora coccinea"  # matches I.coccinea and Nora Grant
         results = mapper_search.search(query, db_session)
@@ -1345,7 +1345,7 @@ def querybuilder_view():
     return GenericEditorView(gladefilepath, parent=None, root_widget_name="main_dialog")
 
 
-class QueryBuilderTests:
+class TestQueryBuilder:
     def test_can_create_querybuilder(self, querybuilder_view) -> None:
         """
         Test that a QueryBuilder instance can be created.
@@ -1388,7 +1388,7 @@ def search_parser():
     return SearchParser()
 
 
-class BuildingSQLStatements:
+class TestBuildingSQLStatements:
     @pytest.mark.parametrize(
         "query, expected",
         [
@@ -1792,7 +1792,7 @@ class TestFilterThenMatch:
         assert results == set()
 
 
-class ParseTypedValue:
+class TestParseTypedValue:
     @pytest.mark.parametrize(
         "input_value,expected",
         [
@@ -1805,8 +1805,8 @@ class ParseTypedValue:
             ("whatever else", "whatever else"),
         ],
     )
-    def test_parse_typed_value(self, expected) -> None:
-        result = querybuilder.parse_typed_value(self)
+    def test_parse_typed_value(self, input_value, expected) -> None:
+        result = querybuilder.parse_typed_value(input_value)
         assert result == expected
 
 
