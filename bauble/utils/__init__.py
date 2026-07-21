@@ -1218,12 +1218,8 @@ def setup_date_button(view, entry, button, date_func: Optional[Any] = None) -> N
     image = Gtk.Image()
     image.set_from_file(icon)
     button.set_tooltip_text(_("Today's date"))
-    # 7. issue_gtk_button_image_api (REMOVED, pack GtkImage manually inside GtkButton)
-    if Gtk.get_major_version() >= 4:
-        button.set_child(image)
-    else:
-        button.add(image)
-        button.show_all()
+    button.add(image)
+    button.show_all()
 
     def on_clicked(b):
         s = ""

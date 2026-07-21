@@ -256,12 +256,8 @@ class ExpressionRow:
         if row_number != 1:
             image = Gtk.Image.new_from_icon_name("edit-delete", Gtk.IconSize.BUTTON)
             self.remove_button = Gtk.Button()
-            # 7. issue_gtk_button_image_api (REMOVED, pack GtkImage manually inside GtkButton)
-            if Gtk.get_major_version() >= 4:
-                self.remove_button.set_child(image)
-            else:
-                self.remove_button.add(image)
-                self.remove_button.show_all()
+            self.remove_button.add(image)
+            self.remove_button.show_all()
             self.remove_button.connect("clicked", lambda b: remove_callback(self))
             self.table.attach(self.remove_button, 4, row_number, 1, 1)
 

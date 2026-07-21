@@ -189,16 +189,12 @@ class Action:
         """
         Set keyboard accelerators for an action, compatible with both GTK 3 and GTK 4.
         """
-        if Gtk.get_major_version() >= 4:
-            # GTK 4 uses set_accels_for_action
-            app.set_accels_for_action(f"app.{action_name}", [accelerator])
-        else:
-            accel_path = f"<Actions>/app.{action_name}"
-            key, mods = Gtk.accelerator_parse(accelerator)
+        accel_path = f"<Actions>/app.{action_name}"
+        key, mods = Gtk.accelerator_parse(accelerator)
 
-            # Ensure we pass the correct number of arguments
-            Gtk.AccelMap.add_entry(accel_path, key, mods)
-            Gtk.AccelMap.change_entry(accel_path, key, mods, True)
+        # Ensure we pass the correct number of arguments
+        Gtk.AccelMap.add_entry(accel_path, key, mods)
+        Gtk.AccelMap.change_entry(accel_path, key, mods, True)
 
     def _on_activate(self, action, param) -> None:
         """Call the provided callback function when activated."""

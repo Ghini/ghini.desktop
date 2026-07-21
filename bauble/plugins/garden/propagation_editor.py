@@ -170,12 +170,8 @@ class PropagationHandler:
         # Remove Button
         remove_button = Gtk.Button()
         remove_icon = Gtk.Image.new_from_icon_name("edit-delete", Gtk.IconSize.BUTTON)
-        # 7. issue_gtk_button_image_api (REMOVED, pack GtkImage manually inside GtkButton)
-        if Gtk.get_major_version() >= 4:
-            remove_button.set_child(remove_icon)
-        else:
-            remove_button.add(remove_icon)
-            remove_button.show_all()
+        remove_button.add(remove_icon)
+        remove_button.show_all()
         self.view.connect(
             remove_button, "clicked", on_remove_clicked, propagation, hbox
         )
