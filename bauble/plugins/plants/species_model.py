@@ -1273,5 +1273,3 @@ class Color(db.Base):
 db.Species = Species
 db.SpeciesNote = SpeciesNote
 db.VernacularName = VernacularName
-db.VernacularName = VernacularName
-db.VernacularName = VernacularName
