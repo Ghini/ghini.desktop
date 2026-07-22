@@ -56,7 +56,7 @@ if version in ["+", "++", "+++"]:
     inc_minor = version == "++"
     inc_major = version == "+++"
     rx = re.compile(
-        "^version\\s*=\\s*(?:'|\")(.*)\\.(.*)\\.(.*)(?:'|\").*%s.*$" % bump_tag
+        "^_BASE_VERSION\\s*=\\s*(?:'|\")(.*)\\.(.*)\\.(.*)(?:'|\").*%s.*$" % bump_tag
     )
 
     matches = [
@@ -76,6 +76,8 @@ if version in ["+", "++", "+++"]:
         elif inc_patch:
             patch += 1
         version = "{}.{}.{}".format(major, minor, patch)
+
+    print(version)
 
 if not re.match(r".*?\..*?\..*?", version):
     usage_and_exit("bad version string")
@@ -136,7 +138,7 @@ def bump_nsi_file(filename, varname="VERSION"):
 
 
 # bump and grind
-bump_py_file(os.path.join(root_of_clone(), "bauble/_version.py"))
+bump_py_file(os.path.join(root_of_clone(), "bauble/_version.py"), "_BASE_VERSION")
 bump_py_file(os.path.join(root_of_clone(), "doc/conf.py"), "release")
 bump_desktop_file(os.path.join(root_of_clone(), "data/ghini.desktop"))
 bump_nsi_file(os.path.join(root_of_clone(), "scripts/build-multiuser.nsi"))

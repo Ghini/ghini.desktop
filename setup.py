@@ -170,13 +170,13 @@ setuptools.setup(
     use_scm_version={
         "version_scheme": "post-release",
         "local_scheme": "node-and-date",
-        "tag_regex": r"^v(?P<version>4(?:\.\d+){2})$",
+        "tag_regex": r"^v(?P<version>3(?:\.\d+){2})$",
         "scm": {
             "git": {
-                "describe_command": ("git describe --dirty --tags --long --match v4.*")
+                "describe_command": ("git describe --dirty --tags --long --match v3.*")
             }
         },
-        "fallback_version": "4.0.0",
+        "fallback_version": "3.1.0",
     },
     setup_requires=["setuptools>=65.5", "setuptools-scm"],
     cmdclass={
