@@ -23,10 +23,10 @@ __all__ = [
 ]
 
 _PACKAGE_NAME = "ghini-desktop"
-_BASE_VERSION = "4.0.0"
+_BASE_VERSION = "3.1.9" #:bump
 _FALLBACK_VERSION = f"{_BASE_VERSION}+unknown"
-_SUPPORTED_MAJOR = 4
-_VERSION_TAG_PATTERN = "v4.*"
+_SUPPORTED_MAJOR = 3
+_VERSION_TAG_PATTERN = "v3.*"
 
 
 def _is_supported_version(value: str) -> bool:
@@ -62,7 +62,7 @@ def _version_from_describe(describe: str) -> str | None:
     dirty_suffix = ".dirty" if dirty else ""
 
     tagged = re.match(
-        r"^v(?P<tag>4\.\d+\.\d+)-(?P<count>\d+)-g(?P<node>[0-9a-f]+)$",
+        r"^v(?P<tag>" + str(_SUPPORTED_MAJOR) + r"\.\d+\.\d+)-(?P<count>\d+)-g(?P<node>[0-9a-f]+)$",
         clean_describe,
     )
     if tagged:
@@ -91,11 +91,11 @@ def _version_from_git() -> str | None:
                 root=str(root),
                 version_scheme="post-release",
                 local_scheme="node-and-date",
-                tag_regex=r"^v(?P<version>4(?:\.\d+){2})$",
+                tag_regex=r"^v(?P<version>" + str(_SUPPORTED_MAJOR) + r"(?:\.\d+){2})$",
                 scm={
                     "git": {
                         "describe_command": (
-                            "git describe --dirty --tags --long --match v4.*"
+                            "git describe --dirty --tags --long --match v" + str(_SUPPORTED_MAJOR) + ".*"
                         )
                     }
                 },
