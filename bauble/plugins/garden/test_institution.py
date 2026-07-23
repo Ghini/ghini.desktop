@@ -44,3 +44,33 @@ def test_institution_editor_cancel_rolls_back():
 
     assert result is False
     mock_rollback.assert_called_once()
+
+
+from bauble.plugins.garden.institution import MapViewer
+from bauble.plugins.garden import utm
+from unittest.mock import Mock
+
+def test_map_viewer_get_centre():
+    viewer = MapViewer.__new__(MapViewer)
+
+    viewer.marker_centre = Mock()
+    viewer.marker_centre.get_latitude.return_value = 7.528178
+    viewer.marker_centre.get_longitude.return_value = -80.563788
+
+    viewer.marker_through = Mock()
+    viewer.marker_through.get_latitude.return_value = 7.529178
+    viewer.marker_through.get_longitude.return_value = -80.562788
+
+    centre = viewer.get_centre()
+
+    assert centre[0] == 7.528178
+    assert centre[1] == -80.563788
+
+    # per il diametro, andiamo su numeri facili facili, 3,4,5 (*2)
+    with patch("bauble.plugins.garden.utm.from_latlon") as from_latlon:
+        from_latlon.side_effect = [
+            (100, 200, 32, "U"),
+            (103, 204, 32, "U"),
+        ]
+        centre = viewer.get_centre()
+    assert centre[2] == 10
