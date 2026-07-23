@@ -630,17 +630,8 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         return self.on_textbuffer_changed(widget, value, attr="address")
 
 
-def start_institution_editor():
-    glade_path = os.path.join(paths.lib_dir(), "plugins", "garden", "institution.glade")
-    from bauble.editor import GenericEditorView, MockView
-
-    if _testing_mode():
-        view = MockView()
-    else:
-        view = GenericEditorView(
-            glade_path, parent=None, root_widget_name="inst_dialog"
-        )
-    view._tooltips = {
+class InstitutionEditor:
+    TOOLTIPS = {
         "inst_name": _("The full name of the institution."),
         "inst_abbr": _("The standard abbreviation of the " "institution."),
         "inst_code": _("The intitution code should be unique among " "all institions."),
@@ -668,18 +659,35 @@ def start_institution_editor():
         ),
     }
 
-    o = Institution()
-    inst_pres = InstitutionPresenter(o, view)
-    response = inst_pres.start()
-    if response == Gtk.ResponseType.OK:
-        o.write()
-        inst_pres.commit_changes()
-        result = True
-    else:
-        if inst_pres.session.in_transaction():
-            inst_pres.session.rollback()
-        result = False
-    return result
+    def __init__(self, model=None, parent=None):
+        self.model = model or Institution()
+        self.parent = parent
+        glade_path = os.path.join(paths.lib_dir(), "plugins", "garden", "institution.glade")
+        from bauble.editor import GenericEditorView
+        self.view = GenericEditorView(
+            glade_path, parent=parent, root_widget_name="inst_dialog"
+        )
+        self.view._tooltips = self.TOOLTIPS
+        self.presenter = InstitutionPresenter(self.model, self.view)
+
+    def start(self):
+        response = self.presenter.start()
+        return self.handle_response(response)
+
+    def handle_response(self, response):
+        if response == Gtk.ResponseType.OK:
+            self.model.write()
+            self.presenter.commit_changes()
+            result = True
+        else:
+            if self.presenter.session.in_transaction():
+                self.presenter.session.rollback()
+            result = False
+        return result
+
+
+def start_institution_editor():
+    return InstitutionEditor().start()
 
 
 class InstitutionCommand(pluginmgr.CommandHandler):
