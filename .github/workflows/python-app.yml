@@ -77,3 +77,5 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: coverage.lcov
+        coverage-reporter-version: v0.6.15
+        fail-on-error: false
