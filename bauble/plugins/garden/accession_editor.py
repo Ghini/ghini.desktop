@@ -2340,7 +2340,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         super().__init__(model, parent)
         self._committed = []
 
-        view = AccessionEditorView(parent=parent)
+        self.view = view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(
             self.model, view, session=self.session
         )
@@ -2355,10 +2355,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         """
         handle the response from self.presenter.start() in self.start()
         """
-        if TYPE_CHECKING:
-            from bauble.plugins.garden import PlantEditor
-            from bauble.plugins.garden.models import Plant
 
+        next_species = self.model.species  # needed by RESPONSE_NEXT
         not_ok_msg = _("Are you sure you want to lose your changes?")
         if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
@@ -2401,7 +2399,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = AccessionEditor(parent=self.parent)
+            e = AccessionEditor(Accession(species=next_species), parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden import PlantEditor

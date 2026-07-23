@@ -60,8 +60,8 @@ def edit_callback(locations):
 def add_plants_callback(locations):
     with db.TempSession() as session:
         loc = session.merge(locations[0])
+        from bauble.plugins.garden import PlantEditor
         from bauble.plugins.garden.models import Plant
-        from bauble.plugins.garden.plant_editor import PlantEditor
         plant = Plant(location=loc)
     # loc and plant are now detached; PlantEditor.merge will re-attach them
     e = PlantEditor(model=plant)
@@ -402,7 +402,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
-        view = LocationEditorView(parent=self.parent)
+        self.view = view = LocationEditorView(parent=self.parent)
         self.presenter = LocationEditorPresenter(self.model, view)
 
     def handle_response(self, response):
@@ -450,8 +450,8 @@ class LocationEditor(GenericModelViewPresenterEditor):
             e = LocationEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
+            from bauble.plugins.garden import PlantEditor
             from bauble.plugins.garden.models import Plant
-            from bauble.plugins.garden.plant_editor import PlantEditor
 
             e = PlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()

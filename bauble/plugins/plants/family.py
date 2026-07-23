@@ -918,7 +918,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
-        view = FamilyEditorView(parent=self.parent)
+        self.view = view = FamilyEditorView(parent=self.parent)
         self.presenter = FamilyEditorPresenter(self.model, view)
 
     def handle_response(self, response):

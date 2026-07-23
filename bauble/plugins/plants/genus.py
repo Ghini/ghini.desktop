@@ -1028,9 +1028,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         :param model: Genus instance or None
         :param parent: None
         """
-        # the view and presenter are created in self.start()
-        self.view = None
-        self.presenter = None
         if model is None:
             model = Genus()
         super().__init__(model, parent)
@@ -1039,7 +1036,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
-        view = GenusEditorView(parent=self.parent)
+        self.view = view = GenusEditorView(parent=self.parent)
         self.presenter = GenusEditorPresenter(self.model, view)
 
         # set default focus
@@ -1054,6 +1051,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         """
         from bauble.plugins.plants.species_model import Species
 
+        next_family = self.model.family  # needed by RESPONSE_NEXT
         not_ok_msg = _("Are you sure you want to lose your changes?")
         if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
@@ -1094,8 +1092,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            model = Genus(family=self.model.family)
-            e = GenusEditor(model=model, parent=self.parent)
+            e = GenusEditor(Genus(family=next_family), parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             sp = Species(genus=self.model)

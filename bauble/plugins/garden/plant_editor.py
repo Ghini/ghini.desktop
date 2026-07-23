@@ -786,7 +786,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
-        view = PlantEditorView(parent=self.parent)
+        self.view = view = PlantEditorView(parent=self.parent)
         self.presenter = PlantEditorPresenter(self.model, view)
         if self.branched_plant:
             self.presenter.upper_quantity_limit = self.branched_plant.quantity
@@ -903,6 +903,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
     def handle_response(self, response):
         from bauble.plugins.garden.models import Plant as Plant
 
+        next_accession = self.model.accession  # needed by RESPONSE_NEXT
         not_ok_msg = _("Are you sure you want to lose your changes?")
         if response in self.ok_responses:
             if self.presenter.is_dirty() or self.model in self.session.new:
@@ -928,7 +929,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = PlantEditor(Plant(accession=self.model.accession), parent=self.parent)
+            e = PlantEditor(Plant(accession=next_accession), parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:
