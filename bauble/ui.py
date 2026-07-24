@@ -884,6 +884,11 @@ class GUI:
             menu.remove(item)
         menu.show()
 
+    def clear_plugins_menus(self):
+        # clear all menus that are later dynamically populated by plugins
+        self.clear_menu(self.insert_menu)
+        self.clear_menu(self.tools_menu)
+
     def add_menu(self, name, menu, index: int = -1):
         """
         add a menu to the menubar
@@ -1122,12 +1127,11 @@ class GUI:
         if name is None:
             return
 
-        global engine
-        if engine is not None:
-            engine.dispose()
-            engine = None
+        if db.engine is not None:
+            db.engine.dispose()
+            db.engine = None
         try:
-            engine = db.open(uri, True, True)
+            db.engine = db.open(uri, True, True)
         except Exception as e:
             # we don't do anything to handle the exception since db.open()
             # should have shown an error dialog if there was a problem
@@ -1135,12 +1139,12 @@ class GUI:
             # parameter is True
             logger.warning(e)
 
-        if engine is None:
+        if db.engine is None:
             # the database wasn't open
             return
 
         # everything seems to have passed ok so setup the rest of bauble
-        if engine is not None:
+        if db.engine is not None:
             bauble.conn_name = name
             self.window.set_title(self.title)
             # TODO: come up with a better way to reset the handler than have
@@ -1153,7 +1157,7 @@ class GUI:
             bauble.last_handler = None
             self.set_default_view()
             self.get_view().update()
-            self.clear_menu("/ui/MenuBar/insert_menu")
+            self.clear_plugins_menus()
             self.statusbar_clear()
             pluginmgr.init()
 
