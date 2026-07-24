@@ -148,11 +148,6 @@ def _connect_args_for_uri(uri: str) -> dict[str, Any]:
     return connect_args
 
 
-COMPATIBLE_DATABASE_SERIES: dict[tuple[int, int], set[tuple[int, int]]] = {
-    (4, 0): {(3, 1)},
-}
-
-
 def version_series(value: str) -> tuple[int, int]:
     match = re.match(r"^(\d+)\.(\d+)(?:\.\d+)?(?:[.+-].*)?$", value)
     if not match:
@@ -163,13 +158,10 @@ def version_series(value: str) -> tuple[int, int]:
 def database_version_is_compatible(
     database_version: str, application_version: str
 ) -> bool:
-    database_series = version_series(database_version)
-    application_series = version_series(application_version)
+    _, database_minor = database_series = version_series(database_version)
+    _, application_minor = application_series = version_series(application_version)
 
-    if database_series == application_series:
-        return True
-
-    return database_series in COMPATIBLE_DATABASE_SERIES.get(application_series, set())
+    return database_minor == application_minor
 
 
 def get_or_create(session, model, defaults: Optional[Any] = None, **kwargs):
