@@ -1,20 +1,20 @@
 Ghini
 ======
 
-.. |travis| image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0-dev
+.. |travis| image:: https://github.com/Ghini/ghini.desktop/actions/workflows/python-app.yml/badge.svg
 .. |pypi| image:: https://img.shields.io/pypi/v/ghini.desktop.svg
-.. |coveralls| image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github
+.. |coveralls| image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-3.1-dev&service=github
 
-======== ======== ============
-travis   pypi     coveralls
-======== ======== ============
-|travis| |pypi|   |coveralls|
-======== ======== ============
+=========== ======== ============
+test suite  pypi     coveralls
+=========== ======== ============
+|travis|    |pypi|   |coveralls|
+=========== ======== ============
 
 =========== =========== =========== =========== =========== =========== =========== =========== 
-Spanish     Portuguese  French      Ukrainian   Hungarian   Italian     Tchech      Sweedish
+Spanish     Portuguese  French      Ukrainian   Hungarian   Italian     Tchech      Dutch
 =========== =========== =========== =========== =========== =========== =========== ===========
-|trans-es|  |trans-pt|  |trans-fr|  |trans-uk|  |trans-hu|  |trans-it|  |trans-cs|  |trans-sv|  
+|trans-es|  |trans-pt|  |trans-fr|  |trans-uk|  |trans-hu|  |trans-it|  |trans-cs|  |trans-nl|  
 =========== =========== =========== =========== =========== =========== =========== ===========
 
 .. |trans-es| image:: https://hosted.weblate.org/widgets/ghini/es/svg-badge.svg
@@ -24,7 +24,7 @@ Spanish     Portuguese  French      Ukrainian   Hungarian   Italian     Tchech  
 .. |trans-hu| image:: https://hosted.weblate.org/widgets/ghini/hu/svg-badge.svg
 .. |trans-it| image:: https://hosted.weblate.org/widgets/ghini/it/svg-badge.svg
 .. |trans-cs| image:: https://hosted.weblate.org/widgets/ghini/cs/svg-badge.svg
-.. |trans-sv| image:: https://hosted.weblate.org/widgets/ghini/sv/svg-badge.svg
+.. |trans-nl| image:: https://hosted.weblate.org/widgets/ghini/nl/svg-badge.svg
 
 what is Ghini (desktop)
 ------------------------
