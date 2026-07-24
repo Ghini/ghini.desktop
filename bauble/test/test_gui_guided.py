@@ -21,9 +21,9 @@ def test_guided_issue_body_formats_multiline_markdown():
         "finished_at": "2026-05-20T12:02:00+00:00",
         "app_returncode": 0,
         "run_context": {
-            "git_branch": "ghini-4-dev-clean",
+            "git_branch": "ghini-3.1-dev",
             "git_commit": "abc123",
-            "git_describe": "v4.0.0-1-gabc123",
+            "git_describe": "v3.1.9-7-gabc123",
             "display": ":0",
         },
         "fixture": {

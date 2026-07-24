@@ -107,11 +107,11 @@ exclude = [
 [tool.setuptools_scm]
 version_scheme = "post-release"
 local_scheme = "node-and-date"
-tag_regex = "^v(?P<version>4(?:\\.\\d+){2})$"
-fallback_version = "4.0.0"
+tag_regex = "^v(?P<version>3(?:\\.\\d+){2})$"
+fallback_version = "3.1.0"
 
 [tool.setuptools_scm.scm.git]
-describe_command = "git describe --dirty --tags --long --match v4.*"
+describe_command = "git describe --dirty --tags --long --match v3.*"
 
 [tool.ghini]
 platforms = [
