@@ -80,7 +80,7 @@ utils._install_css(
 # if TYPE_CHECKING:
 #    from .location import Location
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

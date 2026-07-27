@@ -31,7 +31,7 @@ from bauble import utils as butils
 from bauble.gtkinit import Gtk
 from bauble.plugins.report import TemplateFormatterPlugin
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MakoFormatterPlugin(TemplateFormatterPlugin):
@@ -43,8 +43,8 @@ class MakoFormatterPlugin(TemplateFormatterPlugin):
 
     title: str = "Mako"
     extension: str = ".mako"
-    domain_pattern: Any = re.compile(r"^##\s*DOMAIN\s+([a-z_]*)\s*$")
-    option_pattern: Any = re.compile(
+    domain_pattern = re.compile(r"^##\s*DOMAIN\s+([a-z_]*)\s*$")
+    option_pattern = re.compile(
         r"^## OPTION ([a-z_]*): \("
         r"type: ([a-z_]*), "
         r"default: '(.*)', "

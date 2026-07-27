@@ -28,7 +28,7 @@ import os
 import sys
 from typing import Any
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def main_is_frozen() -> bool:

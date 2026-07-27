@@ -13,7 +13,7 @@ from bauble.pluginmgr import init as init
 from bauble.pluginmgr import install as install
 from bauble.pluginmgr import plugins as plugins
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class A(Plugin):
@@ -31,7 +31,7 @@ class A(Plugin):
 
 
 class B(Plugin):
-    depends: Any = ["A"]
+    depends = ["A"]
     initialized: bool = False
     installed: bool = False
 
@@ -45,7 +45,7 @@ class B(Plugin):
 
 
 class C(Plugin):
-    depends: Any = ["B"]
+    depends = ["B"]
     initialized: bool = False
     installed: bool = False
 
@@ -74,7 +74,7 @@ class FailingInitPlugin(Plugin):
 
 
 class DependsOnFailingInitPlugin(Plugin):
-    depends: Any = ["FailingInitPlugin"]
+    depends = ["FailingInitPlugin"]
     initialized: bool = False
     installed: bool = False
 
@@ -102,7 +102,7 @@ class FailingInstallPlugin(Plugin):
 
 
 class DependsOnFailingInstallPlugin(Plugin):
-    depends: Any = ["FailingInstallPlugin"]
+    depends = ["FailingInstallPlugin"]
     initialized: bool = False
     installed: bool = False
 

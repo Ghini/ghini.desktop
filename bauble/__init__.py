@@ -59,19 +59,19 @@ version_tuple: Any = tuple(
 # extract release date (assuming setuptools_scm local_scheme='node-and-date')
 import re
 
-match: Any = re.search(r"\+g[0-9a-f]+\.d(\d{8})", version)
-release_version: Any = None
-release_date: Any = match.group(1) if match else None
-installation_date: Any = os.environ.get("BUILD_DATE", "1970-01-01T00:00:00Z")
+match = re.search(r"\+g[0-9a-f]+\.d(\d{8})", version)
+release_version: Optional[str] = None
+release_date: Optional[str] = match.group(1) if match else None
+installation_date = os.environ.get("BUILD_DATE", "1970-01-01T00:00:00Z")
 
 
 #from bauble.connmgr import start_connection_manager
 
 # debugpy.breakpoint()
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-consoleLevel: Any = logging.INFO
+consoleLevel = logging.INFO
 
 if logger.isEnabledFor(logging.DEBUG):
     _orig_showwarning = warnings.showwarning

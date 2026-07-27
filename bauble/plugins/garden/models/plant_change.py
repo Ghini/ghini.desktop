@@ -34,7 +34,7 @@ from bauble.plugins.garden.constants import change_reasons
 from sqlalchemy import ForeignKey, Integer, Unicode, asc
 from sqlalchemy.orm import Mapped, mapped_column
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

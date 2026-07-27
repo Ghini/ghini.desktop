@@ -87,7 +87,7 @@ def verify_institution(institution):
     )
 
 
-namespaces: Any = {"abcd": "http://www.tdwg.org/schemas/abcd/2.06"}
+namespaces = {"abcd": "http://www.tdwg.org/schemas/abcd/2.06"}
 
 
 def ABCDElement(parent, name, text: Optional[Any] = None, attrib: Optional[Any] = None):
@@ -439,8 +439,8 @@ class ABCDExportTool(pluginmgr.Tool):
 
 
 class ABCDImexPlugin(pluginmgr.Plugin):
-    tools: Any = [ABCDExportTool]
-    depends: Any = ["PlantsPlugin"]
+    tools = [ABCDExportTool]
+    depends = ["PlantsPlugin"]
 
 
 try:

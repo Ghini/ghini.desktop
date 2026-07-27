@@ -51,7 +51,7 @@ from bauble.gtkinit import GLib, Gtk
 from sqlalchemy import Integer, Unicode, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

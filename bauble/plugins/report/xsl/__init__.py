@@ -51,7 +51,7 @@ fop_cmd: str
 from bauble.gtkinit import Gtk
 from sqlalchemy.orm import object_session
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # from sqlalchemy import *
 
@@ -397,8 +397,8 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     title: Any = _("XSL")
     extension: str = ".xsl"
-    domain_pattern: Any = re.compile(r"^\s*<!--\s*DOMAIN\s+([a-z_]*)\s*-->\s*$")
-    option_pattern: Any = re.compile(
+    domain_pattern = re.compile(r"^\s*<!--\s*DOMAIN\s+([a-z_]*)\s*-->\s*$")
+    option_pattern = re.compile(
         r"^\s*<!--\s*OPTION ([a-z_]*): \("
         "type: ([a-z_]*), "
         "default: '(.*)', "

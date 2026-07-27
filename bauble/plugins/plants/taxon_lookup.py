@@ -32,7 +32,7 @@ try:
 except Exception:
     Retry = None  # fallback handled in WfoTaxonLookupProvider
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 HYBRID_MARKER = "\N{MULTIPLICATION SIGN}"
 WFO_GRAPHQL_URL = "https://list.worldfloraonline.org/gql.php"

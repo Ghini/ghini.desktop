@@ -31,7 +31,7 @@ from bauble.db import Base, Serializable, WithNotes, make_note_class
 from sqlalchemy import Integer, Unicode, UnicodeText, asc, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

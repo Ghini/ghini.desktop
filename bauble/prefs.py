@@ -34,7 +34,7 @@ import copy
 from bauble.gtkinit import Gtk
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
@@ -59,7 +59,7 @@ importing the objects that you need.  E.g.::
 """
 
 default_filename = "config"
-default_prefs_file: Any = os.path.join(paths.appdata_dir(), default_filename)
+default_prefs_file = os.path.join(paths.appdata_dir(), default_filename)
 """
 The default file for the preference settings file.
 """
@@ -68,7 +68,7 @@ config_version_pref: str = "bauble.config.version"
 """
 The preferences key for the bauble version of the preferences file.
 """
-config_version: Any = (_bauble_version_tuple[0], _bauble_version_tuple[1])
+config_version = (_bauble_version_tuple[0], _bauble_version_tuple[1])
 
 date_format_pref: str = "bauble.default_date_format"
 """

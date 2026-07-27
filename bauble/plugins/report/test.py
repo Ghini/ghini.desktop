@@ -32,7 +32,7 @@ from bauble.plugins.tag import Tag, tag_objects
 from bauble.test import check_dupids
 from sqlalchemy import delete, select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # Modify desktop.open here to avoid cyclic import

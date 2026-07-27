@@ -50,7 +50,7 @@ from sqlalchemy.orm import Mapped, mapped_column, object_mapper, relationship, v
 from sqlalchemy.orm.session import object_session
 
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

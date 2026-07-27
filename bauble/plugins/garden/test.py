@@ -60,7 +60,7 @@ accession_test_data: Any
 default_cutting_values: Any
 from bauble.gtkinit import Gtk
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 prefs_testing: bool = True
 

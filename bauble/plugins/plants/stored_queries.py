@@ -26,7 +26,7 @@ from bauble import db, editor, meta, paths, pluginmgr
 from bauble.gtkinit import Pango
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

@@ -54,7 +54,7 @@ from bauble.view import Action, InfoBox, PropertiesExpander, select_in_search_re
 from sqlalchemy import distinct, func, select
 from sqlalchemy.orm.session import object_session
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 logger.setLevel(logging.INFO)
 

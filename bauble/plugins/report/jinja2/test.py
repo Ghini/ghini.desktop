@@ -28,7 +28,7 @@ from bauble.plugins.report.jinja2 import Jinja2FormatterPlugin
 from bauble.utils import natsort_key
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(autouse=True)

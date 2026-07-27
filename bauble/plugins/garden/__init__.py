@@ -60,7 +60,7 @@ def __getattr__(name):
     raise AttributeError(name)
 
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # other ideas:

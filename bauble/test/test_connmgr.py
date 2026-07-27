@@ -35,7 +35,7 @@ from bauble.gtkinit import Gtk
 from bauble.prefs import prefs
 from bauble.test import check_dupids
 
-logger: Any = logging.getLogger("bauble.connmgr")
+logger = logging.getLogger("bauble.connmgr")
 logger._cache.clear()
 logger.setLevel(logging.INFO)
 

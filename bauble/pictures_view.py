@@ -24,7 +24,7 @@ from bauble import db
 from bauble.gtkinit import Gtk
 from sqlalchemy.orm.exc import DetachedInstanceError
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

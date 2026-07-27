@@ -52,7 +52,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from sqlalchemy.orm.session import object_session
 
 __all__ = ["Species"]
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 

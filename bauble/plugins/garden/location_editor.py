@@ -48,7 +48,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm.session import object_session
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

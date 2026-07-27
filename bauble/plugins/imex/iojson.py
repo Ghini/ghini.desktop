@@ -35,7 +35,7 @@ from bauble.plugins.garden.models import (
 from bauble.plugins.plants import Familia, Genus, Species, SpeciesNote, VernacularName
 from sqlalchemy import bindparam, select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def serializedatetime(obj):

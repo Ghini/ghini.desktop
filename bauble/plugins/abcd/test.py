@@ -36,7 +36,7 @@ from bauble.plugins.plants import Family, Genus, GeographicArea, Species
 from lxml import etree
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")

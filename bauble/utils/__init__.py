@@ -1310,7 +1310,7 @@ def safe_int(s):
     return 0
 
 
-__natsort_rx: Any = re.compile(r"(\d+(?:\.\d+)?)")
+__natsort_rx = re.compile(r"(\d+(?:\.\d+)?)")
 
 
 def natsort_key(obj):
@@ -2166,7 +2166,7 @@ def get_urls(text):
     return matches
 
 
-sloppy_iso8601: Any = re.compile("^[12][0-9][0-9][0-9]-[0-9][0-9]?-[0-9][0-9]?.*$")
+sloppy_iso8601 = re.compile("^[12][0-9][0-9][0-9]-[0-9][0-9]?-[0-9][0-9]?.*$")
 
 
 def parse_date(value, dayfirst: bool = True, yearfirst: bool = False, **kwargs):

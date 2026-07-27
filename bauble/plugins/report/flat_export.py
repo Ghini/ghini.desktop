@@ -80,7 +80,7 @@ class FlatFileExporter(GenericEditorPresenter):
     active_ls: Any
     schema_menu: Any
     view_accept_buttons: Any = ["cancel_button", "confirm_button"]
-    logger: Any = logging.getLogger(__name__)
+    logger = logging.getLogger(__name__)
 
     def __init__(self, view: Optional[Any] = None) -> None:
         super().__init__(model=self, view=view, refresh_view=False)

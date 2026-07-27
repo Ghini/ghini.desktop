@@ -26,7 +26,7 @@ from bauble.editor import GenericEditorPresenter, GenericEditorView
 from bauble.gtkinit import Pango
 from bauble.plugins.plants import Species
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 TNRS_WEB_URL = "https://tnrs.biendata.org/"
 

@@ -32,7 +32,7 @@ from .querybuilderparser import BuiltQuery as BuiltQuery
 from .search import EmptyToken as EmptyToken
 from .search import MapperSearch as MapperSearch
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 RelationProperty = RelationshipProperty
@@ -205,7 +205,7 @@ class ExpressionRow:
     cond_combo: Any
     value_widget: Any
     remove_button: Any
-    conditions: Any = ["=", "!=", "<", "<=", ">", ">=", "like", "contains"]
+    conditions = ["=", "!=", "<", "<=", ">", ">=", "like", "contains"]
 
     def __init__(self, query_builder, remove_callback, row_number) -> None:
         self.table = query_builder.view.widgets.expressions_table
@@ -385,7 +385,7 @@ class QueryBuilder(GenericEditorPresenter):
     domain: Any
     table_row_count: int
     domain_map: Any
-    view_accept_buttons: Any = ["cancel_button", "confirm_button"]
+    view_accept_buttons = ["cancel_button", "confirm_button"]
     default_size: Any = None
 
     def __init__(self, view: Optional[Any] = None) -> None:

@@ -29,7 +29,7 @@ import bauble
 import fibra
 from bauble.gtkinit import Gtk
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # TODO: after some specified time the status bar should be cleared but not
 # too soon, maybe 30 seconds or so but only once the queue is empty, anytime

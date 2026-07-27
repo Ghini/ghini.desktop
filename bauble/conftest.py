@@ -28,7 +28,7 @@ from bauble import db, pluginmgr
 from bauble.error import BaubleError
 from bauble.prefs import prefs
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 prefs.testing = True
 

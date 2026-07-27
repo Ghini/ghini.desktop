@@ -30,7 +30,7 @@ from sqlalchemy import Column, ForeignKey, Integer, Table
 
 # from sqlalchemy.ext.declarative import declared_attr
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

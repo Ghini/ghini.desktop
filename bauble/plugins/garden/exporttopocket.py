@@ -27,7 +27,7 @@ from bauble.gtkinit import GLib
 from bauble.plugins.garden.models import Accession, Plant
 from sqlalchemy import bindparam, select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def create_pocket(filename) -> None:

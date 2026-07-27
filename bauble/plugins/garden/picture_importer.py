@@ -29,15 +29,15 @@ from bauble.editor import GenericEditorPresenter, GenericEditorView
 from bauble.gtkinit import GdkPixbuf, GLib, Gtk
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-accno_re: Any = re.compile(
+accno_re = re.compile(
     r"([12][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9])(?:\.([0-9]+))?"
 )
-species_re: Any = re.compile(r"([A-Z][a-z]+(?: [a-z-]*)?)")
-picname_re: Any = re.compile(r"([A-Z]+[0-9]+)")
-number_re: Any = re.compile(r"([0-9]+)")
+species_re = re.compile(r"([A-Z][a-z]+(?: [a-z-]*)?)")
+picname_re = re.compile(r"([A-Z]+[0-9]+)")
+number_re = re.compile(r"([0-9]+)")
 
 
 def decode_parts(name, acc_format: Optional[Any] = None):

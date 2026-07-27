@@ -60,7 +60,7 @@ from sqlalchemy import Boolean, Integer, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 family_data: Any
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # Test Data Definitions
 family_data = [

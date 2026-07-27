@@ -33,7 +33,7 @@ from bauble.gtkinit import GLib
 from bauble.utils import safe_set_text
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_ip():

@@ -66,7 +66,7 @@ from sqlalchemy.orm.session import object_session
 
 __all__ = ["Genus"]
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # TODO: warn the user that a duplicate genus name is being entered

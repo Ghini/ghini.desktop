@@ -9,10 +9,6 @@ from bauble.gtkinit import Gio, Gtk
 # from bauble.gtkinit import Pango
 from bauble.utils import set_widget_value
 
-logger: Any = logging.getLogger(__name__)
-
-import logging
-
 logger = logging.getLogger(__name__)
 
 

@@ -167,7 +167,7 @@ class TestAskTPL:
     """
 
     logger_name: str = "bauble.plugins.plants.ask_tpl"
-    logger: Any = logging.getLogger(logger_name)
+    logger = logging.getLogger(logger_name)
 
     def test_simple_answer(self, mock_logger: Any) -> None:
         self.logger.setLevel(logging.INFO)

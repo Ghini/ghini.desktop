@@ -25,7 +25,7 @@ from typing import Any, Optional, Sequence
 import bauble.utils.desktop as desktop
 from bauble.gtkinit import Gtk
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

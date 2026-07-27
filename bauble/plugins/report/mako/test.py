@@ -36,7 +36,7 @@ from bauble.plugins.report.mako import MakoFormatterPlugin
 from bauble.plugins.report.utils import Code39
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # TURN OFF desktop.open for this module so that the test doesn't open the report

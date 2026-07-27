@@ -42,7 +42,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
 view: Any = importlib.import_module("bauble.view")
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def collection_edit_callback(coll):

@@ -51,7 +51,7 @@ from sqlalchemy import Boolean
 # from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.elements import ClauseElement
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 QUOTE_STYLE: Any = csv.QUOTE_MINIMAL
 QUOTE_CHAR: str = '"'
 import csv as _csv

@@ -48,7 +48,7 @@ from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy.orm import configure_mappers, sessionmaker
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 QUOTE_STYLE: Any = csv.QUOTE_MINIMAL
 QUOTE_CHAR: str = '"'
 WRITE_IMPORT_SCHEMA_ENV = "GHINI_WRITE_IMPORT_SCHEMA"

@@ -31,9 +31,9 @@ from sqlalchemy import types
 
 global _prefs_lock
 
-_prefs_lock: Any = Lock()  # ✅ Add this at the module level
+_prefs_lock: Lock = Lock()
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from typing import Protocol, runtime_checkable
 
@@ -276,7 +276,7 @@ class DateTime(types.TypeDecorator):
 
     import re
 
-    _rx_tz: Any = re.compile("[+-]")
+    _rx_tz = re.compile("[+-]")
 
     def __init__(self) -> None:
         super().__init__()

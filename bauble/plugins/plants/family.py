@@ -66,7 +66,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.orm.session import object_session
 
 view: Any = importlib.import_module("bauble.view")
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def edit_callback(families):

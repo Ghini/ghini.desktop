@@ -34,7 +34,7 @@ import bauble.utils as utils
 from bauble.gtkinit import Gtk
 from sqlalchemy import select
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

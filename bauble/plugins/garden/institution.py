@@ -54,7 +54,7 @@ GtkClutter.init([])  # GtkClutter first
 Clutter.init([])  # Then Clutter
 
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 PADDING: int = 6

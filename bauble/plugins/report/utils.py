@@ -24,7 +24,7 @@ import re
 from types import FrameType
 from typing import Any, Optional
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 from typing import Protocol

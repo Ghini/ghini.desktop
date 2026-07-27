@@ -39,7 +39,7 @@ from dateutil.parser import parse
 from sqlalchemy import delete, select
 from sqlalchemy.orm.exc import NoResultFound
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_genus(session, keys):

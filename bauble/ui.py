@@ -41,7 +41,7 @@ from bauble.gtkinit import Gdk, GdkPixbuf, GLib, Gtk
 from bauble.prefs import prefs
 from bauble.view import SearchView
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 MAIN_SEARCH_COMPLETION_TEMPLATES = (

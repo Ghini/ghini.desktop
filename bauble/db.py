@@ -45,7 +45,7 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.sql.sqltypes import String, Text, Unicode, UnicodeText
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
@@ -1208,7 +1208,7 @@ class WithNotes:
     A mixin to provide dynamic attribute access to notes based on categories.
     """
 
-    key_pattern: Any = re.compile(r"{[^:]+:(.*)}")
+    key_pattern = re.compile(r"{[^:]+:(.*)}")
 
     def __getattr__(self, name):
         """
@@ -1319,7 +1319,7 @@ class Serializable:
 
     import re
 
-    single_cap_re: Any = re.compile("([A-Z])")
+    single_cap_re = re.compile("([A-Z])")
     link_keys: Any = []
 
     _sorting_rank = -99

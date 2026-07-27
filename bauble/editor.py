@@ -44,7 +44,7 @@ from sqlalchemy.orm import object_mapper, object_session
 from sqlalchemy.orm.exc import UnmappedInstanceError
 from sqlalchemy import inspect as sa_inspect
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

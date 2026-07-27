@@ -56,7 +56,7 @@ DEFAULT_PROP_TYPE = (
     "Unknown" if "Unknown" in prop_type_values else next(iter(prop_type_values.keys()))
 )
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

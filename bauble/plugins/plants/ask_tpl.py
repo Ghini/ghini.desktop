@@ -31,7 +31,7 @@ from bauble.plugins.plants.taxon_lookup import (
     lookup_taxon,
 )
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

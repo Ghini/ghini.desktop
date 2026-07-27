@@ -38,7 +38,7 @@ from bauble.test import check_dupids
 from sqlalchemy import Integer, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-logger: Any = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger._cache.clear()
 logger.setLevel(logging.INFO)
 prefs.testing = True
