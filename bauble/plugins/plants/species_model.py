@@ -698,12 +698,13 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         else:
             epithet = self.epithet
         sp2 = self.sp2
+
         if markup:
             escape = utils.xml_safe
 
-            def italicize(s):
+            def italicize(obj):
                 return "<i>{}</i>".format(
-                    escape(s).replace(  # all but the multiplication signs
+                    escape(obj).replace(  # all but the multiplication signs
                         "×", "</i>×<i>"
                     )
                 )
@@ -714,7 +715,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             if sp2 is not None:
                 sp2 = italicize(sp2)
         else:
-            italicize = escape = lambda x: x
+            def _identity(obj: Any) -> str:
+                return obj
+            italicize = escape = _identity
 
         author = None
         if authors and self.author:

@@ -1270,7 +1270,7 @@ def to_bytes(obj, encoding: str = "utf-8"):
     return to_unicode(obj).encode(encoding, errors="replace")
 
 
-def xml_safe(obj):
+def xml_safe(obj) -> str:
     """
     Convert an object to a string and escape XML special characters.
 
