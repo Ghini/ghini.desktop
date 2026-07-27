@@ -69,7 +69,7 @@ from bauble.view import (
 )
 from lxml import etree
 from sqlalchemy import delete, inspect as sa_inspect, or_, select
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, IntegrityError, PendingRollbackError
 from sqlalchemy.orm import attributes as orm_attributes
 from sqlalchemy.orm.exc import DetachedInstanceError
 from sqlalchemy.orm import object_session
@@ -419,8 +419,8 @@ class AccessionEditorView(editor.GenericEditorView):
             if epg.startswith(key_epg) and eps.startswith(key_eps):
                 return True
             return False
-        except (PendingRollbackError, IntegrityError):
-            self.session.rollback()
+        except (PendingRollbackError, IntegrityError) as e:
+            logger.exception("species_match_func: database error while matching species, treating as no match")
             return False
 
     @staticmethod
