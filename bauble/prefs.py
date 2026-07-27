@@ -307,6 +307,7 @@ class _prefs(dict):
             self.config.write(f)
             f.close()
         except Exception:
+            import bauble.gui
             msg = (
                 _(
                     "Ghini can't save your user preferences. \n\nPlease "

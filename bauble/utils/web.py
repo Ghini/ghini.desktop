@@ -32,7 +32,10 @@ logger.setLevel(logging.INFO)
 def _open_link(data: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
     """Open a web link"""
     logger.debug(f"_open_link received data={data}, args={args}, kwargs={kwargs}")
-    desktop.open(data)  # type: ignore[attr-defined]
+    if data is None:
+        logger.debug("_open_link called with no data; nothing to open")
+        return
+    desktop.open(data)
 
 
 class BaubleLinkButton:

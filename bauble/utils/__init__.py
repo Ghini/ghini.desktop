@@ -295,7 +295,7 @@ def copy_picture_with_thumbnail(path, basename: Optional[Any] = None):
     from PIL import Image
 
     full_dest_path = os.path.join(
-        bprefs.prefs[picture_root_pref], "thumbs", basename
+        prefs[picture_root_pref], "thumbs", basename
     )
     result = ""
     try:
