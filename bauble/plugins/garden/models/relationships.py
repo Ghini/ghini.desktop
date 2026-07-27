@@ -1,5 +1,6 @@
 # bauble/plugins/garden/models/__init__.py
 
+from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
 
 # relationships.py
@@ -18,10 +19,10 @@ if TYPE_CHECKING:
 
 
 # Accession <--> Plant
-def define_accession_plant_relationships(accession: "Accession", plant: "Plant"):
+def define_accession_plant_relationships(accession: type[Accession], plant: type[Plant]) -> None:
 
     # use Plant.code for the order_by to avoid ambiguous column names
-    accession.plants: List["Plant"] = relationship(  # type: ignore[assignment]
+    accession.plants: List["Plant"] = relationship(  # type: ignore[misc]
         # "Plant",
         plant,
         cascade="all, delete-orphan",
@@ -30,7 +31,7 @@ def define_accession_plant_relationships(accession: "Accession", plant: "Plant")
         uselist=True,
         single_parent=True,
     )
-    plant.accession: "Accession" = relationship(  # type: ignore[assignment]
+    plant.accession: "Accession" = relationship(  # type: ignore[misc]
         # "Accession",
         accession,
         back_populates="plants",
@@ -41,14 +42,14 @@ def define_accession_plant_relationships(accession: "Accession", plant: "Plant")
 
 
 def define_accession_related_relationships(
-    accession: "Accession",
-    source: "Source",
-    verification: "Verification",
-    voucher: "Voucher",
-):
+    accession: "type[Accession]",
+    source: "type[Source]",
+    verification: "type[Verification]",
+    voucher: "type[Voucher]",
+) -> None:
 
     # the source of the accession
-    accession.source: Optional["Source"] = relationship(
+    accession.source: Optional["Source"] = relationship(  # type: ignore[misc]
         # "Source",
         source,
         uselist=False,
@@ -57,7 +58,7 @@ def define_accession_related_relationships(
         single_parent=True,
         active_history=True,
     )
-    accession.verifications: List["Verification"] = relationship(
+    accession.verifications: List["Verification"] = relationship(  # type: ignore[misc]
         # "Verification",  # order_by='date',
         verification,
         cascade="all, delete-orphan",
@@ -66,7 +67,7 @@ def define_accession_related_relationships(
         uselist=True,  # An Accession can have multiple Vouchers
     )
 
-    accession.vouchers: List["Voucher"] = relationship(
+    accession.vouchers: List["Voucher"] = relationship(  # type: ignore[misc]
         # "Voucher",
         voucher,
         cascade="all, delete-orphan",
@@ -74,19 +75,19 @@ def define_accession_related_relationships(
         uselist=True,
         single_parent=True,
     )
-    source.accession: "Accession" = relationship(  # type: ignore[assignment]
+    source.accession: "Accession" = relationship(  # type: ignore[misc]
         # "Accession",
         accession,
         back_populates="source",
     )
-    voucher.accession: "Accession" = relationship(  # type: ignore[assignment]
+    voucher.accession: "Accession" = relationship(  # type: ignore[misc]
         # "Accession",
         accession,
         back_populates="vouchers",
         uselist=False,
         active_history=True,
     )
-    verification.accession: "Accession" = relationship(  # type: ignore[assignment]
+    verification.accession: "Accession" = relationship(  # type: ignore[misc]
         # "Accession",
         accession,
         back_populates="verifications",
@@ -97,11 +98,11 @@ def define_accession_related_relationships(
 
 # Location <--> Plant
 def define_location_relationships(
-    plant: "Plant", location: "Location", plant_change: "PlantChange"
-):
+    plant: "type[Plant]", location: "type[Location]", plant_change: "type[PlantChange]"
+) -> None:
 
     # Location <--> Plant
-    location.plants: List["Plant"] = relationship(  # type: ignore[assignment]
+    location.plants: List["Plant"] = relationship(  # type: ignore[misc]
         # "Plant",
         plant,
         back_populates="location",
@@ -109,7 +110,7 @@ def define_location_relationships(
         overlaps="location",
     )
 
-    plant.location: "Location" = relationship(  # type: ignore[assignment]
+    plant.location: "Location" = relationship(  # type: ignore[misc]
         # "Location",
         location,
         back_populates="plants",
@@ -137,7 +138,7 @@ def define_location_relationships(
 
     # Plant <--> PlantChange (with ambiguity)
 
-    plant.changes: "PlantChange" = relationship(  # type: ignore[assignment]
+    plant.changes: "PlantChange" = relationship(  # type: ignore[misc]
         # "PlantChange",
         plant_change,
         back_populates="plant",
@@ -147,7 +148,7 @@ def define_location_relationships(
         foreign_keys=lambda pc=plant_change: [pc.plant_id],
     )
 
-    plant.branches: "PlantChange" = relationship(  # type: ignore[assignment]
+    plant.branches: "PlantChange" = relationship(  # type: ignore[misc]
         # "PlantChange",
         plant_change,
         back_populates="parent_plant",
@@ -157,7 +158,7 @@ def define_location_relationships(
         foreign_keys=lambda pc=plant_change: [pc.parent_plant_id],
     )
 
-    plant_change.plant: "Plant" = relationship(  # type: ignore[assignment]
+    plant_change.plant: "Plant" = relationship(  # type: ignore[misc]
         # "Plant",
         plant,
         foreign_keys=lambda pc=plant_change: [pc.plant_id],
@@ -166,7 +167,7 @@ def define_location_relationships(
         overlaps="changes",
     )
 
-    plant_change.parent_plant: "Plant" = relationship(  # type: ignore[assignment]
+    plant_change.parent_plant: "Plant" = relationship(  # type: ignore[misc]
         # "Plant",
         plant,
         foreign_keys=lambda pc=plant_change: [pc.parent_plant_id],
@@ -176,7 +177,7 @@ def define_location_relationships(
         active_history=True,
     )
 
-    plant_change.from_location: "Location" = relationship(  # type: ignore[assignment]
+    plant_change.from_location: "Location" = relationship(  # type: ignore[misc]
         # "Location",
         location,
         foreign_keys=lambda pc=plant_change: [pc.from_location_id],
@@ -187,7 +188,7 @@ def define_location_relationships(
         back_populates="plants_from_location",
     )
 
-    plant_change.to_location: "Location" = relationship(  # type: ignore[assignment]
+    plant_change.to_location: "Location" = relationship(  # type: ignore[misc]
         # "Location",
         location,
         foreign_keys=lambda pc=plant_change: [pc.to_location_id],
@@ -199,10 +200,10 @@ def define_location_relationships(
 
 
 def define_propagation_relationships(
-    plant: "Plant", propagation: "Propagation", plant_propagation: "PlantPropagation"
-):
+    plant: "type[Plant]", propagation: "type[Propagation]", plant_propagation: "type[PlantPropagation]"
+) -> None:
 
-    plant.propagations: "Propagation" = relationship(  # type: ignore[assignment]
+    plant.propagations: "Propagation" = relationship(  # type: ignore[misc]
         # "Propagation",
         propagation,
         secondary=plant_propagation,
@@ -210,7 +211,7 @@ def define_propagation_relationships(
         cascade="save-update, merge",
     )
 
-    propagation.plants: List["Plant"] = relationship(  # type: ignore[assignment]
+    propagation.plants: List["Plant"] = relationship(  # type: ignore[misc]
         # "Plant",
         plant,
         secondary=plant_propagation,
@@ -218,7 +219,7 @@ def define_propagation_relationships(
     )
 
 
-def setup_all_relationships():
+def setup_all_relationships() -> None:
     from .accession import Accession
     from .association_tables import PlantPropagation
     from .location import Location
