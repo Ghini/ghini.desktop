@@ -25,15 +25,14 @@ from typing import Any, Optional
 class BaubleError(Exception):
     msg: str
 
-    def __init__(self, msg: Optional[str] = None) -> None:
+    def __init__(self, msg: str = "") -> None:
         self.msg = msg
 
     def __str__(self) -> str:
-        if self.msg is None:
-            return str(type(self).__name__)
+        if not self.msg:
+            return type(self).__name__
         else:
             return f"{type(self).__name__}: {self.msg}"
-        return self.msg
 
 
 class CommitException(Exception):
@@ -91,7 +90,7 @@ class CheckConditionError(BaubleError):
     pass
 
 
-def check(condition: bool, msg: Optional[str] = None) -> None:
+def check(condition: bool, msg: str = "") -> None:
     """
     Check that condition is true.  If not then raise
     CheckConditionError(msg)
