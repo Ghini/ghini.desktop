@@ -317,7 +317,7 @@ def _all_test_names() -> set[str]:
     return names
 
 
-def test_manual_issue_regression_coverage_lists_all_tracked_manual_issues():
+def test_manual_issue_regression_coverage_lists_all_tracked_manual_issues() -> None:
     expected_issue_numbers = {
         2,
         3,
@@ -362,7 +362,7 @@ def test_manual_issue_regression_coverage_lists_all_tracked_manual_issues():
     assert set(MANUAL_ISSUE_REGRESSION_COVERAGE) == expected_issue_numbers
 
 
-def test_manual_issue_regression_coverage_references_existing_tests():
+def test_manual_issue_regression_coverage_references_existing_tests() -> None:
     known_tests = _all_test_names()
     missing = {
         issue_number: sorted(
@@ -375,7 +375,7 @@ def test_manual_issue_regression_coverage_references_existing_tests():
     assert missing == {}
 
 
-def test_manual_issue_regression_coverage_has_behavioral_tests_for_each_issue():
+def test_manual_issue_regression_coverage_has_behavioral_tests_for_each_issue() -> None:
     empty = {
         issue_number: title
         for issue_number, (title, tests) in MANUAL_ISSUE_REGRESSION_COVERAGE.items()

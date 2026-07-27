@@ -13,7 +13,7 @@ def load_gui_guided_module():
     return module
 
 
-def test_guided_issue_body_formats_multiline_markdown():
+def test_guided_issue_body_formats_multiline_markdown() -> None:
     gui_guided = load_gui_guided_module()
     result = {
         "scenario": "visual-smoke",
@@ -61,7 +61,7 @@ def test_guided_issue_body_formats_multiline_markdown():
     assert "`bug`, `gui`, `guided-test`, `needs-investigation`" in body
 
 
-def test_guided_issue_body_includes_all_checkpoints_when_no_failure():
+def test_guided_issue_body_includes_all_checkpoints_when_no_failure() -> None:
     gui_guided = load_gui_guided_module()
     result = {
         "scenario": "connection-manager",
