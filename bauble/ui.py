@@ -300,13 +300,14 @@ class SplashCommandHandler(pluginmgr.CommandHandler):
         if self.view is None:
             logger.warning("SplashCommandHandler.view is None, expect trouble")
 
-    command: Any = ["home", "splash"]
-    view: Any = None
+    command: list[str] = ["home", "splash"]
+    view: Optional[DefaultView] = None
 
-    def get_view(self):
-        if self.view is None:
-            self.view = DefaultView()
-        return self.view
+    def get_view(self) -> DefaultView:
+        view = self.view
+        if view is None:
+            view = self.view = DefaultView()
+        return view
 
     def __call__(self, cmd, arg) -> None:
         self.view.update()

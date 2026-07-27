@@ -27,7 +27,7 @@ import sys
 import threading
 import traceback
 from gettext import gettext as _
-from typing import Any, Optional
+from typing import Any, ClassVar, Optional
 
 import bauble
 from sqlalchemy.exc import InvalidRequestError, SQLAlchemyError
@@ -1815,15 +1815,16 @@ class HistoryView(pluginmgr.View):
 class HistoryCommandHandler(pluginmgr.CommandHandler):
 
     command: str = "history"
-    view: Any = None
+    view: ClassVar[Optional[HistoryView]] = None
 
     def __init__(self) -> None:
         super().__init__()
 
-    def get_view(self):
-        if not self.view:
-            self.__class__.view = HistoryView()
-        return self.view
+    def get_view(self) -> HistoryView:
+        view = self.__class__.view
+        if view is None:
+            view = self.__class__.view = HistoryView()
+        return view
 
     def __call__(self, cmd, arg) -> None:
         self.view.update()
@@ -1865,12 +1866,13 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
         super().__init__()
 
     command: Any = [None]
-    view: Any = None
+    view: ClassVar[Optional[SearchView]] = None
 
-    def get_view(self):
-        if self.__class__.view is None:
-            self.__class__.view = SearchView()
-        return self.__class__.view
+    def get_view(self) -> SearchView:
+        view = self.__class__.view
+        if view is None:
+            view = self.__class__.view = SearchView()
+        return view
 
     def __call__(self, cmd, arg) -> None:
         self.view.search(arg)

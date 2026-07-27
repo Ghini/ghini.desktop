@@ -20,7 +20,7 @@ import logging
 import os
 from configparser import RawConfigParser
 from gettext import gettext as _
-from typing import Any, Optional
+from typing import Any, ClassVar, Optional
 
 import bauble.db as db
 import bauble.paths as paths
@@ -372,16 +372,17 @@ class PrefsView(pluginmgr.View):
 
 class PrefsCommandHandler(pluginmgr.CommandHandler):
 
-    command: Any = ("prefs", "config")
-    view: Any = None
+    command = ("prefs", "config")
+    view: ClassVar[Optional[PrefsView]] = None
 
     def __call__(self, cmd, arg) -> None:
         pass
 
-    def get_view(self):
-        if self.view is None:
-            self.__class__.view = PrefsView()
-        return self.view
+    def get_view(self) -> PrefsView:
+        view = self.__class__.view
+        if view is None:
+            view = self.__class__.view = PrefsView()
+        return view
 
 
 pluginmgr.register_command(PrefsCommandHandler)
