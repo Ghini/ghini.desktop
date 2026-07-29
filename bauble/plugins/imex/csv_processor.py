@@ -60,6 +60,13 @@ import csv as _csv
 from collections.abc import Mapping
 
 from bauble.plugins.imex.unicode_utils import UnicodeReader
+from typing import TypedDict
+
+class PreflightResults(TypedDict):
+    missing_headers: list[str]
+    empty_required_cells: list[tuple[int, str]]
+    enum_violations: list[tuple[int, str, str, list[str]]]
+    row_count: int
 
 # bauble/plugins/imex/csv_processor.py
 _OMIT = object()
@@ -69,7 +76,7 @@ _TEMPORAL_TYPES = (sa.Date, sa.DateTime, sa.Time)
 _BINARY_TYPES = (sa.LargeBinary,)
 
 
-def preflight_csv(filename, table, max_report=50):
+def preflight_csv(filename, table, max_report=50) -> PreflightResults:
     """
     Scan the CSV once and report:
       - missing required (NOT NULL) columns,
@@ -102,7 +109,7 @@ def preflight_csv(filename, table, max_report=50):
         ):
             enums[c.name] = set(getattr(c.type, "values", []) or [])
 
-    results = {
+    results: PreflightResults = {
         "missing_headers": [],
         "empty_required_cells": [],
         "enum_violations": [],
