@@ -87,7 +87,7 @@ def _version_from_git() -> str | None:
         pass
     else:
         try:
-            return get_version(
+            return str(get_version(
                 root=str(root),
                 version_scheme="post-release",
                 local_scheme="node-and-date",
@@ -100,7 +100,7 @@ def _version_from_git() -> str | None:
                     }
                 },
                 fallback_version=_BASE_VERSION,
-            )
+            ))
         except Exception:
             pass
 

@@ -85,7 +85,7 @@ def _run(cmd: Union[str, list[str]], shell: bool, wait: bool) -> int:
 
 
 def _readfrom(cmd: Union[str, list[str]], shell: bool) -> bytes:
-    opener = subprocess.Popen(
+    opener: subprocess.Popen[bytes] = subprocess.Popen(
         cmd, shell=shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE
     )
     if opener.stdin:
