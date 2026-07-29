@@ -37,6 +37,8 @@ from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.tag import Tag
 from bauble.prefs import prefs
 from sqlalchemy import select, union
+from sqlalchemy import Select
+from sqlalchemy.orm import Session
 
 from .flat_export import FlatFileExportTool as FlatFileExportTool
 from .utils import PS, SVG
@@ -75,7 +77,7 @@ def safe_set_text(gtk_widget, text) -> None:
     gtk_widget.set_text(text)
 
 
-def get_plant_query(obj, session):
+def get_plant_query(obj: object, session: Session) -> Select[tuple[Plant]]:
     """ """
     # .order_by(None) is needed for the later union() to work properly
     q = select(Plant)
@@ -140,7 +142,7 @@ def get_plant_query(obj, session):
         raise BaubleError(_("Can't get plants from a %s") % type(obj).__name__)
 
 
-def get_accession_query(obj, session):
+def get_accession_query(obj: object, session: Session) -> Select[tuple[Accession]]:
     """ """
     q = select(Accession)
     if isinstance(obj, Family):
@@ -195,7 +197,7 @@ def get_accession_query(obj, session):
         raise BaubleError(_("Can't get accessions from a %s") % type(obj).__name__)
 
 
-def get_species_query(obj, session):
+def get_species_query(obj: object, session: Session) -> Select[tuple[Species]]:
     """ """
     q = select(Species)
     if isinstance(obj, Family):
@@ -249,7 +251,7 @@ def get_species_query(obj, session):
         raise BaubleError(_("Can't get species from a %s") % type(obj).__name__)
 
 
-def get_location_query(obj, session):
+def get_location_query(obj: object, session: Session) -> Select[tuple[Location]]:
     """ """
     stmt = select(Location)
 
@@ -320,8 +322,15 @@ def get_location_query(obj, session):
 
     return stmt
 
+from typing import TypeVar, Union
+from sqlalchemy import union, select, Select
+from sqlalchemy.engine import ScalarResult
 
-def get_pertinent_objects(cls, objs):
+QueryableModel = TypeVar("QueryableModel", Plant, Accession, Species, Location)
+
+def get_pertinent_objects(
+    cls: type[QueryableModel], objs: object | list[object] | tuple[object, ...]
+) -> ScalarResult[QueryableModel]:
     """return a query containing all `csl` objects reachable from `objs`
 
     :param cls:
