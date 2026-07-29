@@ -170,7 +170,7 @@ def write_preferences(appdata_dir, connections, default_connection):
         config.write(config_file)
 
 
-def wait_for_node(dogtail_tree, predicate, timeout=20):
+def wait_for_node(dogtail_tree, predicate, timeout=20) -> None:
     deadline = time.monotonic() + timeout
     last_error = None
     while time.monotonic() < deadline:
@@ -185,7 +185,7 @@ def wait_for_node(dogtail_tree, predicate, timeout=20):
     ) from last_error
 
 
-def wait_for_absence(dogtail_tree, predicate, timeout=20):
+def wait_for_absence(dogtail_tree, predicate, timeout=20) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         node = dogtail_tree.root.findChild(
@@ -203,7 +203,7 @@ def wait_for_absence(dogtail_tree, predicate, timeout=20):
     )
 
 
-def dump_accessible_tree(node, depth=0, max_depth=6):
+def dump_accessible_tree(node, depth=0, max_depth=6) -> str:
     if depth > max_depth:
         return ""
     role_name = getattr(node, "roleName", "")
@@ -2541,7 +2541,7 @@ def test_can_create_seed_propagation_from_plant_editor(
     ]
 
 
-def connect_to_sqlite_database(dogtail_tree, connection_name):
+def connect_to_sqlite_database(dogtail_tree, connection_name) -> None:
     window = wait_for_node(
         dogtail_tree,
         lambda node: node.roleName == "dialog" and node.name.startswith("Ghini"),
