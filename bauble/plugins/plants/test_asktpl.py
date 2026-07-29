@@ -47,7 +47,7 @@ class MockResponse:
         return self.payload
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture
 def mock_requests() -> Iterator[None]:
     """
     Mock the `requests.get` function to simulate API responses.

@@ -95,7 +95,7 @@ def test_is_none_if_wrong() -> None:
     assert query.is_valid is False
 
 
-@pytest.mark.parametrize(  # type: ignore[misc]
+@pytest.mark.parametrize(
     "query_string",
     [
         "species Where genus.epithet=Inga and accessions.code like '2010%'",

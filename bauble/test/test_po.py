@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture
 def po_files() -> List[str]:
     """
     Fixture to locate all .po files in the 'po' directory.
@@ -40,7 +40,7 @@ def po_files() -> List[str]:
     return files
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture
 def translation_pattern() -> Pattern[str]:
     """
     Fixture to compile the translation key pattern.
