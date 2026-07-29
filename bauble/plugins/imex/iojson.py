@@ -20,7 +20,7 @@ import logging
 import os
 from collections.abc import Generator
 from gettext import gettext as _
-from typing import Any
+from typing import Any, Optional
 
 import bauble.task
 from bauble import db, editor, paths, pb_set_fraction, pluginmgr
@@ -104,7 +104,7 @@ class JSONExporter(editor.GenericEditorPresenter):
 
     from sqlalchemy import bindparam
 
-    def get_objects(self):
+    def get_objects(self) -> Optional[list[object]]:
         """return the list of objects to be exported
 
         if "based_on" is "selection", return the top level selection only.
@@ -439,14 +439,14 @@ class JSONExporter(editor.GenericEditorPresenter):
         # Genus, Species, Accession, Plant, Location.
         if objects is None:
             with db.Session() as session:
-                objects = session.execute(select(Familia)).scalars().all()
-                objects.extend(session.execute(select(Genus)).scalars().all())
-                objects.extend(session.execute(select(Species)).scalars().all())
-                objects.extend(session.execute(select(VernacularName)).scalars().all())
-                objects.extend(session.execute(select(Accession)).scalars().all())
-                objects.extend(session.execute(select(Plant)).scalars().all())
-                objects.extend(session.execute(select(Location)).scalars().all())
-                self._do_export(filename, objects)
+                all_objects: list[object] = list(session.execute(select(Familia)).scalars().all())
+                all_objects.extend(session.execute(select(Genus)).scalars().all())
+                all_objects.extend(session.execute(select(Species)).scalars().all())
+                all_objects.extend(session.execute(select(VernacularName)).scalars().all())
+                all_objects.extend(session.execute(select(Accession)).scalars().all())
+                all_objects.extend(session.execute(select(Plant)).scalars().all())
+                all_objects.extend(session.execute(select(Location)).scalars().all())
+                self._do_export(filename, all_objects)
         else:
             self._do_export(filename, objects)
 
