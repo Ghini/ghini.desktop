@@ -735,12 +735,14 @@ class PS:
         assert width is not None and height is not None  # For Mypy
 
         channels = len(image.mode.strip("A"))
-        try:
+        image_data: list[int] = list(image.getdata())
+        if len(image.getbands()) == 1:
+            # grayscale/single-band image: getdata() already yields flat ints
+            chain = image_data
+        else:
             chain = list(
-                itertools.chain.from_iterable(k[:channels] for k in image.getdata())
+                itertools.chain.from_iterable(k[:channels] for k in imagedata)
             )
-        except:
-            chain = image.getdata()
         result = (
             "gsave %(left)d %(bottom)d translate %(width)d %(height)d scale %(width0)d %(height0)d 8 [%(width0)d 0 0 -%(height0)d 0 %(height0)d] (%(text)s>) /ASCIIHexDecode filter false %(channels)s colorimage grestore\n"
             % {
