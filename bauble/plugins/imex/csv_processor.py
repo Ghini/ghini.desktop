@@ -81,10 +81,16 @@ def preflight_csv(filename, table, max_report=50):
     enums = {}
     import sqlalchemy as sa
 
+    from typing import TYPE_CHECKING, Optional, Type
+
+    if TYPE_CHECKING:
+        from bauble.btypes import Enum
+
+    BaubleEnum: "Optional[Type[Enum]]"
     try:
         from bauble.btypes import Enum as BaubleEnum
     except Exception:
-        BaubleEnum = None  # type: ignore
+        BaubleEnum = None
 
     for c in table.c:
         if isinstance(c.type, sa.Enum):

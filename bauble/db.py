@@ -92,7 +92,7 @@ try:
         ) % ".".join(parts)
         raise error.SQLAlchemyVersionError(msg)
 except ImportError:
-    msg: Any = __(
+    msg: str = __(
         "SQLAlchemy not installed. Please install SQLAlchemy from "
         "http://www.sqlalchemy.org"
     )
@@ -372,7 +372,9 @@ class MapperBase(DeclarativeMeta):
             MapperBase.add_history_entry("delete", target, connection)
 
 
-engine: Any = None
+from sqlalchemy.engine import Engine
+
+engine: Optional[Engine] = None
 """A :class:`sqlalchemy.engine.base.Engine` used as the default
 connection to the database.
 """

@@ -749,6 +749,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
     RESPONSE_NEXT: int = 22
     ok_responses: Any = (RESPONSE_NEXT, Gtk.ResponseType.OK)
 
+    if TYPE_CHECKING:
+        from bauble.plugins.garden import Plant
+
     def __init__(
         self,
         model: Plant = None,

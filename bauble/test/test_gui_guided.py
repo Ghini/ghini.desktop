@@ -1,9 +1,11 @@
 import importlib.util
 import sys
 from pathlib import Path
+from types import ModuleType
+from typing import Optional
 
 
-def load_gui_guided_module():
+def load_gui_guided_module() -> Optional[ModuleType]:
     script_path = Path(__file__).resolve().parents[2] / "scripts" / "gui_guided.py"
     spec = importlib.util.spec_from_file_location("gui_guided", script_path)
     module = importlib.util.module_from_spec(spec)

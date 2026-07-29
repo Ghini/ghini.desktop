@@ -20,7 +20,7 @@
 import logging
 from gettext import gettext as _
 from itertools import chain
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, Union
 
 import bauble.btypes as types
 import bauble.db as db
@@ -189,6 +189,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         The combination of epithet, author, hybrid, sp_qual,
         cv_group, trade_name, genus_id
     """
+
+    if TYPE_CHECKING:
+        from bauble.plugins.plants import Genus
+        from bauble.plugins.garden import Accession
+        from bauble.plugins.garden import Verification
 
     label_distribution: Any
     synonyms: Any

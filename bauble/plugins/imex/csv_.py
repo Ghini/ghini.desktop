@@ -31,7 +31,7 @@ from collections.abc import Generator
 from gettext import gettext as _
 from inspect import signature
 from queue import Queue
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 import bauble.db as db
 import bauble.pluginmgr as pluginmgr
@@ -225,11 +225,15 @@ def describe_metadata(metadata) -> Dict[str, List[Dict[str, Any]]]:
                 fk = next(iter(col.foreign_keys))
                 info["foreign_key"] = f"{fk.column.table.name}.{fk.column.name}"
 
+            if TYPE_CHECKING:
+                from bauble.btypes import Enum
+
+            BaubleEnum: "Optional[Type[Enum]]"
             # Enums (SQLAlchemy or Bauble)
             try:
                 from bauble.btypes import Enum as BaubleEnum
             except Exception:
-                BaubleEnum = None  # type: ignore
+                BaubleEnum = None
 
             if isinstance(col.type, sa.Enum):
                 info["enum_values"] = list(getattr(col.type, "enums", []) or [])

@@ -26,7 +26,7 @@ import os
 import sys
 import traceback
 from gettext import gettext as _
-from typing import Any
+from typing import TYPE_CHECKING, Any, Optional
 
 # import bauble.db as db
 # import bauble.error as err
@@ -146,7 +146,10 @@ def pb_pulse() -> None:
 
 logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 
-gui: Any = None
+if TYPE_CHECKING:
+    import bauble.ui
+
+gui: "Optional[bauble.ui.GUI]" = None
 """bauble.gui is the instance :class:`bauble.ui.GUI`
 """
 
