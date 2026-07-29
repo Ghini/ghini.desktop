@@ -2557,7 +2557,7 @@ def connect_to_sqlite_database(dogtail_tree, connection_name):
     )
 
 
-def find_named_child(node, name, role_name=None, showing_only=None):
+def find_named_child(node, name, role_name=None, showing_only=None) -> Optional[Any]:
     return node.findChild(
         lambda child: child.name == name
         and (role_name is None or child.roleName == role_name),
@@ -2568,7 +2568,7 @@ def find_named_child(node, name, role_name=None, showing_only=None):
     )
 
 
-def find_child_by_role(node, role_name):
+def find_child_by_role(node, role_name) -> Optional[Any]:
     return node.findChild(
         lambda child: child.roleName == role_name,
         recursive=True,
@@ -2577,7 +2577,7 @@ def find_child_by_role(node, role_name):
     )
 
 
-def find_text_entry_with_value(node, value):
+def find_text_entry_with_value(node, value) -> Optional[Any]:
     return node.findChild(
         lambda child: child.roleName == "text" and accessible_text(child) == value,
         recursive=True,
@@ -2586,7 +2586,7 @@ def find_text_entry_with_value(node, value):
     )
 
 
-def find_text_entry_containing(node, value):
+def find_text_entry_containing(node, value) -> Optional[Any]:
     return node.findChild(
         lambda child: child.roleName == "text"
         and value in accessible_text(child).replace("\u200b", ""),
