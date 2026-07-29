@@ -1208,8 +1208,8 @@ class GUI:
         about.set_name("Ghini")
         about.set_version(bauble.version)
         about.set_website(_("http://ghini.github.io"))
-        f = os.path.join(paths.lib_dir(), "images", "icon.svg")
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file(f)
+        icon_file_name = os.path.join(paths.lib_dir(), "images", "icon.svg")
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon_file_name)
         about.set_logo(pixbuf)
         about.set_copyright(_("Copyright © by its contributors."))
 
@@ -1217,8 +1217,8 @@ class GUI:
 
         with codecs.open(
             os.path.join(paths.installation_dir(), "share", "ghini", "LICENSE")
-        ) as f:
-            license = f.read()
+        ) as license_file:
+            license = license_file.read()
         about.set_license(license)  # not translated
         about.set_comments(
             _(
