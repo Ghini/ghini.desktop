@@ -122,8 +122,8 @@ class JSONExporter(editor.GenericEditorPresenter):
             vernacular = speciesnotes = plantnotes = accessionnotes = []
 
             # Handle species
-            species = [j.id for j in result if isinstance(j, Species)]
-            if species:
+            species_ids = [j.id for j in result if isinstance(j, Species)]
+            if species_ids:
                 vernacular = (
                     self.session.execute(
                         select(VernacularName)
@@ -132,7 +132,7 @@ class JSONExporter(editor.GenericEditorPresenter):
                                 bindparam("species_ids", expanding=True)
                             )
                         )
-                        .params(species_ids=species)
+                        .params(species_ids=species_ids)
                     )
                     .scalars()
                     .all()
@@ -145,15 +145,15 @@ class JSONExporter(editor.GenericEditorPresenter):
                                 bindparam("species_ids", expanding=True)
                             )
                         )
-                        .params(species_ids=species)
+                        .params(species_ids=species_ids)
                     )
                     .scalars()
                     .all()
                 )
 
             # Handle plants
-            plants = [j.id for j in result if isinstance(j, Plant)]
-            if plants:
+            plants_ids = [j.id for j in result if isinstance(j, Plant)]
+            if plants_ids:
                 plantnotes = (
                     self.session.execute(
                         select(PlantNote)
@@ -162,15 +162,15 @@ class JSONExporter(editor.GenericEditorPresenter):
                                 bindparam("plant_ids", expanding=True)
                             )
                         )
-                        .params(plant_ids=plants)
+                        .params(plant_ids=plants_ids)
                     )
                     .scalars()
                     .all()
                 )
 
             # Handle accessions
-            accessions = [j.id for j in result if isinstance(j, Accession)]
-            if accessions:
+            accessions_ids = [j.id for j in result if isinstance(j, Accession)]
+            if accessions_ids:
                 accessionnotes = (
                     self.session.execute(
                         select(AccessionNote)
@@ -179,7 +179,7 @@ class JSONExporter(editor.GenericEditorPresenter):
                                 bindparam("accession_ids", expanding=True)
                             )
                         )
-                        .params(accession_ids=accessions)
+                        .params(accession_ids=accessions_ids)
                     )
                     .scalars()
                     .all()
