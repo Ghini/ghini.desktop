@@ -428,10 +428,33 @@ class Institution:
     are immediately reflected in the database.
 
     Institution values are stored in the Ghini meta database and not in
-    its own table
+    its a dedicated table.
+
+    A Ghini database describes exactly one institution, so there is no
+    lookup or search involved: ``Institution()`` always refers to that
+    single record.
+
+    All properties are stored, and returned, as strings (or None if
+    never set); callers are responsible for converting to other types
+    (e.g. ``float`` for the ``geo_*`` fields) as needed.
+
     """
 
-    __properties: Any = (
+    name: Optional[str] = None
+    abbreviation: Optional[str] = None
+    code: Optional[str] = None
+    contact: Optional[str] = None
+    technical_contact: Optional[str] = None
+    email: Optional[str] = None
+    tel: Optional[str] = None
+    fax: Optional[str] = None
+    address: Optional[str] = None
+    geo_latitude: Optional[str] = None
+    geo_longitude: Optional[str] = None
+    geo_diameter: Optional[str] = None
+    uuid: Optional[str] = None
+
+    __properties: tuple[str, ...] = (
         "name",
         "abbreviation",
         "code",
@@ -447,7 +470,7 @@ class Institution:
         "uuid",
     )
 
-    table: Any = meta.BaubleMeta.__table__
+    table = meta.BaubleMeta.__table__
 
     def __init__(self) -> None:
         # Initialize properties to None
