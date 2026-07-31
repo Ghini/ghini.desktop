@@ -39,7 +39,6 @@ from sqlalchemy import Integer, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 logger = logging.getLogger(__name__)
-logger._cache.clear()
 logger.setLevel(logging.INFO)
 prefs.testing = True
 

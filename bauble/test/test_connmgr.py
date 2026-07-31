@@ -36,7 +36,6 @@ from bauble.prefs import prefs
 from bauble.test import check_dupids
 
 logger = logging.getLogger("bauble.connmgr")
-logger._cache.clear()
 logger.setLevel(logging.INFO)
 
 # Create a global thread lock
