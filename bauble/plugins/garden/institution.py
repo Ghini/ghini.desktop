@@ -605,15 +605,20 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
 
     def on_select_map_clicked(self, *args, **kwargs) -> None:
         map = MapViewer(_("Zoom to garden"), self.view.get_window())
-        try:
-            map.set_centre(
-                float(self.model.geo_latitude),
-                float(self.model.geo_longitude),
-                float(self.model.geo_diameter),
-            )
-        except Exception:
-            logger.debug(f"trying to map.set_centre with latitude={self.model.geo_latitude}, longitude={self.model.geo_longitude}, diameter={self.model.geo_diameter}")
-            pass
+        lat_str, lon_str, diam_str = (
+            self.model.geo_latitude,
+            self.model.geo_longitude,
+            self.model.geo_diameter,
+        )
+        if lat_str is not None and lon_str is not None and diam_str is not None:
+            try:
+                map.set_centre(float(lat_str), float(lon_str), float(diam_str))
+            except ValueError:
+                logger.debug(
+                    f"invalid geo values: latitude={lat_str}, longitude={lon_str}, diameter={diam_str}"
+                )
+        else:
+            logger.debug("institution geo coordinates not set, skipping map centering")
         if map.run() == Gtk.ResponseType.OK:
             lat, lon, diam = map.result
             self.view.widget_set_value("inst_geo_latitude", f"{lat:0.6f}")
