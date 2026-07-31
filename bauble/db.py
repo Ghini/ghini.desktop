@@ -24,7 +24,8 @@ import logging
 import os
 import re
 from gettext import gettext as __
-from typing import Any, Iterable, Optional
+from typing import Any, ClassVar, Iterable, Optional, Sequence
+from typing import cast
 
 import bauble.btypes as types
 import bauble.error as error
@@ -33,6 +34,7 @@ import sqlalchemy.orm as orm
 from bauble.gtkinit import Gtk
 from bauble.utils import parse_date
 from sqlalchemy import asc, event, insert, inspect, select, text
+from sqlalchemy import Table
 from sqlalchemy.engine import Connection
 
 # from sqlalchemy import text
@@ -433,6 +435,7 @@ class TypedBaseMixin:
     _last_updated: Mapped[datetime.datetime] = mapped_column(
         types.DateTime(), default=utc_now, onupdate=utc_now
     )
+    order_by: ClassVar[Optional[Sequence[Any]]] = None
 
     @classmethod
     def query_with_default_order(cls):
@@ -441,7 +444,7 @@ class TypedBaseMixin:
         Works with SQLAlchemy 2.0.
         """
         stmt = select(cls)
-        if hasattr(cls, "order_by") and cls.order_by:
+        if cls.order_by:
             stmt = stmt.order_by(*cls.order_by)
         return stmt
 
@@ -1199,7 +1202,7 @@ def make_note_class(
         bases = (Base, Serializable)
         fields["compute_serializable_fields"] = classmethod(compute_serializable_fields)
 
-    result = type(class_name, bases, fields)
+    result = cast("type[Base]", type(class_name, bases, fields))
     result.order_by = [result.__table__.c.date.asc()]
 
     return result
@@ -1297,6 +1300,9 @@ class WithNotes:
 
 
 class DefiningPictures:
+
+    notes: ClassVar[Sequence[Any]]  # supplied by the mapped class this is mixed into
+
     @property
     def pictures(self):
         """
@@ -1318,6 +1324,8 @@ class Serializable:
     """
     A base class for serializable ORM objects.
     """
+
+    __table__: ClassVar[Table]  # supplied by whatever mapped class mixes this in
 
     import re
 
@@ -1366,6 +1374,16 @@ class Serializable:
         :return: A dictionary of serializable fields.
         """
         return {}
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        """
+        Retrieve an existing instance matching keys, or return None.
+
+        Subclasses (including dynamically generated ones from
+        make_note_class) are expected to override this.
+        """
+        raise NotImplementedError(f"{cls.__name__} must implement 'retrieve'")
 
     @classmethod
     def retrieve_or_create(
