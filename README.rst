@@ -27,45 +27,74 @@ Spanish     Portuguese  French      Ukrainian   Hungarian   Italian     Tchech  
 .. |trans-nl| image:: https://hosted.weblate.org/widgets/ghini/nl/svg-badge.svg
 
 what is Ghini (desktop)
-------------------------
+-----------------------
 
-Ghini was born as Bauble at the Belize Botanic Gardens, At its heart it is a
-framework for creating database applications.  In their distributed form
-Bauble and Ghini are applications to manage plant records and specifically
-living collections.  Either as Ghini or Bauble, the software is used among
-others by Belize Botanic Gardens, the Jardín Botánico de Quito, the Mackay
-Regional Botanical Garden, to manage their live collections.  Included by
-default is RBG Kew's Family and Genera list from Vascular Plant Families and
-Genera compiled by R. K. Brummitt and published by the Royal Botanic
-Gardens, Kew in 1992 used by permission from RBG Kew.
+Ghini (pronounced "Ghee-nee") is a database application for managing
+botanical collections, in particular living collections.
 
-All code contained as part of the Bauble package is licenced under
-the GNU GPLv2+.
+Ghini was originally developed as Bauble at the Belize Botanic Gardens.
+At its heart, however, it is a framework for creating database
+applications. Bauble and Ghini have been used to manage plant records
+and, specifically, living collections.
 
-Terms and Names
----------------
+Ghini and its predecessor Bauble have been developed with the support
+of botanical institutions in several countries. We are grateful to the
+Belize Botanic Gardens, the University of British Columbia, and the
+Mackay Regional Botanic Garden for their early support and interest;
+to the Jardín Botánico de Quito and the Botanische Tuin van de
+Universiteit Utrecht for their important taxonomic support; and to all
+the individuals who have given their encouragement and support, too
+many to mention without risking forgetting others.
 
-This file describes 'ghini.desktop', a standalone application. Until 2015
-'ghini.desktop' was known as 'Bauble/bauble.classic'. Ghini and Bauble are
-two github organizations. The current maintainer of Ghini forked development
-from Bauble into Ghini mostly because of his difficulty in pronouncing
-"bauble" and in explaining why the software was named that way.
+Some of these institutions no longer use Ghini, while others contributed
+to the project without deploying it in routine work. Their contribution
+to the project nevertheless remains part of its history.
 
-Luca Ghini was the founder of the botanical garden of Pisa, and Pisa is the
-place where the current maintainer Mario Frasca has completed his studies in
-computer science.
+History and names
+-----------------
 
-Within the Ghini organization, you will find 'ghini.desktop', this program,
-'ghini.pocket', a tiny android database viewer meant to help you take your
-database in your pocket, 'ghini.github.io', the sources for the ghini
-website, 'ghini.web', showcased at http://gardens.ghini.me, and ghini.tour,
-a collection of settings for building audio guides to gardens.
+Until 2015, 'ghini.desktop' was known as 'Bauble/bauble.classic'.
+Development was subsequently moved from the Bauble organisation to the
+Ghini organisation, and the application was renamed Ghini.
 
-The Ghini family has adopted two ODK products (`collect
-<https://github.com/opendatakit/collect>`_ and `aggregate
-<https://github.com/opendatakit/aggregate>`_), which help our users add or
-correct information in the database.  Not part of the Ghini organization,
-but integrated members of the Ghini family.
+The name honours Luca Ghini (1490–1556), regarded as the inventor of the
+herbarium. Although none of his books survived, his students became some
+of the most influential botanists of the Renaissance. He founded the
+botanical garden of Pisa, where the current maintainer, Mario Frasca,
+later studied computer science.
+
+The original name, Bauble, was retained for many years. It was eventually
+replaced in part because the word is difficult to pronounce and spell
+consistently for speakers of several languages, and because its meaning
+has no particular connection with botanical collections.
+
+The Ghini family
+----------------
+
+Within the Ghini organisation you will find:
+
+* 'ghini.desktop', this program;
+* 'ghini.pocket', a small Android database viewer intended to let you
+  carry your database in your pocket;
+* 'ghini.github.io', the sources for the Ghini website;
+* 'ghini.web', showcased at http://gardens.ghini.me; and
+* 'ghini.tour', a collection of settings for building audio guides to
+  gardens.
+
+The Ghini family has also adopted two ODK products,
+`Collect <https://github.com/opendatakit/collect>`_ and
+`Aggregate <https://github.com/opendatakit/aggregate>`_, which help
+users add or correct information in the database. They are not part of
+the Ghini organisation, but are integrated members of the Ghini family.
+
+Data and licensing
+------------------
+
+Included by default is RBG Kew's Family and Genera list from *Vascular
+Plant Families and Genera*, compiled by R. K. Brummitt and published by
+the Royal Botanic Gardens, Kew, in 1992, used by permission from RBG Kew.
+
+All code contained in the Ghini package is licensed under the GNU GPLv2+.
 
 |ghini-family|
 
