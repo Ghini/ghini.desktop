@@ -39,20 +39,22 @@ RelationProperty = RelationshipProperty
 
 
 def parse_typed_value(value):
-    """Parses input and returns corresponding typed value: int, float, None, or EmptyToken."""
+    """Parses input and returns corresponding typed value, with fallback to string."""
+    if value == "None":
+        return None
+    elif value == "Empty":
+        return EmptyToken()
+
     try:
-        if value == "None":
-            return None
-        elif value == "Empty":
-            return EmptyToken()
-        try:
-            new_val = int(value)
-        except ValueError:
-            new_val = float(value)
-        return new_val
+        return int(value)
     except ValueError:
-        logger.error("Invalid input type: %s", value)
-        return value  # fallback to string
+        pass
+
+    try:
+        return float(value)
+    except ValueError:
+        return value
+
 
 
 class SchemaMenu:
