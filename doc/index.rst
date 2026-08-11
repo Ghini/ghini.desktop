@@ -88,6 +88,10 @@ Ghini Development
    :maxdepth: 2
 
    building
+   regression-checklist
+   release-readiness
+   release-notes-4.0.0rc1
+   taxonomic-lookup
    template-letters
 
 Supporting Ghini
@@ -105,4 +109,3 @@ please consider `donating <https://pledgie.com/campaigns/29188>`_
 .. * :ref:`genindex`
 .. * :ref:`modindex`
 .. * :ref:`search`
-

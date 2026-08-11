@@ -51,11 +51,11 @@ dedicated to helping gardens manage and publish their collection:
 cut-cut-cut
 --------------------------------------------
 
-*The remainder is even more a template than the above, please cut and reduce, but make sure that you
- convey the below message, which is about feedom, sharing, community forming.*
+* *The remainder is even more a template than the above, please cut and reduce, but make sure that you
+  convey the below message, which is about feedom, sharing, community forming.*
 
-*You also want to add a few lines about yourself, or you can keep it to the talk you hope to have
- with the conservator, scientific director, or garden manager once you get invited.*
+* *You also want to add a few lines about yourself, or you can keep it to the talk you hope to have
+  with the conservator, scientific director, or garden manager once you get invited.*
 
 All software within the Ghini family is licensed according to the GNU Public License v2+, v3+.  The
 GPL is one of the strongest copyleft licenses.  In short, the GPL translates the ethical scientific
@@ -73,7 +73,7 @@ This fancy term "copyleft" instead of just "libre software", means the software 
 is libre software with one extra freedom, guaranteeing every right you were granted
 upon receiving the software is never lost.
 
-In short: you can consider any GPL licensed software as your own, but *not* your *exclusive* own.
+In short: you can consider any GPL licensed software as your own, but **not** your *exclusive* own.
 
 With copylefted software you are free —actually welcome— to employ local software developers
 in your neighbourhood to alter the software according to your needs, please do this on
@@ -120,27 +120,29 @@ Mario Frasca MSc
 free botanic data management systems
 ======================================================================
 
-Many institutions still consider software an investment, an asset that is not to be shared
-with others, as if it was some economic good that can't be duplicated, like gold.
+Many institutions still consider software an investment, an asset that is
+not to be shared with others, as if it was some economic good that can't be
+duplicated, like gold, or cryptocurrencies.
 
 As of right now, very few copylefted programs exist for botanic data management:
 
 * ``ghini.desktop``, born as ``bauble.classic`` and made a commons by the Belize Botanical
-  Garden.  ``ghini.desktop`` has three more components, a pocket data collecting Android app,
-  a Node.js web server, aggregating data from different gardens and presenting it
-  geographically, again a geographic tour app aimed at visitors using the web data
-  aggregator as its data source.  You can find every Ghini component on GitHub:
-  http://github.com/Ghini
+  Garden.  Next to the bauble-derived ``desktop`` program, Ghini offers three more components:
+  a ``pocket`` data collecting Android app, a Node.js ``web`` server, aggregating data from
+  different gardens and presenting it geographically, finally a geographic ``tour`` app aimed
+  at visitors using the web data aggregator as its data source.  You can find every Ghini
+  component on GitHub: http://github.com/Ghini
 
 * Specify 6 and 7, made a Commons by the Kansas University.  A bit complex to set up, very
   difficult to configure and tricky to update.  The institutions I've met who tried it, only
   the bigger ones, with in-house software management capabilities manage to successfully use
-  it.  They use it for very large collections.  Specify is extremely generic, it adapts to
-  herbaria, seed collections, but also to collections of eggs, organic material, fossils,
-  preserved dead animals, possibly even viruses, I'm not sure.  It is this extreme flexibility
-  that makes its configuration such a complex task.  Specify is also on GitHub:
-  https://github.com/specify and is licensed as GPLv2+.  I had no luck with their support.
-  Try yours.
+  it.  They use it for very large collections (millions of elements).  Specify targets
+  naturaly history rather than living collections, but in this it is extremely generic: it
+  adapts to herbaria, seed collections, but also to collections of eggs, organic material,
+  fossils, preserved dead animals, possibly even viruses, I'm not sure.  It is this extreme
+  flexibility that makes its configuration a bit of a complex task.  Specify is also on
+  GitHub: https://github.com/specify and is licensed as GPLv2+.  Support is provided to US
+  institutions.
 
 * Botalista, a French/Swiss cooperation, is GPL as far as rumours go.  Its development has yet
   to go public.  It was most active in early 2016, by end 2018 it seems to have faded away.
@@ -152,9 +154,10 @@ As of right now, very few copylefted programs exist for botanic data management:
   seems to be stagnating, and has not yet reached a production-ready stage.
 
 * ``Taxasoft-BG``, by Eric Gouda, a Dutch botanist, specialist in Bromeliaceae, collection manager at
-  the Utrecht botanical garden.  It was Mario Frasca who convinced Eric to publish what he was doing,
-  licensing it under the GPL, but the repository was not updated after 2016, April 13th and Eric
-  forgot to explicitly specify the license.  You find it on github:
+  the Utrecht botanical garden.  Taxasoft-BG is a typical LAMP (Linux-Apache-MySql-Php) program.  It
+  was Mario Frasca who convinced Eric to publish what he is doing, to license it under the AGPL, and
+  to publish as far as possible the most current version of the program.  Not yet "production ready",
+  you find it on github: https://github.com/Taxasoft/Taxasoft-BG and
   https://github.com/Ejgouda/Taxasoft-BG
 
 * ``BG-Recorder``, by the BGCI, runs on Windows, and requires Access.  Developed mostly between 1997

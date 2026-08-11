@@ -1,187 +1,283 @@
 #!/bin/bash
+set -euo pipefail
 
-#echo missing in vanilla ubuntu - to run 'pip install bauble'
-#echo libxslt1-dev python-all-dev gettext
+GITHOME="$HOME/Local/github.com/Ghini/ghini.desktop"
 
-while true
-do
+# ── 1. System dependency checks ──────────────────────────────────────────────
 
-    PROBLEMS=''
+while true; do
+    MISSING=''
+
+    if ! sudo --version >/dev/null 2>&1; then
+        MISSING="$MISSING sudo"
+    fi
     if ! msgfmt --version >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS gettext"
+        MISSING="$MISSING gettext"
     fi
     if ! python3 --version >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS python3-minimal"
+        MISSING="$MISSING python3-minimal"
     fi
     if ! python3 -c 'import gi' >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS python3-gi"
+        MISSING="$MISSING python3-gi"
     fi
-    if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; ' >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS gir1.2-gtkclutter "
+    if ! python3 -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' >/dev/null 2>&1; then
+        MISSING="$MISSING gir1.2-gtk-3.0"
     fi
-    if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); gi.require_version("GtkClutter", "1.0"); from gi.repository import Clutter, GtkClutter; gi.require_version("Champlain", "0.12"); from gi.repository import GtkChamplain; GtkClutter.init([]); from gi.repository import Champlain' >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS gir1.2-gtkchamplain-0.12 "
+    if ! python3 -c 'import cairo' >/dev/null 2>&1; then
+        MISSING="$MISSING python3-gi-cairo"
+    fi
+    if ! python3 -c 'import gi; gi.require_version("Clutter", "1.0"); from gi.repository import Clutter' >/dev/null 2>&1; then
+        MISSING="$MISSING gir1.2-clutter-1.0"
+    fi
+    if ! python3 -c 'import gi; gi.require_version("GtkClutter", "1.0"); from gi.repository import GtkClutter' >/dev/null 2>&1; then
+        MISSING="$MISSING gir1.2-gtkclutter-1.0"
+    fi
+    if ! python3 -c 'import gi; gi.require_version("Champlain", "0.12"); from gi.repository import Champlain' >/dev/null 2>&1; then
+        MISSING="$MISSING gir1.2-champlain-0.12"
+    fi
+    if ! python3 -c 'import gi; gi.require_version("GtkChamplain", "0.12"); from gi.repository import GtkChamplain' >/dev/null 2>&1; then
+        MISSING="$MISSING gir1.2-gtkchamplain-0.12"
     fi
     if ! python3 -c 'import lxml' >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS python3-lxml"
+        MISSING="$MISSING python3-lxml"
     fi
     if ! git help >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS git"
+        MISSING="$MISSING git"
     fi
-    if ! virtualenv --help >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS virtualenv"
+    if ! pkg-config --version >/dev/null 2>&1; then
+        MISSING="$MISSING pkg-config"
     fi
-    if ! xslt-config --help >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS libxslt1-dev"
+    if ! pkg-config --cflags cairo >/dev/null 2>&1; then
+        MISSING="$MISSING libcairo2-dev"
     fi
-    if ! pkg-config --help >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS pkg-config"
+    if ! pkg-config --cflags libpq >/dev/null 2>&1; then
+        MISSING="$MISSING libpq-dev"
     fi
-    if ! pkg-config --cflags jpeg --help >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS libjpeg-dev"
+    if ! pkg-config --cflags libjpeg >/dev/null 2>&1; then
+        MISSING="$MISSING libjpeg-dev"
+    fi
+    if ! pkg-config --cflags libxslt >/dev/null 2>&1; then
+        MISSING="$MISSING libxslt1-dev"
     fi
     if ! gcc --version >/dev/null 2>&1; then
-        PROBLEMS="$PROBLEMS build-essential"
+        MISSING="$MISSING build-essential"
+    fi
+    if ! python3 -c 'import venv' >/dev/null 2>&1; then
+        MISSING="$MISSING python3-venv"
     fi
     PYTHONHCOUNT=$(find /usr/include/python3* /usr/local/include/python3* -name Python.h 2>/dev/null | wc -l)
     if [ "$PYTHONHCOUNT" = "0" ]; then
-        PROBLEMS="$PROBLEMS libpython3-all-dev"
+        MISSING="$MISSING python3-dev"
     fi
 
-    # forget password, please.
     sudo -k
 
-    if [ "$PROBLEMS" == "" ]
-    then
-        break;
+    if [ "$MISSING" = "" ]; then
+        break
     else
         echo 'Guessing package names, if you get in a loop, please double check.'
-        echo 'You need to solve the following dependencies:'
+        echo 'In Debian terms, you need to solve the following dependencies:'
         echo '------------------------------------------------------------------'
-        echo $PROBLEMS
+        echo $MISSING
         echo '------------------------------------------------------------------'
         echo 'Then restart the devinstall.sh script'
+        echo
         if [ -x /usr/bin/apt-get ]; then
-            echo
-            echo 'you are on a debian-like system, I should know how to install'
-            echo $PROBLEMS
-            sudo apt-get -y install $PROBLEMS
-            echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
-            read
+            echo 'you are on a debian-like system, I should know how to proceed'
+            sudo apt-get -y install $MISSING
+        elif [ -x /usr/bin/pacman ]; then
+            echo 'your system looks like Archlinux, I give it a try'
+            MISSING=$(echo $MISSING |
+                sed -e 's/build-essential/gcc make libc-dev/' |
+                sed -e 's/python3-venv/python-venv/' |
+                sed -e 's/python3-lxml/python-lxml/' |
+                sed -e 's/libjpeg-dev/libjpeg-turbo/' |
+                sed -e 's/libcairo2-dev/cairo/' |
+                sed -e 's/libpq-dev/postgresql-libs/' |
+                sed -e 's/libxslt1-dev/libxslt/' |
+                sed -e 's/python3-gi/python-gobject/' |
+                sed -e 's/python3-gi-cairo/python-gobject/' |
+                sed -e 's/gir1.2-gtk-3.0/gtk3/' |
+                sed -e 's/gir1.2-clutter-1.0/clutter/' |
+                sed -e 's/gir1.2-gtkclutter-1.0/clutter-gtk/' |
+                sed -e 's/gir1.2-champlain-0.12/libchamplain/' |
+                sed -e 's/gir1.2-gtkchamplain-0.12/libchamplain/' |
+                sed -e 's/python3-dev/python-dev/')
+            sudo pacman -S $MISSING
+        elif [ -x /usr/bin/dnf ] || [ -x /usr/bin/yum ]; then
+            echo 'your system looks like RedHat/Fedora, I give it a try'
+            PKG_MGR=dnf
+            [ -x /usr/bin/dnf ] || PKG_MGR=yum
+            MISSING=$(echo $MISSING |
+                          sed -e 's/build-essential/gcc make/' |
+                          sed -e 's/python3-venv/python3/' |
+                          sed -e 's/python3-dev/python3-devel/' |
+                          sed -e 's/python3-lxml/python3-lxml/' |
+                          sed -e 's/python3-gi/python3-gobject/' |
+                          sed -e 's/python3-gi-cairo/python3-gobject/' |
+                          sed -e 's/gir1.2-gtk-3.0/gtk3/' |
+                          sed -e 's/gir1.2-clutter-1.0/clutter/' |
+                          sed -e 's/gir1.2-gtkclutter-1.0/clutter-gtk/' |
+                          sed -e 's/gir1.2-champlain-0.12/libchamplain/' |
+                          sed -e 's/gir1.2-gtkchamplain-0.12/libchamplain/' |
+                          sed -e 's/libcairo2-dev/cairo-devel/' |
+                          sed -e 's/libpq-dev/libpq-devel/' |
+                          sed -e 's/libjpeg-dev/libjpeg-turbo-devel/' |
+                          sed -e 's/libxslt1-dev/libxslt-devel/' |
+                          sed -e 's/gettext/gettext/' |
+                          sed -e 's/pkg-config/pkgconf-pkg-config/')
+            sudo $PKG_MGR -y install $MISSING
+        elif [ -x /usr/bin/zypper ]; then
+            echo 'your system looks like openSUSE, I give it a try'
+            MISSING=$(echo $MISSING |
+                          sed -e 's/build-essential/gcc make/' |
+                          sed -e 's/python3-venv/python3-venv/' |
+                          sed -e 's/python3-dev/python3-devel/' |
+                          sed -e 's/python3-gi/python3-gobject/' |
+                          sed -e 's/python3-gi-cairo/python3-gobject-cairo/' |
+                          sed -e 's/gir1.2-gtk-3.0/typelib-1_0-Gtk-3_0/' |
+                          sed -e 's/gir1.2-clutter-1.0/typelib-1_0-Clutter-1_0/' |
+                          sed -e 's/gir1.2-gtkclutter-1.0/typelib-1_0-GtkClutter-1_0/' |
+                          sed -e 's/gir1.2-champlain-0.12/typelib-1_0-Champlain-0_12/' |
+                          sed -e 's/gir1.2-gtkchamplain-0.12/typelib-1_0-GtkChamplain-0_12/' |
+                          sed -e 's/libcairo2-dev/cairo-devel/' |
+                          sed -e 's/libpq-dev/postgresql-devel/' |
+                          sed -e 's/libjpeg-dev/libjpeg8-devel/' |
+                          sed -e 's/libxslt1-dev/libxslt-devel/' |
+                          sed -e 's/pkg-config/pkg-config/')
+            sudo zypper install -y $MISSING
+        else
+            echo 'so sorry, I have no clue about your system.'
+            echo 'You need the following libraries:'
+            echo '  - Python 3 with venv and dev headers'
+            echo '  - GTK 3.24 with GObject introspection'
+            echo '  - Clutter and Champlain with introspection'
+            echo '  - Cairo, libpq, libjpeg, libxslt dev headers'
+            echo '  - gettext, git, pkg-config, gcc'
+            exit 1
         fi
+        echo -n 'press <ENTER> to re-run devinstall.sh, or Ctrl-C to stop'
+        read
     fi
 done
 
-if [ -d $HOME/Local/github/Ghini/ghini.desktop ]
-then
+# ── 2. Clone or update repository ────────────────────────────────────────────
+
+if [ -d "$GITHOME" ]; then
     echo "ghini checkout already in place"
-    cd $HOME/Local/github/Ghini/ghini.desktop
 else
-    mkdir -p $HOME/Local/github/Ghini >/dev/null 2>&1
-    cd $HOME/Local/github/Ghini
-    git clone https://github.com/Ghini/ghini.desktop
-    cd ghini.desktop
+    mkdir -p "$(dirname "$GITHOME")"
+    git clone https://github.com/Ghini/ghini.desktop "$GITHOME"
+fi
+cd "$GITHOME"
+
+# Choose branch: prefer stable release, fall back to dev
+if [ $# -ne 0 ]; then
+    VERSION=$1
+    LINE=ghini-$1
+else
+    VERSION=3.1
+    # Use stable branch if it exists remotely, otherwise dev
+    if git ls-remote --exit-code origin ghini-3.1 >/dev/null 2>&1; then
+        LINE=ghini-3.1
+    else
+        LINE=ghini-3.1-dev
+    fi
 fi
 
-if [ $# -ne 0 ]
-then
-    git checkout ghini-$1
-else
-    git checkout ghini-3.1
+git checkout "$LINE"
+
+# ── 3. Install WFO intermediate certificate ───────────────────────────────────
+
+if [ ! -f /usr/local/share/ca-certificates/network-solutions-rsa-ov-ssl-ca-3.crt ]; then
+    echo 'Installing WFO intermediate certificate...'
+    sudo cp docker/certs/network-solutions-rsa-ov-ssl-ca-3.crt \
+        /usr/local/share/ca-certificates/
+    sudo update-ca-certificates
 fi
 
-mkdir -p $HOME/.virtualenvs
-virtualenv --python python3 $HOME/.virtualenvs/ghide --system-site-packages
-find $HOME/.virtualenvs/ghide -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
-mkdir -p $HOME/.virtualenvs/ghide/share
-mkdir -p $HOME/.ghini
-. $HOME/.virtualenvs/ghide/bin/activate
+# ── 4. Create virtualenv and install ─────────────────────────────────────────
 
-if [ ! -z $PG ]
-then
+mkdir -p "$HOME/.virtualenvs"
+python3 -m venv "$HOME/.virtualenvs/$LINE" --system-site-packages
+find "$HOME/.virtualenvs/$LINE" -name "*.pyc" -execdir rm {} \;
+mkdir -p "$HOME/.virtualenvs/$LINE/share"
+mkdir -p "$HOME/.ghini"
+source "$HOME/.virtualenvs/$LINE/bin/activate"
+
+if [ -n "${PG:-}" ]; then
     echo 'installing postgresql adapter'
-    pip install psycopg2 ;
+    pip install psycopg2
 fi
 
-if [ ! -z $MYSQL ]
-then
+if [ -n "${MYSQL:-}" ]; then
     echo 'installing mysql adapter'
-    pip install mysqlclient ;    
+    pip install mysqlclient
 fi
 
-python setup.py build
-python setup.py install
-mkdir -p $HOME/bin 2>/dev/null
-cat <<EOF > $HOME/bin/ghini
+pip install --editable ".[test]"
+
+# ── 5. Generate launcher script ───────────────────────────────────────────────
+
+mkdir -p "$HOME/bin"
+cat > "$HOME/bin/ghini" <<EOF
 #!/bin/bash
 
-GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
-. \$HOME/.virtualenvs/ghide/bin/activate
+GITHOME=$GITHOME
+LINE=$LINE
+. \$HOME/.virtualenvs/\$LINE/bin/activate
+export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
-while getopts us:mp f
-do
+while getopts us:mp f; do
   case \$f in
     u)  cd \$GITHOME
-        BUILD=1
-        END=1
-        ;;
-    s)  cd \$GITHOME
-        git checkout ghini-\$OPTARG || exit 1
-        BUILD=1
-        END=1
-        ;;
-    m)  pip install mysqlclient
-        END=1
-        ;;
-    p)  pip install psycopg2
-        END=1
-        ;;
+        git pull --ff-only
+        pip install --editable ".[test]"
+        exit 0 ;;
+    s)  [[ -n "\${OPTARG:-}" ]] || { echo "usage: ghini -s VERSION" >&2; exit 2; }
+        cd \$GITHOME
+        git checkout "ghini-\$OPTARG" || exit 1
+        pip install --editable ".[test]"
+        exit 0 ;;
+    m)  pip install mysqlclient; exit 0 ;;
+    p)  pip install psycopg2; exit 0 ;;
   esac
 done
 
-if [ ! -z "\$BUILD" ]
-then
-    git pull
-    python setup.py build
-    python setup.py install
-fi
-
-if [ ! -z "\$END" ]
-then
-    exit 1
-fi
-
-ghini
+exec python "\$GITHOME/scripts/ghini" "\$@"
 EOF
-chmod +x $HOME/bin/ghini
+chmod +x "$HOME/bin/ghini"
 
-echo your local installation is now complete.
-echo enter your password to make Ghini available to other users.
+# ── 6. System-wide launcher and desktop entry ─────────────────────────────────
 
-sudo groupadd ghini 2>/dev/null 
-sudo usermod -a -G ghini $(whoami)
-chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide
-sudo chgrp -R ghini $HOME/.virtualenvs/ghide
+echo 'your local installation is now complete.'
+echo 'enter your password to make Ghini available to other users.'
+
+sudo groupadd ghini 2>/dev/null || true
+sudo usermod -a -G ghini "$(whoami)"
+chmod -R g-w+rX,o-rwx "$HOME/.virtualenvs/$LINE"
+sudo chgrp -R ghini "$HOME/.virtualenvs/$LINE"
+
 cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
 #!/bin/bash
-. $HOME/.virtualenvs/ghide/bin/activate
-$HOME/.virtualenvs/ghide/bin/ghini
+export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+. $HOME/.virtualenvs/$LINE/bin/activate
+exec python $GITHOME/scripts/ghini "\$@"
 EOF
 sudo chmod +x /usr/local/bin/ghini
 
-sudo mkdir -p /usr/local/share/applications/ >/dev/null 2>&1
+sudo mkdir -p /usr/local/share/applications/
 cat <<EOF | sudo tee /usr/local/share/applications/ghini.desktop > /dev/null
-#!/bin/bash
 [Desktop Entry]
 Type=Application
 Name=Ghini Desktop
-Version=3.1
+Version=$VERSION
 GenericName=Biodiversity Manager
-Icon=$HOME/.virtualenvs/ghide/share/icons/hicolor/scalable/apps/ghini.svg
+Icon=$HOME/.virtualenvs/$LINE/share/icons/hicolor/scalable/apps/ghini.svg
 TryExec=/usr/local/bin/ghini
 Exec=/usr/local/bin/ghini
 Terminal=false
 StartupNotify=false
-Categories=Qt;Education;Science;Geography;
+Categories=Education;Science;Geography;
 Keywords=botany;botanic;
 EOF

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-
-"""Simple desktop integration for Python. This module provides desktop
+r"""Simple desktop integration for Python. This module provides desktop
 environment detection and resource opening support for a selection of common
 and standardised desktop environments.
 
@@ -68,97 +67,83 @@ here: http://lists.freedesktop.org/archives/xdg/2004-August/004489.html
 
 """
 
-__version__ = "0.2.4"
+__version__: str = "0.2.4"
 
 import os
+import subprocess
 import sys
+from typing import Optional, Union
 
 # Provide suitable process creation functions.
 
 
-try:
-    import subprocess
+def _run(cmd: Union[str, list[str]], shell: bool, wait: bool) -> int:
+    opener = subprocess.Popen(cmd, shell=shell)
+    if wait:
+        opener.wait()
+    return opener.pid
 
-    def _run(cmd, shell, wait):
-        opener = subprocess.Popen(cmd, shell=shell)
-        if wait:
-            opener.wait()
-        return opener.pid
 
-    def _readfrom(cmd, shell):
-        opener = subprocess.Popen(cmd, shell=shell, stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE)
+def _readfrom(cmd: Union[str, list[str]], shell: bool) -> bytes:
+    opener: subprocess.Popen[bytes] = subprocess.Popen(
+        cmd, shell=shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+    )
+    if opener.stdin:
         opener.stdin.close()
+    if opener.stdout:
         return opener.stdout.read()
-
-    def _status(cmd, shell):
-        opener = subprocess.Popen(cmd, shell=shell)
-        opener.wait()
-        return opener.returncode == 0
+    return b""
 
 
-except ImportError:
-    import popen2
-
-    def _run(cmd, shell, wait):
-        opener = popen2.Popen3(cmd)
-        if wait:
-            opener.wait()
-        return opener.pid
-
-    def _readfrom(cmd, shell):
-        opener = popen2.Popen3(cmd)
-        opener.tochild.close()
-        opener.childerr.close()
-        return opener.fromchild.read()
-
-    def _status(cmd, shell):
-        opener = popen2.Popen3(cmd)
-        opener.wait()
-        return opener.poll() == 0
+def _status(cmd: Union[str, list[str]], shell: bool) -> bool:
+    opener = subprocess.Popen(cmd, shell=shell)
+    opener.wait()
+    return opener.returncode == 0
 
 
-import subprocess
+# import subprocess
 
 #
 # Private functions.
 #
 
 
-def _is_xfce():
-
+def _is_xfce() -> bool:
     "Return whether XFCE is in use."
 
     # XFCE detection involves testing the output of a program.
 
     try:
         if not os.environ.get("DISPLAY", "").strip():
-            vars = "DISPLAY=:0.0 "
+            vars_ = "DISPLAY=:0.0 "
         else:
-            vars = ""
-        return (_readfrom(vars + "xprop -root _DT_SAVE_MODE", shell=1)
-                .strip().endswith(' = "xfce4"'))
+            vars_ = ""
+        return (
+            _readfrom(vars_ + "xprop -root _DT_SAVE_MODE", shell=True)
+            .strip()
+            .endswith(b' = "xfce4"')
+        )
 
     except OSError:
-        return 0
+        return False
 
 
 #
 # Introspection functions.
 #
 
-def get_desktop():
 
+def get_desktop() -> Optional[str]:
     """
     Detect the current desktop environment, returning the name of the
     environment. If no environment could be detected, None is returned.
     """
 
-    if "KDE_FULL_SESSION" in os.environ or \
-       "KDE_MULTIHEAD" in os.environ:
+    if "KDE_FULL_SESSION" in os.environ or "KDE_MULTIHEAD" in os.environ:
         return "KDE"
-    elif "GNOME_DESKTOP_SESSION_ID" in os.environ or \
-         "GNOME_KEYRING_SOCKET" in os.environ:
+    elif (
+        "GNOME_DESKTOP_SESSION_ID" in os.environ or "GNOME_KEYRING_SOCKET" in os.environ
+    ):
         return "GNOME"
     elif sys.platform == "darwin":
         return "Mac OS X"
@@ -175,7 +160,7 @@ def get_desktop():
         return None
 
 
-def use_desktop(desktop):
+def use_desktop(desktop: Optional[str]) -> Optional[str]:
     """Decide which desktop should be used, based on the detected desktop and a
     supplied 'desktop' argument (which may be None). Return an identifier
     indicating the desktop type as being either "standard" or one of the
@@ -211,8 +196,7 @@ def use_desktop(desktop):
         return None
 
 
-def is_standard():
-
+def is_standard() -> bool:
     """
     Return whether the current desktop supports standardised application
     launching.
@@ -223,11 +207,17 @@ def is_standard():
 
 # Activity functions.
 
-def open(url, desktop=None, wait=0, dialog_on_error=False):
+# pylint: disable=import-outside-toplevel, redefined-builtin
 
-    """Open the 'url' in the current desktop's preferred client. 
-    """
 
-    from gi.repository import Gtk
-    from gi.repository import Gdk
+def open(
+    url: str,
+    _desktop: Optional[str] = None,
+    _wait: int = 0,
+    _dialog_on_error: bool = False,
+) -> None:
+    """Open the 'url' in the current desktop's preferred client."""
+
+    from bauble.gtkinit import Gdk, Gtk
+
     Gtk.show_uri_on_window(None, url, Gdk.CURRENT_TIME)

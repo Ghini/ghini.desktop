@@ -10,6 +10,7 @@ cd 3.1
 
 mv geography.txt geographic_area.txt
 mv source_detail.txt contact.txt
+rm plant_status.txt
 
 sed -i '1 s/source_detail/contact/g' *.txt
 sed -i '1 s/geography/geographic_area/g' *.txt

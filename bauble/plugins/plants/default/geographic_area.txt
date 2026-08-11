@@ -1908,4 +1908,4 @@
 1907,"Yonakuni","2465",,292
 1908,"Fukue","2466",,609
 1909,"Okushiri-to","2467",,607
-1910,"Cultivated",,,
+1910,"Cultivated","CULT",,

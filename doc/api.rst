@@ -170,7 +170,7 @@ API Documentation
 .. autofunction:: bauble.utils.setup_text_combobox
 .. autofunction:: bauble.utils.setup_date_button
 .. autofunction:: bauble.utils.to_unicode
-.. autofunction:: bauble.utils.utf8
+.. autofunction:: bauble.utils.to_unicode
 .. autofunction:: bauble.utils.xml_safe
 .. autofunction:: bauble.utils.xml_safe_utf8
 .. autofunction:: bauble.utils.natsort_key

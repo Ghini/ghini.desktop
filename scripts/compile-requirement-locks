@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Compile Docker dependency lock files from pyproject.toml."""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+import tempfile
+import tomllib
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+PYPROJECT = REPO_ROOT / "pyproject.toml"
+REQUIREMENTS = REPO_ROOT / "requirements"
+
+BOOTSTRAP_DEPS = [
+    "debugpy",
+    "pip",
+    "setuptools",
+    "setuptools-scm",
+    "wheel",
+]
+
+
+HEADER = """\
+# This file is generated from pyproject.toml.
+# Do not edit it directly. Update pyproject.toml, then run:
+#   scripts/docker-dev lock
+"""
+
+
+def project_metadata() -> dict:
+    return tomllib.loads(PYPROJECT.read_text())["project"]
+
+
+def write_input(path: Path, requirements: list[str]) -> None:
+    path.write_text("\n".join(requirements) + "\n")
+
+
+def compile_lock(
+    input_path: Path,
+    output_path: Path,
+    extra_args: list[str] | None = None,
+    allow_unsafe: bool = False,
+) -> None:
+    command = [
+        sys.executable,
+        "-m",
+        "piptools",
+        "compile",
+        "--no-header",
+        "--no-annotate",
+        "--quiet",
+        "--strip-extras",
+        "--resolver=backtracking",
+        "--output-file",
+        str(output_path),
+    ]
+    if allow_unsafe:
+        command.append("--allow-unsafe")
+    if extra_args:
+        command.extend(extra_args)
+    command.append(str(input_path))
+    subprocess.run(command, cwd=REPO_ROOT, check=True)
+    output_path.write_text(HEADER + output_path.read_text())
+
+
+def main() -> int:
+    project = project_metadata()
+    base_deps = project.get("dependencies", [])
+    dev_deps = project.get("optional-dependencies", {}).get("dev", [])
+
+    REQUIREMENTS.mkdir(exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="ghini-lock-") as tempdir_name:
+        tempdir = Path(tempdir_name)
+        base_input = tempdir / "base.in"
+        dev_input = tempdir / "dev.in"
+        bootstrap_input = tempdir / "bootstrap.in"
+        bootstrap_lock = REQUIREMENTS / "bootstrap.lock"
+        base_lock = REQUIREMENTS / "base.lock"
+        dev_lock = REQUIREMENTS / "dev.lock"
+
+        write_input(bootstrap_input, BOOTSTRAP_DEPS)
+        write_input(base_input, base_deps)
+        write_input(dev_input, dev_deps)
+        compile_lock(bootstrap_input, bootstrap_lock, allow_unsafe=True)
+        compile_lock(base_input, base_lock)
+        compile_lock(dev_input, dev_lock, ["--constraint", str(base_lock)])
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

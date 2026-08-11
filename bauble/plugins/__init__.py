@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2012-2015 Mario Frasca <mario@anche.no>.
@@ -17,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
 """
 This module doesn't do anything other than create a placeholder for
 other Ghini plugins

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
@@ -19,343 +18,570 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
+import logging
 import os
+from collections.abc import Generator
+from typing import Any
 
-from bauble.test import BaubleTestCase, check_dupids
-from bauble.plugins.report import get_pertinent_objects
+import pytest
+from bauble.plugins.garden.models import Accession, Contact, Location, Plant, Source
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location, Source, Contact
-from bauble.plugins.tag import tag_objects, Tag
+from bauble.plugins.report import get_pertinent_objects
+from bauble.plugins.report.flat_export import _resolve_export_value
+from bauble.plugins.tag import Tag, tag_objects
+from bauble.test import check_dupids
+from sqlalchemy import delete, select
+
+logger = logging.getLogger(__name__)
 
 
-def setUp_test_data():
-    pass
+# Modify desktop.open here to avoid cyclic import
+def disable_desktop_open():
+    try:
+        import bauble.utils.desktop as desktop
+
+        desktop.open = lambda x: x
+    except ImportError:
+        logger.error("Failed to import and disable desktop.open")
 
 
-def tearDown_test_data():
-    pass
+disable_desktop_open()
 
 
-def test_duplicate_ids():
+# Centralize delayed imports
+def dynamic_import(module_name, class_name):
+    module = __import__(module_name, fromlist=[class_name])
+    return getattr(module, class_name)
+
+
+@pytest.fixture
+def setup_test_data(session) -> Generator[None, None, None]:
     """
-    Test for duplicate ids for all .glade files in the gardens plugin.
+    Fixture to set up test data for all test cases.
     """
-    import bauble.plugins.report as mod
+    fctr = gctr = sctr = actr = pctr = 0
+    for _f in range(2):
+        fctr += 1
+        family = Family(id=fctr, family=f"fam{fctr}")
+        session.add(family)
+        for _g in range(2):
+            gctr += 1
+            genus = Genus(id=gctr, family=family, genus=f"gen{gctr}")
+            session.add(genus)
+            for _s in range(2):
+                sctr += 1
+                sp = Species(id=sctr, genus=genus, sp=f"sp{sctr}")
+                vn = VernacularName(id=sctr, species=sp, name=f"name{sctr}")
+                session.add_all([sp, vn])
+                for _a in range(2):
+                    actr += 1
+                    acc = Accession(id=actr, species=sp, code=str(actr))
+                    contact = Contact(id=actr, name=f"contact{actr}")
+                    source = Source(id=actr, source_detail=contact, accession=acc)
+                    session.add_all([acc, source, contact])
+                    for _p in range(2):
+                        pctr += 1
+                        loc = Location(id=pctr, code=str(pctr), name=f"site{pctr}")
+                        plant = Plant(
+                            id=pctr,
+                            accession=acc,
+                            location=loc,
+                            code=str(pctr),
+                            quantity=1,
+                        )
+                        session.add_all([loc, plant])
+    if session.in_transaction():
+        session.commit()
+    yield
+    # Cleanup after tests
+    session.execute(delete(Tag))
+    session.execute(delete(Family))
+    if session.in_transaction():
+        session.commit()
+
+
+def test_duplicate_ids() -> None:
+    """
+    Test for duplicate IDs for all .glade files in the gardens plugin.
+    """
     import glob
-    head, tail = os.path.split(mod.__file__)
-    files = []
-    files.extend(glob.glob(os.path.join(head, '*.glade')))
-    files = glob.glob(os.path.join(head, 'mako', '*.glade'))
-    files = glob.glob(os.path.join(head, 'xsl', '*.glade'))
-    for f in files:
-        assert(not check_dupids(f))
+
+    import bauble.plugins.report as mod
+
+    head, _ = os.path.split(mod.__file__)
+    files = (
+        glob.glob(os.path.join(head, "*.glade"))
+        + glob.glob(os.path.join(head, "mako", "*.glade"))
+        + glob.glob(os.path.join(head, "xsl", "*.glade"))
+    )
+    for file in files:
+        assert not check_dupids(file)
 
 
-class ReportTestCase(BaubleTestCase):
+@pytest.mark.usefixtures("setup_test_data")
+class TestReport:
+    @pytest.fixture(autouse=True)
+    def bind_session(self, session) -> None:
+        self.session = session
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def get(self, model, identity):
+        return self.session.get(model, identity)
 
-    def setUp(self):
-        super().setUp()
+    def execute(self, statement):
+        return self.session.execute(statement)
 
-    def tearDown(self):
-        super().tearDown()
-
-
-class ReportTests(ReportTestCase):
-
-    def setUp(self):
-        super().setUp()
-        fctr = gctr = sctr = actr = pctr = 0
-        for f in range(2):
-            fctr += 1
-            family = Family(id=fctr, family='fam%s' % fctr)
-            self.session.add(family)
-            for g in range(2):
-                gctr += 1
-                genus = Genus(id=gctr, family=family, genus='gen%s' % gctr)
-                self.session.add(genus)
-                for s in range(2):
-                    sctr += 1
-                    sp = Species(id=sctr, genus=genus, sp='sp%s' % sctr)
-                    vn = VernacularName(id=sctr, species=sp,
-                                        name='name%s' % sctr)
-                    self.session.add_all([sp, vn])
-                    for a in range(2):
-                        actr += 1
-                        acc = Accession(id=actr, species=sp, code='%s' % actr)
-                        contact = Contact(id=actr, name='contact%s' % actr)
-                        source = Source(id=actr, source_detail=contact,
-                                accession=acc)
-                        self.session.add_all([acc, source, contact])
-                        for p in range(2):
-                            pctr += 1
-                            loc = Location(id=pctr, code='%s' % pctr,
-                                           name='site%s' % pctr)
-                            plant = Plant(id=pctr, accession=acc, location=loc,
-                                          code='%s' % pctr, quantity=1)
-                            #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
-                            #      % (fctr, gctr, actr, pctr))
-                            self.session.add_all([loc, plant])
-        self.session.commit()
-
-    def tearDown(self):
-        super().tearDown()
-
-    def test_no_objects_in_FamilyNote(self):
-        family = self.session.query(Family).get(1)
-        from bauble.plugins.plants.family import FamilyNote
-        fn = FamilyNote(family=family, note='empty')
-        self.session.add(fn)
-        self.session.flush()
-
+    def test_no_objects_in_family_note(self, session) -> None:
+        family = session.execute(select(Family)).scalars().first()
         from bauble.error import BaubleError
-        self.assertRaises(BaubleError, get_pertinent_objects, Species, [fn])
-        self.assertRaises(BaubleError, get_pertinent_objects, Species, fn)
-        self.assertRaises(BaubleError, get_pertinent_objects, Accession, [fn])
-        self.assertRaises(BaubleError, get_pertinent_objects, Accession, fn)
-        self.assertRaises(BaubleError, get_pertinent_objects, Plant, [fn])
-        self.assertRaises(BaubleError, get_pertinent_objects, Plant, fn)
-        self.assertRaises(BaubleError, get_pertinent_objects, Location, [fn])
-        self.assertRaises(BaubleError, get_pertinent_objects, Location, fn)
+        from bauble.plugins.plants.family import FamilyNote
 
-    def test_get_species_pertinent_objects_sessionless(self):
-        get_ids = lambda objs: sorted([o.id for o in objs])
+        fn = FamilyNote(family=family, note="empty")
+        session.add(fn)
+        session.flush()
 
-        family = self.session.query(Family).get(1)
+        with pytest.raises(BaubleError):
+            get_pertinent_objects(Species, [fn])
+            get_pertinent_objects(Species, fn)
+
+        with pytest.raises(BaubleError):
+            get_pertinent_objects(Accession, [fn])
+            get_pertinent_objects(Accession, fn)
+
+        with pytest.raises(BaubleError):
+            get_pertinent_objects(Plant, [fn])
+            get_pertinent_objects(Plant, fn)
+
+        with pytest.raises(BaubleError):
+            get_pertinent_objects(Location, [fn])
+            get_pertinent_objects(Location, fn)
+
+    def test_get_species_pertinent_objects_sessionless(self, session):
+        def get_ids(objs):
+            return sorted([o.id for o in objs])
+
+        family = session.get(Family, 1)
         ids = get_ids(get_pertinent_objects(Species, [family]))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
+
+    def test_flat_export_optional_relationship_missing_is_empty(self):
+        species = self.get(Species, 1)
+
+        assert species.habit is None
+        assert _resolve_export_value(species, "habit.name") is None
+        assert _resolve_export_value(species, "sp") == "sp1"
 
     def test_get_species_pertinent_to_element(self):
         """
-        Test getting the species from different types
+        Test getting the species from a family type.
         """
-        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        family = self.session.query(Family).get(1)
+        def get_ids(objs):
+            return sorted([o.id for o in objs])
+
+        # Fetch the family object
+        Family = dynamic_import("bauble.plugins.plants", "Family")
+        Species = dynamic_import("bauble.plugins.plants", "Species")
+
+        family = self.get(Family, 1)
+
+        # Get pertinent species from the family
         ids = get_ids(get_pertinent_objects(Species, family))
-        self.assertEqual(ids, list(range(1, 5)))
+
+        # Assert the IDs are as expected
+        assert ids == list(range(1, 5))
 
     def test_get_species_pertinent_to_lists(self):
         """
         Test getting the species from different types
         """
-        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        family = self.session.query(Family).get(1)
+        def get_ids(objs):
+            return sorted([o.id for o in objs])
+
+        # Dynamically import required models
+        Family = dynamic_import("bauble.plugins.plants", "Family")
+        Genus = dynamic_import("bauble.plugins.plants", "Genus")
+        Species = dynamic_import("bauble.plugins.plants", "Species")
+        Accession = dynamic_import("bauble.plugins.garden.models", "Accession")
+        Contact = dynamic_import("bauble.plugins.garden.models", "Contact")
+        Plant = dynamic_import("bauble.plugins.garden.models", "Plant")
+        Location = dynamic_import("bauble.plugins.garden.models", "Location")
+        VernacularName = dynamic_import("bauble.plugins.plants", "VernacularName")
+        Tag = dynamic_import("bauble.plugins.tag", "Tag")
+
+        # Test fetching pertinent objects from a single family
+        family = self.get(Family, 1)
         ids = get_ids(get_pertinent_objects(Species, [family]))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
 
-        family = self.session.query(Family).get(1)
-        family2 = self.session.query(Family).get(2)
-        ids = get_ids(
-            get_pertinent_objects(Species, [family, family2]))
-        self.assertEqual(ids, list(range(1, 9)))
+        # Test fetching pertinent objects from multiple families
+        family2 = self.get(Family, 2)
+        ids = get_ids(get_pertinent_objects(Species, [family, family2]))
+        assert ids == list(range(1, 9))
 
-        genus = self.session.query(Genus).get(1)
+        # Test fetching from a genus
+        genus = self.get(Genus, 1)
         ids = get_ids(get_pertinent_objects(Species, [genus]))
-        self.assertEqual(ids, [1, 2])
+        assert ids == [1, 2]
 
-        species = self.session.query(Species).get(1)
+        # Test fetching from a species
+        species = self.get(Species, 1)
         ids = get_ids(get_pertinent_objects(Species, [species]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        accession = self.session.query(Accession).get(1)
+        # Test fetching from an accession
+        accession = self.get(Accession, 1)
         ids = get_ids(get_pertinent_objects(Species, [accession]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        contact = self.session.query(Contact).get(1)
+        # Test fetching from a contact
+        contact = self.get(Contact, 1)
         ids = get_ids(get_pertinent_objects(Species, [contact]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        plant = self.session.query(Plant).get(1)
+        # Test fetching from a plant
+        plant = self.get(Plant, 1)
         ids = get_ids(get_pertinent_objects(Species, [plant]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        location = self.session.query(Location).get(1)
+        # Test fetching from a location
+        location = self.get(Location, 1)
         ids = get_ids(get_pertinent_objects(Species, [location]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        vn = self.session.query(VernacularName).get(1)
+        # Test fetching from a vernacular name
+        vn = self.get(VernacularName, 1)
         ids = get_ids(get_pertinent_objects(Species, [vn]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag='test').one()
+        # Test fetching from a tag
+        tag_objects("test", [family, genus])
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Species, [tag]))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
 
-        # now test all the objects
-        ids = get_ids(get_pertinent_objects(Species, 
-            [family, genus, species, accession, plant, location]))
-        self.assertEqual(ids, list(range(1, 5)))
+        # Test fetching from all the objects
+        ids = get_ids(
+            get_pertinent_objects(
+                Species, [family, genus, species, accession, plant, location]
+            )
+        )
+        assert ids == list(range(1, 5))
 
     def test_get_accessions_pertinent_objects(self):
         """
         Test getting the accessions from different types
         """
-        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        family = self.session.query(Family).get(1)
+        def get_ids(objs):
+            return sorted([o.id for o in objs])
+
+        # Dynamically import required models
+        Family = dynamic_import("bauble.plugins.plants", "Family")
+        Genus = dynamic_import("bauble.plugins.plants", "Genus")
+        Species = dynamic_import("bauble.plugins.plants", "Species")
+        Accession = dynamic_import("bauble.plugins.garden", "Accession")
+        Contact = dynamic_import("bauble.plugins.garden", "Contact")
+        Plant = dynamic_import("bauble.plugins.garden", "Plant")
+        Location = dynamic_import("bauble.plugins.garden", "Location")
+        VernacularName = dynamic_import("bauble.plugins.plants", "VernacularName")
+        Tag = dynamic_import("bauble.plugins.tag", "Tag")
+
+        # Test fetching pertinent objects from a single family
+        family = self.get(Family, 1)
         ids = get_ids(get_pertinent_objects(Accession, [family]))
-        self.assertEqual(ids, list(range(1, 9)))
+        assert ids == list(range(1, 9))
 
-        family = self.session.query(Family).get(1)
-        family2 = self.session.query(Family).get(1)
-        ids = get_ids(get_pertinent_objects(Accession, 
-                                            [family, family2]))
-        self.assertEqual(ids, list(range(1, 9)))
+        # Test fetching pertinent objects from multiple families
+        family2 = self.get(Family, 1)
+        ids = get_ids(get_pertinent_objects(Accession, [family, family2]))
+        assert ids == list(range(1, 9))
 
-        genus = self.session.query(Genus).get(1)
+        # Test fetching from a genus
+        genus = self.get(Genus, 1)
         ids = get_ids(get_pertinent_objects(Accession, genus))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
 
-        species = self.session.query(Species).get(1)
+        # Test fetching from a species
+        species = self.get(Species, 1)
         ids = get_ids(get_pertinent_objects(Accession, species))
-        self.assertEqual(ids, [1, 2])
+        assert ids == [1, 2]
 
-        accession = self.session.query(Accession).get(1)
+        # Test fetching from an accession
+        accession = self.get(Accession, 1)
         ids = get_ids(get_pertinent_objects(Accession, [accession]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        contact = self.session.query(Contact).get(1)
+        # Test fetching from a contact
+        contact = self.get(Contact, 1)
         ids = get_ids(get_pertinent_objects(Accession, contact))
-        self.assertTrue(ids == [1], ids)
+        assert ids == [1]
 
-        plant = self.session.query(Plant).get(1)
+        # Test fetching from a plant
+        plant = self.get(Plant, 1)
         ids = get_ids(get_pertinent_objects(Accession, [plant]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        location = self.session.query(Location).get(1)
+        # Test fetching from a location
+        location = self.get(Location, 1)
         ids = get_ids(get_pertinent_objects(Accession, [location]))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        vn = self.session.query(VernacularName).get(1)
+        # Test fetching from a vernacular name
+        vn = self.get(VernacularName, 1)
         ids = get_ids(get_pertinent_objects(Accession, [vn]))
-        self.assertEqual(ids, [1, 2])
+        assert ids == [1, 2]
 
-        tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag='test').one()
+        # Test fetching from a tag
+        tag_objects("test", [family, genus])
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Accession, [tag]))
-        self.assertEqual(ids, list(range(1, 9)))
+        assert ids == list(range(1, 9))
 
-        # now test all the objects
-        ids = get_ids(get_pertinent_objects(Accession, 
-                                            [family, genus, species, accession, plant, location]))
-        self.assertEqual(ids, list(range(1, 9)))
+        # Test fetching from all the objects
+        ids = get_ids(
+            get_pertinent_objects(
+                Accession, [family, genus, species, accession, plant, location]
+            )
+        )
+        assert ids == list(range(1, 9))
 
     def test_get_plants_pertinent_to(self):
         """
         Test getting the plants from different types
         """
-        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        # get plants from one family
-        family = self.session.query(Family).get(1)
+        def get_ids(objs):
+            return sorted([o.id for o in objs])
+
+        # Dynamically import required models
+        Family = dynamic_import("bauble.plugins.plants", "Family")
+        Genus = dynamic_import("bauble.plugins.plants", "Genus")
+        Species = dynamic_import("bauble.plugins.plants", "Species")
+        Accession = dynamic_import("bauble.plugins.garden", "Accession")
+        Contact = dynamic_import("bauble.plugins.garden", "Contact")
+        Plant = dynamic_import("bauble.plugins.garden", "Plant")
+        Location = dynamic_import("bauble.plugins.garden", "Location")
+        VernacularName = dynamic_import("bauble.plugins.plants", "VernacularName")
+        Tag = dynamic_import("bauble.plugins.tag", "Tag")
+
+        # Test getting plants from one family
+        family = self.get(Family, 1)
         ids = get_ids(get_pertinent_objects(Plant, family))
-        self.assertEqual(ids, list(range(1, 17)))
+        assert ids == list(range(1, 17))
 
-        # get plants from multiple families
-        family = self.session.query(Family).get(1)
-        family2 = self.session.query(Family).get(2)
+        # Test getting plants from multiple families
+        family2 = self.get(Family, 2)
         ids = get_ids(get_pertinent_objects(Plant, [family, family2]))
-        self.assertEqual(ids, list(range(1, 33)))
+        assert ids == list(range(1, 33))
 
-        genus = self.session.query(Genus).get(1)
+        # Test getting plants from a genus
+        genus = self.get(Genus, 1)
         ids = get_ids(get_pertinent_objects(Plant, genus))
-        self.assertEqual(ids, list(range(1, 9)))
+        assert ids == list(range(1, 9))
 
-        species = self.session.query(Species).get(1)
+        # Test getting plants from a species
+        species = self.get(Species, 1)
         ids = get_ids(get_pertinent_objects(Plant, species))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
 
-        accession = self.session.query(Accession).get(1)
+        # Test getting plants from an accession
+        accession = self.get(Accession, 1)
         ids = get_ids(get_pertinent_objects(Plant, accession))
-        self.assertEqual(ids, list(range(1, 3)))
+        assert ids == list(range(1, 3))
 
-        contact = self.session.query(Contact).get(1)
+        # Test getting plants from a contact
+        contact = self.get(Contact, 1)
         ids = get_ids(get_pertinent_objects(Plant, contact))
-        self.assertTrue(ids == list(range(1, 3)), ids)
+        assert ids == list(range(1, 3))
 
-        plant = self.session.query(Plant).get(1)
+        # Test getting plants from a plant object
+        plant = self.get(Plant, 1)
         ids = get_ids(get_pertinent_objects(Plant, plant))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        location = self.session.query(Location).get(1)
+        # Test getting plants from a location
+        location = self.get(Location, 1)
         plants = get_pertinent_objects(Plant, [location])
         ids = sorted([p.id for p in plants])
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        vn = self.session.query(VernacularName).get(1)
+        # Test getting plants from a vernacular name
+        vn = self.get(VernacularName, 1)
         ids = get_ids(get_pertinent_objects(Plant, vn))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
 
-        tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag='test').one()
+        # Test getting plants from a tag
+        tag_objects("test", [family, genus])
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Plant, tag))
-        self.assertEqual(ids, list(range(1, 17)))
+        assert ids == list(range(1, 17))
 
-        # now test all the objects
-        plants = get_pertinent_objects(Plant, 
-            [family, genus, species, accession, plant, location])
+        # Test getting plants from multiple object types
+        plants = get_pertinent_objects(
+            Plant, [family, genus, species, accession, plant, location]
+        )
         ids = get_ids(plants)
-        self.assertEqual(ids, list(range(1, 17)))
+        assert ids == list(range(1, 17))
 
     def test_get_locations_pertinent_to(self):
         """
         Test getting the locations from different types
         """
-        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        # get locations from one family
-        family = self.session.query(Family).get(1)
+        def get_ids(objs):
+            return sorted([o.id for o in objs])
+
+        # Dynamically import required models
+        Family = dynamic_import("bauble.plugins.plants", "Family")
+        Genus = dynamic_import("bauble.plugins.plants", "Genus")
+        Species = dynamic_import("bauble.plugins.plants", "Species")
+        Accession = dynamic_import("bauble.plugins.garden", "Accession")
+        Contact = dynamic_import("bauble.plugins.garden", "Contact")
+        Plant = dynamic_import("bauble.plugins.garden", "Plant")
+        Location = dynamic_import("bauble.plugins.garden", "Location")
+        VernacularName = dynamic_import("bauble.plugins.plants", "VernacularName")
+        Tag = dynamic_import("bauble.plugins.tag", "Tag")
+
+        # Test getting locations from one family
+        family = self.get(Family, 1)
         ids = get_ids(get_pertinent_objects(Location, family))
-        self.assertEqual(ids, list(range(1, 17)))
+        assert ids == list(range(1, 17))
 
-        # get locations from multiple families
-        family = self.session.query(Family).get(1)
-        family2 = self.session.query(Family).get(2)
+        # Test getting locations from multiple families
+        family2 = self.get(Family, 2)
         ids = get_ids(get_pertinent_objects(Location, [family, family2]))
-        self.assertEqual(ids, list(range(1, 33)))
+        assert ids == list(range(1, 33))
 
-        genus = self.session.query(Genus).get(1)
+        # Test getting locations from a genus
+        genus = self.get(Genus, 1)
         ids = get_ids(get_pertinent_objects(Location, genus))
-        self.assertEqual(ids, list(range(1, 9)))
+        assert ids == list(range(1, 9))
 
-        species = self.session.query(Species).get(1)
+        # Test getting locations from a species
+        species = self.get(Species, 1)
         ids = get_ids(get_pertinent_objects(Location, species))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
 
-        vn = self.session.query(VernacularName).get(1)
+        # Test getting locations from a vernacular name
+        vn = self.get(VernacularName, 1)
         ids = get_ids(get_pertinent_objects(Location, vn))
-        self.assertEqual(ids, list(range(1, 5)))
+        assert ids == list(range(1, 5))
 
-        plant = self.session.query(Plant).get(1)
+        # Test getting locations from a plant
+        plant = self.get(Plant, 1)
         ids = get_ids(get_pertinent_objects(Location, plant))
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        accession = self.session.query(Accession).get(1)
+        # Test getting locations from an accession
+        accession = self.get(Accession, 1)
         ids = get_ids(get_pertinent_objects(Location, accession))
-        self.assertEqual(ids, list(range(1, 3)))
+        assert ids == list(range(1, 3))
 
-        contact = self.session.query(Contact).get(1)
+        # Test getting locations from a contact
+        contact = self.get(Contact, 1)
         ids = get_ids(get_pertinent_objects(Location, contact))
-        self.assertTrue(ids == list(range(1, 3)))
+        assert ids == list(range(1, 3))
 
-        location = self.session.query(Location).get(1)
+        # Test getting locations from a location object
+        location = self.get(Location, 1)
         locations = get_pertinent_objects(Location, [location])
         ids = [l.id for l in locations]
-        self.assertEqual(ids, [1])
+        assert ids == [1]
 
-        tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag='test').one()
+        # Test getting locations from a tag
+        tag_objects("test", [family, genus])
+        tag = self.execute(select(Tag).where(Tag.tag == "test")).scalars().one()
         ids = get_ids(get_pertinent_objects(Location, tag))
-        self.assertEqual(ids, list(range(1, 17)))
+        assert ids == list(range(1, 17))
 
-        # now test all the objects
-        locations = get_pertinent_objects(Location, 
-            [family, genus, species, accession, plant, location, tag])
+        # Test getting locations from multiple object types
+        locations = get_pertinent_objects(
+            Location, [family, genus, species, accession, plant, location, tag]
+        )
         ids = get_ids(locations)
-        self.assertEqual(ids, list(range(1, 17)))
+        assert ids == list(range(1, 17))
+
+    def test_flat_export_deep_single_valued_chain(self):
+        """A multi-hop to-one chain resolves to the final attribute."""
+        species = self.get(Species, 1)
+        assert _resolve_export_value(species, "genus.family.family") == "fam1"
+
+    def test_flat_export_id_field_single_valued_returns_actual_id(self):
+        """For a to-one relationship, '.id' returns the real id, not a count."""
+        species = self.get(Species, 1)
+        assert _resolve_export_value(species, "genus.id") == species.genus.id
+
+    def test_flat_export_id_field_multivalued_returns_count(self):
+        """For a to-many relationship, '.id' counts the related objects."""
+        species = self.get(Species, 1)
+        assert len(species.accessions) == 2
+        assert _resolve_export_value(species, "accessions.id") == 2
+
+    def test_flat_export_numeric_field_multivalued_sums_and_treats_none_as_zero(self):
+        """Non-id numeric fields on a to-many relationship are summed;
+
+        unset (None) values count as zero rather than raising or being
+        skipped.
+        """
+        species = self.get(Species, 1)
+        assert all(a.quantity_recvd is None for a in species.accessions)
+        assert _resolve_export_value(species, "accessions.quantity_recvd") == 0
+
+    def test_flat_export_str_field_empty_when_relationship_missing(self):
+        """'<str>' on a missing (None) relationship yields '', not None."""
+        species = self.get(Species, 1)
+        assert species.habit is None
+        assert _resolve_export_value(species, "habit.<str>") == ""
+
+
+def test_resolve_export_value_str_field_strips_zero_width_space() -> None:
+    """'<str>' stringifies the object and strips zero-width spaces."""
+
+    class Stub:
+        def __str__(self) -> str:
+            return "genus\u200bname"
+
+    assert _resolve_export_value(Stub(), "<str>") == "genusname"
+
+
+def test_resolve_export_value_str_field_on_none_object_returns_empty() -> None:
+    """'<str>' on a None value (not merely a missing relationship) is ''."""
+
+    class Stub:
+        related = None
+
+    assert _resolve_export_value(Stub(), "related.<str>") == ""
+
+
+def test_resolve_export_value_multivalued_sum_with_mixed_values() -> None:
+    """Summing a to-many numeric field ignores None entries as zero."""
+    from sqlalchemy.orm.collections import InstrumentedList
+
+    class Child:
+        def __init__(self, amount) -> None:
+            self.amount = amount
+
+    class Parent:
+        children = InstrumentedList([Child(2), Child(None), Child(5)])
+
+    assert _resolve_export_value(Parent(), "children.amount") == 7
+
+
+def test_resolve_export_value_id_field_counts_none_entries_too() -> None:
+    """'.id' on a to-many relationship counts entries (len(values)), not
+
+    just the non-null ones: a None placeholder in the list still adds
+    to the count, even though its id is never actually looked up.
+    """
+    from sqlalchemy.orm.collections import InstrumentedList
+
+    class Child:
+        def __init__(self, id_) -> None:
+            self.id = id_
+
+    class Parent:
+        children = InstrumentedList([None, Child(10), Child(20)])
+
+    assert _resolve_export_value(Parent(), "children.id") == 3
+

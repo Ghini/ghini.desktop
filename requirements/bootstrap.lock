@@ -1,0 +1,12 @@
+# This file is generated from pyproject.toml.
+# Do not edit it directly. Update pyproject.toml, then run:
+#   scripts/docker-dev lock
+debugpy==1.8.20
+packaging==26.2
+setuptools-scm==10.0.5
+vcs-versioning==1.1.1
+wheel==0.47.0
+
+# The following packages are considered to be unsafe in a requirements file:
+pip==26.1
+setuptools==82.0.1

@@ -1,0 +1,800 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage:
+  scripts/docker-dev build
+  scripts/docker-dev lock
+  scripts/docker-dev app
+  scripts/docker-dev debug
+  scripts/docker-dev format [paths...]
+  scripts/docker-dev check [paths...]
+  scripts/docker-dev test-smoke
+  scripts/docker-dev test-regression [pytest args...]
+  scripts/docker-dev postgres-check [pytest args...]
+  scripts/docker-dev postgres-smoke [pytest args...]
+  scripts/docker-dev postgres-copy-smoke [pytest args...]
+  scripts/docker-dev postgres-release
+  scripts/docker-dev gtk-smoke [pytest args...]
+  scripts/docker-dev gui-e2e [pytest args...]
+  scripts/docker-dev gui-regression [pytest args...]
+  scripts/docker-dev gui-guided [scenario]
+  scripts/docker-dev pytest
+  scripts/docker-dev pytest-debug
+  scripts/docker-dev warnings
+  scripts/docker-dev shell
+  scripts/docker-dev run -- <command> [args...]
+
+Environment:
+  Copy .env.example to .env and adjust local database, Kerberos, and display
+  values. The script loads .env automatically when it exists.
+
+Useful overrides:
+  GHINI_IMAGE=ghini-desktop-dev:latest
+  GHINI_CONTAINER=ghini-dev
+  GHINI_TOOL_CONTAINER=ghini-dev-check-<pid>
+  GHINI_ENV_FILE=.env
+  GHINI_PROJECT_DIR=<repo path>
+  GHINI_CONFIG_DIR=$HOME/.bauble/3.1
+  GHINI_SKIP_CONFIG_MOUNT=1
+  GHINI_KRB5_DIR=$HOME/krb5
+  GHINI_PGPASSFILE=$HOME/.pgpass
+  GHINI_XHOST=1
+  GHINI_TZ=<IANA timezone>
+  GHINI_DOCKER_AUTO_ADD_HOSTS=1
+  GHINI_DOCKER_ADD_HOSTS=host.example:192.0.2.10,alias:192.0.2.10
+  GHINI_DOCKER_NETWORK=<docker network mode>
+  GHINI_GUI_E2E_TIMEOUT=<seconds, default 900>
+  GHINI_GUI_REGRESSION_TIMEOUT=<seconds, default 1800>
+  GHINI_POSTGRES_CHECK_TIMEOUT=<seconds, default 300>
+  GHINI_POSTGRES_SMOKE_TIMEOUT=<seconds, default 300>
+  GHINI_EXTERNAL_POSTGRES_URI=<read-only smoke target URI>
+  GHINI_SOURCE_POSTGRES_URI=<source URI for read-only pg_dump copy>
+  GHINI_POSTGRES_COPY_DUMP=test-results/postgres-smoke/representative.dump
+  GHINI_WARNING_TIMEOUT=<seconds, default 900>
+  GHINI_POSTGRES_IMAGE=postgres:16-alpine
+EOF
+}
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/.." && pwd)"
+
+env_file="${GHINI_ENV_FILE:-${repo_root}/.env}"
+if [[ -f "${env_file}" ]]; then
+    while IFS= read -r line || [[ -n "${line}" ]]; do
+        [[ "${line}" =~ ^[[:space:]]*$ || "${line}" =~ ^[[:space:]]*# ]] && continue
+        [[ "${line}" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]] || continue
+
+        name="${line%%=*}"
+        if [[ ! -v "${name}" ]]; then
+            set -a
+            source <(printf '%s\n' "${line}")
+            set +a
+        fi
+    done < "${env_file}"
+fi
+
+image="${GHINI_IMAGE:-ghini-desktop-dev:latest}"
+container="${GHINI_CONTAINER:-ghini-dev}"
+project_dir="${GHINI_PROJECT_DIR:-${repo_root}}"
+config_dir="${GHINI_CONFIG_DIR:-${HOME}/.bauble/3.1}"
+krb5_dir="${GHINI_KRB5_DIR:-${HOME}/krb5}"
+pgpassfile="${GHINI_PGPASSFILE:-${PGPASSFILE:-${HOME}/.pgpass}}"
+xauthority="${GHINI_XAUTHORITY:-${XAUTHORITY:-${HOME}/.Xauthority}}"
+dri_dir="${GHINI_DRI_DIR:-/usr/lib/dri}"
+
+command="${1:-help}"
+if [[ $# -gt 0 ]]; then
+    shift
+fi
+if [[ "${command}" == "format" || "${command}" == "check" ]]; then
+    container="${GHINI_TOOL_CONTAINER:-ghini-dev-check-$$}"
+fi
+
+build_image() {
+    docker buildx build \
+        --progress=plain \
+        --build-arg "USER_ID=$(id -u)" \
+        --build-arg "GROUP_ID=$(id -g)" \
+        --load \
+        -f "${repo_root}/Dockerfile.dev" \
+        -t "${image}" \
+        "${repo_root}"
+}
+
+add_env_if_set() {
+    local name="$1"
+    if [[ -n "${!name:-}" ]]; then
+        docker_args+=("--env" "${name}")
+    fi
+}
+
+detect_host_timezone() {
+    if [[ -n "${GHINI_TZ:-}" ]]; then
+        printf '%s\n' "${GHINI_TZ}"
+        return
+    fi
+
+    if [[ -n "${TZ:-}" ]]; then
+        printf '%s\n' "${TZ}"
+        return
+    fi
+
+    if [[ -f /etc/timezone ]]; then
+        local timezone
+        timezone="$(sed -n '1s/[[:space:]]*$//p' /etc/timezone)"
+        if [[ -n "${timezone}" ]]; then
+            printf '%s\n' "${timezone}"
+            return
+        fi
+    fi
+
+    if [[ -L /etc/localtime ]]; then
+        local localtime_target
+        localtime_target="$(readlink /etc/localtime)"
+        if [[ "${localtime_target}" == /usr/share/zoneinfo/* ]]; then
+            printf '%s\n' "${localtime_target#/usr/share/zoneinfo/}"
+            return
+        fi
+    fi
+
+    printf 'UTC\n'
+}
+
+trim_value() {
+    local value="$1"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    printf '%s\n' "${value}"
+}
+
+extract_uri_host() {
+    local uri="$1"
+    [[ -n "${uri}" && "${uri}" == *"://"* ]] || return 1
+
+    local rest="${uri#*://}"
+    local authority="${rest%%/*}"
+    authority="${authority%%\?*}"
+    authority="${authority##*@}"
+
+    # IPv6 literals require bracket-aware Docker add-host handling. Skip them
+    # here and let callers use GHINI_DOCKER_ADD_HOSTS explicitly if needed.
+    [[ "${authority}" == \[*\]* ]] && return 1
+
+    local host="${authority%%:*}"
+    host="$(trim_value "${host}")"
+    [[ -n "${host}" ]] || return 1
+    printf '%s\n' "${host}"
+}
+
+is_ip_literal() {
+    local host="$1"
+    [[ "${host}" =~ ^[0-9]+(\.[0-9]+){3}$ || "${host}" == *:* ]]
+}
+
+should_auto_map_host() {
+    local host="$1"
+    [[ -n "${host}" ]] || return 1
+
+    case "${host}" in
+        localhost|localhost.localdomain|127.*|0.0.0.0|::1)
+            return 1
+            ;;
+    esac
+
+    if is_ip_literal "${host}"; then
+        return 1
+    fi
+}
+
+resolve_host_ipv4() {
+    local host="$1"
+    local address
+
+    while read -r address _; do
+        [[ -n "${address}" ]] || continue
+        if [[ "${address}" != *:* ]]; then
+            printf '%s\n' "${address}"
+            return 0
+        fi
+    done < <(getent hosts "${host}" 2>/dev/null || true)
+
+    return 1
+}
+
+saved_connection_hosts() {
+    local config_path="${config_dir}/config"
+    [[ "${GHINI_SKIP_CONFIG_MOUNT:-0}" != "1" ]] || return 0
+    [[ -r "${config_path}" ]] || return 0
+
+    local python_bin=""
+    if command -v python3 >/dev/null 2>&1; then
+        python_bin="python3"
+    elif command -v python >/dev/null 2>&1; then
+        python_bin="python"
+    else
+        return 0
+    fi
+
+    "${python_bin}" - "${config_path}" <<'PY'
+import ast
+import configparser
+import sys
+
+config_path = sys.argv[1]
+config = configparser.RawConfigParser()
+config.read(config_path)
+
+try:
+    connection_text = config.get("conn", "list")
+except (configparser.Error, ValueError):
+    raise SystemExit(0)
+
+try:
+    connections = ast.literal_eval(connection_text)
+except (SyntaxError, ValueError):
+    raise SystemExit(0)
+
+if not isinstance(connections, dict):
+    raise SystemExit(0)
+
+for connection in connections.values():
+    if not isinstance(connection, dict):
+        continue
+    if connection.get("type") != "PostgreSQL":
+        continue
+    host = connection.get("host")
+    if isinstance(host, str) and host.strip():
+        print(host.strip())
+PY
+}
+
+allow_xhost() {
+    if [[ "${GHINI_XHOST:-1}" != "1" || -z "${DISPLAY:-}" ]]; then
+        return
+    fi
+
+    if command -v xhost >/dev/null 2>&1; then
+        xhost "+SI:localuser:$(id -un)" >/dev/null
+    fi
+}
+
+run_container() {
+    local mode="$1"
+    shift || true
+
+    if [[ "${GHINI_SKIP_CONFIG_MOUNT:-0}" != "1" ]]; then
+        mkdir -p "${config_dir}"
+    fi
+
+    local -a docker_args=(
+        --rm
+        --interactive
+        --name "${container}"
+        --user "$(id -u):$(id -g)"
+        --workdir /app
+        --env "GHINI_MODE=${mode}"
+        --env "HOME=/home/ghini"
+        --env "USER=ghini"
+        --env "LOGNAME=ghini"
+        --env "NO_AT_BRIDGE=${NO_AT_BRIDGE:-1}"
+        --env "DISPLAY=${DISPLAY:-}"
+        --env "TZ=$(detect_host_timezone)"
+        --volume "${project_dir}:/app"
+    )
+
+    if [[ "${GHINI_SKIP_CONFIG_MOUNT:-0}" != "1" ]]; then
+        docker_args+=("--volume" "${config_dir}:/home/ghini/.bauble/3.1")
+    fi
+
+    if [[ "${mode}" == "debug" || "${mode}" == "pytest-debug" ]]; then
+        docker_args+=(--publish 5678:5678)
+    fi
+
+    if [[ -t 1 ]]; then
+        docker_args+=(--tty)
+    fi
+
+    if [[ -d /tmp/.X11-unix ]]; then
+        docker_args+=("--volume" /tmp/.X11-unix:/tmp/.X11-unix:rw)
+    fi
+
+    if [[ -f "${xauthority}" ]]; then
+        docker_args+=(
+            --env "XAUTHORITY=/home/ghini/.Xauthority"
+            --volume "${xauthority}:/home/ghini/.Xauthority:ro"
+        )
+    fi
+
+    if [[ -d "${krb5_dir}" ]]; then
+        docker_args+=("--volume" "${krb5_dir}:/krb5:ro")
+    fi
+
+    if [[ -f "${pgpassfile}" ]]; then
+        docker_args+=(
+            --env "PGPASSFILE=/home/ghini/.pgpass"
+            --volume "${pgpassfile}:/home/ghini/.pgpass:ro"
+        )
+    fi
+
+    if [[ -d "${dri_dir}" ]]; then
+        docker_args+=("--volume" "${dri_dir}:${dri_dir}:ro")
+    fi
+
+    if [[ -e /dev/dri ]]; then
+        docker_args+=("--device" /dev/dri:/dev/dri)
+    fi
+
+    local -A docker_host_mappings=()
+    add_docker_host_mapping() {
+        local mapping
+        mapping="$(trim_value "$1")"
+        [[ -n "${mapping}" ]] || return 0
+
+        local host_key="${mapping%%=*}"
+        host_key="${host_key%%:*}"
+        host_key="$(trim_value "${host_key}")"
+        [[ -n "${host_key}" ]] || return 0
+
+        if [[ -n "${docker_host_mappings[${host_key}]:-}" ]]; then
+            return 0
+        fi
+
+        docker_host_mappings["${host_key}"]=1
+        docker_args+=("--add-host" "${mapping}")
+    }
+
+    add_auto_resolved_host_mapping() {
+        local host
+        host="$(trim_value "$1")"
+        should_auto_map_host "${host}" || return 0
+
+        local address
+        address="$(resolve_host_ipv4 "${host}")" || return 0
+        add_docker_host_mapping "${host}:${address}"
+    }
+
+    if [[ "${GHINI_DOCKER_NETWORK:-}" != container:* ]]; then
+        local add_host
+        IFS=',' read -r -a add_hosts <<< "${GHINI_DOCKER_ADD_HOSTS:-}"
+        for add_host in "${add_hosts[@]}"; do
+            add_docker_host_mapping "${add_host}"
+        done
+
+        if [[ "${GHINI_DOCKER_AUTO_ADD_HOSTS:-1}" != "0" ]]; then
+            add_auto_resolved_host_mapping "${DB_HOST:-}"
+
+            local saved_host
+            while IFS= read -r saved_host; do
+                add_auto_resolved_host_mapping "${saved_host}"
+            done < <(saved_connection_hosts)
+
+            local uri_name uri_host
+            for uri_name in \
+                GHINI_TEST_POSTGRES_URI \
+                GHINI_EXTERNAL_POSTGRES_URI \
+                GHINI_SOURCE_POSTGRES_URI; do
+                uri_host="$(extract_uri_host "${!uri_name:-}")" || true
+                add_auto_resolved_host_mapping "${uri_host}"
+            done
+        fi
+    fi
+
+    local env_name
+    for env_name in \
+        DB_HOST \
+        DB_PORT \
+        DB_NAME \
+        DB_USER \
+        DB_PASSWORD \
+        DB_SSLMODE \
+        GHINI_TEST_POSTGRES_URI \
+        GHINI_EXTERNAL_POSTGRES_URI \
+        GHINI_SOURCE_POSTGRES_URI \
+        GHINI_POSTGRES_COPY_DUMP \
+        KRB5_CONFIG \
+        KRB5_CLIENT_KTNAME \
+        GHINI_GUIDED_WRITE_DEFAULT_CONFIG \
+        PYTEST_ARGS \
+        DEBUG; do
+        add_env_if_set "${env_name}"
+    done
+
+    if [[ -n "${GHINI_DOCKER_NETWORK:-}" ]]; then
+        docker_args+=("--network" "${GHINI_DOCKER_NETWORK}")
+    fi
+
+    allow_xhost
+    docker run "${docker_args[@]}" "${image}" "$@"
+}
+
+python_file_args() {
+    if [[ $# -gt 0 ]]; then
+        printf '%s\n' "$@"
+        return
+    fi
+
+    {
+        git -C "${repo_root}" diff --name-only --diff-filter=ACMRTUXB HEAD -- '*.py'
+        git -C "${repo_root}" ls-files --others --exclude-standard -- '*.py'
+    } | awk '!seen[$0]++'
+}
+
+run_black() {
+    local check_flag="$1"
+    shift || true
+
+    local -a paths=()
+    mapfile -t paths < <(python_file_args "$@")
+
+    if [[ ${#paths[@]} -eq 0 ]]; then
+        echo "No changed Python files to ${check_flag}."
+        return
+    fi
+
+    local -a black_args=(python -m black)
+    if [[ "${check_flag}" == "check" ]]; then
+        black_args+=(--check)
+    fi
+    black_args+=("${paths[@]}")
+
+    GHINI_XHOST=0 run_container shell "${black_args[@]}"
+}
+
+run_check() {
+    run_black check "$@"
+    GHINI_XHOST=0 run_container shell \
+        python -m pytest tests/test_version.py tests/test_database_version.py -q
+}
+
+run_warning_check() {
+    local -a warning_args=(
+        -q
+        --maxfail=5
+        -W error::DeprecationWarning
+        -W error::PendingDeprecationWarning
+        -W error::gi.PyGIDeprecationWarning
+        -W error::sqlalchemy.exc.SADeprecationWarning
+        -W error::sqlalchemy.exc.LegacyAPIWarning
+        -W error::sqlalchemy.exc.MovedIn20Warning
+    )
+    local warning_timeout="${GHINI_WARNING_TIMEOUT:-900}"
+    if [[ -n "${PYTEST_ARGS:-}" ]]; then
+        local -a extra_args
+        read -r -a extra_args <<< "${PYTEST_ARGS}"
+        warning_args+=("${extra_args[@]}")
+    fi
+
+    GHINI_XHOST=0 run_container shell \
+        timeout "${warning_timeout}" xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        python -m pytest "${warning_args[@]}" "$@"
+}
+
+run_gtk_smoke() {
+    GHINI_XHOST=0 run_container shell \
+        timeout 120 xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        python -m pytest bauble/test/test_gtk_smoke.py -q "$@"
+}
+
+run_gui_e2e() {
+    local -a pytest_args=(bauble/test/test_gui_e2e.py -q)
+    local gui_timeout="${GHINI_GUI_E2E_TIMEOUT:-900}"
+    if [[ $# -gt 0 ]]; then
+        pytest_args=("$@")
+    fi
+
+    GHINI_XHOST=0 NO_AT_BRIDGE=0 run_container shell \
+        timeout "${gui_timeout}" xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        dbus-run-session -- \
+        bash -lc 'gsettings set org.gnome.desktop.interface toolkit-accessibility true; python -m pytest "$@"' \
+        bash "${pytest_args[@]}"
+}
+
+run_gui_regression() {
+    echo "==> Full automated GUI regression: all Dogtail E2E scenarios"
+    GHINI_GUI_E2E_TIMEOUT="${GHINI_GUI_REGRESSION_TIMEOUT:-${GHINI_GUI_E2E_TIMEOUT:-1800}}" \
+        run_gui_e2e "$@"
+}
+
+run_test_smoke() {
+    echo "==> Fast development smoke: formatting, version/database checks, GTK smoke, core GUI E2E"
+    local gui_smoke_selector="connection_manager"
+    gui_smoke_selector+=" or main_search_shows_database_completion_before_search"
+    gui_smoke_selector+=" or search_existing_species"
+    gui_smoke_selector+=" or create_family"
+    gui_smoke_selector+=" or create_location"
+    gui_smoke_selector+=" or daily_species_editor_add_accession"
+
+    GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-smoke-check}" \
+        "${script_dir}/docker-dev" check
+    GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-smoke-gtk}" \
+        "${script_dir}/docker-dev" gtk-smoke
+    GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-smoke-gui}" \
+        "${script_dir}/docker-dev" gui-e2e \
+        bauble/test/test_gui_e2e.py \
+        -q \
+        -k "${gui_smoke_selector}"
+}
+
+run_test_regression() {
+    echo "==> Release regression: warning-gated suite, GTK smoke, full GUI E2E"
+    GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-regression-warnings}" \
+        "${script_dir}/docker-dev" warnings "$@"
+    GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-regression-gtk}" \
+        "${script_dir}/docker-dev" gtk-smoke
+    GHINI_XHOST=0 GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-regression-gui}" \
+        "${script_dir}/docker-dev" gui-regression
+}
+
+run_postgres_check() {
+    local pg_container="${GHINI_POSTGRES_CONTAINER:-ghini-postgres-check-$$}"
+    local pg_image="${GHINI_POSTGRES_IMAGE:-postgres:16-alpine}"
+    local pg_user="${GHINI_POSTGRES_USER:-ghini}"
+    local pg_password="${GHINI_POSTGRES_PASSWORD:-ghini}"
+    local pg_database="${GHINI_POSTGRES_DB:-ghini_test}"
+    local pg_timeout="${GHINI_POSTGRES_CHECK_TIMEOUT:-300}"
+    local -a pytest_args=(bauble/test/test_postgresql_lane.py -q)
+    if [[ $# -gt 0 ]]; then
+        pytest_args=("$@")
+    fi
+
+    docker run \
+        --detach \
+        --rm \
+        --name "${pg_container}" \
+        --env "POSTGRES_USER=${pg_user}" \
+        --env "POSTGRES_PASSWORD=${pg_password}" \
+        --env "POSTGRES_DB=${pg_database}" \
+        "${pg_image}" >/dev/null
+
+    local ready=0
+    for _ in {1..30}; do
+        if docker exec "${pg_container}" \
+            pg_isready -h 127.0.0.1 -p 5432 -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
+            ready=1
+            break
+        fi
+        sleep 1
+    done
+    if [[ "${ready}" != "1" ]]; then
+        docker logs "${pg_container}" >&2 || true
+        docker stop "${pg_container}" >/dev/null 2>&1 || true
+        echo "PostgreSQL test container did not become ready." >&2
+        return 1
+    fi
+
+    set +e
+    GHINI_XHOST=0 \
+        GHINI_SKIP_CONFIG_MOUNT=1 \
+        GHINI_DOCKER_NETWORK="container:${pg_container}" \
+        GHINI_TEST_POSTGRES_URI="postgresql://${pg_user}:${pg_password}@127.0.0.1:5432/${pg_database}" \
+        run_container postgres-check \
+        timeout "${pg_timeout}" xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        python -m pytest "${pytest_args[@]}"
+    local status=$?
+    set -e
+
+    docker stop "${pg_container}" >/dev/null 2>&1 || true
+    return "${status}"
+}
+
+run_postgres_smoke() {
+    local pg_timeout="${GHINI_POSTGRES_SMOKE_TIMEOUT:-300}"
+    local -a pytest_args=(bauble/test/test_postgresql_external_smoke.py -q)
+    if [[ $# -gt 0 ]]; then
+        pytest_args=("$@")
+    fi
+
+    if [[ -z "${GHINI_EXTERNAL_POSTGRES_URI:-}" ]]; then
+        echo "Set GHINI_EXTERNAL_POSTGRES_URI to a disposable PostgreSQL database copy." >&2
+        echo "This smoke lane does not recreate schemas and does not use GHINI_TEST_POSTGRES_URI." >&2
+        return 2
+    fi
+
+    GHINI_XHOST=0 \
+        GHINI_SKIP_CONFIG_MOUNT=1 \
+        run_container postgres-smoke \
+        timeout "${pg_timeout}" xvfb-run -e /dev/stderr -a --server-args="-screen 0 1280x1024x24" \
+        python -m pytest "${pytest_args[@]}"
+}
+
+run_postgres_copy_smoke() {
+    local pg_container="${GHINI_POSTGRES_COPY_CONTAINER:-ghini-postgres-copy-smoke-$$}"
+    local pg_image="${GHINI_POSTGRES_IMAGE:-postgres:16-alpine}"
+    local pg_user="${GHINI_POSTGRES_USER:-ghini}"
+    local pg_password="${GHINI_POSTGRES_PASSWORD:-ghini}"
+    local pg_database="${GHINI_POSTGRES_DB:-ghini_copy}"
+    local dump_path="${GHINI_POSTGRES_COPY_DUMP:-test-results/postgres-smoke/representative.dump}"
+    local target_uri="postgresql://${pg_user}:${pg_password}@127.0.0.1:5432/${pg_database}"
+    local status=0
+
+    if [[ -z "${GHINI_SOURCE_POSTGRES_URI:-}" ]]; then
+        echo "Set GHINI_SOURCE_POSTGRES_URI to the PostgreSQL database to copy." >&2
+        echo "Use a read-only source role and do not point schema-reset tests at production." >&2
+        return 2
+    fi
+
+    case "${dump_path}" in
+        /*|../*|*/../*)
+            echo "GHINI_POSTGRES_COPY_DUMP must be a repository-relative path." >&2
+            return 2
+            ;;
+    esac
+
+    mkdir -p "${repo_root}/$(dirname "${dump_path}")"
+
+    echo "==> Dumping source PostgreSQL database into ${dump_path}"
+    GHINI_XHOST=0 \
+        GHINI_SKIP_CONFIG_MOUNT=1 \
+        GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-postgres-copy-dump-$$}" \
+        run_container postgres-copy-dump \
+        bash -lc 'pg_dump --format=custom --no-owner --no-acl --file="/app/${GHINI_POSTGRES_COPY_DUMP:-test-results/postgres-smoke/representative.dump}" "$GHINI_SOURCE_POSTGRES_URI"'
+
+    docker run \
+        --detach \
+        --rm \
+        --name "${pg_container}" \
+        --env "POSTGRES_USER=${pg_user}" \
+        --env "POSTGRES_PASSWORD=${pg_password}" \
+        --env "POSTGRES_DB=${pg_database}" \
+        "${pg_image}" >/dev/null
+
+    local ready=0
+    for _ in {1..30}; do
+        if docker exec "${pg_container}" \
+            pg_isready -h 127.0.0.1 -p 5432 -U "${pg_user}" -d "${pg_database}" >/dev/null 2>&1; then
+            ready=1
+            break
+        fi
+        sleep 1
+    done
+    if [[ "${ready}" != "1" ]]; then
+        docker logs "${pg_container}" >&2 || true
+        docker stop "${pg_container}" >/dev/null 2>&1 || true
+        echo "PostgreSQL copy-smoke container did not become ready." >&2
+        return 1
+    fi
+
+    set +e
+    echo "==> Restoring dump into disposable PostgreSQL container ${pg_container}"
+    GHINI_XHOST=0 \
+        GHINI_SKIP_CONFIG_MOUNT=1 \
+        GHINI_DOCKER_NETWORK="container:${pg_container}" \
+        GHINI_CONTAINER="${GHINI_CONTAINER:-ghini-postgres-copy-restore-$$}" \
+        run_container postgres-copy-restore \
+        pg_restore \
+        "--dbname=${target_uri}" \
+        --no-owner \
+        "--role=${pg_user}" \
+        "/app/${dump_path}"
+    status=$?
+
+    if [[ "${status}" == "0" ]]; then
+        echo "==> Running read-only PostgreSQL smoke against restored copy"
+        GHINI_DOCKER_NETWORK="container:${pg_container}" \
+            GHINI_EXTERNAL_POSTGRES_URI="${target_uri}" \
+            run_postgres_smoke "$@"
+        status=$?
+    fi
+    set -e
+
+    docker stop "${pg_container}" >/dev/null 2>&1 || true
+    return "${status}"
+}
+
+run_postgres_release() {
+    echo "==> PostgreSQL release gate: disposable schema plus representative data smoke"
+
+    run_postgres_check
+
+    if [[ -n "${GHINI_SOURCE_POSTGRES_URI:-}" ]]; then
+        run_postgres_copy_smoke "$@"
+        return
+    fi
+
+    if [[ -n "${GHINI_EXTERNAL_POSTGRES_URI:-}" ]]; then
+        echo "==> GHINI_SOURCE_POSTGRES_URI is not set; using GHINI_EXTERNAL_POSTGRES_URI directly"
+        echo "==> Use a disposable database copy for release evidence."
+        run_postgres_smoke "$@"
+        return
+    fi
+
+    echo "Set GHINI_SOURCE_POSTGRES_URI to copy representative PostgreSQL data." >&2
+    echo "Alternatively set GHINI_EXTERNAL_POSTGRES_URI to an existing disposable copy." >&2
+    return 2
+}
+
+run_gui_guided() {
+    local skip_config_mount=0
+    local arg
+    for arg in "$@"; do
+        if [[ "${arg}" == "--sqlite-fixture" ]]; then
+            skip_config_mount=1
+            break
+        fi
+    done
+
+    if [[ "${skip_config_mount}" == "1" ]]; then
+        GHINI_SKIP_CONFIG_MOUNT=1 GHINI_GUIDED_WRITE_DEFAULT_CONFIG=1 \
+            NO_AT_BRIDGE=0 run_container gui-guided \
+            python scripts/gui_guided.py "$@"
+        return
+    fi
+
+    NO_AT_BRIDGE=0 run_container gui-guided \
+        python scripts/gui_guided.py "$@"
+}
+
+run_lock() {
+    GHINI_XHOST=0 run_container shell \
+        bash -lc 'python -c "import piptools" 2>/dev/null || python -m pip install --no-cache-dir "pip-tools==7.5.3"; python scripts/compile-requirement-locks'
+}
+
+case "${command}" in
+    build)
+        build_image
+        ;;
+    lock)
+        run_lock
+        ;;
+    format)
+        run_black format "$@"
+        ;;
+    check)
+        run_check "$@"
+        ;;
+    test-smoke)
+        run_test_smoke "$@"
+        ;;
+    test-regression)
+        run_test_regression "$@"
+        ;;
+    postgres-check)
+        run_postgres_check "$@"
+        ;;
+    postgres-smoke)
+        run_postgres_smoke "$@"
+        ;;
+    postgres-copy-smoke)
+        run_postgres_copy_smoke "$@"
+        ;;
+    postgres-release)
+        run_postgres_release "$@"
+        ;;
+    gtk-smoke)
+        run_gtk_smoke "$@"
+        ;;
+    gui-e2e)
+        run_gui_e2e "$@"
+        ;;
+    gui-regression)
+        run_gui_regression "$@"
+        ;;
+    gui-guided)
+        run_gui_guided "$@"
+        ;;
+    warnings)
+        run_warning_check "$@"
+        ;;
+    app|debug|pytest|pytest-debug|shell)
+        run_container "${command}" "$@"
+        ;;
+    run)
+        if [[ "${1:-}" == "--" ]]; then
+            shift
+        fi
+        if [[ $# -eq 0 ]]; then
+            usage
+            exit 2
+        fi
+        run_container shell "$@"
+        ;;
+    help|-h|--help)
+        usage
+        ;;
+    *)
+        usage
+        exit 2
+        ;;
+esac

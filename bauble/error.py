@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
@@ -20,32 +19,37 @@
 #
 # all bauble exceptions and errors
 #
+from typing import Any, Optional
 
 
 class BaubleError(Exception):
-    def __init__(self, msg=None):
+    msg: str
+
+    def __init__(self, msg: str = "") -> None:
         self.msg = msg
 
-    def __str__(self):
-        if self.msg is None:
-            return str(type(self).__name__)
+    def __str__(self) -> str:
+        if not self.msg:
+            return type(self).__name__
         else:
-            return '%s: %s' % (type(self).__name__, self.msg)
-        return self.msg
+            return f"{type(self).__name__}: {self.msg}"
 
 
 class CommitException(Exception):
 
-    def __init__(self, exc, row):
+    row: Any
+    exc: Exception
+
+    def __init__(self, exc: Exception, row: Any) -> None:
         self.row = row  # the model we were trying to commit
         self.exc = exc  # the exception thrown while committing
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.exc)
 
 
 class NoResultException(BaubleError):
-    ## use this exception if the caller should return None
+    # use this exception if the caller should return None
     pass
 
 
@@ -71,7 +75,9 @@ class RegistryError(DatabaseError):
 
 class VersionError(DatabaseError):
 
-    def __init__(self, version):
+    version: Any
+
+    def __init__(self, version: Any) -> None:
         super().__init__()
         self.version = version
 
@@ -84,7 +90,7 @@ class CheckConditionError(BaubleError):
     pass
 
 
-def check(condition, msg=None):
+def check(condition: bool, msg: str = "") -> None:
     """
     Check that condition is true.  If not then raise
     CheckConditionError(msg)

@@ -1,0 +1,59 @@
+{
+    "name": "Ghini Desktop",
+    "build": {
+        "dockerfile": "../Dockerfile.dev",
+        "context": ".."
+    },
+    "workspaceFolder": "/app",
+    "remoteUser": "ghini",
+    "containerUser": "ghini",
+    "updateRemoteUserUID": true,
+    "initializeCommand": "test -f .env || cp .env.example .env; if command -v xhost >/dev/null 2>&1 && [ -n \"$DISPLAY\" ]; then xhost +SI:localuser:$(id -un) >/dev/null || true; fi",
+    "runArgs": [
+        "--env-file",
+        "${localWorkspaceFolder}/.env",
+        "--env",
+        "DISPLAY=${localEnv:DISPLAY}",
+        "--env",
+        "NO_AT_BRIDGE=1",
+        "--publish",
+        "5678:5678",
+        "--volume",
+        "/tmp/.X11-unix:/tmp/.X11-unix:rw",
+        "--volume",
+        "${localEnv:HOME}/.bauble/3.1:/home/ghini/.bauble/3.1",
+        "--volume",
+        "${localEnv:HOME}/krb5:/krb5:ro",
+        "--volume",
+        "/usr/lib/dri:/usr/lib/dri:ro",
+        "--device",
+        "/dev/dri:/dev/dri"
+    ],
+    "containerEnv": {
+        "GHINI_MODE": "shell",
+        "HOME": "/home/ghini",
+        "USER": "ghini",
+        "LOGNAME": "ghini",
+        "PYTHONPATH": "/app"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/venv/ghini/bin/python",
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "python.testing.nosetestsEnabled": false,
+                "python.testing.pytestArgs": [
+                    "."
+                ],
+                "python.testing.autoTestDiscoverOnSaveEnabled": false
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.black-formatter",
+                "ms-python.isort"
+            ]
+        }
+    },
+    "postCreateCommand": "python -c \"import gi; gi.require_version('Gtk', '3.0'); from gi.repository import Gtk; import sqlalchemy; print('GTK', Gtk.get_major_version(), Gtk.get_minor_version()); print('SQLAlchemy', sqlalchemy.__version__)\""
+}

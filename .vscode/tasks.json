@@ -1,0 +1,95 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Docker: Build Dev Image",
+            "type": "shell",
+            "command": "scripts/docker-dev build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Run Ghini",
+            "type": "shell",
+            "command": "scripts/docker-dev app",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Debug Ghini",
+            "type": "shell",
+            "command": "scripts/docker-dev debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Run Pytest",
+            "type": "shell",
+            "command": "scripts/docker-dev pytest",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Run Warning-Gated Pytest",
+            "type": "shell",
+            "command": "scripts/docker-dev warnings",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Debug Pytest",
+            "type": "shell",
+            "command": "scripts/docker-dev pytest-debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Format Changed Python",
+            "type": "shell",
+            "command": "scripts/docker-dev format",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Check Changed Python",
+            "type": "shell",
+            "command": "scripts/docker-dev check",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Shell",
+            "type": "shell",
+            "command": "scripts/docker-dev shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

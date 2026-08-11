@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2012-2015 Mario Frasca <mario@anche.no>.
@@ -24,28 +23,35 @@
 # Description: have to name this module csv_ in order to avoid conflict
 # with the system csv module
 #
-
-
-import os
 import csv
-import traceback
-
 import logging
-logger = logging.getLogger(__name__)
+import os
+import traceback
+from collections.abc import Generator
+from gettext import gettext as _
+from inspect import signature
+from queue import Queue
+from typing import TYPE_CHECKING, Any, Optional, Type
 
-from gi.repository import Gtk
-
-from sqlalchemy import ColumnDefault, Boolean
-
-import bauble
 import bauble.db as db
-
-from bauble.error import BaubleError
-import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
+import bauble.utils as utils
 from bauble import pb_set_fraction
-from bauble import paths
+from bauble.error import BaubleError
+from bauble.gtkinit import GLib, Gtk
+from bauble.plugins.imex.csv_processor import CSVProcessor
+from bauble.plugins.imex.unicode_utils import UnicodeWriter
+
+from sqlalchemy import ColumnDefault, inspect
+from sqlalchemy.exc import IntegrityError
+
+from sqlalchemy.orm import configure_mappers, sessionmaker
+
+logger = logging.getLogger(__name__)
+QUOTE_STYLE: Any = csv.QUOTE_MINIMAL
+QUOTE_CHAR: str = '"'
+WRITE_IMPORT_SCHEMA_ENV = "GHINI_WRITE_IMPORT_SCHEMA"
 
 # TODO: i've also had a problem with bad insert statements, e.g. importing a
 # geography table after creating a new database and it doesn't use the
@@ -70,68 +76,199 @@ from bauble import paths
 
 # TODO: what happens when you export from one database type and try
 # and import into a different database, e.g. postgres->sqlite
+# bauble/plugins/imex/csv_.py
 
-QUOTE_STYLE = csv.QUOTE_MINIMAL
-QUOTE_CHAR = '"'
+from typing import Any, Dict, List
 
+import sqlalchemy as sa
 
-class UnicodeReader(object):
-
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        self.reader = csv.DictReader(f, dialect=dialect, **kwds)
-        self.encoding = encoding
-
-    def __next__(self):
-        row = next(self.reader)
-        t = {}
-        for k, v in row.items():
-            if len(v) == 0:
-                t[k] = None
-            else:
-                t[k] = utils.to_unicode(v, self.encoding)
-
-        return t
-
-    def __iter__(self):
-        return self
+# bauble/plugins/imex/csv_.py
 
 
-class UnicodeWriter(object):
+def write_import_schema_markdown(metadata, out_path: str = "IMPORT_SCHEMA.md") -> str:
+    """
+    Emit a Markdown file that documents expected CSV columns/types/NULL rules.
+    Safe for enum values that include None and other non-str entries.
+    """
+    schema = describe_metadata(metadata)
 
-    def __init__(self, f, fields=None, dialect=csv.excel, encoding="utf-8", **kwds):
-        self.writer = csv.writer(f, dialect=dialect, **kwds)
-        self.field_order = fields
-        self.encoding = encoding
+    def _s(v):
+        # stringify for markdown; handle None and callables nicely
+        if v is None:
+            return "None"
+        try:
+            return str(v)
+        except Exception:
+            return repr(v)
 
-    def writerow(self, row):
-        if isinstance(row, dict):
-            row = [row[k] for k in self.field_order]
-        t = [utils.to_unicode(s, self.encoding) for s in row]
-        self.writer.writerow(t)
+    def _pipe_escape(v: str) -> str:
+        # very light escaping so '|' in values doesn't break the table
+        return v.replace("|", r"\|")
 
-    def writerows(self, rows):
-        for row in rows:
-            self.writerow(row)
+    lines: list[str] = []
+    lines.append("# Ghini CSV Import Schema")
+    lines.append("")
+    lines.append("> Generated from SQLAlchemy metadata; reflects the source of truth.")
+    lines.append("")
+
+    for table, cols in schema.items():
+        lines.append(f"## Table `{table}`")
+        lines.append("")
+        lines.append(
+            "| Column | Type | Nullable | Default | PK | Unique | FK | Enum Values | empty_to_none | strict |"
+        )
+        lines.append("|---|---|:---:|---|:--:|:--:|---|---|:--:|:--:|")
+
+        for c in cols:
+            enum_vals = ""
+            if c.get("enum_values"):
+                # stringify each entry, including None
+                enum_vals = ", ".join(_s(x) for x in c["enum_values"])
+
+            row = [
+                f"`{c['name']}`",
+                _pipe_escape(_s(c["type"])),
+                "Yes" if c.get("nullable") else "No",
+                _pipe_escape(_s(c.get("default"))),
+                "✓" if c.get("primary_key") else "",
+                "✓" if c.get("unique") else "",
+                _pipe_escape(_s(c.get("foreign_key") or "")),
+                _pipe_escape(enum_vals),
+                (
+                    _s(c.get("enum_empty_to_none"))
+                    if c.get("enum_empty_to_none") is not None
+                    else ""
+                ),
+                _s(c.get("enum_strict")) if c.get("enum_strict") is not None else "",
+            ]
+            lines.append("| " + " | ".join(row) + " |")
+
+        lines.append("")
+        lines.append("> **CSV expectations**")
+        lines.append(
+            "> - Header row should include the column names you plan to supply."
+        )
+        lines.append(
+            "> - Missing headers fall back to Python-side defaults if defined; otherwise the column will be NULL (if allowed) or cause an error."
+        )
+        lines.append("> - Empty fields: see `Nullable` and Enum `empty_to_none` above.")
+        lines.append("")
+
+        # quick hint for likely problem columns
+        nonnullable_text = [
+            c["name"]
+            for c in cols
+            if not c.get("nullable") and c.get("type") in ("Unicode", "String", "Text")
+        ]
+        if nonnullable_text:
+            lines.append(
+                "> **Non-nullable text columns** that must be provided (or coerced to ''):"
+            )
+            lines.append("> " + ", ".join(f"`{n}`" for n in nonnullable_text))
+            lines.append("")
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    logger.info("Wrote import schema doc to %s", out_path)
+    return out_path
 
 
-class Importer(object):
+def should_write_import_schema() -> bool:
+    return os.environ.get(WRITE_IMPORT_SCHEMA_ENV, "").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
 
-    def start(self, **kwargs):
-        '''
+
+def describe_metadata(metadata) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Build a structured description of the DB schema from SQLAlchemy MetaData.
+    Returns:
+      {table_name: [
+         {name, type, nullable, default, primary_key, unique, foreign_key, enum_values, enum_empty_to_none, enum_strict}
+      ]}
+    """
+    schema: Dict[str, List[Dict[str, Any]]] = {}
+    for table in metadata.sorted_tables:
+        cols = []
+        for col in table.c:
+            info: Dict[str, Any] = {
+                "name": col.name,
+                "type": type(col.type).__name__,
+                "nullable": col.nullable,
+                "primary_key": col.primary_key,
+                "unique": bool(col.unique),
+                "default": None,
+                "foreign_key": None,
+                "enum_values": None,
+                "enum_empty_to_none": None,
+                "enum_strict": None,
+            }
+            # default (Python-side)
+            if col.default is not None:
+                try:
+                    from sqlalchemy import ColumnDefault
+
+                    if isinstance(col.default, ColumnDefault):
+                        info["default"] = getattr(
+                            col.default.arg, "__name__", col.default.arg
+                        )
+                    else:
+                        info["default"] = col.default
+                except Exception:
+                    info["default"] = str(col.default)
+
+            # foreign key (first one, if any)
+            if col.foreign_keys:
+                fk = next(iter(col.foreign_keys))
+                info["foreign_key"] = f"{fk.column.table.name}.{fk.column.name}"
+
+            if TYPE_CHECKING:
+                from bauble.btypes import Enum
+
+            BaubleEnum: "Optional[Type[Enum]]"
+            # Enums (SQLAlchemy or Bauble)
+            try:
+                from bauble.btypes import Enum as BaubleEnum
+            except Exception:
+                BaubleEnum = None
+
+            if isinstance(col.type, sa.Enum):
+                info["enum_values"] = list(getattr(col.type, "enums", []) or [])
+            elif BaubleEnum and isinstance(col.type, BaubleEnum):
+                info["enum_values"] = list(getattr(col.type, "values", []) or [])
+                info["enum_empty_to_none"] = getattr(col.type, "empty_to_none", None)
+                info["enum_strict"] = getattr(col.type, "strict", None)
+
+            cols.append(info)
+        schema[table.name] = cols
+    return schema
+
+
+class Importer:
+    def on_error(self, exc) -> None:
+        """Handle import errors that are not otherwise surfaced."""
+        return None
+
+    def start(self, *args, **kwargs):
+        """
         start the import process, this is a non blocking method, queue the
         process as a bauble task
-        '''
-        return bauble.task.queue(self.run, **kwargs)
+        """
+        gen = self.run(*args, **kwargs)
 
-    def run(self, **kwargs):
-        '''
+        return bauble.task.queue(gen)
+
+    def run(self, **kwargs) -> None:
+        """
         where all the action happens
-        '''
+        """
         raise NotImplementedError
 
 
 class CSVImporter(Importer):
-
     """imports comma separated value files into a Ghini database.
 
     It imports multiple files, each of them equally named as the bauble
@@ -148,84 +285,303 @@ class CSVImporter(Importer):
 
     """
 
-    def __init__(self):
-        super().__init__()
-        self.__error = False   # flag to indicate error on import
-        self.__cancel = False  # flag to cancel importing
-        self.__pause = False   # flag to pause importing
-        self.__error_exc = False
+    __error: bool
+    __cancel: bool
+    __pause: bool
+    __error_exc: bool
+    q: Any
+    job_done: Any
+    flush_count: int
+    steps_so_far: int
 
-    def start(self, filenames=None, metadata=None, force=False):
-        '''start the import process. this is a non blocking method: we queue
+    def __init__(self) -> None:
+        super().__init__()
+        self.__error = False  # flag to indicate error on import
+        self.__cancel = False  # flag to cancel importing
+        self.__pause = False  # flag to pause importing
+        self.__error_exc = False
+        self.q = Queue()  # Producer-Consumer Queue
+        self.job_done = object()  # Sentinel for completion
+        self.flush_count = 0
+
+    def start(
+        self,
+        filenames: Optional[Any] = None,
+        metadata: Optional[Any] = None,
+        force: bool = False,
+    ) -> None:
+        """start the import process. this is a non blocking method: we queue
         the process as a bauble task. there is no callback informing whether
         it is successfully completed or not.
 
-        '''
+        """
         if metadata is None:
             metadata = db.metadata  # use the default metadata
+            configure_mappers()
 
         if filenames is None:
             filenames = self._get_filenames()
         if filenames is None:
             return
 
-        bauble.task.queue(self.run(filenames, metadata, force))
+        super().start(filenames, metadata, force)
+
+    def _map_filenames_to_tables(self, filenames):
+        """
+        Create a mapping of table names to filenames.
+
+        - Ensures that each table has only one corresponding file.
+        - Displays an error if multiple files map to the same table.
+        - Displays a warning if filenames do not match any known table.
+
+        :param filenames: List of file paths.
+        :return: Dictionary mapping table names to file paths.
+        :raises ValueError: If there are duplicate filenames for a table.
+        """
+        filename_dict = {}
+
+        # Extract table names from filenames
+        for f in filenames:
+            path, base = os.path.split(f)
+            table_name, ext = os.path.splitext(base)
+
+            if table_name in filename_dict:
+                # Show an error message before raising an exception
+                safe = utils.xml_safe
+                values = {
+                    "table_name": safe(table_name),
+                    "file_name": safe(filename_dict[table_name]),
+                    "file_name2": safe(f),
+                }
+                msg = (
+                    _(
+                        "More than one file given to import into table "
+                        "<b>%(table_name)s</b>: %(file_name)s, %(file_name2)s"
+                    )
+                    % values
+                )
+
+                raise ValueError(msg)
+
+            filename_dict[table_name] = f
+
+        return filename_dict  # No sorting, since `run` already does it
+
+    def _calculate_total_lines(self, filenames):
+        """
+        Calculate the total number of lines across all files and their individual sizes.
+
+        :param filenames: List of file paths.
+        :return: Tuple (total_lines, filesizes)
+                 - total_lines: Total number of lines across all files.
+                 - filesizes: Dictionary mapping filenames to line counts.
+        :raises OSError: If a file cannot be read.
+        """
+        total_lines = 0
+        filesizes = {}
+        for filename in filenames:
+            try:
+                with open(filename) as file:
+                    nlines = len(file.readlines())
+                    filesizes[filename] = nlines
+                    total_lines += nlines
+            except OSError as e:
+                raise OSError(_("Failed to read file: %s") % filename) from e
+        return total_lines, filesizes
+
+    def _handle_dependencies(self, sorted_tables, metadata, session, force):
+        """
+        Handle dependencies for the tables to be imported.
+        Drops dependent tables if necessary.
+
+        :param sorted_tables: List of (table, filename) tuples sorted by dependency.
+        :param metadata: SQLAlchemy metadata object.
+        :param session: SQLAlchemy session object.
+        :param force: Boolean indicating whether to force dropping tables.
+        :return: Set of dependent tables.
+        :raises ValueError: If user declines to drop required tables.
+        """
+        depends = set()
+        for table, _unused_var in sorted_tables:
+            if self.__cancel or self.__error:
+                break
+            logger.debug(f"Get dependencies for table {table.name}")
+            dependent_tables = utils.find_dependent_tables(table)
+            logger.debug(
+                f"Dependencies for {table.name}: {', '.join([t.name for t in dependent_tables])}"
+            )
+            depends.update(dependent_tables)
+
+        if depends:
+            response = True
+            dependent_table_names = ", ".join(sorted([t.name for t in depends]))
+            if not force:
+                msg = (
+                    _(
+                        "In order to import the files, the following "
+                        "tables will be dropped:\n\n<b>%s</b>\n\n"
+                        "Would you like to continue?"
+                    )
+                    % dependent_table_names
+                )
+                force = response = utils.yes_no_dialog(msg)
+
+            if not response:
+                raise ValueError(_("Operation canceled by user."))
+
+            try:
+                logger.debug(f"Dropping tables: {dependent_table_names}")
+                configure_mappers()
+                # Drop all dependent tables, ensuring proper order
+                sorted_depends = [t for t in metadata.sorted_tables if t in depends]
+                metadata.drop_all(bind=session.connection(), tables=sorted_depends)
+
+                logger.debug("Successfully dropped dependent tables.")
+            except Exception as e:
+                logger.error(f"Failed to drop dependent tables: {e}")
+                raise
+
+        return depends
 
     @staticmethod
-    def _toposort_file(filename, key_pairs):
+    def _precompute_defaults(table):
         """
-        filename: the csv file to sort
-
-        key_pairs: tuples of the form (parent, child) where for each
-        line in the file the line[parent] needs to be sorted before
-        any of the line[child].  parent is usually the name of the
-        foreign_key column and child is usually the column that the
-        foreign key points to, e.g ('parent_id', 'id')
+        Precompute only constants or zero-arg callables.
+        Context-dependent defaults are left for SQLAlchemy to handle
+        (by omitting the column in the row dict).
         """
-        f = open(filename, 'r')
-        reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
-                               quoting=QUOTE_STYLE)
+        defaults = {}
+        for column in table.c:
+            coldef = column.default
+            if not coldef or not isinstance(coldef, ColumnDefault):
+                continue
 
-        # create a dictionary of the lines mapped to the child field
-        bychild = {}
-        for line in reader:
-            for parent, child in key_pairs:
-                bychild[line[child]] = line
-        f.close()
-        fields = reader.reader.fieldnames
-        del reader
+            arg = coldef.arg
 
-        # create pairs from the values in the lines where pair[0]
-        # should come before pair[1] when the lines are sorted
-        pairs = []
-        for line in list(bychild.values()):
-            for parent, child in key_pairs:
-                if line[parent] and line[child]:
-                    pairs.append((line[parent], line[child]))
+            # Literal constant default
+            if not callable(arg):
+                defaults[column.name] = arg
+                continue
 
-        # sort the keys and flatten the lines back into a list
-        sorted_keys = utils.topological_sort(list(bychild.keys()), pairs)
-        sorted_lines = []
-        for key in sorted_keys:
-            sorted_lines.append(bychild[key])
+            # Callable default: only keep it if it’s invocable with zero args.
+            # Some builtins (like datetime.utcnow) have no inspectable signature,
+            # so just try calling with no args and detect TypeError.
+            try:
+                defaults[column.name] = arg()
+            except TypeError:
+                # requires ctx or args → skip; let SA apply it at INSERT time
+                continue
+            except Exception:
+                # anything else weird → skip to be safe
+                continue
 
-        # write a temporary file of the sorted lines
-        import tempfile
-        tmppath = tempfile.mkdtemp()
-        head, tail = os.path.split(filename)
-        filename = os.path.join(tmppath, tail)
-        tmpfile = open(filename, 'w')
-        tmpfile.write('%s\n' % ','.join(fields))
-        writer = UnicodeWriter(tmpfile, fields=fields, quotechar=QUOTE_CHAR,
-                                quoting=QUOTE_STYLE)
-        writer.writerows(sorted_lines)
-        tmpfile.flush()
-        tmpfile.close()
-        del writer
-        return filename
+        return defaults
 
-    def run(self, filenames, metadata, force=False):
-        '''
+    def _prepare_table(
+        self, table, filename, filesizes, created_tables, depends, session, force
+    ):
+        """
+        Handle table creation and management of empty files.
+
+        :param table: Table object to prepare.
+        :param filename: The CSV file corresponding to the table.
+        :param filesizes: Dictionary of file sizes.
+        :param created_tables: List of already created tables.
+        :param depends: Set of dependent tables.
+        :param session: SQLAlchemy session.
+        :param force: Whether to force table recreation.
+        :return: Boolean indicating if the table is ready for import.
+        """
+        # Check for cancellation or error before proceeding
+        if self.__cancel or self.__error:
+            return False
+
+        # don't do anything if the file is empty:
+        bind = session.connection()
+
+        if filesizes[filename] <= 1:  # Handle empty files
+            if table.name not in inspect(bind).get_table_names():
+                self._create_table(table, session, created_tables)
+            return False
+
+        # check if the table was in the depends because they
+        # could have been dropped whereas table.exists() can
+        # return true for a dropped table if the transaction
+        # hasn't been committed
+        if table in depends or table.name not in inspect(bind).get_table_names():
+            logger.info(f"{table.name} does not exist. creating.")
+            self._create_table(table, session, created_tables)
+        elif table.name not in created_tables and table not in depends:
+            # we get here if the table wasn't previously
+            # dropped because it was a dependency of another
+            # table
+            if not force:
+                msg = (
+                    _(
+                        "The <b>%s</b> table already exists in the "
+                        "database and may contain some data. If a "
+                        "row the import file has the same id as a "
+                        "row in the database then the file will not "
+                        "import correctly.\n\n<i>Would you like to "
+                        "drop the table in the database first. You "
+                        "will lose the data in your database if you "
+                        "do this?</i>"
+                    )
+                    % table.name
+                )
+                if not utils.yes_no_dialog(msg):
+                    return False
+            table.drop(bind=bind)
+            self._create_table(table, session, created_tables)
+        return True
+
+    def _create_table(self, table, session, created_tables) -> None:
+        """
+        Create a table using the session's bind.
+
+        :param table: Table to create.
+        :param session: SQLAlchemy session.
+        :param created_tables: List of created tables.
+        """
+        configure_mappers()
+        bind = session.connection()
+        #        print(str(table.compile(bind=bind)))
+        #        print([fk.column for fk in table.foreign_keys])
+        table.create(bind=bind)
+        if table.name not in created_tables:
+            created_tables.append(table.name)
+
+    # Ensure this is set up in your database initialization code
+    Session: Any = sessionmaker(bind=db.engine, future=True)
+
+    # Instead of recreating all tables, check for and create only missing ones
+    def create_missing_tables(self, metadata, session) -> None:
+        """
+        Create missing tables in the correct order, respecting dependencies.
+
+        :param metadata: SQLAlchemy metadata object.
+        :param session: SQLAlchemy session object.
+        """
+        # Inspect existing tables
+        bind = session.connection()
+        inspector = inspect(bind)
+        existing_tables = set(inspector.get_table_names())
+
+        # Ensure tables are created in dependency order
+        for table in metadata.sorted_tables:
+            if table.name not in existing_tables:
+                logger.info(f"Creating missing table: {table.name}")
+                try:
+                    table.create(bind=bind)
+                    existing_tables.add(table.name)
+                except Exception as e:
+                    logger.error(f"Error creating table {table.name}: {e}")
+                    raise
+
+    def run(
+        self, filenames, metadata, force: bool = False, _ctx=None
+    ) -> Generator[None, None, None]:
+        """
         A generator method for importing filenames into the database.
         This method periodically yields control so that the GUI can
         update.
@@ -233,308 +589,284 @@ class CSVImporter(Importer):
         :param filenames:
         :param metadata:
         :param force: default=False
-        '''
-        transaction = None
-        connection = None
-        self.__error_exc = BaubleError(_('Unknown Error.'))
+        """
+        import logging
+
+        logging.basicConfig()
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+        self.flush_count = 0
+
+        self.__error_exc = BaubleError(_("Unknown Error."))
+        import_session = sessionmaker(bind=db.engine, autoflush=False, future=True)
 
         try:
-            # user a contextual connect in case whoever called this
-            # method called it inside a transaction then we can pick
-            # up the parent connection and the transaction
-            connection = metadata.bind.connect()
-            transaction = connection.begin()
-        except Exception as e:
-            msg = _('Error connecting to database.\n\n%s') % \
-                utils.xml_safe(e)
-            utils.message_dialog(msg, Gtk.MessageType.ERROR)
-            return
+            # Create a new session bound to the database engine
+            with import_session() as session:
+                with session.begin():
 
-        # create a mapping of table names to filenames
-        filename_dict = {}
-        for f in filenames:
-            path, base = os.path.split(f)
-            table_name, ext = os.path.splitext(base)
-            if table_name in filename_dict:
-                safe = utils.xml_safe
-                values = dict(table_name=safe(table_name),
-                              file_name=safe(filename_dict[table_name]),
-                              file_name2=safe(f))
-                msg = _('More than one file given to import into table '
-                        '<b>%(table_name)s</b>: %(file_name)s, '
-                        '(file_name2)s') % values
-                utils.message_dialog(msg, Gtk.MessageType.ERROR)
-                return
-            filename_dict[table_name] = f
+                    configure_mappers()  # Ensure mappers are configured
 
-        # resolve filenames to table names and return them in sorted order
-        sorted_tables = []
-        for table in metadata.sorted_tables:
-            try:
-                sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
-            except KeyError as e:
-                # table.name not in list of filenames
-                pass
+                    # Map filenames to table names
+                    try:
+                        filename_dict = self._map_filenames_to_tables(filenames)
+                    except ValueError as e:
+                        utils.message_dialog(e, Gtk.MessageType.ERROR)
+                        return
 
-        if len(filename_dict) > 0:
-            msg = _('Could not match all filenames to table names.\n\n%s') \
-                % filename_dict
-            utils.message_dialog(msg, Gtk.MessageType.ERROR)
-            return
+                    # resolve filenames to table names and return them in sorted order
+                    sorted_tables = []
+                    for table in metadata.sorted_tables:
+                        try:
+                            sorted_tables.insert(
+                                0, (table, filename_dict.pop(table.name))
+                            )
+                        except KeyError:
+                            # table.name not in list of filenames
+                            pass
 
-        total_lines = 0
-        filesizes = {}
-        for filename in filenames:
-            #get the total number of lines for all the files
-            nlines = len(open(filename).readlines())
-            filesizes[filename] = nlines
-            total_lines += nlines
+                    if should_write_import_schema():
+                        try:
+                            write_import_schema_markdown(metadata)
+                        except Exception as _e:
+                            logger.debug("Could not write IMPORT_SCHEMA.md: %s", _e)
 
-        created_tables = []
+                    if len(filename_dict) > 0:
+                        msg = (
+                            _("Could not match all filenames to table names.\n\n%s")
+                            % filename_dict
+                        )
+                        utils.message_dialog(msg, Gtk.MessageType.ERROR)
+                        return
 
-        def create_table(table):
-            table.create(bind=connection)
-            if table.name not in created_tables:
-                created_tables.append(table.name)
+                    # Calculate total lines and filesizes
+                    try:
+                        total_lines, filesizes = self._calculate_total_lines(filenames)
+                    except OSError as e:
+                        msg = _("Error reading files.\n\n%s") % utils.xml_safe(e)
+                        utils.message_dialog(msg, Gtk.MessageType.ERROR)
+                        return
 
-        steps_so_far = 0
-        cleaned = None
-        insert = None
-        depends = set()  # the type will be changed to a [] later
-        try:
-            ## get all the dependencies
-            for table, filename in sorted_tables:
-                logger.debug(table.name)
-                d = utils.find_dependent_tables(table)
-                depends.update(list(d))
-                del d
+                    created_tables = []
 
-            ## drop all of the dependencies together
-            if len(depends) > 0:
-                if not force:
-                    msg = _('In order to import the files the following '
-                            'tables will be dropped:'
-                            '\n\n<b>%s</b>\n\n'
-                            'Would you like to continue?') % \
-                        ', '.join(sorted([d.name for d in depends]))
-                    force = response = utils.yes_no_dialog(msg)
-                else:
-                    response = True
+                    self.steps_so_far = 0
 
-                if response and len(depends) > 0:
-                    logger.debug('dropping: %s'
-                                 % ', '.join([d.name for d in depends]))
-                    metadata.drop_all(bind=connection, tables=depends)
-                else:
-                    # user doesn't want to drop dependencies so we just quit
-                    return
-
-            # commit the dependency drops
-            transaction.commit()
-            transaction = connection.begin()
-
-            # update_every determines how many rows we will insert at
-            # a time and consequently how often we update the gui
-            update_every = 127
+                    # Fetch and handle dependencies
+                    try:
+                        depends = self._handle_dependencies(
+                            sorted_tables, metadata, session, force
+                        )
+                    except ValueError as e:
+                        utils.message_dialog(str(e), Gtk.MessageType.ERROR)
+                        return
+            # Phase 2: import each file/table
+            # NOTE: progress bar math is done here, mimicking the old 'do_insert()' path.
+            processed = 0  # lines processed across all files (for progress numerator)
+            # Old flow counted headers in total_lines; keep that for identical behavior.
+            effective_total = max(total_lines, 1)
 
             # import the tables one at a time, breaking every so often
             # so the GUI can update
             for table, filename in reversed(sorted_tables):
                 if self.__cancel or self.__error:
                     break
-                msg = _('importing %(table)s table from %(filename)s') \
-                    % {'table': table.name, 'filename': filename}
+
+                msg = _("importing %(table)s table from %(filename)s") % {
+                    "table": table.name,
+                    "filename": filename,
+                }
                 logger.info(msg)
                 bauble.task.set_message(msg)
                 yield  # allow progress bar update
 
-                # don't do anything if the file is empty:
-                if filesizes[filename] <= 1:
-                    if not table.exists():
-                        create_table(table)
-                    continue
-                # check if the table was in the depends because they
-                # could have been dropped whereas table.exists() can
-                # return true for a dropped table if the transaction
-                # hasn't been committed
-                if table in depends or not table.exists():
-                    logger.info('%s does not exist. creating.' % table.name)
-                    logger.debug('%s does not exist. creating.' % table.name)
-                    create_table(table)
-                elif table.name not in created_tables and table not in depends:
-                    # we get here if the table wasn't previously
-                    # dropped because it was a dependency of another
-                    # table
-                    if not force:
-                        msg = _('The <b>%s</b> table already exists in the '
-                                'database and may contain some data. If a '
-                                'row the import file has the same id as a '
-                                'row in the database then the file will not '
-                                'import correctly.\n\n<i>Would you like to '
-                                'drop the table in the database first. You '
-                                'will lose the data in your database if you '
-                                'do this?</i>') % table.name
-                        response = utils.yes_no_dialog(msg)
-                    else:
-                        response = True
-                    if response:
-                        table.drop(bind=connection)
-                        create_table(table)
+                with import_session() as session:
+                    try:
 
-                if self.__cancel or self.__error:
-                    break
+                        # Prepare the table and file
+                        if not self._prepare_table(
+                            table,
+                            filename,
+                            filesizes,
+                            created_tables,
+                            depends,
+                            session,
+                            force,
+                        ):
+                            continue
 
-                # commit the drop of the table we're importing
-                transaction.commit()
-                transaction = connection.begin()
+                        # precompute the defaults...this assumes that the
+                        # default function doesn't depend on state after each
+                        # row...it shouldn't anyways since we do an insert
+                        # many instead of each row at a time
+                        # Precompute the defaults for the table
+                        defaults = self._precompute_defaults(table)
 
-                # open a temporary reader to get the column keys so we
-                # can later precompile our insert statement
-                f = open(filename, "r")
-                tmp = UnicodeReader(f, quotechar=QUOTE_CHAR,
-                                    quoting=QUOTE_STYLE)
-                next(tmp)
-                csv_columns = set(tmp.reader.fieldnames)
-                del tmp
-                f.close()
+                        # update_every determines how many rows we will insert at
+                        # a time and consequently how often we update the gui
+                        processor = CSVProcessor(
+                            table,
+                            filename,
+                            defaults,
+                            update_every=127,
+                            flush_count=self.flush_count,
+                            steps_so_far=self.steps_so_far,
+                            session=session,
+                            use_thread=False,
+                        )
 
-                # precompute the defaults...this assumes that the
-                # default function doesn't depend on state after each
-                # row...it shouldn't anyways since we do an insert
-                # many instead of each row at a time
-                defaults = {}
-                for column in table.c:
-                    if isinstance(column.default, ColumnDefault):
-                        defaults[column.name] = column.default.execute()
-                column_names = list(table.c.keys())
+                        from bauble.plugins.imex.csv_processor import (
+                            preflight_csv as preflight_csv,
+                        )
 
-                # check if there are any foreign keys to on the table
-                # that refer to itself, if so create a new file with
-                # the lines sorted in order of dependency so that we
-                # don't get errors about importing values into a
-                # foreign_key that don't reference and existin row
-                self_keys = [f for f in table.foreign_keys if f.column.table == table]
-                if self_keys:
-                    key_pairs = [(x.parent.name, x.column.name) for x in self_keys]
-                    filename = self._toposort_file(filename, key_pairs)
+                        issues = preflight_csv(filename, table)
+                        if (
+                            issues["missing_headers"]
+                            or issues["empty_required_cells"]
+                            or issues["enum_violations"]
+                        ):
+                            # Log or show a dialog with a concise summary
+                            logger.warning("Preflight for %s: %r", table.name, issues)
+                            # Optionally abort early to let the user decide how to handle '' vs NULL
 
-                # the column keys for the insert are a union of the
-                # columns in the CSV file and the columns with
-                # defaults
-                column_keys = list(csv_columns.union(list(defaults.keys())))
-                insert = table.insert(bind=connection).\
-                    compile(column_keys=column_keys)
+                        # Prepare the file for import and get column keys
+                        processor.prepare_file()
 
-                values = []
+                        processed_in_file = 0
+                        last_steps = 0
+                        for steps in processor.process_rows():
+                            # CSVProcessor yields a cumulative "steps so far" for THIS FILE.
+                            delta = max(steps - last_steps, 0)
+                            last_steps = steps
 
-                def do_insert():
-                    if values:
-                        connection.execute(insert, *values)
-                    del values[:]
-                    percent = float(steps_so_far)/float(total_lines)
-                    if 0 < percent < 1.0:
-                        pb_set_fraction(percent)
+                            processed += delta
 
-                isempty = lambda v: v in ('', None)
+                            # Keep progress strictly < 1.0 until the very end (old behavior).
+                            frac = processed / effective_total
+                            GLib.idle_add(pb_set_fraction, min(frac, 0.999))
 
-                f = open(filename, "r")
-                reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
-                                       quoting=QUOTE_STYLE)
-                # NOTE: we shouldn't get this far if the file doesn't
-                # have any rows to import but if so there is a chance
-                # that this loop could cause problems
-                for line in reader:
-                    while self.__pause:
-                        yield
-                    if self.__cancel or self.__error:
-                        break
+                            yield
 
-                    # fill in default values and None for "empty"
-                    # columns in line
-                    for column in list(table.c.keys()):
-                        if column in defaults \
-                                and (column not in line
-                                     or isempty(line[column])):
-                            line[column] = defaults[column]
-                        elif column in line and isempty(line[column]):
-                            line[column] = None
-                        elif column in line and line[column] == 'False' and \
-                                isinstance(table.c[column].type, Boolean):
-                            # need bool value, not 'False' string
-                            line[column] = False
-                        elif column in line and line[column] == 'True' and \
-                                isinstance(table.c[column].type, Boolean):
-                            # need bool value, not 'True' string
-                            line[column] = True
-                            # in SA 0.5.5 and only on an SQLite
-                            # database the 'False' will import as True
-                            # for some reason whereas True will import
-                            # as True automatically...probably because
-                            # bool('False') == True
-                    values.append(line)
-                    steps_so_far += 1
-                    if steps_so_far % update_every == 0:
-                        do_insert()
-                        yield
+                        # Count rows in the table
+                        # row_count = session.execute(sa.select(func.count()).select_from(table)).scalar_one()
+                        # logger.debug(f"{table.name}: {row_count}")
 
-                if self.__error or self.__cancel:
-                    break
+                        # we have commit after create after each table is imported
+                        # or Postgres will complain if two tables that are
+                        # being imported have a foreign key relationship.
+                        # The commit/rollback is handled automatically when we leave the
+                        # 'with' block.
 
-                # insert the remainder that were less than update every
-                do_insert()
+                        # Important: Cleanup after processing each table
+                        processor.cleanup()
+                        # Surface any insert error captured in the processor (covers sync mode too)
+                        if getattr(processor, "worker_error", None) is not None:
+                            raise RuntimeError(
+                                f"Insert failed for table {table.name}"
+                            ) from processor.worker_error
 
-                # we have commit after create after each table is imported
-                # or Postgres will complain if two tables that are
-                # being imported have a foreign key relationship
-                transaction.commit()
-                logger.debug('%s: %s' % (
-                    table.name,
-                    table.select().alias().count().execute().fetchone()[0]))
-                transaction = connection.begin()
+                        try:
+                            import sqlalchemy as sa
 
-            logger.debug('creating: %s' % ', '.join([d.name for d in depends]))
-            # TODO: need to get those tables from depends that need to
-            # be created but weren't created already
-            metadata.create_all(connection, depends, checkfirst=True)
-        except GeneratorExit as e:
-            transaction.rollback()
-            raise
+                            rc = session.execute(
+                                sa.select(sa.func.count()).select_from(table)
+                            ).scalar_one()
+                            logger.info("Imported %s rows into %s", rc, table.name)
+                        except Exception:
+                            logger.debug("Could not count rows for %s", table.name)
+
+                        session.commit()
+                        logger.info(f"Successfully imported table: {table.name}")
+
+                    except IntegrityError as e:
+                        logger.error(f"Constraint violation in table {table.name}: {e}")
+                        if session.in_transaction():
+                            session.rollback()  # Rollback to prevent partial imports
+                        self.on_error(e)
+                        utils.message_dialog(
+                            _("Data import failed due to integrity constraints."),
+                            Gtk.MessageType.ERROR,
+                        )
+                        self.__error = True
+                        return
+                    except Exception as e:
+                        logger.error(f"Error processing table {table.name}: {e}")
+                        if session.in_transaction():
+                            session.rollback()
+                        raise
+
+                    # Update the GUI
+                    self._update_gui()
+
+            with import_session() as session:
+
+                # TODO: need to get those tables from depends that need to
+                # be created but weren't created already
+                # Ensure only missing tables are created
+                self.create_missing_tables(metadata, session)
+                session.commit()
+
+                # Reset sequences
+                self._reset_sequences(sorted_tables)
+
+                # Update the GUI
+                self._update_gui()
+
+            # Finally set the bar to 100%.
+            GLib.idle_add(pb_set_fraction, 1.0)
         except Exception as e:
+            msg = _("Error during import process.\n\n%s") % utils.xml_safe(e)
+            self.on_error(e)
+            utils.message_dialog(msg, Gtk.MessageType.ERROR)
+
             logger.error(e)
             logger.error(traceback.format_exc())
-            transaction.rollback()
             self.__error = True
             self.__error_exc = e
             raise
-        else:
-            transaction.commit()
 
+    def _reset_sequences(self, sorted_tables) -> None:
+        """
+        Reset database sequences for all columns in the given tables.
+
+        :param sorted_tables: List of (table, filename) tuples.
+        """
         # unfortunately inserting an explicit value into a column that
         # has a sequence doesn't update the sequence, we shortcut this
         # by setting the sequence manually to the max(column)+1
-        col = None
         try:
-            for table, filename in sorted_tables:
-                for col in table.c:
-                    utils.reset_sequence(col)
-        except Exception as e:
-            col_name = None
-            try:
-                col_name = col.name
-            except Exception:
-                pass
-            msg = _('Error: Could not set the sequence for column: %s') \
-                % col_name
-            utils.message_details_dialog(utils.xml_safe(msg),
-                                         traceback.format_exc(),
-                                         type=Gtk.MessageType.ERROR)
+            for table, _unused_var in sorted_tables:
+                for column in table.c:
+                    try:
+                        utils.reset_sequence(column)
+                    except Exception as e:
+                        logger.error(
+                            f"Failed to reset sequence for column {column.name} in table {table.name}: {e}"
+                        )
+                        raise
+        except Exception:
+            col_name = column.name if "column" in locals() else "Unknown"
+            msg = _("Error: Could not set the sequence for column: %s") % col_name
+            logger.error(msg)
+            logger.debug(traceback.format_exc())
+            utils.message_details_dialog(
+                utils.xml_safe(msg),
+                traceback.format_exc(),
+                type=Gtk.MessageType.ERROR,
+            )
 
-        # no callback, so we better update the interface here
+    def _update_gui(self) -> None:
+        """
+        Update the GUI after processing.
+        Logs an error if the update fails.
+        """
         try:
             from bauble import gui
-            gui.get_view().update()
-        except:
-            pass
+
+            if gui is not None:
+                gui.get_view().update()
+        except ImportError as e:
+            logger.warning(f"GUI module import failed: {e}")
+        except Exception as e:
+            logger.error(f"Failed to update GUI: {e}")
 
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
@@ -546,11 +878,18 @@ class CSVImporter(Importer):
                 return
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
-        fc = Gtk.FileChooserDialog(_("Choose file(s) to import…"),
-                                   None,
-                                   Gtk.FileChooserAction.OPEN,
-                                   (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
-                                    Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT))
+
+        fc = Gtk.FileChooserDialog(
+            _("Choose file(s) to import…"),
+            self,
+            Gtk.FileChooserAction.OPEN,
+            (
+                Gtk.STOCK_OK,
+                Gtk.ResponseType.ACCEPT,
+                Gtk.STOCK_CANCEL,
+                Gtk.ResponseType.REJECT,
+            ),
+        )
         fc.set_select_multiple(True)
         fc.connect("selection-changed", on_selection_changed)
         filenames = None
@@ -559,21 +898,43 @@ class CSVImporter(Importer):
         fc.destroy()
         return filenames
 
-    def on_response(self, widget, response, data=None):
-        logger.debug('on_response')
+    def on_response(self, widget, response, data: Optional[Any] = None) -> None:
+        logger.debug("on_response")
         logger.debug(response)
 
 
-# TODO: add support for exporting only specific tables
+from contextlib import contextmanager
 
-class CSVExporter(object):
+from sqlalchemy import select
 
-    def start(self, path=None):
+
+@contextmanager
+def open_file_safe(filename, mode: str = "w") -> Generator[Any, None, None]:
+    """Context manager for opening a file safely."""
+    try:
+        f = open(filename, mode)
+        yield f
+    finally:
+        f.close()
+
+
+class CSVExporter:
+
+    steps_so_far: int
+
+    def start(self, path: Optional[Any] = None) -> None:
         if path is None:
-            d = Gtk.FileChooserDialog(_("Select a directory"), None,
-                                      Gtk.FileChooserAction.SELECT_FOLDER,
-                                      (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
-                                       Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+            d = Gtk.FileChooserDialog(
+                _("Select a directory"),
+                self,
+                Gtk.FileChooserAction.SELECT_FOLDER,
+                (
+                    Gtk.STOCK_OK,
+                    Gtk.ResponseType.ACCEPT,
+                    Gtk.STOCK_CANCEL,
+                    Gtk.ResponseType.CANCEL,
+                ),
+            )
             response = d.run()
             path = d.get_filename()
             d.destroy()
@@ -588,54 +949,63 @@ class CSVExporter(object):
             # besides db.metadata
             bauble.task.queue(self.__export_task(path))
         except Exception as e:
-            logger.debug(e)
+            logger.debug(f"{type(e).__name__}({e})")
 
-    def __export_task(self, path):
+    def __export_task(self, path) -> Generator[None, None, Any]:
         filename_template = os.path.join(path, "%s.txt")
-        steps_so_far = 0
+        self.session = sessionmaker(bind=db.engine, autoflush=False, future=True)()
+        self.steps_so_far = 0
         ntables = 0
+
+        # Count the number of tables
         for table in db.metadata.sorted_tables:
             ntables += 1
             filename = filename_template % table.name
             if os.path.exists(filename):
-                msg = _('Export file <b>%(filename)s</b> for '
-                        '<b>%(table)s</b> table already exists.\n\n<i>Would '
-                        'you like to continue?</i>')\
-                    % {'filename': filename, 'table': table.name}
+                msg = _(
+                    "Export file <b>%(filename)s</b> for "
+                    "<b>%(table)s</b> table already exists.\n\n<i>Would "
+                    "you like to continue?</i>"
+                ) % {"filename": filename, "table": table.name}
                 if not utils.yes_no_dialog(msg):  # if NO: return
                     return
 
         def replace(s):
+            if s is None:
+                return ""
             if isinstance(s, str):
-                s.replace('\n', '\\n')
+                return s.replace("\n", "\\n")
             return s
 
         def write_csv(filename, rows):
-            f = open(filename, 'w')
-            writer = UnicodeWriter(f, quotechar=QUOTE_CHAR,
-                                   quoting=QUOTE_STYLE)
-            writer.writerows(rows)
-            f.close()
+            with open_file_safe(filename, "w") as f:
+                writer = UnicodeWriter(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
+                writer.writerows(rows)
 
         update_every = 30
-        #spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
-        spinner = '⡆⠇⠋⠙⠸⢰⣠⣄'
-        #spinner = ('⣀⡀', '⣄ ', '⡆ ', '⠇ ', '⠋ ', '⠉⠁',
+        # spinner = '⣀⡄⠆⠃⠉⠘⠰⢠'
+        spinner = "⡆⠇⠋⠙⠸⢰⣠⣄"
+        # spinner = ('⣀⡀', '⣄ ', '⡆ ', '⠇ ', '⠋ ', '⠉⠁',
         #           '⠈⠉', ' ⠙', ' ⠸', ' ⢰', ' ⣠', '⢀⣀')
+
         for table in db.metadata.sorted_tables:
             filename = filename_template % table.name
-            steps_so_far += 1
-            fraction = float(steps_so_far)/float(ntables)
+            self.steps_so_far += 1
+            fraction = float(self.steps_so_far) / float(ntables)
             pb_set_fraction(fraction)
             spinner_index = 0
-            msg = _('exporting %(table)s table to %(filename)s')\
-                % {'table': table.name, 'filename': filename}
-            msg = msg + '  ' + spinner[0]
+            msg = _("exporting %(table)s table to %(filename)s") % {
+                "table": table.name,
+                "filename": filename,
+            }
+            msg = msg + "  " + spinner[0]
             bauble.task.set_message(msg)
-            logger.info("exporting %s" % table.name)
+            logger.info(f"exporting {table.name}")
 
-            # get the data
-            results = table.select().execute().fetchall()
+            # Query the data
+            stmt = select(table)
+            # results = self.session.execute(stmt).fetchall()  # Use the session for execution
+            results = self.session.execute(stmt).mappings().all()
 
             # create empty files with only the column names
             if len(results) == 0:
@@ -647,11 +1017,12 @@ class CSVExporter(object):
             rows.append(list(table.c.keys()))  # append col names
             ctr = 0
             for row in results:
-                values = list(map(replace, list(row.values())))
+                # values = list(map(replace, list(row)))
+                values = list(map(replace, [row[col] for col in table.c.keys()]))
                 rows.append(values)
                 if ctr == update_every:
                     spinner_index = (spinner_index + 1) % len(spinner)
-                    msg = msg[:-len(spinner[0])] + spinner[spinner_index]
+                    msg = msg[: -len(spinner[0])] + spinner[spinner_index]
                     bauble.task.set_message(msg)
                     yield
                     ctr = 0
@@ -661,18 +1032,18 @@ class CSVExporter(object):
 
 class CSVImportCommandHandler(pluginmgr.CommandHandler):
 
-    command = 'imcsv'
+    command: str = "imcsv"
 
-    def __call__(self, cmd, arg):
+    def __call__(self, cmd, arg) -> None:
         importer = CSVImporter()
         importer.start(arg)
 
 
 class CSVExportCommandHandler(pluginmgr.CommandHandler):
 
-    command = 'excsv'
+    command: str = "excsv"
 
-    def __call__(self, cmd, arg):
+    def __call__(self, cmd, arg) -> None:
         exporter = CSVExporter()
         exporter.start(arg)
 
@@ -681,22 +1052,25 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
 # plugin classes
 #
 
-backup_category = (_('Backup'), "plugins/imex/backup.png")
+backup_category: Any = (_("Backup"), "plugins/imex/backup.png")
+
 
 class CSVImportTool(pluginmgr.Tool):
     category = backup_category
-    label = _('Restore')
-    icon_name = "backup-restore.png"
+    label: Any = _("Restore")
+    icon_name: str = "backup-restore.png"
 
     @classmethod
-    def start(cls):
+    def start(cls) -> None:
         """
         Start the CSV importer.  This tool will also reinitialize the
         plugins after importing.
         """
-        msg = _('Importing data into an existing database will '
-                'replace all your existing data.\n\n'
-                '<i>Would you like to continue?</i>')
+        msg = _(
+            "Importing data into an existing database will "
+            "replace all your existing data.\n\n"
+            "<i>Would you like to continue?</i>"
+        )
         if utils.yes_no_dialog(msg):
             c = CSVImporter()
             c.start()
@@ -704,13 +1078,18 @@ class CSVImportTool(pluginmgr.Tool):
 
 class CSVExportTool(pluginmgr.Tool):
     category = backup_category
-    label = _('Create')
-    icon_name = "backup-create.png"
+    label: Any = _("Create")
+    icon_name: str = "backup-create.png"
 
     @classmethod
-    def start(cls):
+    def start(cls) -> None:
         c = CSVExporter()
         c.start()
 
 
+# TODO: add support to import from the command line
+
+# TODO: add support to import from the command line
+# TODO: add support to import from the command line
+# TODO: add support to import from the command line
 # TODO: add support to import from the command line

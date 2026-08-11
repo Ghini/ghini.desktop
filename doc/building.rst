@@ -77,6 +77,36 @@ where necessary, delete the temporary branch.
 When ready for publication, merge the development line into the
 corresponding production line.
 
+Commit message convention
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We follow the `Conventional Commits <https://www.conventionalcommits.org/>`_
+specification. Commit messages should be of the form::
+
+    type(scope): short description
+
+The ``scope`` is optional and indicates the part of the codebase affected,
+for example ``fix(search):``, ``test(garden):``, ``build(docker):``.
+Common scopes include: ``search``, ``garden``, ``plants``, ``gui``,
+``db``, ``imex``, ``report``, ``docker``, ``deps``.
+
+Types in use:
+
+============  ========  =====================================================
+type          standard  description
+============  ========  =====================================================
+``fix``       ✓         bug fix
+``feat``      ✓         new feature
+``refactor``  ✓         code change with no functional impact
+``test``      ✓         adding or updating tests
+``docs``      ✓         documentation only
+``build``     ✓         build system or dependency changes
+``chore``     ✓         maintenance work with no functional impact
+``dev``                 development environment configuration (vscode, etc.)
+``tools``               development scripts and utilities
+``merge``               explicit merge commits
+============  ========  =====================================================
+
 Updating the set of translatable strings
 -------------------------------------------------------------
 
@@ -304,6 +334,8 @@ aspects. Two binary questions: 4 cases.
 where to put the tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Test class names must start with ``Test`` to be collected by pytest.
+
 Locate the test script and choose the class where to put the extra unit tests.
 
 https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2Ftest.py#L273
@@ -311,7 +343,7 @@ https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2F
 .. admonition:: what about skipped tests
    :class: note
 
-           The ``FamilyTests`` class contains a skipped test, implementing
+           The ``TestFamily`` class contains a skipped test, implementing
            it will be quite a bit of work because we need rewrite the
            FamilyEditorPresenter, separate it from the FamilyEditorView and
            reconsider what to do with the FamilyEditor class, which I think
@@ -320,7 +352,7 @@ https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2F
 writing the tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After the last test in the FamilyTests class, I add the four cases I want to
+After the last test in the TestFamily class, I add the four cases I want to
 describe, and I make sure they fail, and since I'm lazy, I write the most
 compact code I know for generating an error::
 
@@ -501,7 +533,7 @@ Putting all together
 
 From time to time you want to activate the test class you're working at::
 
-    nosetests bauble/plugins/plants/test.py:FamilyTests
+    nosetests bauble/plugins/plants/test.py:TestFamily
 
 And at the end of the process you want to update the statistics::
 
@@ -603,6 +635,57 @@ export dialog box. The following command will give you a list of
 ``GenericEditorView`` instantiations::
 
   grep -nHr -e GenericEditorView\( bauble
+
+Data streams between software components
+-----------------------------------------------
+
+Let's start by recalling the composition of the Ghini family, as shown in the diagram:
+
+.. image:: images/ghini-family-clean.png
+
+When we first introduced the diagram, we did not explain the reason why
+different arrows representing different data flows, had different colours:
+some are deep green, some in a lighter tint.  If you suspected this bore a
+meaning then you were quite right:
+
+Deeper green streams are constant flows of data, representing the core
+activity of a component, eg: the interaction between ghini.desktop and its
+database server, or your internet browser and ghini.web.
+
+Lighter green streams are import/export actions, initiated by the user at the
+command panel of ghini.desktop, or in the ghini.tour settings page.
+
+This is the same graph, in which all import data streams have been given an identifier.
+
+.. image:: images/ghini-family-streams.png
+
+.. list-table:: Stream role description
+   :widths: 15 85
+   :header-rows: 1
+   :class: tight-table
+
+   * - name
+     - description
+   * - **d2p**
+     - This is ghini.desktop's :menuselection:`Tools-->Export-->export to
+       pocket`.
+   * - **p2d**
+     - Import from the ghini.pocket log file and pictures into the central
+       database.
+   * - **d2w**
+     - Offer a selection of your garden data to a central ghini.web site, so
+       online virtual visitors can browse it.  This includes plant
+       identification and their geographic location.
+   * - **g2w**
+     - Write geographic information about non-botanic data (ie: point of
+       interest within the garden, required by ghini.tour) in the central
+       ghini.web site.
+   * - **w2t**
+     - Importing locations and points of interest from ghini.web to tour.
+
+We formally define all named streams, so our we know we are talking about.
+Moreover, streams impacting the desktop and web databases require extra
+thought and attention from your database manager.
    
 Extending Ghini with Plugins
 -----------------------------
@@ -908,3 +991,26 @@ steps for a normal Windows :ref:`installation`.
             ``F`` = select Apache FOP
 
             ``C`` = select MS Visual C runtime
+
+
+Importing SQLAlchemy exceptions
+-------------------------------------------------------------
+
+Always import the specific exception names you need, explicitly, from
+their proper module — never a module alias (``as saexc``, ``as orm_exc``),
+never the fully-qualified path used inline::
+
+    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm.exc import ObjectDeletedError, NoResultFound
+
+Group multiple names from the same module on one line rather than
+repeating the ``from ... import`` statement.
+
+Note that ``sqlalchemy.exc`` and ``sqlalchemy.orm.exc`` are different
+modules: some names (e.g. ``NoResultFound``) exist as a compatibility
+alias in both, but always import from the canonical one,
+``sqlalchemy.orm.exc``, since the alias is not guaranteed to survive
+future SQLAlchemy versions.
+
+Function-local imports remain acceptable only to avoid circular
+imports, not as a stylistic shortcut.

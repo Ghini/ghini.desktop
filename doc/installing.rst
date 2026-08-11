@@ -120,11 +120,12 @@ Open a shell terminal window, and follow the following instructions.
 
       In short it will install dependencies which can't be satisfied in a
       virtual environment, then it will create a virtual environment named
-      ``ghide``, use git to download the sources to a directory named
-      ``~/Local/github/Ghini/ghini.desktop``, and connect this git checkout
-      to the ``ghini-3.1`` branch (this you can consider a production line),
-      it then builds ghini, downloading all remaining dependencies in the
-      virtual environment, and finally it creates the ``ghini`` startup script.
+      as your selected branch (e.g.: ``ghini-3.1``), use git to download the
+      sources to a directory named ``~/Local/github/Ghini/ghini.desktop``,
+      and connect this git checkout to the ``ghini-3.1`` branch (this you
+      can consider a production line), it then builds ghini, downloading all
+      remaining dependencies in the virtual environment, and finally it
+      creates the ``ghini`` startup script.
 
       If you have ``sudo`` permissions, it will be placed in
       ``/usr/local/bin``, otherwise in your ``~/bin`` folder.

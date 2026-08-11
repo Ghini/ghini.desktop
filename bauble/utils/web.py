@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2014-2017 Mario Frasca <mario@anche.no>.
@@ -18,47 +17,75 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
-
-from gi.repository import Gtk
-import re
-
 import logging
+import re
+from gettext import gettext as _
+from typing import Any, Optional, Sequence
+
+import bauble.utils.desktop as desktop
+from bauble.gtkinit import Gtk
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-import bauble.utils.desktop as desktop
 
-
-
-def _open_link(data=None, *args, **kwargs):
+def _open_link(data: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
     """Open a web link"""
-    logger.debug("_open_link received data=%s, args=%s, kwargs=%s" % (data, args, kwargs))
+    logger.debug(f"_open_link received data={data}, args={args}, kwargs={kwargs}")
+    if data is None:
+        logger.debug("_open_link called with no data; nothing to open")
+        return
     desktop.open(data)
 
 
-class BaubleLinkButton(Gtk.LinkButton):
+class BaubleLinkButton:
+    """
+    A button that acts as a link, but instead of using subclassing,
+    it uses composition to wrap around a Gtk.LinkButton.
+    """
 
-    _base_uri = "%s"
-    _space = "_"
-    title = _("Search")
-    tooltip = None
-    pt = re.compile(r'%\(([a-z_\.]*)\)s')
+    link_button: Gtk.LinkButton
+    fields: Sequence[str]
+    _base_uri: str = "%s"
+    _space: str = "_"
+    title: str = _("Search")
+    tooltip: Optional[str] = None
+    pt: re.Pattern[str] = re.compile(r"%\(([a-z_\.]*)\)s")
 
-    def __init__(self, title=_("Search"), tooltip=None):
-        super().__init__("", self.title)
-        self.set_tooltip_text(self.tooltip or self.title)
-        self.__class__.fields = self.pt.findall(self._base_uri)
+    def __init__(self, title: str = _("Search"), tooltip: Optional[str] = None) -> None:
+        # Create the Gtk.LinkButton instance
+        self.link_button = Gtk.LinkButton(label=title, uri="")
+        self.set_tooltip(tooltip or title)
 
-    def set_string(self, row):
-        if self.fields == []:
+        # Find the fields based on the URI pattern
+        self.fields = self.pt.findall(self._base_uri)
+
+    def set_tooltip(self, tooltip_text: str) -> None:
+        """Set the tooltip text for the link button."""
+        self.link_button.set_tooltip_text(tooltip_text)
+
+    def set_string(self, row: Any) -> None:
+        """
+        Set the URI for the link button based on a row's values.
+
+        The row can be an object with attributes matching the pattern
+        in the URI (_base_uri).
+        """
+        if not self.fields:
             s = str(row)
-            self.set_uri(self._base_uri % s.replace(' ', self._space))
+            self.link_button.set_uri(self._base_uri % s.replace(" ", self._space))
         else:
             values = {}
             for key in self.fields:
                 value = row
-                for step in key.split('.'):
-                    value = getattr(value, step, '-')
-                values[key] = (value == str(value)) and value or ''
-            self.set_uri(self._base_uri % values)
+                for step in key.split("."):
+                    value = getattr(value, step, "-")
+                values[key] = str(value) if value == str(value) else ""
+            self.link_button.set_uri(self._base_uri % values)
+
+    def get_widget(self) -> Gtk.LinkButton:
+        """
+        Returns the Gtk.LinkButton widget.
+        This can be added to any container as a regular widget.
+        """
+        return self.link_button

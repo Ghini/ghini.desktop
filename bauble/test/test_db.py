@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
@@ -17,22 +16,66 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
+# Refactored for Pytest and SQLAlchemy 2.0.36 compatibility
 
-from bauble.test import BaubleTestCase
-import bauble.plugins.plants.genus
-import bauble.plugins.garden.accession
-
+import pytest
 from bauble import db
-from bauble import prefs
+from bauble.plugins.garden.models import AccessionNote
+from bauble.plugins.plants.genus import Genus
+from bauble.prefs import prefs
+
 prefs.testing = True
 
-db.sqlalchemy_debug(True)
+# db.sqlalchemy_debug(True)
 
 
-class GlobalFunctionsTests(BaubleTestCase):
-    def test_get_next_code_first_this_year(self):
-        self.assertEqual(db.class_of_object("genus"),
-                          bauble.plugins.plants.genus.Genus)
-        self.assertEqual(db.class_of_object("accession_note"),
-                          bauble.plugins.garden.accession.AccessionNote)
-        self.assertEqual(db.class_of_object("not_existing"), None)
+# Tests
+def test_class_of_object_genus() -> None:
+    """
+    Verify that db.class_of_object('genus') returns the correct Genus class.
+    """
+    assert db.class_of_object("genus") == Genus
+
+
+def test_class_of_object_accession_note() -> None:
+    """
+    Verify that db.class_of_object('accession_note') returns the correct AccessionNote class.
+    """
+    assert db.class_of_object("accession_note") == AccessionNote
+
+
+def test_class_of_object_not_existing() -> None:
+    """
+    Verify that db.class_of_object raises a ValueError for an invalid object type.
+    """
+    with pytest.raises(ValueError, match="Class not found for object: not_existing"):
+        db.class_of_object("not_existing")
+
+
+def test_postgresql_connection_uses_default_connect_timeout() -> None:
+    """
+    PostgreSQL connection attempts should not wait on the OS TCP timeout.
+    """
+    connect_args = db._connect_args_for_uri("postgresql://ghini@example.net/ghini")
+
+    assert connect_args["connect_timeout"] == 4
+
+
+def test_postgresql_connection_keeps_uri_connect_timeout() -> None:
+    """
+    Do not override a PostgreSQL timeout explicitly supplied in the URI.
+    """
+    connect_args = db._connect_args_for_uri(
+        "postgresql://ghini@example.net/ghini?connect_timeout=9"
+    )
+
+    assert "connect_timeout" not in connect_args
+
+
+def test_sqlite_testing_connection_uses_sqlite_timeout() -> None:
+    """
+    Keep the existing SQLite testing timeout behavior.
+    """
+    connect_args = db._connect_args_for_uri("sqlite:////tmp/ghini-test.sqlite")
+
+    assert connect_args["timeout"] == 30

@@ -220,21 +220,19 @@ Managing pocket/desktop interaction
 
 Interaction between |ghini.pocket| and |ghini.desktop| is handled following a client server
 scheme.  When you need to export a new database snapshot to pocket, or import the pocket log
-into the main database, you put |ghini.desktop| in server mode, so that it awaits for requests
+into the main database, you put |ghini.desktop| in server mode, so that it awaits requests
 from registered |ghini.pocket| clients.
 
 |ghini.desktop| server mode
 ----------------------------------------
 
 Select :menuselection:`Tools-->Pocket Server..` to activate server mode on |ghini.desktop|.
-This is the Pocket Server console:
+The Pocket Server console looks roughly like this, where it is creating a "snapshot":
 
 .. image:: images/pocket-server-starting.png
 
 While in server mode, |ghini.desktop| is not available for other uses, and |ghini.pocket|
 clients will be able to register, request database snapshots, or send collected updates.
-
-.. image::  images/ghini-pocket-client.png
 
 |ghini.pocket| works with a reduced database snapshot, containing only the most significant
 elements, under a simplified schema.  |ghini.desktop| produces such a snapshot when it enters
@@ -251,29 +249,107 @@ enabled, the sequence reduces to: validate your identity, push updates, pull the
 |ghini.desktop| and |ghini.pocket| need to be connected to the same (local) network.  The server
 GUI includes an informative entry for the server IP address, this you obviously don't edit, and
 an entry for the port number, which defaults to GHINI/44464.  Make sure that every configuration
-on your clients matches the settings on the server.
+on your clients matches the settings on the server, i.e.: please copy your Server IP address, as
+shown by |ghini.desktop|, to all your |ghini.pocket| clients, and make sure that your clients
+are talking to the port on which the server will be listening.
 
 .. image:: images/pocket-server-settings.png
 
-|ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section
-on the client user interface, for how to register a phone.)  When |ghini.desktop| receives a
-valid registration request for a specific IMEI number, the specified IMEI is added to the
-list of registered clients and associated to the remote user name.  The registration is
-persistent, and is used as a basic identity check for all client-server interaction.  If you
-need to use the same phone with a different user name, you must overrule the existing
-registration, and to do so, you need the security code as shown in the desktop server
-settings.
+.. admonition:: I understand beans, what should I do?
+   :class: toggle
 
-Start the server on |ghini.desktop| by clicking on that thick push button, it will stay pushed
-and slowly spinning while the server is active.  Possibly enable automatic refresh, then move
-your attention focus to your |ghini.pocket| client.  It is from the |ghini.pocket| clients that
-you handle the communication.  After accepting updates from your |ghini.pocket| clients, refresh
-the snapshot and update it on all your clients.
+      Right, you're a botanist, with little interest in learning network management, quite fair.
+      
+      Here are my three guesses for getting ghini.desktop (running on your computer) and
+      ghini.pocket (running on your Android phone) to see each other:
+
+      1) Easiest case: you have a local network at home, to which you connect both your phone
+         and your computer.  Just make sure both your phone and computer are connected, and read
+         further.  In most cases, it will just work.
+
+         Beware: there's routers that will not let you talk from one system to the other, or
+         that leave only a few ports open.  If your router has a 'guest' and a 'home' SSID, do
+         use the 'home' signal for both systems.  But it all depends, and you should check with
+         your router.  If you are using your home router and you still can't quite connect
+         pocket to desktop, try the next option.
+
+      2) Next easiest: configure a WiFi hotspot on your Android phone, and connect your computer
+         to it.
+
+         Make sure your ghini.desktop computer has no other active network connection.  You
+         might want to disable mobile data on the phone, to avoid your computer to consume
+         bandwith and make you incur in costs.  Without mobile data, Android might warn you that
+         the hotspot will not be functional.  Ignore that: you're using the hotspot for local
+         connections, not for getting on internet.
+
+      3) Still easy enough: connect your Android phone to your computer using a USB cable, and
+         activate USB tethering on the phone.
+
+         Again, make sure your computer has no other active network connection, and again
+         consider disabling mobile data on the phone.
+
+      Any of the above three will put your two devices on the same network segment, and enable
+      communication.  Minimal terminology you might still check: IP Address; IP Port; Network
+      Segment.
+
+      Check your phone IP address in :menuselection:`Settings --> About device --> Status`, no
+      more to make sure that both addresses, desktop and pocket, belong to the same segment,
+      roughly true if the first three of those four numbers are equal.
+
+.. admonition:: Port Number, GHINI/44464?  What is that?
+   :class: toggle
+
+      44464 is a port number and a port, think of it like of a virtual plug that a server
+      program can enable and listen to, and to which client programs may attach and speak into.
+      This port number, 44464 makes some sense because it's like GHINI on a phone keyboard.
+      There is nothing special with this 44464, you can choose just about any number from 1025
+      to 65535, as long as it's `not already in use
+      <https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers>`_ by other programs and
+      it's the same on both ghini.desktop and ghini.pocket.
+
+.. admonition:: localhost and your local network
+   :class: toggle
+
+      Is your ghini.desktop showing the ``127.0.0.1`` address, that means that it is not
+      connected to any network.  That address is the numeric form of ``localhost``, and only
+      useful for local connections.  You will **not** be able to connect pocket to desktop if
+      this is what desktop reports as server IP address.
+
+      Your local IP address is something starting with ``192.168.`` followed by two more numbers
+      between 0 and 255, or maybe ``10.`` followed by three more such numbers, or still ``172.``
+      followed by a number in the range 16 to 31, and again two more numbers between 0 and 255.
+
+      Anything else is something else, not your local IP address, and will not work.
+
+
+|ghini.desktop| holds a list of registered |ghini.pocket| clients.  (Check the below section on
+the client user interface, for how to register a phone.)  The first time you activate
+|ghini.pocket|, it will create a persistent custom phone code, high chance it is a unique code,
+and this code will be used by both pocket and desktop to identify your phones.  The chance that
+two of your 40 phones share the same code is smaller than a 2cm meteorite to strike your house
+within the next 5 minutes.  Maybe not precisely this small, but definitely very small.  When
+|ghini.desktop| receives a valid registration request for a phone code, the code is added to the
+list of registered clients and associated to the remote user name.
+
+The client registration is persistent, and is used as a basic identity check for all
+client-server interaction.  If you need to use the same phone with a different user name, you
+must overrule the existing registration, and to do so, you need the security code as shown in
+the desktop server settings.
+
+Start the server on |ghini.desktop| by clicking on that thick square push button with the
+diagonal arrow: the button will stay pushed, the arrow slowly spinning, while the server is
+active.  Decide if you prefer to enable automatic refresh, then move your attention focus to
+your |ghini.pocket| client.  It is from the |ghini.pocket| clients that you handle the
+communication.  After accepting updates from your |ghini.pocket| clients, refresh the snapshot
+and update it on all your clients.
 
 When done, stop the server, review the logs, close the Pocket Server window.
 
 |ghini.pocket| user interface
 ----------------------------------------
+
+With the pocket server running on ghini.desktop, grab now your Android phone with the latest
+ghini.pocket version.
 
 |ghini.pocket| options menu has a |desktop| item.  Use it to activate the
 "desktop-client" window, which implements all interaction with the |ghini.desktop| server.
@@ -283,6 +359,10 @@ server, and buttons for server communication.  The communication buttons are not
 you validate (that is: register, or verify if already registered) your identity.
 
 .. image::  images/ghini-pocket-client.png
+
+The above is |ghini.pocket|'s "desktop-client" on my virtual phone.  192.168.43.226 is my
+laptop's IP address in my local network.  Please replace that with your own computer address as
+previously explained.
 
 |ghini.pocket| implements a very basic authentication check, trusting that your local
 network is secure.  In fact the main goal of authentication between pocket and desktop is to

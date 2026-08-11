@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
@@ -17,88 +16,116 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
-
-from gi.repository import Gtk
-
 import logging
+from typing import Any, Optional
+
+import bauble.utils as utils
+from bauble import db
+from bauble.gtkinit import Gtk
+from sqlalchemy.orm.exc import DetachedInstanceError
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-import bauble.utils as utils
 
+class PicturesView:
+    """Displays pictures corresponding to selection."""
 
-class PicturesView(Gtk.HBox):
-    """shows pictures corresponding to selection.
+    fake: Any
+    widgets: Any
+    pictures_box: Any
+    ghini_box: Any
 
-    at any time, no more than one PicturesView object will exist.
+    def __init__(self, parent: Optional[Any] = None, fake: bool = False) -> None:
+        logger.debug(f"entering PicturesView.__init__(parent={parent}, fake={fake})")
+        self.fake = fake
 
-    when activated, the PicturesView object will be informed of changes
-    to the selection and whatever the selection contains, the
-    PicturesView object will ask each object in the selection to please
-    return pictures, so that the PicturesView object can display them.
-
-    if an object in the selection does not know of pictures (like it
-    raises an exception because it does not define the 'pictures'
-    property), the PicturesView object will silently accept the failure.
-
-    """
-
-    def __init__(self, parent=None, fake=False):
-        logger.debug("entering PicturesView.__init__(parent=%s, fake=%s)"
-                     % (parent, fake))
-        super().__init__()
-        if fake:
-            self.fake = True
+        if self.fake:
             return
-        self.fake = False
+
         import os
+
         from bauble import paths
-        glade_file = os.path.join(
-            paths.lib_dir(), 'pictures_view.glade')
+
+        glade_file = os.path.join(paths.lib_dir(), "pictures_view.glade")
         self.widgets = utils.BuilderWidgets(glade_file)
+
+        # Use Gtk.Box for layout composition
+        self.pictures_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+
+        # Remove parent reference from builder and add to the new parent
         self.widgets.remove_parent(self.widgets.scrolledwindow2)
         parent.add(self.widgets.scrolledwindow2)
         parent.show_all()
         self.widgets.scrolledwindow2.show()
 
-    def set_selection(self, selection):
-        logger.debug("PicturesView.set_selection(%s)" % selection)
+    def set_selection(self, selection) -> None:
+        """
+        Updates the view based on the current selection.
+        If an object in the selection contains a `pictures` property,
+        its pictures will be displayed.
+        """
+        logger.debug(f"Setting selection: {selection}")
         if self.fake:
             return
-        self.ghini_box = self.widgets.pictures_box
-        for k in self.ghini_box.get_children():
-            k.destroy()
 
-        for o in selection or []:
+        self.ghini_box = self.widgets.pictures_box
+
+        # Clear existing children
+        for child in self.ghini_box.get_children():
+            child.destroy()
+
+        for obj in selection or []:
+            pics = []
             try:
-                pics = o.pictures
+                # first attempt — will fail if obj is detached
+                pics = getattr(obj, "pictures")
             except AttributeError:
-                logger.debug('object %s does not know of pictures' % o)
-                pics = []
-            for p in pics:
-                logger.debug('object %s has picture %s' % (o, p))
-                expander = Gtk.HBox()
-                expander.add(p)
-                self.ghini_box.pack_end(expander, False, False, 0)
-                self.ghini_box.reorder_child(expander, 0)
-                expander.show_all()
-                p.show()
+                logger.debug(f"Object {obj} does not define 'pictures' attribute")
+                continue
+            except DetachedInstanceError:
+                # Reattach to a short-lived session and retry once
+                with db.TempSession() as s:
+                    try:
+                        obj = s.merge(obj, load=False)  # cheap reattach
+                        pics = getattr(obj, "pictures")
+                    except Exception as e:
+                        logger.warning("Could not load pictures for %r after merge: %s", obj, e)
+                        pics = []
+
+            for pic in pics or []:
+                logger.debug(f"Object {obj} has picture {pic}")
+                self.add_picture(pic)
 
         self.ghini_box.show_all()
 
-    def add_picture(self, picture=None):
+    def add_picture(self, picture: Optional[Any] = None):
         """
-        Add a new picture to the model.
+        Adds a new picture to the model.
         """
-        expander = self.ContentBox(self, picture)
-        self.ghini_box.pack_start(expander, False, False, 0)
-        expander.show_all()
-        return expander
+        if picture is None:
+            logger.warning("add_picture() called with no picture provided.")
+            return None
 
-floating_window = None
+        # Create a picture container box
+        picture_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        picture_box.add(picture)
+
+        # Add the picture box to the container
+        self.ghini_box.pack_start(picture_box, False, False, 0)
+        picture_box.show_all()
+
+        return picture_box
+
+    def get_widget(self):
+        """Returns the main widget (Gtk.Box) containing the pictures."""
+        return self.pictures_box
 
 
-def show_pictures_callback(selection):
+floating_window: Any = None
+
+
+def show_pictures_callback(selection) -> None:
     """activate a modal window showing plant pictures.
 
     the current selection defines what pictures should be shown. it
@@ -111,5 +138,5 @@ def show_pictures_callback(selection):
 
     species: show the voucher.
     """
-
-    floating_window.set_selection(selection)
+    if floating_window is not None:
+        floating_window.set_selection(selection)

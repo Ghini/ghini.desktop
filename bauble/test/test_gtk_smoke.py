@@ -1,0 +1,2218 @@
+import datetime
+import os
+from pathlib import Path
+from types import SimpleNamespace
+
+## this is highly helpful for understanding what happens to the database
+## if a test fails, but also highly noisy and slowing down. better not
+## keeping it active at all times.
+# import logging
+# logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
+import pytest
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy import select
+from sqlalchemy.orm.exc import DetachedInstanceError
+
+import bauble
+import bauble.connmgr as connmgr
+import bauble.paths as paths
+import bauble.pluginmgr as pluginmgr
+import bauble.prefs as prefs
+import bauble.ui as ui
+import bauble.view as view
+from bauble.connmgr import ConnMgrPresenter
+from bauble.editor import (
+    GenericEditorPresenter,
+    GenericEditorView,
+    MaxLengthValidator,
+    UnicodeOrNoneValidator,
+    ValidatorError,
+)
+from bauble.gtkinit import Gdk, Gtk
+from bauble.shared import InfoExpander
+from bauble.plugins.garden.location_editor import (
+    LocationInfoBox,
+    LocationEditorPresenter,
+    LocationEditorView,
+)
+from bauble.plugins.garden.accession_editor import (
+    AccessionEditor,
+    AccessionEditorPresenter,
+    AccessionEditorView,
+    _source_display_text,
+    _source_matches_text,
+    _unique_source_contacts,
+)
+from bauble.plugins.garden.constants import acc_type_values
+from bauble.plugins.garden.models.accession import Accession
+from bauble.plugins.garden.models.contact import Contact
+from bauble.plugins.garden.models.location import Location
+from bauble.plugins.garden.models.plant import Plant
+from bauble.plugins.garden.models.source import Collection, Source
+from bauble.plugins.garden.plant_editor import (
+    PlantEditor,
+    PlantEditorPresenter,
+    PlantEditorView,
+    PlantInfoBox,
+)
+from bauble.plugins.garden.propagation_editor import (
+    PropagationEditorPresenter,
+    PropagationEditorView,
+)
+from bauble.plugins.garden.models.propagation import (
+    PropCutting,
+    PropSeed,
+    Propagation,
+)
+from bauble.plugins.garden.source import ContactPresenter
+from bauble.plugins.plants.family import (
+    Family,
+    FamilyEditorPresenter,
+    FamilyEditorView,
+    FamilyInfoBox,
+)
+from bauble.plugins.plants.genus import (
+    Genus,
+    GenusEditorPresenter,
+    GenusEditorView,
+)
+from bauble.plugins.plants.species import Species, SpeciesInfoBox
+from bauble.plugins.plants.species_editor import (
+    SpeciesEditorPresenter,
+    SpeciesEditorView,
+)
+
+prefs.testing = True
+
+
+LIB_DIR = Path(paths.lib_dir())
+
+
+def drain_gtk_events() -> None:
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+
+class DummyInfoExpander(InfoExpander):
+    def __init__(self, label="Dummy") -> None:
+        super().__init__(label)
+        self.updated_with = None
+
+    def update(self, value) -> None:
+        self.updated_with = value
+
+
+CORE_WIDGETS = {
+    "bauble.glade": (
+        "main_window",
+        "main_comboentry",
+        "go_button",
+        "view_box",
+        "statusbar",
+        "bottom_notebook",
+        "prefs_window",
+        "history_window",
+    ),
+    "connmgr.glade": (
+        "main_dialog",
+        "name_combo",
+        "add_button",
+        "remove_button",
+        "type_combo",
+        "database_entry",
+        "host_entry",
+        "port_entry",
+        "user_entry",
+        "passwd_chkbx",
+        "pictureroot_entry",
+        "connect_button",
+    ),
+    "notes.glade": ("notes_dialog", "notes_editor", "notes_add_button"),
+    "pictures.glade": ("notes_dialog", "notes_editor", "picture_button"),
+    "pictures_view.glade": ("pictures_view_dialog", "pictures_box"),
+    "querybuilder.glade": ("main_dialog", "domain_combo", "add_clause_button"),
+    os.path.join("plugins", "garden", "acc_editor.glade"): (
+        "accession_dialog",
+        "acc_code_entry",
+        "acc_species_entry",
+        "acc_ok_button",
+    ),
+    os.path.join("plugins", "garden", "contact.glade"): (
+        "source_details_dialog",
+        "source_name_entry",
+        "source_type_combo",
+    ),
+    os.path.join("plugins", "garden", "institution.glade"): (
+        "inst_dialog",
+        "inst_name",
+        "inst_code",
+        "inst_ok",
+    ),
+    os.path.join("plugins", "garden", "loc_editor.glade"): (
+        "location_dialog",
+        "loc_name_entry",
+        "loc_code_entry",
+        "loc_ok_button",
+    ),
+    os.path.join("plugins", "garden", "picture_importer.glade"): (
+        "picture_importer_dialog",
+        "filepath_entry",
+        "button_browse",
+        "button_ok",
+    ),
+    os.path.join("plugins", "garden", "plant_editor.glade"): (
+        "plant_editor_dialog",
+        "plant_acc_entry",
+        "plant_code_entry",
+        "plant_loc_comboentry",
+        "pad_ok_button",
+    ),
+    os.path.join("plugins", "garden", "pocket_server.glade"): (
+        "pocket_server_dialog",
+        "server_toggle_button",
+        "code_entry",
+        "close_button",
+    ),
+    os.path.join("plugins", "garden", "prop_editor.glade"): (
+        "prop_dialog",
+        "prop_type_combo",
+        "prop_date_entry",
+        "prop_ok_button",
+    ),
+    os.path.join("plugins", "imex", "select_export.glade"): (
+        "select_export_dialog",
+        "select_import_dialog",
+        "filename",
+        "input_filename",
+    ),
+    os.path.join("plugins", "plants", "family_editor.glade"): (
+        "family_dialog",
+        "fam_family_entry",
+        "fam_syn_treeview",
+        "fam_ok_button",
+    ),
+    os.path.join("plugins", "plants", "genus_editor.glade"): (
+        "genus_dialog",
+        "gen_family_entry",
+        "gen_genus_entry",
+        "gen_ok_button",
+    ),
+    os.path.join("plugins", "plants", "species_editor.glade"): (
+        "species_dialog",
+        "sp_genus_entry",
+        "sp_species_entry",
+        "sp_ok_button",
+    ),
+    os.path.join("plugins", "plants", "stored_queries.glade"): (
+        "stqr_dialog",
+        "stqr_label_entry",
+        "stqr_query_textview",
+    ),
+    os.path.join("plugins", "plants", "taxonomy_check.glade"): (
+        "dialog1",
+        "file_path_entry",
+        "treeview2",
+        "ok_button",
+    ),
+    os.path.join("plugins", "report", "flat_export.glade"): (
+        "main_dialog",
+        "domain_combo",
+        "treeview",
+        "confirm_button",
+    ),
+    os.path.join("plugins", "report", "mako", "gui.glade"): (
+        "window1",
+        "template_chooser",
+        "mako_options_box",
+    ),
+    os.path.join("plugins", "report", "report.glade"): (
+        "report_dialog",
+        "names_combo",
+        "output_entry",
+        "ok_button",
+    ),
+    os.path.join("plugins", "tag", "tag.glade"): (
+        "tag_dialog",
+        "tag_name_entry",
+        "tag_desc_textview",
+        "tag_item_dialog",
+    ),
+    os.path.join("plugins", "users", "ui.glade"): (
+        "main_dialog",
+        "users_tree",
+        "read_button",
+        "pwd_dialog",
+    ),
+}
+
+
+ROOT_WIDGETS = {
+    "bauble.glade": ("main_window", "prefs_window", "history_window"),
+    "connmgr.glade": ("main_dialog",),
+    "notes.glade": ("notes_dialog", "notes_editor"),
+    "pictures.glade": ("notes_dialog", "notes_editor"),
+    "pictures_view.glade": ("pictures_view_dialog",),
+    "querybuilder.glade": ("main_dialog",),
+    os.path.join("plugins", "garden", "acc_editor.glade"): (
+        "accession_dialog",
+        "acc_codes_dialog",
+    ),
+    os.path.join("plugins", "garden", "contact.glade"): ("source_details_dialog",),
+    os.path.join("plugins", "garden", "institution.glade"): ("inst_dialog",),
+    os.path.join("plugins", "garden", "loc_editor.glade"): ("location_dialog",),
+    os.path.join("plugins", "garden", "picture_importer.glade"): (
+        "picture_importer_dialog",
+    ),
+    os.path.join("plugins", "garden", "plant_editor.glade"): ("plant_editor_dialog",),
+    os.path.join("plugins", "garden", "pocket_server.glade"): ("pocket_server_dialog",),
+    os.path.join("plugins", "garden", "prop_editor.glade"): ("prop_dialog",),
+    os.path.join("plugins", "imex", "select_export.glade"): (
+        "select_export_dialog",
+        "select_import_dialog",
+    ),
+    os.path.join("plugins", "plants", "family_editor.glade"): ("family_dialog",),
+    os.path.join("plugins", "plants", "genus_editor.glade"): ("genus_dialog",),
+    os.path.join("plugins", "plants", "species_editor.glade"): ("species_dialog",),
+    os.path.join("plugins", "plants", "stored_queries.glade"): ("stqr_dialog",),
+    os.path.join("plugins", "plants", "taxonomy_check.glade"): ("dialog1",),
+    os.path.join("plugins", "report", "flat_export.glade"): ("main_dialog",),
+    os.path.join("plugins", "report", "mako", "gui.glade"): ("window1",),
+    os.path.join("plugins", "report", "report.glade"): (
+        "choose_dialog",
+        "report_dialog",
+    ),
+    os.path.join("plugins", "tag", "tag.glade"): ("tag_dialog", "tag_item_dialog"),
+    os.path.join("plugins", "users", "ui.glade"): ("main_dialog", "pwd_dialog"),
+}
+
+
+class SaveablePrefs(dict):
+    def save(self):
+        return None
+
+
+@pytest.fixture
+def gtk_prefs(tmp_path):
+    store = SaveablePrefs()
+    store[bauble.conn_list_pref] = {}
+    store[bauble.conn_default_pref] = None
+    store[prefs.picture_root_pref] = str(tmp_path / "pictures")
+    return SimpleNamespace(
+        prefs=store,
+        testing=True,
+        picture_root_pref=prefs.picture_root_pref,
+    )
+
+
+@pytest.fixture
+def connmgr_view():
+    view = GenericEditorView(
+        str(LIB_DIR / "connmgr.glade"), root_widget_name="main_dialog"
+    )
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def family_editor_view():
+    view = FamilyEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def genus_editor_view():
+    view = GenusEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def species_editor_view():
+    view = SpeciesEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def location_editor_view():
+    view = LocationEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def plant_editor_view():
+    view = PlantEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def accession_editor_view():
+    view = AccessionEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def contact_editor_view():
+    view = GenericEditorView(
+        str(LIB_DIR / "plugins" / "garden" / "contact.glade"),
+        root_widget_name="source_details_dialog",
+    )
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture
+def propagation_editor_view():
+    view = PropagationEditorView()
+    try:
+        yield view
+    finally:
+        view.get_window().destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+@pytest.fixture(autouse=True)
+def disable_connection_manager_background_threads(monkeypatch):
+    monkeypatch.setattr(ConnMgrPresenter, "start_thread", lambda self, thread: thread)
+
+
+def glade_files():
+    return sorted(LIB_DIR.glob("**/*.glade"))
+
+
+def destroy_builder_windows(builder):
+    for obj in builder.get_objects():
+        if isinstance(obj, Gtk.Window):
+            obj.destroy()
+
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+
+@pytest.mark.parametrize(
+    "filename", glade_files(), ids=lambda p: str(p.relative_to(LIB_DIR))
+)
+def test_glade_file_loads(filename):
+    builder = Gtk.Builder()
+    try:
+        builder.add_from_file(str(filename))
+    finally:
+        destroy_builder_windows(builder)
+
+
+@pytest.mark.parametrize("relative_name, widget_ids", sorted(CORE_WIDGETS.items()))
+def test_core_glade_widgets_exist(relative_name, widget_ids):
+    builder = Gtk.Builder()
+    try:
+        builder.add_from_file(str(LIB_DIR / relative_name))
+        missing = [
+            widget_id
+            for widget_id in widget_ids
+            if builder.get_object(widget_id) is None
+        ]
+        assert missing == []
+    finally:
+        destroy_builder_windows(builder)
+
+
+@pytest.mark.parametrize(
+    "relative_name, root_widget",
+    [
+        (relative_name, root_widget)
+        for relative_name, root_widgets in sorted(ROOT_WIDGETS.items())
+        for root_widget in root_widgets
+    ],
+)
+def test_generic_editor_view_loads_root_widget(relative_name, root_widget):
+    view = GenericEditorView(str(LIB_DIR / relative_name), root_widget_name=root_widget)
+    window = view.get_window()
+
+    try:
+        assert isinstance(window, Gtk.Window)
+    finally:
+        window.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_infobox_page_packs_info_expander_widgets():
+    page = view.InfoBoxPage()
+    expander = DummyInfoExpander("General")
+    row = object()
+
+    page.add_expander(expander)
+
+    assert expander.get_widget() in page.vbox.get_children()
+    assert page.get_expander("General") is expander
+
+    page.update(row)
+
+    assert expander.updated_with is row
+    assert page.remove_expander("General") is expander
+    assert expander.get_widget() not in page.vbox.get_children()
+
+
+def test_plant_infobox_constructs_with_expander_widgets():
+    infobox = PlantInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        assert isinstance(widget, Gtk.Notebook)
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_links_expander_packs_link_button_widgets():
+    expander = view.LinksExpander(
+        links=[
+            {
+                "name": "SearchButton",
+                "_base_uri": "https://example.test/search?q=%s",
+                "_space": "+",
+                "title": "Search",
+                "tooltip": "Search example",
+            }
+        ]
+    )
+    link_button = expander.buttons[0]
+    widget = link_button.get_widget()
+
+    assert widget in expander.vbox.get_children()
+    assert widget.get_halign() == Gtk.Align.START
+
+    expander.update("Guided family")
+
+    assert widget.get_uri() == "https://example.test/search?q=Guided+family"
+
+
+def test_family_infobox_updates_builder_widgets(session):
+    family = Family(epithet="Guidedaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    infobox = FamilyInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(family)
+        assert infobox.general.widgets.fam_name_data.get_label()
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_family_infobox_renders_synonyms(session):
+    accepted = Family(epithet="Acceptedaceae", qualifier="")
+    synonym = Family(epithet="Synonymaceae", qualifier="")
+    accepted.synonyms.append(synonym)
+    session.add_all([accepted, synonym])
+    session.flush()
+
+    infobox = FamilyInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(accepted)
+        assert infobox.synonyms.get_widget().get_sensitive()
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_location_infobox_counts_plants(session):
+    family = Family(epithet="Locationaceae", qualifier="")
+    genus = Genus(family=family, epithet="Locationgenus")
+    species = Species(genus=genus, sp="locationensis")
+    accession = Accession(species=species, code="LOC-001")
+    location = Location(code="LOC", name="Location Bed")
+    plant = Plant(accession=accession, location=location, code="1", quantity=1)
+    session.add_all([family, genus, species, accession, location, plant])
+    session.flush()
+
+    infobox = LocationInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(location)
+        assert infobox.general.widgets.loc_nplants_data.get_label() == "1"
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_genus_author_markup_escapes_xml():
+    genus = Genus(epithet="Escapegenus", qualifier="", author="A & B")
+
+    assert Genus.str(genus, author=True) == "Escapegenus A &amp; B"
+
+
+def test_species_infobox_counts_garden_rows(session, monkeypatch):
+    monkeypatch.setitem(pluginmgr.plugins, "GardenPlugin", object())
+    family = Family(epithet="Speciescountaceae", qualifier="")
+    genus = Genus(family=family, epithet="Speciescountgenus")
+    species = Species(genus=genus, sp="countensis")
+    accession = Accession(species=species, code="SP-001")
+    location = Location(code="SPC", name="Species Count Bed")
+    plant = Plant(accession=accession, location=location, code="1", quantity=1)
+    session.add_all([family, genus, species, accession, location, plant])
+    session.flush()
+
+    infobox = SpeciesInfoBox()
+    widget = infobox.get_widget()
+
+    try:
+        infobox.update(species)
+        assert infobox.general.widgets.sp_nacc_data.get_label() == "1"
+        assert (
+            infobox.general.widgets.sp_nplants_data.get_label() == "1 in 1 accessions"
+        )
+    finally:
+        widget.destroy()
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+
+def test_result_expand_keeps_retry_child_for_empty_rows(session):
+    family = Family(epithet="Emptyaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    search_view = view.SearchView.__new__(view.SearchView)
+    search_view.session = session
+    search_view.row_meta = view.SearchView.ViewMeta()
+    search_view.row_meta[Family].set(children=lambda _row: [])
+
+    model = Gtk.TreeStore(object)
+    parent = model.append(None, [family])
+    model.append(parent, ["-"])
+    tree = SimpleNamespace(get_model=lambda: model)
+
+    assert search_view.on_test_expand_row(tree, parent, model.get_path(parent)) is True
+    assert model.iter_n_children(parent) == 1
+
+
+def test_search_retries_once_after_invalidated_connection(monkeypatch):
+    class FakeSession:
+        def __init__(self, name) -> None:
+            self.name = name
+            self.closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    class FakeSessionFactory:
+        def __init__(self) -> None:
+            self.sessions = [FakeSession("fresh")]
+            self.removed = False
+
+        def __call__(self):
+            return self.sessions.pop(0)
+
+        def remove(self) -> None:
+            self.removed = True
+
+    original_session = FakeSession("original")
+    session_factory = FakeSessionFactory()
+    calls = []
+    connection_error = DBAPIError(
+        "select 1",
+        {},
+        Exception("connection already closed"),
+        connection_invalidated=True,
+    )
+
+    def fake_search(text, session):
+        calls.append((text, session.name))
+        if len(calls) == 1:
+            raise connection_error
+        return ["result"]
+
+    search_view = view.SearchView.__new__(view.SearchView)
+    search_view.session = original_session
+
+    monkeypatch.setattr(view.db, "Session", session_factory)
+    monkeypatch.setattr(view.search, "search", fake_search)
+
+    assert search_view._search_with_reconnect("family where epithet=Guidedaceae") == [
+        "result"
+    ]
+    assert calls == [
+        ("family where epithet=Guidedaceae", "original"),
+        ("family where epithet=Guidedaceae", "fresh"),
+    ]
+    assert original_session.closed
+    assert session_factory.removed
+
+
+def test_create_menu_item_with_image_uses_single_gtk_menu_child():
+    item = ui.create_menu_item_with_image("Report a Bug", "help-about")
+
+    try:
+        assert isinstance(item, Gtk.MenuItem)
+        assert isinstance(item.get_child(), Gtk.Box)
+        assert len(item.get_children()) == 1
+        image, label = item.get_child().get_children()
+        assert isinstance(image, Gtk.Image)
+        assert label.get_label() == "Report a Bug"
+    finally:
+        item.destroy()
+
+
+def test_create_menu_item_with_png_image_uses_image_menu_item():
+    item = ui.create_menu_item_with_image(
+        "Report a Bug",
+        "menu-help-bug.png",
+        os.path.join(paths.lib_dir(), "images"),
+    )
+
+    try:
+        assert isinstance(item, Gtk.MenuItem)
+        assert isinstance(item.get_child(), Gtk.Box)
+        assert len(item.get_children()) == 1
+    finally:
+        item.destroy()
+
+
+def test_main_search_history_completion_shows_popup(monkeypatch):
+    history = [
+        "family where epithet=Guidedaceae",
+        "species where genus.epithet=Guidedgenus",
+    ]
+    combo = Gtk.ComboBoxText.new_with_entry()
+    combo.set_model(Gtk.ListStore(str))
+    gui = SimpleNamespace(
+        entry_history_pref="bauble.history",
+        widgets=SimpleNamespace(main_comboentry=combo),
+    )
+    monkeypatch.setattr(ui, "prefs", {"bauble.history": history})
+    monkeypatch.setattr(ui, "_main_search_database_completion_values", lambda text: [])
+
+    ui.GUI.populate_main_entry(gui)
+
+    completion = combo.get_child().get_completion()
+    completion_model = completion.get_model()
+
+    try:
+        assert completion.get_property("popup_completion")
+        assert completion.get_property("inline_completion")
+        assert completion.get_minimum_key_length() == 2
+        values = [row[0] for row in completion_model]
+        assert values[: len(history)] == history
+        assert "genus where epithet=" in values
+        assert "plant where location.code=" in values
+    finally:
+        combo.destroy()
+
+
+def test_main_search_completion_configures_glade_completion(monkeypatch):
+    history = ["species where genus.epithet=Tulipa"]
+    combo = Gtk.ComboBoxText.new_with_entry()
+    combo.set_model(Gtk.ListStore(str))
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(str))
+    combo.get_child().set_completion(completion)
+    gui = SimpleNamespace(
+        entry_history_pref="bauble.history",
+        widgets=SimpleNamespace(main_comboentry=combo),
+    )
+    monkeypatch.setattr(ui, "prefs", {"bauble.history": history})
+    monkeypatch.setattr(ui, "_main_search_database_completion_values", lambda text: [])
+
+    ui.GUI.populate_main_entry(gui)
+
+    try:
+        assert completion.get_property("popup_completion")
+        assert completion.get_property("inline_completion")
+        assert completion.get_property("popup-set-width") is False
+        assert completion.get_minimum_key_length() == 2
+        assert [row[0] for row in completion.get_model()][:1] == history
+    finally:
+        combo.destroy()
+
+
+def test_main_search_completion_includes_database_values_before_templates():
+    values = ui._main_search_completion_values(
+        ["GLOC", "family where epithet="],
+        ["Guidedgenus", "GLOC", "location where code=GLOC"],
+    )
+
+    assert values[:3] == ["GLOC", "family where epithet=", "Guidedgenus"]
+    assert values.count("GLOC") == 1
+    assert "location where code=GLOC" in values
+    assert values[-1] == "location where code="
+
+
+def test_main_search_database_completion_values_uses_seeded_records(session):
+    family = Family(epithet="Guidedaceae")
+    genus = Genus(epithet="Guidedgenus", family=family)
+    species = Species(epithet="guidedspecies", genus=genus)
+    location = Location(code="GLOC", name="Guided Test Bed")
+    accession = Accession(code="GUIDED-ACC-001", species=species)
+    plant = Plant(code="1", accession=accession, location=location, quantity=1)
+    session.add_all([family, genus, species, location, accession, plant])
+    session.commit()
+
+    guided_values = ui._main_search_database_completion_values("Gui")
+    assert "Guidedaceae" in guided_values
+    assert "Guidedgenus" in guided_values
+    assert "Guidedgenus guidedspecies" in guided_values
+    assert "GUIDED-ACC-001" in guided_values
+    assert "GUIDED-ACC-001.1" in guided_values
+
+    species_values = ui._main_search_database_completion_values("guideds")
+    assert "Guidedgenus guidedspecies" in species_values
+
+    species_genus_values = ui._main_search_database_completion_values(
+        "species where genus.epithet=Gui"
+    )
+    assert species_genus_values == ["species where genus.epithet=Guidedgenus"]
+
+    location_values = ui._main_search_database_completion_values(
+        "location where code=GL"
+    )
+    assert location_values == ["location where code=GLOC"]
+
+
+def test_main_search_changed_refreshes_database_completion(monkeypatch):
+    requested_text = []
+    combo = Gtk.ComboBoxText.new_with_entry()
+    combo.set_model(Gtk.ListStore(str))
+    gui = SimpleNamespace(
+        entry_history_pref="bauble.history",
+        widgets=SimpleNamespace(main_comboentry=combo),
+        _populating_main_entry=False,
+    )
+    gui.populate_main_entry = lambda text="": ui.GUI.populate_main_entry(gui, text)
+    monkeypatch.setattr(ui, "prefs", {"bauble.history": []})
+
+    def database_values(text):
+        requested_text.append(text)
+        return ["GLOC", "Guidedgenus guidedspecies"]
+
+    monkeypatch.setattr(ui, "_main_search_database_completion_values", database_values)
+
+    try:
+        entry = combo.get_child()
+        entry.set_text("GL")
+        ui.GUI.on_main_entry_changed(gui, entry)
+
+        completion_values = [row[0] for row in entry.get_completion().get_model()]
+        assert requested_text == ["GL"]
+        assert completion_values[:2] == ["GLOC", "Guidedgenus guidedspecies"]
+    finally:
+        combo.destroy()
+
+
+def test_main_search_completion_matches_substrings_case_insensitively():
+    assert ui._main_search_completion_matches_text(
+        "species where genus.epithet=Tulipa", "tulip"
+    )
+    assert ui._main_search_completion_matches_text(
+        "plant where location.code=", "LOCATION"
+    )
+    assert not ui._main_search_completion_matches_text(
+        "genus where epithet=", "accession"
+    )
+
+
+def test_generic_entry_completion_enables_inline_and_popup_behavior():
+    entry = Gtk.Entry()
+    generic_view = object.__new__(GenericEditorView)
+
+    try:
+        completion = GenericEditorView.attach_completion(
+            generic_view, entry, text_column=0
+        )
+
+        assert completion.get_property("popup_completion")
+        assert completion.get_property("inline_completion")
+        assert completion.get_property("inline_selection")
+        assert completion.get_property("popup-set-width") is False
+        assert completion.get_popup_single_match()
+    finally:
+        entry.destroy()
+
+
+def test_dynamic_completion_refreshes_at_minimum_key_length():
+    entry = Gtk.Entry()
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(object))
+    completion.set_minimum_key_length(2)
+    entry.set_completion(completion)
+    requested_prefixes = []
+
+    class CompletionView:
+        widgets = SimpleNamespace()
+
+        def connect(self, obj, signal, callback, *args):
+            return obj.connect(signal, callback, *args)
+
+    presenter = object.__new__(GenericEditorPresenter)
+    presenter.view = CompletionView()
+    presenter.problems = set()
+
+    def get_completions(prefix):
+        requested_prefixes.append(prefix)
+        return ["Tulipa"]
+
+    try:
+        GenericEditorPresenter.assign_completions_handler(
+            presenter, entry, get_completions
+        )
+        entry.set_text("Tu")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert requested_prefixes == ["Tu"]
+        assert [row[0] for row in entry.get_completion().get_model()] == ["Tulipa"]
+    finally:
+        entry.destroy()
+
+
+def test_dynamic_completion_keeps_partial_prefix_match_pending():
+    entry = Gtk.Entry()
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(object))
+    completion.set_minimum_key_length(2)
+    entry.set_completion(completion)
+    selected_values = []
+
+    class CompletionView:
+        widgets = SimpleNamespace()
+
+        def connect(self, obj, signal, callback, *args):
+            return obj.connect(signal, callback, *args)
+
+    presenter = object.__new__(GenericEditorPresenter)
+    presenter.view = CompletionView()
+    presenter.problems = set()
+
+    try:
+        GenericEditorPresenter.assign_completions_handler(
+            presenter,
+            entry,
+            lambda _prefix: ["Guidedgenus"],
+            on_select=selected_values.append,
+        )
+        entry.set_text("Guide")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert selected_values == []
+        assert not presenter.has_problems(entry)
+
+        entry.set_text("Guidedgenus")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert selected_values == ["Guidedgenus"]
+        assert not presenter.has_problems(entry)
+    finally:
+        entry.destroy()
+
+
+def test_dynamic_completion_exact_match_ignores_zero_width_space():
+    entry = Gtk.Entry()
+    completion = Gtk.EntryCompletion()
+    completion.set_model(Gtk.ListStore(object))
+    completion.set_minimum_key_length(2)
+    entry.set_completion(completion)
+    selected_values = []
+
+    class CompletionView:
+        widgets = SimpleNamespace()
+
+        def connect(self, obj, signal, callback, *args):
+            return obj.connect(signal, callback, *args)
+
+    class SpeciesLike:
+        def __str__(self):
+            return "Guidedgenus \u200bguidedspecies"
+
+    value = SpeciesLike()
+    presenter = object.__new__(GenericEditorPresenter)
+    presenter.view = CompletionView()
+    presenter.problems = set()
+
+    try:
+        GenericEditorPresenter.assign_completions_handler(
+            presenter,
+            entry,
+            lambda _prefix: [value],
+            on_select=selected_values.append,
+        )
+        entry.set_text("Guidedgenus guidedspecies")
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+
+        assert selected_values == [value]
+        assert not presenter.has_problems(entry)
+    finally:
+        entry.destroy()
+
+
+def test_max_length_validator_wraps_base_validator():
+    validator = MaxLengthValidator(3, UnicodeOrNoneValidator())
+
+    assert validator.to_python("") is None
+    assert validator.to_python("abc") == "abc"
+    with pytest.raises(ValidatorError) as exc_info:
+        validator.to_python("abcd")
+
+    assert "3 characters or fewer" in str(exc_info.value)
+
+
+def test_connection_manager_empty_state(connmgr_view, gtk_prefs):
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    assert presenter.connection_names == []
+    assert connmgr_view.widget_get_visible("noconnectionlabel")
+    assert not connmgr_view.widget_get_visible("expander")
+    assert not connmgr_view.widgets.connect_button.get_sensitive()
+
+
+def test_connection_manager_populates_postgresql_connection(connmgr_view, gtk_prefs):
+    gtk_prefs.prefs[bauble.conn_list_pref] = {
+        "Wyse Home Garden": {
+            "type": "PostgreSQL",
+            "db": "ghini_test3",
+            "host": "postgres",
+            "port": 5432,
+            "user": "ghini",
+            "passwd": True,
+            "pictures": "/app/Wyse Home Garden",
+        }
+    }
+    gtk_prefs.prefs[bauble.conn_default_pref] = "Wyse Home Garden"
+
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    assert presenter.connection_name == "Wyse Home Garden"
+    assert connmgr_view.combobox_get_active_text("name_combo") == "Wyse Home Garden"
+    assert connmgr_view.combobox_get_active_text("type_combo") == "PostgreSQL"
+    assert connmgr_view.widget_get_value("database_entry") == "ghini_test3"
+    assert connmgr_view.widget_get_value("host_entry") == "postgres"
+    assert connmgr_view.widget_get_value("port_entry") == "5432"
+    assert connmgr_view.widget_get_value("user_entry") == "ghini"
+    assert connmgr_view.widget_get_active("passwd_chkbx")
+    assert (
+        connmgr_view.widget_get_value("pictureroot2_entry") == "/app/Wyse Home Garden"
+    )
+    assert connmgr_view.widget_get_visible("dbms_parambox")
+    assert not connmgr_view.widget_get_visible("sqlite_parambox")
+    assert connmgr_view.widgets.connect_button.get_sensitive()
+
+
+def test_connection_manager_entry_edits_update_presenter(connmgr_view, gtk_prefs):
+    gtk_prefs.prefs[bauble.conn_list_pref] = {
+        "dev": {
+            "type": "PostgreSQL",
+            "db": "old_db",
+            "host": "old_host",
+            "port": 5432,
+            "user": "old_user",
+            "passwd": False,
+            "pictures": "/tmp/dev",
+        }
+    }
+    gtk_prefs.prefs[bauble.conn_default_pref] = "dev"
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    connmgr_view.widget_set_value("database_entry", "new_db")
+    presenter.on_text_entry_changed("database_entry")
+    connmgr_view.widget_set_value("host_entry", "new_host")
+    presenter.on_text_entry_changed("host_entry")
+    connmgr_view.widget_set_value("port_entry", "6543")
+    presenter.on_text_entry_changed("port_entry")
+    connmgr_view.widget_set_value("user_entry", "new_user")
+    presenter.on_text_entry_changed("user_entry")
+    connmgr_view.widget_set_active("passwd_chkbx", True)
+    presenter.on_chkbx_toggled("passwd_chkbx")
+
+    assert presenter.database == "new_db"
+    assert presenter.host == "new_host"
+    assert presenter.port == "6543"
+    assert presenter.user == "new_user"
+    assert presenter.passwd is True
+    assert presenter.is_dirty()
+
+
+def test_connection_manager_switches_between_db_sections(connmgr_view, gtk_prefs):
+    gtk_prefs.prefs[bauble.conn_list_pref] = {
+        "dev": {
+            "type": "PostgreSQL",
+            "db": "ghini",
+            "host": "postgres",
+            "port": 5432,
+            "user": "ghini",
+            "passwd": False,
+            "pictures": "/tmp/dev",
+        }
+    }
+    gtk_prefs.prefs[bauble.conn_default_pref] = "dev"
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    connmgr_view.combobox_set_active("type_combo", connmgr.dbtypes.index("SQLite"))
+    presenter.on_combo_changed("type_combo")
+
+    assert presenter.dbtype == "SQLite"
+    assert connmgr_view.widget_get_visible("sqlite_parambox")
+    assert not connmgr_view.widget_get_visible("dbms_parambox")
+
+    connmgr_view.combobox_set_active("type_combo", connmgr.dbtypes.index("PostgreSQL"))
+    presenter.on_combo_changed("type_combo")
+
+    assert presenter.dbtype == "PostgreSQL"
+    assert connmgr_view.widget_get_visible("dbms_parambox")
+    assert not connmgr_view.widget_get_visible("sqlite_parambox")
+
+
+def test_connection_manager_add_and_remove_connection(
+    monkeypatch, connmgr_view, gtk_prefs
+):
+    monkeypatch.setattr(connmgr, "prefs", gtk_prefs)
+    connmgr_view.run_entry_dialog = lambda *args, **kwargs: "new connection"
+    connmgr_view.run_yes_no_dialog = lambda *args, **kwargs: True
+    presenter = ConnMgrPresenter(connmgr_view, prefs=gtk_prefs)
+
+    presenter.on_add_button_clicked()
+
+    assert presenter.connection_names == ["new connection"]
+    assert "new connection" in presenter.connections
+    assert connmgr_view.combobox_get_active_text("name_combo") == "new connection"
+    assert connmgr_view.widget_get_visible("expander")
+    assert not connmgr_view.widget_get_visible("noconnectionlabel")
+
+    presenter.on_remove_button_clicked(connmgr_view.widgets.remove_button)
+
+    assert presenter.connection_names == []
+    assert presenter.connections == {}
+    assert connmgr_view.widget_get_visible("noconnectionlabel")
+    assert not connmgr_view.widget_get_visible("expander")
+
+
+def test_family_editor_presenter_populates_and_edits_fields(
+    session, family_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    presenter = FamilyEditorPresenter(family, family_editor_view)
+
+    assert family_editor_view.widget_get_value("fam_family_entry") == "Arecaceae"
+    assert family_editor_view.widget_get_value("fam_qualifier_combo") == ""
+    assert not family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+    family_editor_view.widget_set_value("fam_family_entry", "Palmae")
+    presenter.on_text_entry_changed("fam_family_entry")
+
+    assert family.epithet == "Palmae"
+    assert presenter.is_dirty()
+    assert family_editor_view.widgets.fam_ok_button.get_sensitive()
+    assert family_editor_view.widgets.fam_ok_and_add_button.get_sensitive()
+    assert family_editor_view.widgets.fam_next_button.get_sensitive()
+
+
+def test_family_editor_blocks_overlong_epithet(session, family_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    presenter = FamilyEditorPresenter(family, family_editor_view)
+    entry = family_editor_view.widgets.fam_family_entry
+
+    entry.set_text("X" * 46)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert family.epithet == "Arecaceae"
+    assert presenter.has_problems(entry)
+    assert not family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+    entry.set_text("Guidedaceae")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert family.epithet == "Guidedaceae"
+    assert not presenter.has_problems()
+    assert family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+
+def test_family_editor_validation_marks_and_clears_problem_style(
+    session, family_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    presenter = FamilyEditorPresenter(family, family_editor_view)
+    entry = family_editor_view.widgets.fam_family_entry
+
+    entry.set_text("X" * 46)
+    drain_gtk_events()
+
+    assert presenter.has_problems(entry)
+    assert entry.get_style_context().has_class("problem")
+    assert not family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+    entry.set_text("Guidedaceae")
+    drain_gtk_events()
+
+    assert not presenter.has_problems(entry)
+    assert not entry.get_style_context().has_class("problem")
+    assert family_editor_view.widgets.fam_ok_button.get_sensitive()
+
+
+def test_genus_editor_presenter_populates_and_edits_fields(session, genus_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    session.add_all([family, genus])
+    session.flush()
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+
+    assert genus.family == family
+    assert genus_editor_view.widget_get_value("gen_family_entry") == "Arecaceae"
+    assert genus_editor_view.widget_get_value("gen_genus_entry") == "Cocos"
+    assert genus_editor_view.widget_get_value("gen_author_entry") == "L."
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    genus_editor_view.widget_set_value("gen_genus_entry", "Phoenix")
+    presenter.on_text_entry_changed("gen_genus_entry")
+    genus_editor_view.widget_set_value("gen_author_entry", "Mill.")
+    presenter.on_text_entry_changed("gen_author_entry")
+
+    assert genus.epithet == "Phoenix"
+    assert genus.author == "Mill."
+    assert presenter.is_dirty()
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
+    assert genus_editor_view.widgets.gen_ok_and_add_button.get_sensitive()
+    assert genus_editor_view.widgets.gen_next_button.get_sensitive()
+
+
+def test_genus_editor_family_completion_selects_family_object(
+    session, genus_editor_view
+):
+    family = Family(epithet="Tulipaceae", qualifier="")
+    genus = Genus(epithet="Guidedvisualgenus")
+    session.add(family)
+    session.flush()
+    session.add(genus)
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+    genus_editor_view.widgets.gen_family_entry.set_text("Tulipaceae")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.family == family
+    assert genus_editor_view.widget_get_value("gen_family_entry") == "Tulipaceae"
+    assert not presenter.has_problems(genus_editor_view.widgets.gen_family_entry)
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+
+def test_genus_editor_family_completion_keeps_partial_input_pending(
+    session, genus_editor_view
+):
+    family = Family(epithet="Tulipaceae", qualifier="")
+    genus = Genus(epithet="Guidedvisualgenus")
+    session.add(family)
+    session.flush()
+    session.add(genus)
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+    family_entry = genus_editor_view.widgets.gen_family_entry
+    genus_editor_view.widgets.gen_genus_entry.set_text("Guidedvisualgenus")
+    drain_gtk_events()
+
+    family_entry.set_text("Tuli")
+    drain_gtk_events()
+
+    assert genus.family is None
+    assert not presenter.has_problems(family_entry)
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    family_entry.set_text("Tulipaceae")
+    drain_gtk_events()
+
+    assert genus.family == family
+    assert not presenter.has_problems(family_entry)
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+
+def test_genus_editor_blocks_overlong_epithet_and_author(session, genus_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    session.add_all([family, genus])
+    session.flush()
+
+    presenter = GenusEditorPresenter(genus, genus_editor_view)
+    epithet_entry = genus_editor_view.widgets.gen_genus_entry
+    author_entry = genus_editor_view.widgets.gen_author_entry
+
+    epithet_entry.set_text("X" * 65)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.epithet == "Cocos"
+    assert presenter.has_problems(epithet_entry)
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    epithet_entry.set_text("Phoenix")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    author_entry.set_text("Y" * 256)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.epithet == "Phoenix"
+    assert genus.author == "L."
+    assert presenter.has_problems(author_entry)
+    assert not genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+    author_entry.set_text("Mill.")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert genus.author == "Mill."
+    assert not presenter.has_problems()
+    assert genus_editor_view.widgets.gen_ok_button.get_sensitive()
+
+
+def test_species_editor_presenter_populates_and_edits_fields(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+
+    assert species.genus == genus
+    assert species_editor_view.widget_get_value("sp_genus_entry") == "Cocos"
+    assert species_editor_view.widget_get_value("sp_species_entry") == "nucifera"
+    assert species_editor_view.widget_get_value("sp_author_entry") == "L."
+    assert not species_editor_view.widget_get_active("sp_hybrid_check")
+
+    species_editor_view.widget_set_value("sp_species_entry", "odorata")
+    presenter.on_text_entry_changed("sp_species_entry")
+    species_editor_view.widget_set_value("sp_author_entry", "Dammer")
+    presenter.on_text_entry_changed("sp_author_entry")
+    species_editor_view.widget_set_active("sp_hybrid_check", True)
+    presenter.on_chkbx_toggled("sp_hybrid_check")
+
+    assert species.epithet == "odorata"
+    assert species.author == "Dammer"
+    assert species.hybrid is True
+    assert presenter.is_dirty()
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
+    assert species_editor_view.widgets.sp_next_button.get_sensitive()
+
+
+def test_species_editor_pending_genus_initializes_fullname(
+    session, species_editor_view
+):
+    family = Family(epithet="Guidedchainaceae", qualifier="")
+    session.add(family)
+    session.flush()
+
+    genus = Genus(family=family, epithet="Guidedchaingenus")
+    species = Species(genus=genus, epithet="guidedchainspecies", hybrid=False)
+    session.add_all([genus, species])
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+
+    assert genus.id is None
+    assert species.genus == genus
+    assert species_editor_view.widget_get_value("sp_genus_entry") == "Guidedchaingenus"
+    assert (
+        "Guidedchaingenus" in species_editor_view.widgets.sp_fullname_label.get_text()
+    )
+    assert not presenter.has_problems(species_editor_view.widgets.sp_genus_entry)
+
+
+def test_species_editor_blocks_overlong_names(session, species_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(
+        genus=genus,
+        epithet="nucifera",
+        author="L.",
+        hybrid=False,
+        cv_group=None,
+    )
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    epithet_entry = species_editor_view.widgets.sp_species_entry
+    author_entry = species_editor_view.widgets.sp_author_entry
+    cv_group_entry = species_editor_view.widgets.sp_cvgroup_entry
+
+    epithet_entry.set_text("X" * 65)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.epithet == "nucifera"
+    assert presenter.has_problems(epithet_entry)
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    epithet_entry.set_text("odorata")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    author_entry.set_text("Y" * 129)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.epithet == "odorata"
+    assert species.author == "L."
+    assert presenter.has_problems(author_entry)
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    author_entry.set_text("Dammer")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    cv_group_entry.set_text("Z" * 51)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.author == "Dammer"
+    assert species.cv_group is None
+    assert presenter.has_problems(cv_group_entry)
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    cv_group_entry.set_text("Guided Group")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert species.cv_group == "Guided Group"
+    assert not presenter.has_problems()
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+
+def test_species_vernacular_name_syncs_while_cell_is_edited(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    vern_presenter = presenter.vern_presenter
+    vern_presenter.on_add_button_clicked(species_editor_view.widgets.sp_vern_add_button)
+    vernacular_name = species.vernacular_names[0]
+    cell_editor = Gtk.Entry()
+
+    vern_presenter.on_cell_editing_started(
+        species_editor_view.widgets.vn_name_cell, cell_editor, "0", "name"
+    )
+    cell_editor.set_text("Coconut palm")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert vernacular_name.name == "Coconut palm"
+    assert presenter.is_dirty()
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+
+def test_species_vernacular_name_tab_moves_from_name_to_language(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    vern_presenter = presenter.vern_presenter
+    vern_presenter.on_add_button_clicked(species_editor_view.widgets.sp_vern_add_button)
+    vernacular_name = species.vernacular_names[0]
+    cell_editor = Gtk.Entry()
+    tab_event = SimpleNamespace(keyval=Gdk.KEY_Tab, state=0)
+
+    vern_presenter.on_cell_editing_started(
+        species_editor_view.widgets.vn_name_cell, cell_editor, "0", "name"
+    )
+    cell_editor.set_text("Coconut palm")
+
+    assert vern_presenter.on_cell_editing_key_press(cell_editor, tab_event, "0", "name")
+
+    cursor_path, cursor_column = species_editor_view.widgets.vern_treeview.get_cursor()
+    assert vernacular_name.name == "Coconut palm"
+    assert cursor_path.to_string() == "0"
+    assert cursor_column is species_editor_view.widgets.vn_lang_column
+
+
+def test_species_editor_notes_add_button_adds_note_box(session, species_editor_view):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    notes_box = presenter.notes_presenter.box
+
+    assert len(notes_box.get_children()) == 0
+
+    presenter.notes_presenter.widgets.notes_add_button.emit("clicked")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert len(notes_box.get_children()) == 1
+
+
+def test_species_editor_note_fields_validate_and_update_model(
+    session, species_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.flush()
+
+    presenter = SpeciesEditorPresenter(species, species_editor_view)
+    note_box = presenter.notes_presenter.add_note()
+    date_entry = note_box.widgets.date_entry
+    category_entry = note_box.widgets.category_comboentry.get_child()
+    note_textview = note_box.widgets.note_textview
+
+    assert date_entry.get_property("editable")
+    assert category_entry.get_property("editable")
+
+    date_entry.set_text("not-a-date")
+    drain_gtk_events()
+
+    assert presenter.notes_presenter.has_problems(date_entry)
+    assert date_entry.get_style_context().has_class("problem")
+    assert not species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+    date_entry.set_text("13-05-2026")
+    category_entry.set_text("label")
+    note_textview.get_buffer().set_text("Useful on plant labels")
+    drain_gtk_events()
+
+    assert not presenter.notes_presenter.has_problems(date_entry)
+    assert not date_entry.get_style_context().has_class("problem")
+    assert species.notes[0].date.isoformat() == "2026-05-13"
+    assert species.notes[0].category == "label"
+    assert species.notes[0].note == "Useful on plant labels"
+    assert species_editor_view.widgets.sp_ok_button.get_sensitive()
+
+
+def test_location_editor_presenter_populates_and_edits_fields(
+    session, location_editor_view
+):
+    location = Location(code="A1", name="Palm House", description="Warm house")
+    session.add(location)
+    session.flush()
+
+    presenter = LocationEditorPresenter(location, location_editor_view)
+
+    assert location_editor_view.widget_get_value("loc_code_entry") == "A1"
+    assert location_editor_view.widget_get_value("loc_name_entry") == "Palm House"
+    assert location_editor_view.widget_get_value("loc_desc_textview") == "Warm house"
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widget_set_value("loc_code_entry", "B2")
+    presenter.on_text_entry_changed("loc_code_entry")
+    location_editor_view.widget_set_value("loc_name_entry", "Fern Room")
+    presenter.on_text_entry_changed("loc_name_entry")
+    location_editor_view.widget_set_value("loc_desc_textview", "Cool house")
+    presenter.on_textbuffer_changed(
+        location_editor_view.widgets.loc_desc_textview.get_buffer(),
+        attr="description",
+    )
+
+    assert location.code == "B2"
+    assert location.name == "Fern Room"
+    assert location.description == "Cool house"
+    assert presenter.is_dirty()
+    assert location_editor_view.widgets.loc_ok_button.get_sensitive()
+    assert location_editor_view.widgets.loc_ok_and_add_button.get_sensitive()
+    assert location_editor_view.widgets.loc_next_button.get_sensitive()
+
+
+def test_location_editor_requires_code_before_accept(session, location_editor_view):
+    location = Location(code=None, name=None, description=None)
+    session.add(location)
+
+    presenter = LocationEditorPresenter(location, location_editor_view)
+
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widget_set_value("loc_name_entry", "Unnamed bed")
+    presenter.on_text_entry_changed("loc_name_entry")
+
+    assert location.name == "Unnamed bed"
+    assert presenter.is_dirty()
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widget_set_value("loc_code_entry", "U1")
+    presenter.on_text_entry_changed("loc_code_entry")
+
+    assert location.code == "U1"
+    assert location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+
+def test_location_editor_blocks_overlong_code_and_name(session, location_editor_view):
+    location = Location(code="A1", name="Palm House", description=None)
+    session.add(location)
+    session.flush()
+
+    presenter = LocationEditorPresenter(location, location_editor_view)
+
+    location_editor_view.widgets.loc_code_entry.set_text("X" * 13)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert location.code == "A1"
+    assert presenter.has_problems(location_editor_view.widgets.loc_code_entry)
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widgets.loc_code_entry.set_text("B2")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+    location_editor_view.widgets.loc_name_entry.set_text("Y" * 81)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert location.code == "B2"
+    assert location.name == "Palm House"
+    assert presenter.has_problems(location_editor_view.widgets.loc_name_entry)
+    assert not location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+    location_editor_view.widgets.loc_name_entry.set_text("Fern Room")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert location.name == "Fern Room"
+    assert not presenter.has_problems()
+    assert location_editor_view.widgets.loc_ok_button.get_sensitive()
+
+
+def make_test_plant(session):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    accession = Accession(code="2026.001", species=species)
+    location = Location(code="P1", name="Palm House", description=None)
+    plant = Plant(
+        accession=accession,
+        location=location,
+        code="1",
+        quantity=1,
+        acc_type="Plant",
+        memorial=False,
+    )
+    session.add_all([family, genus, species, accession, location, plant])
+    session.commit()
+    return plant
+
+
+def make_test_accession(session):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    accession = Accession(
+        code="2026.001",
+        species=species,
+        quantity_recvd=1,
+        recvd_type="PLNT",
+        private=False,
+    )
+    session.add_all([family, genus, species, accession])
+    session.flush()
+    return accession
+
+
+def test_plant_editor_presenter_populates_and_edits_code(
+    monkeypatch, session, plant_editor_view
+):
+    monkeypatch.setattr(prefs, "testing", False)
+    plant = make_test_plant(session)
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+
+    assert plant_editor_view.widget_get_value("plant_acc_entry") == "2026.001"
+    assert plant_editor_view.widget_get_value("plant_code_entry") == "1"
+    assert plant_editor_view.widget_get_value("plant_quantity_entry") == "1"
+    assert (
+        plant_editor_view.widget_get_value("plant_loc_comboentry") == "(P1) Palm House"
+    )
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+    plant_editor_view.widget_set_value("plant_code_entry", "2")
+    presenter.on_plant_code_entry_changed(plant_editor_view.widgets.plant_code_entry)
+
+    assert plant.code == "2"
+    assert presenter.is_dirty()
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+    assert plant_editor_view.widgets.pad_next_button.get_sensitive()
+
+
+def test_plant_material_choices_match_release_baseline():
+    assert acc_type_values == {
+        None: "",
+        "Plant": "Planting",
+        "Seed": "Seed/Spore",
+        "Vegetative": "Vegetative Part",
+        "Tissue": "Tissue Culture",
+        "Other": "Other",
+    }
+
+
+def test_plant_editor_quantity_changes_update_model(
+    monkeypatch, session, plant_editor_view
+):
+    monkeypatch.setattr(prefs, "testing", False)
+    plant = make_test_plant(session)
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    plant_editor_view.widget_set_value("plant_quantity_entry", "3")
+
+    presenter.on_quantity_changed(plant_editor_view.widgets.plant_quantity_entry)
+
+    assert plant.quantity == 3
+    assert presenter.change.quantity == 2
+    assert presenter.is_dirty()
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+
+def test_plant_editor_invalid_quantity_blocks_accept(
+    monkeypatch, session, plant_editor_view
+):
+    monkeypatch.setattr(prefs, "testing", False)
+    plant = make_test_plant(session)
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    plant_editor_view.widgets.plant_quantity_entry.set_text("not a number")
+
+    assert plant.quantity == 1
+    assert plant_editor_view.widgets.plant_quantity_entry.get_text() == "1"
+    assert not presenter.has_problems()
+    assert not presenter.is_dirty()
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+    assert not plant_editor_view.widgets.pad_next_button.get_sensitive()
+
+
+def test_plant_editor_blocks_overlong_code(session, plant_editor_view):
+    plant = make_test_plant(session)
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    entry = plant_editor_view.widgets.plant_code_entry
+
+    entry.set_text("X" * 7)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert plant.code == "1"
+    assert presenter.has_problems(entry)
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+    entry.set_text("2")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert plant.code == "2"
+    assert not presenter.has_problems()
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+
+def test_plant_editor_duplicate_code_marks_entry_error_and_recovers(
+    session, plant_editor_view
+):
+    plant = make_test_plant(session)
+    existing = Plant(
+        accession=plant.accession,
+        location=plant.location,
+        code="2",
+        quantity=1,
+        acc_type="Plant",
+        memorial=False,
+    )
+    session.add(existing)
+    session.commit()
+
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    entry = plant_editor_view.widgets.plant_code_entry
+
+    entry.set_text("2")
+    drain_gtk_events()
+
+    assert plant.code == "2"
+    assert presenter.has_problems(entry)
+    assert entry.get_style_context().has_class("entry-error")
+    assert not plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+    entry.set_text("3")
+    drain_gtk_events()
+
+    assert plant.code == "3"
+    assert not presenter.has_problems(entry)
+    assert not entry.get_style_context().has_class("entry-error")
+    assert plant_editor_view.widgets.pad_ok_button.get_sensitive()
+
+
+def test_plant_editor_commit_discards_blank_seed_propagation_detail(
+    session, plant_editor_view, monkeypatch
+):
+    import logging
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+    monkeypatch.setattr("bauble.utils.message_details_dialog", lambda *a, **k: None)
+    plant = make_test_plant(session)
+    propagation = Propagation(prop_type="Seed", plants=[plant])
+    blank_seed = PropSeed(propagation=propagation)
+    session.add(propagation)
+    presenter = PlantEditorPresenter(plant, plant_editor_view)
+    plant_editor_view.widget_set_value("plant_quantity_entry", "2")
+    presenter.on_quantity_changed(plant_editor_view.widgets.plant_quantity_entry)
+    editor = PlantEditor.__new__(PlantEditor)
+    editor.session = session
+    editor.model = plant
+    editor.presenter = presenter
+    editor.branched_plant = None
+    editor._committed = []
+
+    assert blank_seed in session.new
+
+    editor.commit_changes()
+
+    assert blank_seed not in session.new
+    assert session.scalars(select(PropSeed)).all() == []
+    assert session.get(Propagation, propagation.id) is not None
+
+
+def test_accession_editor_presenter_populates_and_edits_core_fields(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+
+    species_text = accession_editor_view.widget_get_value("acc_species_entry")
+    assert species_text.replace("\u200b", "") == "Cocos nucifera"
+    assert accession_editor_view.widget_get_value("acc_code_entry") == "2026.001"
+    assert accession_editor_view.widget_get_value("acc_quantity_recvd_entry") == "1"
+    assert (
+        accession_editor_view.widget_get_value("acc_recvd_type_comboentry")
+        == "Planting"
+    )
+    assert not accession_editor_view.widget_get_active("acc_private_check")
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    accession_editor_view.widgets.acc_code_entry.set_text("2026.002")
+    presenter.on_acc_code_entry_changed(accession_editor_view.widgets.acc_code_entry)
+    accession_editor_view.widget_set_value("acc_quantity_recvd_entry", "3")
+    presenter.on_text_entry_changed("acc_quantity_recvd_entry")
+    accession_editor_view.widget_set_active("acc_private_check", True)
+    presenter.on_chkbx_toggled("acc_private_check")
+
+    assert accession.code == "2026.002"
+    assert accession.quantity_recvd == "3"
+    assert accession.private is True
+    assert presenter.is_dirty()
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+    assert accession_editor_view.widgets.acc_ok_and_add_button.get_sensitive()
+    assert accession_editor_view.widgets.acc_next_button.get_sensitive()
+
+
+def test_accession_editor_duplicate_code_blocks_accept(session, accession_editor_view):
+    existing = make_test_accession(session)
+    duplicate = Accession(code="2026.002", species=existing.species)
+    session.add(duplicate)
+    session.commit()
+
+    presenter = AccessionEditorPresenter(existing, accession_editor_view)
+
+    accession_editor_view.widgets.acc_code_entry.set_text("2026.002")
+    presenter.on_acc_code_entry_changed(accession_editor_view.widgets.acc_code_entry)
+
+    assert existing.code is None
+    assert presenter.has_problems()
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_accession_editor_blocks_overlong_code(session, accession_editor_view):
+    accession = make_test_accession(session)
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    entry = accession_editor_view.widgets.acc_code_entry
+
+    entry.set_text("X" * 21)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert accession.code == "2026.001"
+    assert presenter.has_problems(entry)
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("2026.002")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert accession.code == "2026.002"
+    assert not presenter.has_problems()
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_accession_editor_date_validation_marks_problem_and_recovers(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    entry = accession_editor_view.widgets.acc_date_accd_entry
+
+    entry.set_text("not-a-date")
+    drain_gtk_events()
+
+    assert accession.date_accd is None
+    assert presenter.has_problems(entry)
+    assert entry.get_style_context().has_class("problem")
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("13-05-2026")
+    drain_gtk_events()
+
+    assert accession.date_accd.isoformat() == "2026-05-13"
+    assert not presenter.has_problems(entry)
+    assert not entry.get_style_context().has_class("problem")
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_accession_editor_reloads_detached_species_for_id_qual_rank(session):
+    accession = make_test_accession(session)
+    species = accession.species
+
+    class DetachedSpecies:
+        @property
+        def genus(self):
+            raise DetachedInstanceError("detached species")
+
+    presenter = AccessionEditorPresenter.__new__(AccessionEditorPresenter)
+    presenter.session = session
+    presenter.model = SimpleNamespace(
+        species=DetachedSpecies(),
+        species_id=species.id,
+    )
+
+    assert presenter._species_for_id_qual_rank() is species
+    assert presenter.model.species is species
+
+
+def test_accession_editor_does_not_pending_disabled_source_placeholders(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    accession.source = None
+
+    AccessionEditorPresenter(accession, accession_editor_view)
+
+    source_placeholder_types = (
+        Collection,
+        PropCutting,
+        PropSeed,
+        Propagation,
+        Source,
+    )
+    assert not any(isinstance(obj, source_placeholder_types) for obj in session.new)
+
+
+def test_source_contacts_are_sorted_and_deduplicated_for_selection():
+    contacts = [
+        Contact(id=4, name="Zulu Nursery"),
+        Contact(id=2, name="alpha nursery"),
+        Contact(id=1, name="Alpha Nursery"),
+        Contact(id=3, name="Beta Nursery"),
+        Contact(id=5, name=""),
+        Contact(id=6, name=None),
+    ]
+
+    values = [
+        _source_display_text(contact) for contact in _unique_source_contacts(contacts)
+    ]
+
+    assert values == ["Alpha Nursery", "Beta Nursery", "Zulu Nursery"]
+
+
+def test_accession_source_combo_orders_dedupes_and_matches_text(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    alpha = Contact(name="Alpha Nursery")
+    alpha_duplicate = Contact(name="alpha nursery")
+    beta = Contact(name="Beta Nursery")
+    zulu = Contact(name="Zulu Nursery")
+    session.add_all([zulu, alpha_duplicate, beta, alpha])
+    session.commit()
+
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    source_presenter = presenter.source_presenter
+    source_presenter.start()
+    combo = accession_editor_view.widgets.acc_source_comboentry
+    model = combo.get_model()
+    entry = combo.get_child()
+    completion = entry.get_completion()
+
+    values = [_source_display_text(row[0]) for row in model]
+
+    assert values[:2] == ["", source_presenter.garden_prop_str]
+    assert [value.casefold() for value in values[2:]] == [
+        "alpha nursery",
+        "beta nursery",
+        "zulu nursery",
+    ]
+    assert completion.get_model() is model
+    assert completion.get_minimum_key_length() == 1
+    assert completion.get_property("popup_completion")
+    assert completion.get_property("inline_completion")
+    assert _source_matches_text(beta, "eta")
+    assert _source_matches_text(beta, str(beta.id))
+    assert source_presenter._source_detail_from_text(model, "Beta") is beta
+    assert source_presenter._source_detail_from_text(model, "Nursery") is None
+
+
+def test_accession_source_entry_exact_match_attaches_source_detail(
+    session, accession_editor_view
+):
+    accession = make_test_accession(session)
+    source = Contact(name="Exact Match Nursery")
+    session.add(source)
+    session.commit()
+
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    source_presenter = presenter.source_presenter
+    source_presenter.start()
+    entry = accession_editor_view.widgets.acc_source_comboentry.get_child()
+
+    entry.set_text("Exact Match Nursery")
+    drain_gtk_events()
+
+    assert accession.source is source_presenter.source
+    assert accession.source.source_detail is source
+    assert not source_presenter.has_problems(entry)
+    assert accession_editor_view.widgets.source_sw.get_visible()
+    assert not accession_editor_view.widgets.source_none_label.get_visible()
+
+
+def test_accession_editor_from_species_id_populates_taxon_and_commits(session):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.commit()
+    species_id = species.id
+
+    accession_editor = AccessionEditor(Accession(species_id=species_id))
+    try:
+        species_text = accession_editor.presenter.view.widget_get_value(
+            "acc_species_entry"
+        )
+        assert species_text.replace("\u200b", "") == "Cocos nucifera"
+
+        accession_editor.model.code = "DAILY-ACC-001"
+        accession_editor.model.recvd_type = "PLNT"
+        accession_editor.model.quantity_recvd = 1
+        accession_editor.model.private = False
+
+        assert accession_editor.commit_changes()
+        assert accession_editor.model.id is not None
+        assert accession_editor.model.species_id == species_id
+    finally:
+        accession_editor.presenter.cleanup()
+        accession_editor.presenter.view.get_window().destroy()
+        accession_editor.session.close()
+
+
+def test_accession_species_completion_waits_for_full_species_text(
+    session, accession_editor_view
+):
+    family = Family(epithet="Arecaceae", qualifier="")
+    genus = Genus(family=family, epithet="Cocos", author="L.")
+    species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
+    session.add_all([family, genus, species])
+    session.commit()
+    accession = Accession(code="2026.001", quantity_recvd=1, recvd_type="PLNT")
+
+    presenter = AccessionEditorPresenter(
+        accession, accession_editor_view, session=session
+    )
+    entry = accession_editor_view.widgets.acc_species_entry
+
+    entry.set_text("Cocos")
+    drain_gtk_events()
+
+    assert accession.species is None
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("Cocos nucifera")
+    drain_gtk_events()
+
+    assert accession.species is species
+    assert not presenter.has_problems(entry)
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_contact_editor_blocks_overlong_source_name(session, contact_editor_view):
+    contact = Contact(name="Known source")
+    session.add(contact)
+    session.flush()
+
+    presenter = ContactPresenter(contact, contact_editor_view, session=session)
+    entry = contact_editor_view.widgets.source_name_entry
+
+    entry.set_text("X" * 76)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert contact.name == "Known source"
+    assert presenter.has_problems(entry)
+    assert not contact_editor_view.widgets.sd_ok_button.get_sensitive()
+
+    entry.set_text("New source")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert contact.name == "New source"
+    assert not presenter.has_problems()
+    assert contact_editor_view.widgets.sd_ok_button.get_sensitive()
+
+
+def test_accession_source_id_blocks_overlong_value(session, accession_editor_view):
+    accession = make_test_accession(session)
+    presenter = AccessionEditorPresenter(accession, accession_editor_view)
+    source_presenter = presenter.source_presenter
+    entry = accession_editor_view.widgets.sources_code_entry
+
+    entry.set_text("X" * 33)
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert source_presenter.source.sources_code is None
+    assert source_presenter.has_problems(entry)
+    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+    entry.set_text("DONOR-001")
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+    assert source_presenter.source.sources_code == "DONOR-001"
+    assert not source_presenter.has_problems(entry)
+    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+
+
+def test_propagation_editor_seed_fields_enable_accept(session, propagation_editor_view):
+    propagation = Propagation(
+        prop_type="Seed",
+        date=datetime.date(2026, 4, 22),
+    )
+    session.add(propagation)
+    date_text = propagation.date.strftime(prefs.prefs[prefs.date_format_pref])
+
+    presenter = PropagationEditorPresenter(propagation, propagation_editor_view)
+
+    assert propagation_editor_view.widget_get_value("prop_type_combo") == "Seed"
+    assert propagation_editor_view.widget_get_value("prop_date_entry") == date_text
+    assert propagation_editor_view.widgets.seed_box.get_visible()
+    assert not propagation_editor_view.widgets.cutting_box.get_visible()
+    assert not propagation_editor_view.widgets.prop_ok_button.get_sensitive()
+
+    propagation_editor_view.widget_set_value("seed_nseeds_entry", "12")
+    propagation_editor_view.widget_set_value("seed_sown_entry", date_text)
+
+    assert propagation._seed.nseeds == 12
+    assert propagation._seed.date_sown == propagation.date
+    assert presenter.is_dirty()
+    presenter.refresh_sensitivity()
+    assert propagation_editor_view.widgets.prop_ok_button.get_sensitive()
+
+
+def test_propagation_editor_cutting_fields_and_rooted_rows(
+    session, propagation_editor_view
+):
+    propagation = Propagation(
+        prop_type="UnrootedCutting",
+        date=datetime.date(2026, 5, 1),
+    )
+    session.add(propagation)
+
+    presenter = PropagationEditorPresenter(propagation, propagation_editor_view)
+
+    assert (
+        propagation_editor_view.widget_get_value("prop_type_combo") == "UnrootedCutting"
+    )
+    assert propagation_editor_view.widgets.cutting_box.get_visible()
+    assert not propagation_editor_view.widgets.seed_box.get_visible()
+    assert not propagation_editor_view.widgets.prop_ok_button.get_sensitive()
+
+    propagation_editor_view.widget_set_value("cutting_length_entry", "10")
+    propagation_editor_view.widget_set_value("cutting_rooted_pct_entry", "75")
+
+    assert propagation._cutting.length == "10"
+    assert propagation._cutting.rooted_pct == "75"
+
+    rooted_model = propagation_editor_view.widgets.rooted_treeview.get_model()
+    assert len(rooted_model) == 0
+
+    presenter._cutting_presenter.on_rooted_add_clicked(None)
+    assert len(rooted_model) == 1
+    treeiter = rooted_model.get_iter_first()
+    rooted = rooted_model[treeiter][0]
+    assert rooted.cutting is propagation._cutting
+
+    propagation_editor_view.widgets.rooted_treeview.get_selection().select_iter(
+        treeiter
+    )
+    presenter._cutting_presenter.on_rooted_remove_clicked(None)
+
+    assert len(rooted_model) == 0
+    assert rooted.cutting is None
+    assert presenter.is_dirty()
+    presenter.refresh_sensitivity()
+    assert propagation_editor_view.widgets.prop_ok_button.get_sensitive()

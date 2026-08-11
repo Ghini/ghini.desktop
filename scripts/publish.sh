@@ -12,7 +12,7 @@ python setup.py sdist | awk 'BEGIN{count=0}/^.*$/{count++; printf("running setup
 # PUBLISHING is in the form 3.1.x
 #
 LINE=ghini-3.1
-PUBLISHING=$(grep :bump bauble/version.py | grep -o '[1-9]\.[0-9]\.[0-9]*')
+PUBLISHING=$(grep :bump bauble/_version.py | grep -o '[1-9]\.[0-9]\.[0-9]*')
 
 # make sure you have locally all remote branches
 #

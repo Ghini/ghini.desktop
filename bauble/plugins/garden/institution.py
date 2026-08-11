@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015,2018 Mario Frasca <mario@anche.no>.
@@ -22,61 +21,110 @@
 # Description: edit and store information about the institution in the bauble
 # meta
 #
-
+import logging
+import math
 import os
-import gi
-
-from gi.repository import Gtk, Gdk
+import re
+from gettext import gettext as _
 
 # mapping stuff
-gi.require_version('GtkClutter', '1.0')
-gi.require_version('GtkChamplain', '0.12')
-gi.require_version('Champlain', '0.12')
-from gi.repository import GtkClutter, Clutter, GtkChamplain
-GtkClutter.init([])  # needed before importing Champlain
-from gi.repository import Champlain
+from typing import Any, Optional
 
-import logging
-logger = logging.getLogger(__name__)
-
-import re
-
+import bauble.db as db
 import bauble.editor as editor
 import bauble.meta as meta
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
+from bauble.gtkinit import Champlain, Clutter, Gdk, Gtk, GtkChamplain, GtkClutter
+from sqlalchemy import insert, select, update
+from sqlalchemy.orm import sessionmaker
 
-PADDING=6
-import math
 
-class MapViewer(Gtk.Dialog):
+# Ensure GTK is initialized and get the display
+display: Any = Gdk.Display.get_default()
+if not display:
+    raise RuntimeError("GDK Display could not be initialized.")
 
-    def __init__(self, title="", parent=None, *args, **kwargs):
-        super().__init__(title, parent, *args, **kwargs)
+# Explicitly set Clutter's GDK display before initializing Clutter
+Clutter.set_windowing_backend("x11")  # Use "x11" explicitly if running in X11
+
+# Now initialize Clutter and GtkClutter
+GtkClutter.init([])  # GtkClutter first
+Clutter.init([])  # Then Clutter
+
+
+logger = logging.getLogger(__name__)
+
+
+PADDING: int = 6
+
+
+def _metadata_session():
+    return sessionmaker(bind=db.engine, autoflush=False, future=True)()
+
+
+def _testing_mode() -> bool:
+    from bauble.prefs import prefs
+
+    return bool(
+        getattr(prefs, "testing", False) or os.environ.get("PYTEST_CURRENT_TEST")
+    )
+
+
+def safe_set_text(gtk_widget, text) -> None:
+    """
+    Sets the text of a Gtk widget replacing None with an empty string.
+
+    :param label: Instance of a Gtk widget
+    :param text: The text to set, which may be None
+    """
+    if text is None:
+        text = ""
+    gtk_widget.set_text(text)
+
+
+class MapViewer:
+    dialog: Any
+    result: Any
+    map_widget: Any
+    clutter_view: Any
+    layer: Any
+    plant_layer: Any
+    plant_highlighted: Any
+    buttons: Any
+    place_button: Any
+    marker_circle: Any
+    marker_through: Any
+    marker_centre: Any
+
+    def __init__(
+        self, title: str = "", parent: Optional[Any] = None, *args, **kwargs
+    ) -> None:
+        self.dialog = Gtk.Dialog(
+            title, parent, *args, **kwargs
+        )  # Use composition instead of subclassing
         self.result = None
 
-        self.connect("key-press-event", self.on_key_press)
+        # Connect key press event
+        self.dialog.connect("key-press-event", self.on_key_press)
 
         self.map_widget = GtkChamplain.Embed()
         self.map_widget.set_size_request(640, 480)
         self.clutter_view = self.map_widget.get_view()
         self.clutter_view.set_horizontal_wrap(True)
 
-        box = self.get_content_area()
+        box = self.dialog.get_content_area()
         box.add(self.map_widget)
-
-        ## now the Clutter stuff
-        self.map_widget.set_size_request(640, 480)
-        self.clutter_view = self.map_widget.get_view()
-        self.clutter_view.set_horizontal_wrap(True)
 
         self.layer = None
 
         self.plant_layer = Champlain.MarkerLayer()
         self.clutter_view.add_layer(self.plant_layer)
-        orange = Clutter.Color.new(0xf3, 0x94, 0x07, 0xa0)
-        self.plant_highlighted = Champlain.Label.new_with_text("", "Serif 14", None, orange)
+        orange = Clutter.Color.new(0xF3, 0x94, 0x07, 0xA0)
+        self.plant_highlighted = Champlain.Label.new_with_text(
+            "", "Serif 14", None, orange
+        )
         self.plant_layer.add_marker(self.plant_highlighted)
         self.plant_layer.show()
 
@@ -90,41 +138,51 @@ class MapViewer(Gtk.Dialog):
         self.buttons = buttons = Clutter.Actor()
         self.clutter_view.add_child(buttons)
 
-        button = self.make_button(_('OK'))
+        # Creating the buttons for OK, Cancel, and Activate
+        button = self.make_button(_("OK"))
         button.set_position(offset, PADDING)
         (width, height) = button.get_size()
         offset += width + PADDING
         buttons.add_child(button)
         button.set_reactive(True)
-        button.connect('button-release-event', self.on_clutter_ok_button)
+        button.connect("button-release-event", self.on_clutter_ok_button)
 
-        button = self.make_button(_('Cancel'))
+        button = self.make_button(_("Cancel"))
         button.set_position(offset, PADDING)
         (width, height) = button.get_size()
         offset += width + PADDING
         buttons.add_child(button)
         button.set_reactive(True)
-        button.connect('button-release-event', self.on_clutter_cancel_button)
+        button.connect("button-release-event", self.on_clutter_cancel_button)
 
-        self.place_button = button = self.make_button(_('Activate'))
+        self.place_button = button = self.make_button(_("Activate"))
         button.set_position(PADDING, 2 * PADDING + height)
         buttons.add_child(button)
         button.set_reactive(True)
-        button.connect('button-release-event', self.on_clutter_place_button)
+        button.connect("button-release-event", self.on_clutter_place_button)
 
         self.clutter_view.center_on(5.0, 13.0)
         self.clutter_view.set_zoom_level(1)
-        self.show_all()
+        self.dialog.show_all()
+
+    def run(self):
+        return self.dialog.run()
+
+    def destroy(self):
+        return self.dialog.destroy()
+
+    def hide(self):
+        return self.dialog.hide()
 
     def make_button(self, text):
-        black = Clutter.Color.new(0x00, 0x00, 0x00, 0xff)
-        white = Clutter.Color.new(0xff, 0xff, 0xff, 0xff)
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0xFF)
+        white = Clutter.Color.new(0xFF, 0xFF, 0xFF, 0xFF)
 
         button = Clutter.Actor()
 
         button_bg = Clutter.Actor()
         button_bg.set_background_color(white)
-        button_bg.set_opacity(0xcc)
+        button_bg.set_opacity(0xCC)
         button.add_child(button_bg)
 
         button_text = Clutter.Text.new_full("Sans 10", text, black)
@@ -138,8 +196,8 @@ class MapViewer(Gtk.Dialog):
         return button
 
     def add_marker_layer(self):
-        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7f)
-        orange = Clutter.Color.new(0xf3, 0x94, 0x07, 0x60)
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7F)
+        orange = Clutter.Color.new(0xF3, 0x94, 0x07, 0x60)
         layer = Champlain.MarkerLayer()
 
         self.marker_circle = marker_circle = Champlain.Point()
@@ -176,79 +234,115 @@ class MapViewer(Gtk.Dialog):
         layer.show()
         return layer
 
-    def on_clutter_place_button(self, widget, event):
+    def on_clutter_place_button(self, widget, event) -> None:
         # make sure the markers exist
         if self.layer is None:
             self.layer = self.add_marker_layer()
             self.clutter_view.add_layer(self.layer)
         # get the initial marker position
-        lat, lon = self.marker_circle.get_latitude(), self.marker_circle.get_longitude()
-        y0, x0 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+        lat, lon = (
+            self.marker_circle.get_latitude(),
+            self.marker_circle.get_longitude(),
+        )
+        y0, x0 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(
+            lon
+        )
         # get the destination marker position
         if event.source == self.place_button:
-            x1, y1 = [i/2 for i in self.clutter_view.get_size()]
+            x1, y1 = (i / 2 for i in self.clutter_view.get_size())
         else:
-            y1, x1 = event.y, event.x
+            y1, x1 = event.get_y(), event.get_x()  # 1. issue_gdkevent_structs
         lon = self.clutter_view.x_to_longitude(x1)
         lat = self.clutter_view.y_to_latitude(y1)
         # move the circle
         self.marker_circle.set_location(lat, lon)
         # activate the trigger after moving the circle
-        self.on_marker_button_release(self.marker_circle, x1-x0, y1-y0, None)
+        self.on_marker_button_release(self.marker_circle, x1 - x0, y1 - y0, None)
         # remove the button if still there
         if self.place_button is not None:
             self.buttons.remove_child(self.place_button)
             self.place_button = None
-        
-    def on_view_button_release(self, widget, event):
+
+    def on_view_button_release(self, widget, event) -> None:
         if event.button == 3:
             self.on_clutter_place_button(widget, event)
 
-    def on_clutter_ok_button(self, widget, event):
+    def on_clutter_ok_button(self, widget, event) -> None:
         if self.layer is None:
             return
         self.result = self.get_centre()
-        self.response(Gtk.ResponseType.OK)
+        self.dialog.response(Gtk.ResponseType.OK)
 
-    def on_clutter_cancel_button(self, widget, event):
-        self.response(Gtk.ResponseType.CANCEL)
+    def on_clutter_cancel_button(self, widget, event) -> None:
+        self.dialog.response(Gtk.ResponseType.CANCEL)
 
-    def on_animation_completed(self, *args, **kwargs):
+    def on_animation_completed(self, *args, **kwargs) -> None:
         if self.layer is None:
             return
-        lat, lon = self.marker_through.get_latitude(), self.marker_through.get_longitude()
-        y2, x2 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
-        lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
-        y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
-        angle = math.atan2((y2-y), (x2-x))
+        lat, lon = (
+            self.marker_through.get_latitude(),
+            self.marker_through.get_longitude(),
+        )
+        y2, x2 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(
+            lon
+        )
+        lat, lon = (
+            self.marker_centre.get_latitude(),
+            self.marker_centre.get_longitude(),
+        )
+        y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(
+            lon
+        )
+        angle = math.atan2((y2 - y), (x2 - x))
         radius = self.marker_circle.get_size() / 2
         dx = math.cos(angle) * radius
         dy = math.sin(angle) * radius
-        lat, lon = self.clutter_view.y_to_latitude(y + dy), self.clutter_view.x_to_longitude(x + dx)
+        lat, lon = self.clutter_view.y_to_latitude(
+            y + dy
+        ), self.clutter_view.x_to_longitude(x + dx)
         self.marker_through.set_location(lat, lon)
 
-    def on_marker_button_release(self, marker_circle, dx, dy, event, *args, **kwargs):
+    def on_marker_button_release(
+        self, marker_circle, dx, dy, event, *args, **kwargs
+    ) -> None:
         for marker in [self.marker_through, self.marker_centre]:
             lat, lon = marker.get_latitude(), marker.get_longitude()
-            y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
-            lat, lon = self.clutter_view.y_to_latitude(y + dy), self.clutter_view.x_to_longitude(x + dx)
+            y, x = self.clutter_view.latitude_to_y(
+                lat
+            ), self.clutter_view.longitude_to_x(lon)
+            lat, lon = self.clutter_view.y_to_latitude(
+                y + dy
+            ), self.clutter_view.x_to_longitude(x + dx)
             marker.set_location(lat, lon)
 
         # we're done, but the circle is dragged to the top in Z-order.
         # we push it back to the bottom, below all its siblings.
         self.layer.set_child_below_sibling(self.marker_circle)
 
-    def on_marker_centre_button_release(self, marker_centre, dx, dy, event):
-        lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
+    def on_marker_centre_button_release(self, marker_centre, dx, dy, event) -> None:
+        lat, lon = (
+            self.marker_centre.get_latitude(),
+            self.marker_centre.get_longitude(),
+        )
         self.marker_circle.set_location(lat, lon)
         self.on_marker_through_button_release(self.marker_through, dx, dy, event)
 
-    def on_marker_through_button_release(self, marker_through, dx, dy, event):
-        lat, lon = marker_through.get_latitude(), marker_through.get_longitude()
-        y2, x2 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
-        lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
-        y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
-        radius = math.sqrt((x-x2)**2 + (y-y2)**2)
+    def on_marker_through_button_release(self, marker_through, dx, dy, event) -> None:
+        lat, lon = (
+            marker_through.get_latitude(),
+            marker_through.get_longitude(),
+        )
+        y2, x2 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(
+            lon
+        )
+        lat, lon = (
+            self.marker_centre.get_latitude(),
+            self.marker_centre.get_longitude(),
+        )
+        y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(
+            lon
+        )
+        radius = math.sqrt((x - x2) ** 2 + (y - y2) ** 2)
         self.marker_circle.set_size(radius * 2)
 
     def on_key_press(self, widget, ev):
@@ -269,7 +363,7 @@ class MapViewer(Gtk.Dialog):
         else:
             return False
 
-    def scroll(self, deltax, deltay):
+    def scroll(self, deltax, deltay) -> None:
         lat = self.clutter_view.get_center_latitude()
         lon = self.clutter_view.get_center_longitude()
 
@@ -283,16 +377,18 @@ class MapViewer(Gtk.Dialog):
 
     def get_centre(self):
         from . import utm
+
         lat1 = self.marker_centre.get_latitude()
         lon1 = self.marker_centre.get_longitude()
         lat2 = self.marker_through.get_latitude()
         lon2 = self.marker_through.get_longitude()
         x1, y1, zone_number, zone_letter = utm.from_latlon(lat1, lon1)
         x2, y2, zone_number, zone_letter = utm.from_latlon(lat2, lon2, zone_number)
-        return (lat1, lon1, 2 * math.sqrt((x2-x1)**2 + (y2-y1)**2))
+        return (lat1, lon1, 2 * math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
 
-    def set_centre(self, lat, lon, diam):
+    def set_centre(self, lat, lon, diam) -> None:
         from . import utm
+
         if self.layer is None:
             self.layer = self.add_marker_layer()
             self.clutter_view.add_layer(self.layer)
@@ -310,103 +406,167 @@ class MapViewer(Gtk.Dialog):
         self.clutter_view.set_zoom_level(zoom_level)
         self.on_marker_through_button_release(self.marker_through, 0, 0, None)
 
-    def add_plant(self, text, lat, lon, icon=None):
-        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7f)
+    def add_plant(self, text, lat, lon, icon: Optional[Any] = None) -> None:
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7F)
         plant_marker = Champlain.Point()
         plant_marker.set_location(lat, lon)
         plant_marker.set_color(black)
         plant_marker.set_size(5)
         self.plant_layer.add_marker(plant_marker)
+
         def on_select_this(widget, ev):
-            self.plant_highlighted.set_text(text)
+            safe_set_text(self.plant_highlighted, text)
             self.plant_highlighted.set_location(lat, lon)
             self.plant_layer.set_child_above_sibling(self.plant_highlighted)
+
         plant_marker.connect("button-release-event", on_select_this)
 
-class Institution(object):
-    '''
+
+class Institution:
+    """
     Institution is a "live" object. When properties are changed the changes
     are immediately reflected in the database.
 
     Institution values are stored in the Ghini meta database and not in
-    its own table
-    '''
-    __properties = ('name', 'abbreviation', 'code',
-                    'contact', 'technical_contact', 'email',
-                    'tel', 'fax', 'address',
-                    'geo_latitude', 'geo_longitude', 'geo_diameter',
-                    'uuid')
+    its a dedicated table.
+
+    A Ghini database describes exactly one institution, so there is no
+    lookup or search involved: ``Institution()`` always refers to that
+    single record.
+
+    All properties are stored, and returned, as strings (or None if
+    never set); callers are responsible for converting to other types
+    (e.g. ``float`` for the ``geo_*`` fields) as needed.
+
+    """
+
+    name: Optional[str] = None
+    abbreviation: Optional[str] = None
+    code: Optional[str] = None
+    contact: Optional[str] = None
+    technical_contact: Optional[str] = None
+    email: Optional[str] = None
+    tel: Optional[str] = None
+    fax: Optional[str] = None
+    address: Optional[str] = None
+    geo_latitude: Optional[str] = None
+    geo_longitude: Optional[str] = None
+    geo_diameter: Optional[str] = None
+    uuid: Optional[str] = None
+
+    __properties: tuple[str, ...] = (
+        "name",
+        "abbreviation",
+        "code",
+        "contact",
+        "technical_contact",
+        "email",
+        "tel",
+        "fax",
+        "address",
+        "geo_latitude",
+        "geo_longitude",
+        "geo_diameter",
+        "uuid",
+    )
 
     table = meta.BaubleMeta.__table__
 
-    def __init__(self):
-        # initialize properties to None
-        list(map(lambda p: setattr(self, p, None), self.__properties))
-
+    def __init__(self) -> None:
+        # Initialize properties to None
         for prop in self.__properties:
-            db_prop = utils.utf8('inst_' + prop)
-            result = self.table.select(self.table.c.name == db_prop).execute()
-            row = result.fetchone()
-            if row:
-                setattr(self, prop, row['value'])
-            result.close()
+            setattr(self, prop, None)
 
-    def write(self):
-        for prop in self.__properties:
-            value = getattr(self, prop)
-            db_prop = utils.utf8('inst_' + prop)
-            if value is not None:
-                value = utils.utf8(value)
-            result = self.table.select(self.table.c.name == db_prop).execute()
-            row = result.fetchone()
-            result.close()
-            # have to check if the property exists first because sqlite doesn't
-            # raise an error if you try to update a value that doesn't exist
-            # and do an insert and then catching the exception if it exists
-            # and then updating the value is too slow
-            if not row:
-                logger.debug('insert: %s = %s' % (prop, value))
-                self.table.insert().execute(name=db_prop, value=value)
-            else:
-                logger.debug('update: %s = %s' % (prop, value))
-                self.table.update(
-                    self.table.c.name == db_prop).execute(value=value)
+        # Use a scoped session for querying the database
+        db_prop_prefix = "inst_"
+        with _metadata_session() as session:
+            for prop in self.__properties:
+                db_prop = db_prop_prefix + prop
+                stmt = select(self.table.c.value).where(self.table.c.name == db_prop)
+                result = session.execute(stmt).scalar_one_or_none()
+                if result is not None:
+                    setattr(self, prop, result)
+
+    def write(self) -> None:
+        """Write the current property values to the database."""
+        db_prop_prefix = "inst_"
+        with _metadata_session() as session:
+            for prop in self.__properties:
+                value = getattr(self, prop)
+                db_prop = db_prop_prefix + prop
+
+                # Skip creating a row if the value is None; keeps meta table cleaner
+                if value is None:
+                    # If a row exists and you want to clear it, keep the update branch;
+                    # otherwise continue to leave existing value unchanged.
+                    stmt = select(self.table.c.name).where(self.table.c.name == db_prop)
+                    exists = session.execute(stmt).scalar_one_or_none()
+                    if not exists:
+                        continue
+
+                # Check if the property already exists in the database
+                stmt = select(self.table).where(self.table.c.name == db_prop)
+                row = session.execute(stmt).scalar_one_or_none()
+
+                if not row:
+                    # Insert if it does not exist
+                    logger.debug(f"insert: {prop} = {value}")
+                    stmt = insert(self.table).values(name=db_prop, value=value)
+                else:
+                    # Update if it exists
+                    logger.debug(f"update: {prop} = {value}")
+                    stmt = (
+                        update(self.table)
+                        .where(self.table.c.name == db_prop)
+                        .values(value=value)
+                    )
+
+                session.execute(stmt)
+            if session.in_transaction():
+                session.commit()
 
 
 class InstitutionPresenter(editor.GenericEditorPresenter):
 
-    widget_to_field_map = {'inst_name': 'name',
-                           'inst_abbr': 'abbreviation',
-                           'inst_code': 'code',
-                           'inst_contact': 'contact',
-                           'inst_tech': 'technical_contact',
-                           'inst_email': 'email',
-                           'inst_tel': 'tel',
-                           'inst_fax': 'fax',
-                           'inst_addr_tb': 'address',
-                           'inst_geo_latitude': 'geo_latitude',
-                           'inst_geo_longitude': 'geo_longitude',
-                           'inst_geo_diameter': 'geo_diameter',
-                           }
+    message_box: Any
+    email_regexp: Any
+    widget_to_field_map: Any = {
+        "inst_name": "name",
+        "inst_abbr": "abbreviation",
+        "inst_code": "code",
+        "inst_contact": "contact",
+        "inst_tech": "technical_contact",
+        "inst_email": "email",
+        "inst_tel": "tel",
+        "inst_fax": "fax",
+        "inst_addr_tb": "address",
+        "inst_geo_latitude": "geo_latitude",
+        "inst_geo_longitude": "geo_longitude",
+        "inst_geo_diameter": "geo_diameter",
+    }
 
-    def __init__(self, model, view):
+    def __init__(self, model, view) -> None:
         self.message_box = None
-        self.email_regexp = re.compile(r'.+@.+\..+')
-        super().__init__(model, view, refresh_view=True)
-        self.view.widget_grab_focus('inst_name')
-        self.on_non_empty_text_entry_changed('inst_name')
-        self.on_email_text_entry_changed('inst_email')
+        self.email_regexp = re.compile(r".+@.+\..+")
+        session = db.TempSession()
+        super().__init__(model, view, refresh_view=True, session=session)
+        self.view.widget_grab_focus("inst_name")
+        self.on_non_empty_text_entry_changed("inst_name")
+        self.on_email_text_entry_changed("inst_email")
         if not model.uuid:
             import uuid
+
             model.uuid = str(uuid.uuid4())
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         super().cleanup()
         if self.message_box:
             self.view.remove_box(self.message_box)
             self.message_box = None
 
-    def on_non_empty_text_entry_changed(self, widget, value=None):
+    def on_non_empty_text_entry_changed(
+        self, widget, value: Optional[Any] = None
+    ) -> None:
         value = super().on_non_empty_text_entry_changed(widget, value)
         box = self.message_box
         if value:
@@ -415,129 +575,162 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
                 self.message_box = None
         elif not box:
             box = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
-            box.message = _('Please specify an institution name for this '
-                            'database.')
-            box.show()
+            box.message = _("Please specify an institution name for this " "database.")
             self.view.add_box(box)
             self.message_box = box
+            box.show()
 
-    def on_email_text_entry_changed(self, widget, value=None):
+    def on_email_text_entry_changed(self, widget, value: Optional[Any] = None) -> None:
         value = super().on_text_entry_changed(widget, value)
         self.view.widget_set_sensitive(
-            'inst_register', self.email_regexp.match(value or ''))
+            "inst_register", self.email_regexp.match(value or "")
+        )
 
     def get_sentry_handler(self):
-        from bauble import prefs
-        if prefs.testing:
+        if _testing_mode():
             from bauble.test import MockLoggingHandler
+
             return MockLoggingHandler()
         else:
             from raven import Client
             from raven.handlers.logging import SentryHandler
-            sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
-                                   '00268114ed47460b94ce2b1b0b2a4a20@'
-                                   'app.getsentry.com/45704')
+
+            sentry_client = Client(
+                "https://59105d22a4ad49158796088c26bf8e4c:"
+                "00268114ed47460b94ce2b1b0b2a4a20@"
+                "app.getsentry.com/45704"
+            )
             sentry_client.name = hex(hash(sentry_client.name) + 2**64)[2:-1]
             return SentryHandler(sentry_client)
 
-    def on_select_map_clicked(self, *args, **kwargs):
-        map = MapViewer(_('Zoom to garden'), self.view.get_window())
-        try:
-            map.set_centre(float(self.model.geo_latitude), float(self.model.geo_longitude), float(self.model.geo_diameter))
-        except Exception as e:
-            pass
+    def on_select_map_clicked(self, *args, **kwargs) -> None:
+        map = MapViewer(_("Zoom to garden"), self.view.get_window())
+        lat_str, lon_str, diam_str = (
+            self.model.geo_latitude,
+            self.model.geo_longitude,
+            self.model.geo_diameter,
+        )
+        if lat_str is not None and lon_str is not None and diam_str is not None:
+            try:
+                map.set_centre(float(lat_str), float(lon_str), float(diam_str))
+            except ValueError:
+                logger.debug(
+                    f"invalid geo values: latitude={lat_str}, longitude={lon_str}, diameter={diam_str}"
+                )
+        else:
+            logger.debug("institution geo coordinates not set, skipping map centering")
         if map.run() == Gtk.ResponseType.OK:
             lat, lon, diam = map.result
-            self.view.widget_set_value('inst_geo_latitude', "%0.6f" % lat)
-            self.view.widget_set_value('inst_geo_longitude', "%0.6f" % lon)
-            self.view.widget_set_value('inst_geo_diameter', "%0.0f" % diam)
+            self.view.widget_set_value("inst_geo_latitude", f"{lat:0.6f}")
+            self.view.widget_set_value("inst_geo_longitude", f"{lon:0.6f}")
+            self.view.widget_set_value("inst_geo_diameter", f"{diam:0.0f}")
         map.destroy()
 
-    def on_inst_register_clicked(self, *args, **kwargs):
-        '''send the registration data as sentry info log message
-        '''
+    def on_inst_register_clicked(self, *args, **kwargs) -> None:
+        """send the registration data as sentry info log message"""
 
         # create the handler first
         handler = self.get_sentry_handler()
         handler.setLevel(logging.INFO)
 
         # the registration logger gets the above handler
-        registrations = logging.getLogger('bauble.registrations')
+        registrations = logging.getLogger("bauble.registrations")
         registrations.setLevel(logging.INFO)
         registrations.addHandler(handler)
 
         # produce the log record
-        registrations.info([(key, getattr(self.model, key))
-                            for key in list(self.widget_to_field_map.values())])
+        registrations.info(
+            [
+                (key, getattr(self.model, key))
+                for key in list(self.widget_to_field_map.values())
+            ]
+        )
 
         # remove the handler after usage
         registrations.removeHandler(handler)
 
         # disable button, so user will not send registration twice
-        self.view.widget_set_sensitive('inst_register', False)
+        self.view.widget_set_sensitive("inst_register", False)
 
-    def on_inst_addr_tb_changed(self, widget, value=None, attr=None):
-        return self.on_textbuffer_changed(widget, value, attr='address')
+    def on_inst_addr_tb_changed(
+        self, widget, value: Optional[Any] = None, attr: Optional[Any] = None
+    ):
+        return self.on_textbuffer_changed(widget, value, attr="address")
+
+
+class InstitutionEditor:
+    TOOLTIPS = {
+        "inst_name": _("The full name of the institution."),
+        "inst_abbr": _("The standard abbreviation of the " "institution."),
+        "inst_code": _("The intitution code should be unique among " "all institions."),
+        "inst_contact": _(
+            "The name of the person to contact for "
+            "information related to the institution."
+        ),
+        "inst_tech": _(
+            "The email address or phone number of the "
+            "person to contact for technical "
+            "information related to the institution."
+        ),
+        "inst_email": _("The email address of the institution."),
+        "inst_tel": _("The telephone number of the institution."),
+        "inst_fax": _("The fax number of the institution."),
+        "inst_addr": _("The mailing address of the institition."),
+        "inst_geo_latitude": _("The latitude of the geographic centre of the garden."),
+        "inst_geo_longitude": _(
+            "The longitude of the geographic centre of the garden."
+        ),
+        "inst_diameter": _(
+            "An approximation of the garden size: "
+            "the diameter of the smallest circle completely "
+            "containing the garden location."
+        ),
+    }
+
+    def __init__(self, model=None, parent=None):
+        self.model = model or Institution()
+        self.parent = parent
+        glade_path = os.path.join(paths.lib_dir(), "plugins", "garden", "institution.glade")
+        from bauble.editor import GenericEditorView
+        self.view = GenericEditorView(
+            glade_path, parent=parent, root_widget_name="inst_dialog"
+        )
+        self.view._tooltips = self.TOOLTIPS
+        self.presenter = InstitutionPresenter(self.model, self.view)
+
+    def start(self):
+        response = self.presenter.start()
+        return self.handle_response(response)
+
+    def handle_response(self, response):
+        if response == Gtk.ResponseType.OK:
+            self.model.write()
+            self.presenter.commit_changes()
+            result = True
+        else:
+            if self.presenter.session.in_transaction():
+                self.presenter.session.rollback()
+            result = False
+        return result
 
 
 def start_institution_editor():
-    glade_path = os.path.join(paths.lib_dir(),
-                              "plugins", "garden", "institution.glade")
-    from bauble import prefs
-    from bauble.editor import GenericEditorView, MockView
-    if prefs.testing:
-        view = MockView()
-    else:
-        view = GenericEditorView(
-            glade_path,
-            parent=None,
-            root_widget_name='inst_dialog')
-    view._tooltips = {
-        'inst_name': _('The full name of the institution.'),
-        'inst_abbr': _('The standard abbreviation of the '
-                       'institution.'),
-        'inst_code': _('The intitution code should be unique among '
-                       'all institions.'),
-        'inst_contact': _('The name of the person to contact for '
-                          'information related to the institution.'),
-        'inst_tech': _('The email address or phone number of the '
-                       'person to contact for technical '
-                       'information related to the institution.'),
-        'inst_email': _('The email address of the institution.'),
-        'inst_tel': _('The telephone number of the institution.'),
-        'inst_fax': _('The fax number of the institution.'),
-        'inst_addr': _('The mailing address of the institition.'),
-        'inst_geo_latitude': _('The latitude of the geographic centre of the garden.'),
-        'inst_geo_longitude': _('The longitude of the geographic centre of the garden.'),
-        'inst_diameter': _('An approximation of the garden size: '
-                           'the diameter of the smallest circle completely '
-                           'containing the garden location.'),
-        }
-
-    o = Institution()
-    inst_pres = InstitutionPresenter(o, view)
-    response = inst_pres.start()
-    if response == Gtk.ResponseType.OK:
-        o.write()
-        inst_pres.commit_changes()
-    else:
-        inst_pres.session.rollback()
-    inst_pres.session.close()
+    return InstitutionEditor().start()
 
 
 class InstitutionCommand(pluginmgr.CommandHandler):
-    command = ('inst', 'institution')
-    view = None
+    command: Any = ("inst", "institution")
+    view: Any = None
 
-    def __call__(self, cmd, arg):
+    def __call__(self, cmd, arg) -> None:
         InstitutionTool.start()
 
 
 class InstitutionTool(pluginmgr.Tool):
-    item_position = 2
-    label = _('Institution')
-    icon_name = 'x-office-presentation'
+    item_position: int = 2
+    label: Any = _("Institution")
+    icon_name: str = "x-office-presentation"
 
     @classmethod
-    def start(cls):
+    def start(cls) -> None:
         start_institution_editor()

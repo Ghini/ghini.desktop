@@ -1,0 +1,37 @@
+# This file is generated from pyproject.toml.
+# Do not edit it directly. Update pyproject.toml, then run:
+#   scripts/docker-dev lock
+babel==2.17.0
+black==24.10.0
+build==1.4.4
+cachetools==7.0.6
+chardet==7.4.3
+click==8.3.3
+colorama==0.4.6
+coverage==7.13.5
+distlib==0.4.0
+filelock==3.29.0
+iniconfig==2.3.0
+mypy-extensions==1.1.0
+packaging==26.2
+pathspec==1.1.1
+pip-tools==7.5.3
+platformdirs==4.9.6
+pluggy==1.6.0
+pyproject-api==1.10.0
+pyproject-hooks==1.2.0
+pytest==7.4.0
+pytest-cov==6.0.0
+pytest-dependency==0.6.1
+pytest-mock==3.15.1
+pytest-ordering==0.6
+pytest-sugar==1.1.1
+python-discovery==1.2.2
+termcolor==3.3.0
+tox==4.8.0
+virtualenv==21.3.0
+wheel==0.47.0
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip
+# setuptools

@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach: Ghini in Docker",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "preLaunchTask": "Docker: Debug Ghini",
+            "justMyCode": false,
+            "logToFile": true,
+            "subProcess": false
+        },
+        {
+            "name": "Attach: Pytest in Docker",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "preLaunchTask": "Docker: Debug Pytest",
+            "justMyCode": false,
+            "logToFile": true,
+            "subProcess": false
+        }
+    ]
+}

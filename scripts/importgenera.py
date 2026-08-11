@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2017 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
@@ -18,93 +17,109 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
 import logging
+
+from sqlalchemy import select
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 consoleHandler = logging.StreamHandler()
 logging.getLogger().addHandler(consoleHandler)
-consoleHandler.setLevel(logging.DEBUG)
-logging.getLogger().setLevel(logging.DEBUG)
+consoleHandler.setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.INFO)
 
 import os.path
+
 path = os.path.dirname(os.path.realpath(__file__))
 
 import json
 
-with open(os.path.join(path, 'settings.json'), 'r') as f:
+with open(os.path.join(path, "settings.json")) as f:
     (user, pw, filename, imei2user, dburi, pic_path) = json.load(f)
 
 import bauble.db
 import bauble.utils
-
-from bauble.plugins.garden import Plant
-from bauble.plugins.garden import Accession
-from bauble.plugins.plants import Species
-from bauble.plugins.plants import Genus
+from bauble.plugins.garden.models import Accession, Plant
+from bauble.plugins.plants import Genus, Species
 
 bauble.db.open(dburi, True, True)
 session = bauble.db.Session()
 
-q = session.query(Species).filter(Species.infrasp1 == u'sp')
-q = q.join(Genus).filter(Genus.epithet == u'Zzz')
-zzz = q.one()
+q = session.execute(select(Species).where(Species.infrasp1 == "sp")
+                    .join(Genus).where(Genus.epithet == "Zzz"))
+zzz = q.scalars().one()
 
-q = session.query(Species).filter(Species.epithet == u'sp')
-q = q.join(Genus).filter(Genus.epithet == u'Zzz')
-zzzsp = q.one()
+q = session.execute(select(Species).where(Species.epithet == "sp")
+                    .join(Genus).where(Genus.epithet == "Zzz"))
+zzzsp = q.scalars().one()
 
 import sys
+
 conflicting = {}
 unknown = []
 
-import fileinput, re
+import fileinput
+import re
+
 for line in fileinput.input():
     sys.stdout.flush()
-    text = unicode(line.strip())
+    text = str(line.strip())
     if not text:
         continue  # skip any empty lines
 
     try:
-        genus_name, location = re.split('[ ,]+', text)
+        genus_name, location = re.split("[ ,]+", text)
     except:
         genus_name = location = None
 
     if genus_name:
-        genus = session.query(Genus).filter(Genus.epithet == genus_name).one()
+        genus = session.execute(select(Genus)).scalars().where(Genus.epithet == genus_name).one()
         try:
-            species = session.query(Species).filter(Species.genus == genus).filter(Species.infrasp1 == u'sp').first()
+            species = (
+                session.execute(
+                    select(Species)
+                    .where(Species.genus == genus)
+                    .where(Species.infrasp1 == "sp")
+                )
+                .scalars()
+                .first()
+            )
+
             if species is None:
                 raise Exception
-            sys.stdout.write('+')
+            sys.stdout.write("+")
         except:
-            species = Species(genus=genus, sp=u'', infrasp1=u'sp')
+            species = Species(genus=genus, sp="", infrasp1="sp")
             session.add(species)
-            sys.stdout.write('*')
+            sys.stdout.write("*")
             session.flush()
         continue  # we used the line, let's continue with the accession codes
 
     # `species` is the fictive identification for all following acc. codes.
 
     try:
-        accession = session.query(Accession).filter(Accession.code == text).one()
+        accession = (
+            session.execute(select(Accession).where(Accession.code == text)).scalars().one()
+        )
     except:
         unknown.append(text)
-        sys.stdout.write('?')
+        sys.stdout.write("?")
         continue
 
     if accession.species in [zzz, zzzsp]:
         accession.species = species
-        sys.stdout.write(':')
+        sys.stdout.write(":")
         session.flush()
     elif accession.species == species:
-        sys.stdout.write('.')
+        sys.stdout.write(".")
     else:
-        conflicting.setdefault(species.str(), []).append((accession.code, accession.species.str()))
-        sys.stdout.write('!')
+        conflicting.setdefault(species.str(), []).append(
+            (accession.code, accession.species.str())
+        )
+        sys.stdout.write("!")
 
-print
+print()
 session.commit()
-print conflicting
-print unknown
+print(conflicting)
+print(unknown)

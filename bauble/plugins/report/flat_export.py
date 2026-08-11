@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2008, 2009, 2010 Brett Adams
 # Copyright 2018 Mario Frasca <mario@anche.no>.
@@ -17,28 +16,73 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-
-
-from gi.repository import Gtk, Gdk
+import logging
 import os.path
-from os.path import isdir, dirname
-import os
-from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy.types import Integer, Boolean, Float
+from gettext import gettext as _
+from os.path import dirname, isdir
+from typing import Any, Optional
+
 import bauble
-from bauble import utils
-from bauble.search import MapperSearch
-from bauble.editor import (
-    GenericEditorView, GenericEditorPresenter)
 from bauble import paths, pluginmgr
+from bauble import utils as butils
+from bauble.editor import GenericEditorPresenter, GenericEditorView
+from bauble.gtkinit import Gdk, Gtk
 from bauble.querybuilder import SchemaMenu
+from bauble.search import MapperSearch
+from sqlalchemy import select
+from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.collections import InstrumentedList
+from sqlalchemy.orm.properties import ColumnProperty
+from sqlalchemy.types import Boolean, Float, Integer
+
+
+def _resolve_export_value(obj, clause_field):
+    """Resolve one Quick CSV field path from an exported object."""
+    values = [obj]
+    single_valued = True
+    *steps, field = clause_field.split(".")
+    for step in steps:
+        next_values = []
+        for value in values:
+            if value is None:
+                next_values.append(None)
+                continue
+            related_value = getattr(value, step)
+            if isinstance(related_value, InstrumentedList):
+                next_values.extend(related_value)
+                single_valued = False
+            else:
+                next_values.append(related_value)
+        values = next_values
+
+    if field == "<str>":
+        if not values or values[0] is None:
+            return ""
+        return str(values[0]).replace("\u200b", "")
+
+    values = [None if value is None else getattr(value, field) for value in values]
+    if single_valued:
+        return values[0] if values else None
+    if field == "id":
+        return len(values)
+    return sum(value or 0 for value in values)
+
 
 class FlatFileExporter(GenericEditorPresenter):
 
-    view_accept_buttons = ['cancel_button', 'confirm_button']
+    domain_map: Any
+    domain: Any
+    mapper: Any
+    results_model: Any
+    signal_id: Any
+    toggling: bool
+    active_toggle: Any
+    active_ls: Any
+    schema_menu: Any
+    view_accept_buttons: Any = ["cancel_button", "confirm_button"]
+    logger = logging.getLogger(__name__)
 
-    def __init__(self, view=None):
+    def __init__(self, view: Optional[Any] = None) -> None:
         super().__init__(model=self, view=view, refresh_view=False)
 
         self.domain_map = MapperSearch.get_domain_classes().copy()
@@ -50,7 +94,7 @@ class FlatFileExporter(GenericEditorPresenter):
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_ls.append([key])
         self.view.widgets.searchable_ls.clear()
-        for key in ['accession', 'location', 'plant', 'species']:
+        for key in ["accession", "location", "plant", "species"]:
             self.view.widgets.searchable_ls.append([key])
 
         self.signal_id = None
@@ -62,86 +106,115 @@ class FlatFileExporter(GenericEditorPresenter):
             self.view.widgets.do_selection_button.set_sensitive(False)
 
     def get_model_fields(self):
-        return {'output_file': self.view.widget_get_value('output_file'),
-                'domain': self.view.widget_get_value('domain_combo'),
-                'exported_fields': [r[0] for r in self.view.widgets.exported_fields_ls]}
+        return {
+            "output_file": self.view.widget_get_value("output_file"),
+            "domain": self.view.widget_get_value("domain_combo"),
+            "exported_fields": [r[0] for r in self.view.widgets.exported_fields_ls],
+        }
 
-    def set_model_fields(self, output_file=None, domain=None,
-                         exported_fields=[],
-                         **kwargs):
+    def set_model_fields(
+        self,
+        output_file: Optional[Any] = None,
+        domain: Optional[Any] = None,
+        exported_fields: Optional[Any] = None,
+        **kwargs,
+    ) -> None:
+        if exported_fields is None:
+            exported_fields = []
         if kwargs:
-            logger.warning('set_model_fields received extra parameters %s' % kwargs)
+            self.logger.warning(f"set_model_fields received extra parameters {kwargs}")
 
-        self.view.widget_set_value('output_file', output_file)
+        self.view.widget_set_value("output_file", output_file)
 
-        self.view.widget_set_value('domain_combo', domain)
+        self.view.widget_set_value("domain_combo", domain)
         self.domain = domain
 
         self.view.widgets.exported_fields_ls.clear()
         for i in exported_fields:
-            self.view.widgets.exported_fields_ls.append((i, ))
+            self.view.widgets.exported_fields_ls.append((i,))
 
-    def on_toggle_toggled(self, target):
+    def on_toggle_toggled(self, target) -> None:
         if self.toggling:
             return
         self.toggling = True
-        for button in (self.view.widgets.do_selection_button,
-                       self.view.widgets.do_collection_button):
-            button.set_active(button==target)
+        for button in (
+            self.view.widgets.do_selection_button,
+            self.view.widgets.do_collection_button,
+        ):
+            button.set_active(button == target)
         if target != self.active_toggle:
-            domain = self.view.widget_get_value('domain_combo')
+            domain = self.view.widget_get_value("domain_combo")
             if target == self.view.widgets.do_selection_button:
                 self.active_ls = self.view.widgets.searchable_ls
             else:
                 self.active_ls = self.view.widgets.domain_ls
             self.view.widgets.domain_combo.set_model(self.active_ls)
-            self.view.widget_set_value('domain_combo', domain)
+            self.view.widget_set_value("domain_combo", domain)
             self.on_domain_combo_changed()
         self.toggling = False
 
-    def on_open_btn_clicked(self, *args):
-        """browse for output file
-
-        """
-        previously = self.view.widget_get_value('output_file')
+    def on_open_btn_clicked(self, *args) -> None:
+        """browse for output file"""
+        previously = self.view.widget_get_value("output_file")
         last_folder, bn = os.path.split(previously)
+
+        # Use the window from self.view
+        parent_window = self.view.get_window()
+
         self.view.run_file_chooser_dialog(
-            _("Choose a file…"), None,
+            _("Choose a file…"),
+            parent=parent_window,
             action=Gtk.FileChooserAction.SAVE,
-            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
-                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
-            last_folder=last_folder, target='output_file')
+            buttons=[
+                _("Ok"),
+                Gtk.ResponseType.ACCEPT,
+                _("Cancel"),
+                Gtk.ResponseType.CANCEL,
+            ],
+            last_folder=last_folder,
+            target="output_file",
+        )
 
-    def on_output_file_changed(self, *args):
-        """set sensitivity of button, based on validity of path
+    def on_output_file_changed(self, *args) -> None:
+        """set sensitivity of button, based on validity of path"""
+        current_path = self.view.widget_get_value("output_file")
 
-        """
-        current_path = self.view.widget_get_value('output_file')
         def iswritable(p):
             pass
-        self.view.widget_set_sensitive('confirm_button', not isdir(current_path) and isdir(dirname(current_path)) and os.access(dirname(current_path), os.W_OK))
 
-    def on_schema_menu_activated(self, menuitem, clause_field, prop):
-        """add the selected item to the exported fields
+        self.view.widget_set_sensitive(
+            "confirm_button",
+            not isdir(current_path)
+            and isdir(dirname(current_path))
+            and os.access(dirname(current_path), os.W_OK),
+        )
 
-        """
-        self.view.widgets.exported_fields_ls.append((clause_field, ))
+    def on_schema_menu_activated(self, menuitem, clause_field, prop) -> None:
+        """add the selected item to the exported fields"""
+        self.view.widgets.exported_fields_ls.append((clause_field,))
 
     def on_list_keypress(self, widget, event, *args, **kwargs):
-        """handle delete and shift-cursor
-
-        """
+        """handle delete and shift-cursor"""
         if len(self.view.widgets.exported_fields_ls) == 0:
             return
         path, column = widget.get_cursor()
         store = self.view.widgets.exported_fields_ls
         this = store.get_iter(path)
         other = None
-        if event.keyval in (Gdk.KEY_Delete, Gdk.KEY_KP_Delete):
+        if event.get_keyval() in (
+            Gdk.KEY_Delete,
+            Gdk.KEY_KP_Delete,
+        ):  # 1. issue_gdkevent_structs
             store.remove(this)
-        elif event.keyval in (Gdk.KEY_Down, Gdk.KEY_J) and event.state==Gdk.ModifierType.SHIFT_MASK:
+        elif (
+            event.get_keyval() in (Gdk.KEY_Down, Gdk.KEY_J)  # 1. issue_gdkevent_structs
+            and event.state == Gdk.ModifierType.SHIFT_MASK
+        ):
             other = store.iter_next(this)
-        elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_K) and event.state==Gdk.ModifierType.SHIFT_MASK:
+        elif (
+            event.get_keyval() in (Gdk.KEY_Up, Gdk.KEY_K)  # 1. issue_gdkevent_structs
+            and event.state == Gdk.ModifierType.SHIFT_MASK
+        ):
             other = store.iter_previous(this)
         if other is not None:
             store.swap(this, other)
@@ -153,7 +226,7 @@ class FlatFileExporter(GenericEditorPresenter):
         when user selects a new domain, reset the expression table and
         deletes all the expression rows.
 
-        when user changes object selection criterium, 
+        when user changes object selection criterium,
 
         """
 
@@ -179,7 +252,9 @@ class FlatFileExporter(GenericEditorPresenter):
         self.mapper = class_mapper(self.domain_map[self.domain])
 
         def on_prop_button_clicked(button, event, menu):
-            menu.popup(None, None, None, None, event.button, event.time)
+            menu.popup(
+                None, None, None, None, event.get_button(), event.time
+            )  # 1. issue_gdkevent_structs
 
         def relation_filter(container, prop):
             if isinstance(prop, ColumnProperty):
@@ -199,97 +274,101 @@ class FlatFileExporter(GenericEditorPresenter):
                     return False
             return True
 
-        self.schema_menu = SchemaMenu(self.mapper,
-                                      self.on_schema_menu_activated,
-                                      relation_filter,
-                                      leading_items=['<str>'])
+        self.schema_menu = SchemaMenu(
+            self.mapper,
+            self.on_schema_menu_activated,
+            relation_filter,
+            leading_items=["<str>"],
+        )
         if self.signal_id is not None:
             self.view.widgets.chooser_btn.disconnect(self.signal_id)
-        self.signal_id = self.view.widgets.chooser_btn.connect('button-press-event', on_prop_button_clicked,
-                                                               self.schema_menu)
+        self.signal_id = self.view.widgets.chooser_btn.connect(
+            "button-press-event", on_prop_button_clicked, self.schema_menu
+        )
 
     def do_export(self):
-        from bauble import db
-        from sqlalchemy.orm.collections import InstrumentedList
         import csv
-        filename = self.view.widget_get_value('output_file')
+
+        from bauble import db
+
+        filename = self.view.widget_get_value("output_file")
         rows_count = 0
-        with open(filename, 'w') as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=',',
-                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            session = db.Session()
+        with open(filename, "w") as csvfile:
+            spamwriter = csv.writer(
+                csvfile,
+                delimiter=",",
+                quotechar='"',
+                quoting=csv.QUOTE_MINIMAL,
+            )
+            session = None
             if self.active_ls == self.view.widgets.searchable_ls:
                 model = bauble.gui.get_results_model()
                 objs = [row[0] for row in model]
                 from . import get_pertinent_objects
+
                 todo = get_pertinent_objects(self.domain_map[self.domain], objs)
             else:
-                todo = session.query(self.mapper).all()
-            for obj in todo:
-                row = []
-                for j in self.view.widgets.exported_fields_ls:
-                    # values is the list of the objects from which to read fields
-                    values = [obj]
-                    single_valued = True
-                    *steps, field = j[0].split('.')
-                    for step in steps:
-                        values = [getattr(value, step) for value in values]
-                        if values and isinstance(values[0], InstrumentedList):
-                            values = [item for sublist in values for item in sublist]
-                            single_valued = False
-                    if field == '<str>':
-                        value = str(values[0]).replace('\u200b', '')
-                    else:
-                        values = [getattr(value, field) for value in values]
-                        if single_valued:
-                            value = values[0]
-                        else:
-                            if field == 'id':
-                                value = len(values)
-                            else:
-                                value = sum(x or 0 for x in values)
-                    row.append(value)
-                spamwriter.writerow(row)
-                rows_count += 1
-            session.rollback()
-        return {'count': rows_count,
-                'filename': filename}
+                session = db.Session()
+                todo = session.execute(select(self.mapper)).scalars().all()
+            try:
+                for obj in todo:
+                    row = []
+                    for j in self.view.widgets.exported_fields_ls:
+                        row.append(_resolve_export_value(obj, j[0]))
+                    spamwriter.writerow(row)
+                    rows_count += 1
+            finally:
+                if session is not None:
+                    if session.in_transaction():
+                        session.rollback()
+        return {"count": rows_count, "filename": filename}
+
 
 class FlatFileExportTool(pluginmgr.Tool):
-    category = _('Report')
-    label = _('Quick CSV')
-    icon_name = "accessories-text-editor"
-    last_model = {}
+    category: Any = _("Report")
+    label: Any = _("Quick CSV")
+    icon_name: str = "accessories-text-editor"
+    last_model: Any = {}
 
     @classmethod
-    def start(cls):
-        gladefilepath = os.path.join(paths.lib_dir(), "plugins", "report", "flat_export.glade")
+    def start(cls) -> None:
+        gladefilepath = os.path.join(
+            paths.lib_dir(), "plugins", "report", "flat_export.glade"
+        )
         view = GenericEditorView(
-            gladefilepath,
-            parent=None,
-            root_widget_name='main_dialog')
+            gladefilepath, parent=None, root_widget_name="main_dialog"
+        )
         qb = FlatFileExporter(view)
         qb.set_model_fields(**cls.last_model)
         response = qb.start()
         if response == Gtk.ResponseType.OK:
             cls.last_model = qb.get_model_fields()
             report = qb.do_export()
-            msg = _("Exported file %(filename)s contains %(count)s rows.\n"
+            msg = (
+                _(
+                    "Exported file %(filename)s contains %(count)s rows.\n"
                     "\n"
-                    "Do you want to open it, or can we stop?") % report
-            msg_dialog = utils.create_message_dialog(msg, buttons=Gtk.ButtonsType.NONE)
-            msg_dialog.add_buttons(Gtk.STOCK_OPEN, 42,
-                                   Gtk.STOCK_STOP, 40)
+                    "Do you want to open it, or can we stop?"
+                )
+                % report
+            )
+            msg_dialog = butils.create_message_dialog(msg, buttons=Gtk.ButtonsType.NONE)
+            msg_dialog.add_buttons(Gtk.STOCK_OPEN, 42, Gtk.STOCK_STOP, 40)
             msg_dialog.set_default_response(40)
             should_we_open = msg_dialog.run()
             msg_dialog.destroy()
             if should_we_open == 42:
-                filename = report['filename']
+                filename = report["filename"]
                 try:
-                    utils.desktop.open('file://' + filename)
+                    butils.desktop.open("file://" + filename)
                 except OSError:
-                    utils.message_dialog(_('Could not open the report with the '
-                                           'default program. You can open the '
-                                           'file manually at %s') % filename)
+                    butils.message_dialog(
+                        _(
+                            "Could not open the report with the "
+                            "default program. You can open the "
+                            "file manually at %s"
+                        )
+                        % filename
+                    )
 
         qb.cleanup()

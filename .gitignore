@@ -32,8 +32,13 @@ var/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+nohup.out
+
+# Local Docker/runtime environment
+.env
 
 # Unit test / coverage reports
+test-results/
 htmlcov/
 .tox/
 .coverage
@@ -99,3 +104,11 @@ odk-seen.json
 imex-it.rst
 ghini.py
 what-icon-at-menuitem.org
+
+travis-log.txt
+travis-log1.txt
+
+!.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json

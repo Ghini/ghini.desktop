@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
@@ -24,23 +23,31 @@
 """
 Access to standard paths used by Ghini.
 """
+import logging
 import os
 import sys
-import logging
+from typing import Any
+
 logger = logging.getLogger(__name__)
 
 
-def main_is_frozen():
-    """Returns True/False if Ghini is being run from a py2exe executable.
+def main_is_frozen() -> bool:
+    """Returns True if the application is running from a frozen executable."""
+    import importlib.machinery
 
-    """
-    import imp
-    return (hasattr(sys, "frozen") or  # new py2exe
-            hasattr(sys, "importers") or  # old py2exe
-            imp.is_frozen("__main__"))  # tools/freeze
+    return (
+        hasattr(sys, "frozen")  # Commonly used by PyInstaller and py2exe
+        or getattr(sys, "importers", None) is not None  # Old py2exe
+        or (
+            hasattr(importlib.machinery, "FrozenImporter")
+            and isinstance(
+                sys.modules["__main__"].__loader__, importlib.machinery.FrozenImporter
+            )
+        )  # Check for freeze tools
+    )
 
 
-def main_dir():
+def main_dir() -> str:
     """
     Returns the path of the bauble executable.
     """
@@ -53,115 +60,122 @@ def main_dir():
     return os.path.abspath(d)
 
 
-def lib_dir():
+def lib_dir() -> str:
     """
     Returns the path of the bauble module.
     """
     if main_is_frozen():
-        d = os.path.join(main_dir(), 'bauble')
+        d = os.path.join(main_dir(), "bauble")
     else:
         d = os.path.dirname(__file__)
     return os.path.abspath(d)
 
 
-def locale_dir():
+def locale_dir() -> str:
     """
     Returns the root path of the locale files
     """
 
     the_installation_directory = installation_dir()
-    d = os.path.join(the_installation_directory, 'share', 'locale')
+    d = os.path.join(the_installation_directory, "share", "locale")
     return os.path.abspath(d)
 
 
-def installation_dir():
+def installation_dir() -> str:
     """
     Returns the root path of the installation target
     """
 
-    if sys.platform in ('linux', 'linux4', 'linux3', 'linux2', 'darwin'):
+    if sys.platform in ("linux", "linux4", "linux3", "linux2", "darwin"):
         # installation_dir, relative to this file, is 7 levels up.
         this_file_location = __file__.split(os.path.sep)
         try:
-            index_of_lib = this_file_location.index('lib')
+            index_of_lib = this_file_location.index("lib")
         except ValueError:
             index_of_lib = 0
-        d = os.path.sep.join(this_file_location[:-index_of_lib - 1])
-    elif sys.platform == 'win32':
+        d = os.path.sep.join(this_file_location[: -index_of_lib - 1])
+    elif sys.platform == "win32":
         # main_dir is the location of the scripts, which is located in the
         # installation_dir:
         d = main_dir()
     else:
-        raise NotImplementedError('This platform does not support '
-                                  'translations: %s' % sys.platform)
+        raise NotImplementedError(
+            "This platform does not support " f"translations: {sys.platform}"
+        )
     return os.path.abspath(d)
 
 
-def user_dir():
+def user_dir() -> str:
     """Returns the path to where user data are saved.
 
     this is not the same as Application Data, for app_data is going to be
     replaced at each new installation or upgrade of the software. user_data
     is responsibility of the user and the software should use it, not
-    overrule it. 
+    overrule it.
 
     not implemented yet. will be a configuration item.
 
     """
     return appdata_dir()
 
-    
-def appdata_dir():
-    """Returns the path to where Ghini application data and settings are saved.
 
-    """
+def appdata_dir() -> str:
+    """Returns the path to where Ghini application data and settings are saved."""
     if sys.platform == "win32":
         if is_portable_installation():
-            d = os.path.join(main_dir(), 'Appdata')
-        elif 'APPDATA' in os.environ:
-            d = os.path.join(os.environ["APPDATA"], 'Bauble', '3.1')
-        elif 'USERPROFILE' in os.environ:
-            d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
-                             'Bauble', '3.1')
+            d = os.path.join(main_dir(), "Appdata")
+        elif "APPDATA" in os.environ:
+            d = os.path.join(os.environ["APPDATA"], "Bauble", "3.1")
+        elif "USERPROFILE" in os.environ:
+            d = os.path.join(
+                os.environ["USERPROFILE"], "Application Data", "Bauble", "3.1"
+            )
         else:
-            raise Exception('Could not get path for user settings: no '
-                            'APPDATA or USERPROFILE variable')
-    elif sys.platform in ('linux', 'linux4', 'linux3', 'linux2', 'darwin'):
+            raise Exception(
+                "Could not get path for user settings: no "
+                "APPDATA or USERPROFILE variable"
+            )
+    elif sys.platform in ("linux", "linux4", "linux3", "linux2", "darwin"):
         # using os.expanduser is more reliable than os.environ['HOME']
         # because if the user runs bauble with sudo then it will
         # return the path of the user that used sudo instead of ~root
         try:
-            d = os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
-                             '.bauble', '3.1')
+            d = os.path.join(
+                os.path.expanduser("~{}".format(os.environ["USER"])),
+                ".bauble",
+                "3.1",
+            )
         except Exception:
-            raise Exception('Could not get path for user settings: '
-                            'could not expand $HOME for user %(username)s' %
-                            dict(username=os.environ['USER']))
+            raise Exception(
+                "Could not get path for user settings: "
+                "could not expand $HOME for user {username}".format(
+                    **dict(username=os.environ["USER"])
+                )
+            )
     else:
-        raise Exception('Could not get path for user settings: '
-                        'unsupported platform')
+        raise Exception("Could not get path for user settings: " "unsupported platform")
     return os.path.abspath(d)
 
 
-def is_portable_installation():
-    '''tell whether ghini is running on a USB stick
+def is_portable_installation() -> bool:
+    """tell whether ghini is running on a USB stick
 
     only relevant on Windows
 
     if the installation_dir contains a writable appdata.dir, then we are
     running on a USB stick, and we are keeping appdata there.
 
-    '''
+    """
 
     if sys.platform != "win32":
         return False
     if not main_is_frozen():
         return False
     try:
-        test_file_name = os.path.join(main_dir(), 'Appdata', 'temp.tmp')
+        test_file_name = os.path.join(main_dir(), "Appdata", "temp.tmp")
         with open(test_file_name, "w+") as f:
             f.write("test")
         os.remove(test_file_name)
         return True
-    except:
+    except OSError:
         return False

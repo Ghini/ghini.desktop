@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
@@ -20,12 +19,11 @@
 #
 # Images table definition
 #
-
-#from bauble.plugins import BaubleTable, tables
-#from bauble.treevieweditor import TreeViewEditorDialog
+# from bauble.plugins import BaubleTable, tables
+# from bauble.treevieweditor import TreeViewEditorDialog
 #
 #
-#class Image(BaubleTable):
+# class Image(BaubleTable):
 #
 #    # not unique but if a duplicate uri is entered the user
 #    # should be asked if this is what they want
@@ -45,9 +43,9 @@
 #    def __str__(self): return self.label
 #
 ##
-## Image editor
+# Image editor
 ##
-#class ImageEditor(TreeViewEditorDialog):
+# class ImageEditor(TreeViewEditorDialog):
 #
 #    visible_columns_pref = "editor.image.columns"
 #    column_width_pref = "editor.image.column_width"

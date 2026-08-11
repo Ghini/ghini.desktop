@@ -1,13 +1,14 @@
-from win32com.client import Dispatch
 import os
 
+from win32com.client import Dispatch
+
 base = os.path.expanduser("~\\Local\\github\\Ghini\\ghini.desktop")
-path = os.path.join(base, 'scripts\\ghini.lnk')
+path = os.path.join(base, "scripts\\ghini.lnk")
 target = os.path.join(base, "scripts\\ghini.vbs")
-wDir = os.path.join(base, 'scripts')
+wDir = os.path.join(base, "scripts")
 icon = os.path.join(base, "bauble\\images\\icon.ico")
 
-shell = Dispatch('WScript.Shell')
+shell = Dispatch("WScript.Shell")
 shortcut = shell.CreateShortCut(path)
 shortcut.Targetpath = target
 shortcut.WorkingDirectory = wDir

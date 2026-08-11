@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012 Tobias Bieniek <Tobias.Bieniek@gmx.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -7,10 +6,8 @@
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following conditions:
-
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-
 # THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -18,46 +15,55 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
-
 import math
+from typing import Any, Optional
+
 
 class OutOfRangeError(ValueError):
     pass
 
-K0 = 0.9996
 
-E = 0.00669438
-E2 = E * E
-E3 = E2 * E
-E_P2 = E / (1.0 - E)
+K0: float = 0.9996
 
-SQRT_E = math.sqrt(1 - E)
-_E = (1 - SQRT_E) / (1 + SQRT_E)
-_E2 = _E * _E
-_E3 = _E2 * _E
-_E4 = _E3 * _E
-_E5 = _E4 * _E
+E: float = 0.00669438
+E2: Any = E * E
+E3: Any = E2 * E
+E_P2: Any = E / (1.0 - E)
 
-M1 = (1 - E / 4 - 3 * E2 / 64 - 5 * E3 / 256)
-M2 = (3 * E / 8 + 3 * E2 / 32 + 45 * E3 / 1024)
-M3 = (15 * E2 / 256 + 45 * E3 / 1024)
-M4 = (35 * E3 / 3072)
+SQRT_E: Any = math.sqrt(1 - E)
+_E: Any = (1 - SQRT_E) / (1 + SQRT_E)
+_E2: Any = _E * _E
+_E3: Any = _E2 * _E
+_E4: Any = _E3 * _E
+_E5: Any = _E4 * _E
 
-P2 = (3. / 2 * _E - 27. / 32 * _E3 + 269. / 512 * _E5)
-P3 = (21. / 16 * _E2 - 55. / 32 * _E4)
-P4 = (151. / 96 * _E3 - 417. / 128 * _E5)
-P5 = (1097. / 512 * _E4)
+M1: Any = 1 - E / 4 - 3 * E2 / 64 - 5 * E3 / 256
+M2: Any = 3 * E / 8 + 3 * E2 / 32 + 45 * E3 / 1024
+M3: Any = 15 * E2 / 256 + 45 * E3 / 1024
+M4: Any = 35 * E3 / 3072
 
-R = 6378137
+P2: Any = 3.0 / 2 * _E - 27.0 / 32 * _E3 + 269.0 / 512 * _E5
+P3: Any = 21.0 / 16 * _E2 - 55.0 / 32 * _E4
+P4: Any = 151.0 / 96 * _E3 - 417.0 / 128 * _E5
+P5: Any = 1097.0 / 512 * _E4
 
-ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
+R: int = 6378137
+
+ZONE_LETTERS: str = "CDEFGHJKLMNPQRSTUVWXX"
 
 
-def to_latlon(easting, northing, zone_number, zone_letter=None, northern=None, strict=True):
+def to_latlon(
+    easting: int,
+    northing: int,
+    zone_number: int,
+    zone_letter: Optional[str] = None,
+    northern: Optional[bool] = None,
+    strict: bool = True,
+) -> tuple[float, float]:
     """This function convert an UTM coordinate into Latitude and Longitude
 
     Parameters
-    ---------- 
+    ----------
 
     easting: int
         Easting value of UTM coordinate
@@ -80,26 +86,30 @@ def to_latlon(easting, northing, zone_number, zone_letter=None, northern=None, s
 
     """
     if not zone_letter and northern is None:
-        raise ValueError('either zone_letter or northern needs to be set')
+        raise ValueError("either zone_letter or northern needs to be set")
 
     elif zone_letter and northern is not None:
-        raise ValueError('set either zone_letter or northern, but not both')
+        raise ValueError("set either zone_letter or northern, but not both")
 
     if strict:
         if not 100000 <= easting < 1000000:
-            raise OutOfRangeError('easting out of range (must be between 100.000 m and 999.999 m)')
+            raise OutOfRangeError(
+                "easting out of range (must be between 100.000 m and 999.999 m)"
+            )
         if not 0 <= northing <= 10000000:
-            raise OutOfRangeError('northing out of range (must be between 0 m and 10.000.000 m)')
+            raise OutOfRangeError(
+                "northing out of range (must be between 0 m and 10.000.000 m)"
+            )
     if not 1 <= zone_number <= 60:
-        raise OutOfRangeError('zone number out of range (must be between 1 and 60)')
+        raise OutOfRangeError("zone number out of range (must be between 1 and 60)")
 
     if zone_letter:
         zone_letter = zone_letter.upper()
 
-        if not 'C' <= zone_letter <= 'X' or zone_letter in ['I', 'O']:
-            raise OutOfRangeError('zone letter out of range (must be between C and X)')
+        if not "C" <= zone_letter <= "X" or zone_letter in ["I", "O"]:
+            raise OutOfRangeError("zone letter out of range (must be between C and X)")
 
-        northern = (zone_letter >= 'N')
+        northern = zone_letter >= "N"
 
     x = easting - 500000
     y = northing
@@ -110,11 +120,13 @@ def to_latlon(easting, northing, zone_number, zone_letter=None, northern=None, s
     m = y / K0
     mu = m / (R * M1)
 
-    p_rad = (mu +
-             P2 * math.sin(2 * mu) +
-             P3 * math.sin(4 * mu) +
-             P4 * math.sin(6 * mu) +
-             P5 * math.sin(8 * mu))
+    p_rad = (
+        mu
+        + P2 * math.sin(2 * mu)
+        + P3 * math.sin(4 * mu)
+        + P4 * math.sin(6 * mu)
+        + P5 * math.sin(8 * mu)
+    )
 
     p_sin = math.sin(p_rad)
     p_sin2 = p_sin * p_sin
@@ -141,20 +153,28 @@ def to_latlon(easting, northing, zone_number, zone_letter=None, northern=None, s
     d5 = d4 * d
     d6 = d5 * d
 
-    latitude = (p_rad - (p_tan / r) *
-                (d2 / 2 -
-                 d4 / 24 * (5 + 3 * p_tan2 + 10 * c - 4 * c2 - 9 * E_P2)) +
-                 d6 / 720 * (61 + 90 * p_tan2 + 298 * c + 45 * p_tan4 - 252 * E_P2 - 3 * c2))
+    latitude = (
+        p_rad
+        - (p_tan / r)
+        * (d2 / 2 - d4 / 24 * (5 + 3 * p_tan2 + 10 * c - 4 * c2 - 9 * E_P2))
+        + d6 / 720 * (61 + 90 * p_tan2 + 298 * c + 45 * p_tan4 - 252 * E_P2 - 3 * c2)
+    )
 
-    longitude = (d -
-                 d3 / 6 * (1 + 2 * p_tan2 + c) +
-                 d5 / 120 * (5 - 2 * c + 28 * p_tan2 - 3 * c2 + 8 * E_P2 + 24 * p_tan4)) / p_cos
+    longitude = (
+        d
+        - d3 / 6 * (1 + 2 * p_tan2 + c)
+        + d5 / 120 * (5 - 2 * c + 28 * p_tan2 - 3 * c2 + 8 * E_P2 + 24 * p_tan4)
+    ) / p_cos
 
-    return (math.degrees(latitude),
-            math.degrees(longitude) + zone_number_to_central_longitude(zone_number))
+    return (
+        math.degrees(latitude),
+        math.degrees(longitude) + zone_number_to_central_longitude(zone_number),
+    )
 
 
-def from_latlon(latitude, longitude, force_zone_number=None):
+def from_latlon(
+    latitude: float, longitude: float, force_zone_number: Optional[int] = None
+) -> tuple[float, float, int, Optional[str]]:
     """This function convert Latitude and Longitude to UTM coordinate
 
     Parameters
@@ -173,9 +193,13 @@ def from_latlon(latitude, longitude, force_zone_number=None):
     .. _[1]: http://www.jaworski.ca/utmzones.htm
     """
     if not -80.0 <= latitude <= 84.0:
-        raise OutOfRangeError('latitude out of range (must be between 80 deg S and 84 deg N)')
+        raise OutOfRangeError(
+            "latitude out of range (must be between 80 deg S and 84 deg N)"
+        )
     if not -180.0 <= longitude <= 180.0:
-        raise OutOfRangeError('longitude out of range (must be between 180 deg W and 180 deg E)')
+        raise OutOfRangeError(
+            "longitude out of range (must be between 180 deg W and 180 deg E)"
+        )
 
     lat_rad = math.radians(latitude)
     lat_sin = math.sin(lat_rad)
@@ -206,18 +230,34 @@ def from_latlon(latitude, longitude, force_zone_number=None):
     a5 = a4 * a
     a6 = a5 * a
 
-    m = R * (M1 * lat_rad -
-             M2 * math.sin(2 * lat_rad) +
-             M3 * math.sin(4 * lat_rad) -
-             M4 * math.sin(6 * lat_rad))
+    m = R * (
+        M1 * lat_rad
+        - M2 * math.sin(2 * lat_rad)
+        + M3 * math.sin(4 * lat_rad)
+        - M4 * math.sin(6 * lat_rad)
+    )
 
-    easting = K0 * n * (a +
-                        a3 / 6 * (1 - lat_tan2 + c) +
-                        a5 / 120 * (5 - 18 * lat_tan2 + lat_tan4 + 72 * c - 58 * E_P2)) + 500000
+    easting = (
+        K0
+        * n
+        * (
+            a
+            + a3 / 6 * (1 - lat_tan2 + c)
+            + a5 / 120 * (5 - 18 * lat_tan2 + lat_tan4 + 72 * c - 58 * E_P2)
+        )
+        + 500000
+    )
 
-    northing = K0 * (m + n * lat_tan * (a2 / 2 +
-                                        a4 / 24 * (5 - lat_tan2 + 9 * c + 4 * c**2) +
-                                        a6 / 720 * (61 - 58 * lat_tan2 + lat_tan4 + 600 * c - 330 * E_P2)))
+    northing = K0 * (
+        m
+        + n
+        * lat_tan
+        * (
+            a2 / 2
+            + a4 / 24 * (5 - lat_tan2 + 9 * c + 4 * c**2)
+            + a6 / 720 * (61 - 58 * lat_tan2 + lat_tan4 + 600 * c - 330 * E_P2)
+        )
+    )
 
     if latitude < 0:
         northing += 10000000
@@ -225,14 +265,14 @@ def from_latlon(latitude, longitude, force_zone_number=None):
     return easting, northing, zone_number, zone_letter
 
 
-def latitude_to_zone_letter(latitude):
+def latitude_to_zone_letter(latitude: float) -> Optional[str]:
     if -80 <= latitude <= 84:
         return ZONE_LETTERS[int(latitude + 80) >> 3]
     else:
         return None
 
 
-def latlon_to_zone_number(latitude, longitude):
+def latlon_to_zone_number(latitude: float, longitude: float) -> int:
     if 56 <= latitude < 64 and 3 <= longitude < 12:
         return 32
 
@@ -249,5 +289,5 @@ def latlon_to_zone_number(latitude, longitude):
     return int((longitude + 180) / 6) + 1
 
 
-def zone_number_to_central_longitude(zone_number):
+def zone_number_to_central_longitude(zone_number: int) -> float:
     return (zone_number - 1) * 6 - 180 + 3
