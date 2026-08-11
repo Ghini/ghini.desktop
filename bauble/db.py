@@ -1067,7 +1067,7 @@ def make_note_class(
     compute_serializable_fields: Optional[Any] = None,
     as_dict: Optional[Any] = None,
     retrieve: Optional[Any] = None,
-):
+) -> type[Base]:
     """
     Create a Note class with a relationship to the related_class using back_populates.
 
