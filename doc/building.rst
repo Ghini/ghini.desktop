@@ -795,22 +795,79 @@ normal development workflow
 publishing to production
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-please use the ``publish.sh`` script, in the ``scritps`` directory.  This
-one takes care of every single step, and produces recognizable commit
-comments, it publishes the release on pypi, and in perspective it will
-contain all steps for producing a ``deb`` file, and a windows executable.
+"publishing" here really means one thing: merging ``ghini-x.y-dev`` into
+``ghini-x.y`` and pushing a ``vx.y.z`` tag on the result.  That tag is
+the single release event — everything downstream (PyPI, the Docker
+image, and in perspective a Windows installer via NSIS) is triggered by
+it, no separate manual action needed.  It's also the reference for
+anyone who tracks source directly instead of installing a package —
+checking out a tag *is* installing a release, as far as they're
+concerned.
 
-you can also do this by hand:
+That makes the tag the one thing worth checking from a running
+ghini.desktop to notice an update is available.  The in-app "update
+available" check compares against the latest ``vx.y.z`` tag (e.g. via
+the GitHub releases/tags API), the same source everything else in this
+section is keyed off (just not yet — 2026-08-12).
 
-* open the pull request page using as base a production line ``ghini-x.y``,
-  compared to ``ghini-x.y-dev``.
-* make sure a ``bump`` commit is included in the differences.
-* it should be possible to automatically merge the branches.
-* create the new pull request, call it as “publish to the production line”.
-* you possibly need wait for travis-ci to perform the checks.
-* merge the changes.
+Please use the ``publish.sh`` script, in the ``scripts`` directory.
+This one merges ``ghini-x.y-dev`` into ``ghini-x.y``, tags the result,
+and pushes the tag - with recognizable, consistent commit and tag
+messages, and in the right order.  Once the script finishes, you're
+done; each artifact's own workflow takes it from there.
 
-don't forget to tell the world about the new release: on `facebook
+You can also do this by hand:
+
+* merge ``ghini-x.y-dev`` into ``ghini-x.y`` and push it.  A pull
+  request works fine, or you can do this from the CLI::
+
+      git checkout ghini-3.1
+      git merge ghini-3.1-dev
+      git push
+
+* **only after that merge is pushed**, tag the resulting commit on
+  ``ghini-x.y`` as ``vx.y.z`` and push the tag::
+
+      git checkout ghini-3.1
+      git tag v3.1.<patch>
+      git push origin v3.1.<patch>
+
+  The order matters: tagging before the merge, or merging after tagging,
+  or tagging on the ``ghini-3.1-dev`` branch, leaves the tag pointing at
+  the wrong commit, and the build will report a dirty
+  ``x.y.z.postN+g<hash>`` version instead of a clean release.  Tag the
+  merge commit itself, once it's already on ``ghini-x.y``.
+
+Either way, neither the script nor the by-hand steps build or upload
+anything, all is programmed as automatic GitHub Actions.  These are
+documented in the corresponding section in this documentation page.
+
+Pushing the tag is what triggers every release artifact - nothing else
+to do.  Currently that means:
+
+* ``.github/workflows/publish-pypi.yml``: refuses to publish anything
+  that isn't a clean ``x.y.z`` version, builds the sdist and wheel, and
+  publishes to PyPI using `Trusted Publishing
+  <https://docs.pypi.org/trusted-publishers/>`_ (no PyPI token is stored
+  anywhere - PyPI verifies the GitHub Actions run directly).  Once the
+  publish succeeds, the same workflow checks out ``ghini-x.y-dev`` and
+  runs ``scripts/bump_version.py +`` to advance the version files to the
+  next patch, committing and pushing that on your behalf - so
+  ``ghini-x.y-dev`` is always left ready for the *next* release. this
+  part is genuinely "nice to know" rather than something you need to run
+  yourself.  A one-time setup step, done by whoever administers the PyPI
+  project: add a Trusted Publisher entry on the project's PyPI
+  "Publishing" settings page, pointing at this repo, the
+  ``publish-pypi.yml`` workflow file, and the ``pypi`` environment name
+  used in that workflow.
+* ``.github/workflows/docker-release.yml``: builds and pushes the
+  release Docker image (see "distributing via Docker" below).
+* A Windows installer via NSIS is not yet (2026-08-12) wired to the
+  tag - the build itself still needs porting to Python 3 first (tracked
+  separately).  Once it is, it should trigger off the same tag, the same
+  way the two above already do.
+
+Don't forget to tell the world about the new release: on `facebook
 <https://www.facebook.com/bauble.thesoftware/>`_, the `google group
 <https://groups.google.com/forum/#!forum/bauble>`_, in any relevant linkedin
 group, and on `our web page <http://ghini.github.io/>`_.
@@ -961,9 +1018,10 @@ steps for a normal Windows :ref:`installation`.
 
    -  Capable of single user or global installs.
 
-   -  At this point in time ghini.desktop installed this way will not check
-      or or notify you of any updated version.  You will need to check 
-      yourself.
+   -  The in-app update check (see "publishing to production" above)
+      isn't wired up for an installer built this way yet - just not
+      yet, 2026-08-12. You will need to check yourself in the
+      meantime.
 
    -  Capable of downloading and installing optional extra components:
 
@@ -1013,28 +1071,12 @@ Two Docker images exist for very different purposes:
   bind-mounted in.
 
 The release image is built and pushed by the ``docker-release`` GitHub
-Action, triggered by pushing a ``v3.1.<patch>`` tag — not by merging or
-pushing a branch. This matters: the tag must be created *after* merging
-the development line into the production line, on the resulting merge
-commit, not before. Tagging the pre-merge commit on ``ghini-3.1-dev`` and
-merging afterwards produces a version string like ``3.1.10.post8+g...``
-instead of a clean ``3.1.10``, since the tag no longer points at the
-commit that actually reaches ``ghini-3.1``.
-
-In short, publishing a new Docker release means::
-
-    git checkout ghini-3.1-dev
-    # ... bump versions, commit, push, as in "publishing to production" above
-
-    git checkout ghini-3.1
-    git merge ghini-3.1-dev
-    git push origin ghini-3.1
-
-    git tag v3.1.<patch>
-    git push origin v3.1.<patch>
-
-Only that last push triggers the build. The image is published to GitHub's
-own registry, not Docker Hub, as
+Action, triggered by the same ``v3.1.<patch>`` tag described in
+"publishing to production" above — there's nothing Docker-specific to
+do here. Run ``scripts/publish.sh`` (or the by-hand merge-and-tag
+steps) once; that single tag push is what triggers this build too,
+alongside the PyPI one. The image is published to GitHub's own
+registry, not Docker Hub, as
 ``ghcr.io/ghini/ghini.desktop:3.1.<patch>`` (and additionally tagged
 ``latest``). The very first time this runs, a maintainer with admin rights
 on the repository needs to visit the package's settings on GitHub

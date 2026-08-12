@@ -1,40 +1,44 @@
 #!/bin/sh
+#
+# "publishing to production" - see doc/building.rst.
+#
+# This script only does the git choreography that has to happen by
+# hand: merging ghini-3.1-dev into ghini-3.1, then tagging the result.
+# Pushing that tag is the trigger - .github/workflows/publish-pypi.yml
+# and docker-release.yml take it from there (build, publish to PyPI
+# via Trusted Publishing, publish the Docker image, then bump
+# ghini-3.1-dev to the next version). This script does not build or
+# upload anything itself, to avoid racing those workflows.
+
+set -e
 
 # make sure we are in the project root dir
-cd $(dirname $0)/..
-
-# let's check what Debian says first
-python setup.py sdist | awk 'BEGIN{count=0}/^.*$/{count++; printf("running setup sdist: %d\r", count)}END{printf("\r\n")}'
-# debian needs a frozen upstream, on which to base its packaging.  a good
-# way to freeze might mean starting a branch at the merge point.
+cd "$(dirname "$0")/.."
 
 # LINE is hard-coded and committed
-# PUBLISHING is in the form 3.1.x
-#
 LINE=ghini-3.1
+
+# PUBLISHING is in the form 3.1.x - it's already the *next* version to
+# release, because the previous run of this same sequence left it
+# bumped forward, ready for this one.
 PUBLISHING=$(grep :bump bauble/_version.py | grep -o '[1-9]\.[0-9]\.[0-9]*')
 
 # make sure you have locally all remote branches
-#
 git remote update
 
-# publish on github
-#
-git checkout $LINE
-git merge $LINE-dev --no-edit -m "Merge branch 'ghini-3.1-dev' into ghini-3.1, as $PUBLISHING"
+# merge the development line into the production line
+git checkout "$LINE"
+git merge "$LINE-dev" --no-edit -m "Merge branch '$LINE-dev' into $LINE, as $PUBLISHING"
 git push
 
-# publish on pypi
-#
-python setup.py sdist --formats zip upload -r pypi
+# tag the merge commit itself, and only now - tagging before the merge
+# (or merging after tagging) leaves the tag pointing at the wrong
+# commit, and setuptools_scm reports a dirty .postN+g<hash> version.
+git tag "v$PUBLISHING"
+git push origin "v$PUBLISHING"
 
-# some day also produce a windows installable
+echo "pushed v$PUBLISHING to $LINE - Actions will take it from here."
 
-# get back to work, and bump counters
-#
-git checkout $LINE-dev
-git fetch --all
-tmpfile=$(mktemp /tmp/bump-commit.XXXXXX)
-scripts/bump_version.py + | tee $tmpfile
-$(tail -n 1 $tmpfile)
-git push
+# now back to work.
+git checkout "$LINE-dev"
+./scripts/bump_version.sh +

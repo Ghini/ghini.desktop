@@ -1,0 +1,96 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags: [ "v3.*" ]
+    # Tag push means the workflow only ever runs against the exact
+    # commit the release tag points to (same reasoning as
+    # docker-release.yml).
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Configure this environment name as the "Environment name" of the
+    # Trusted Publisher entry on the PyPI project's "Publishing" settings
+    # page, alongside this repo and this workflow filename. No PyPI
+    # token is stored anywhere: the id-token permission below lets
+    # PyPI verify this run via OIDC.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/ghini-desktop
+
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Determine release version
+        id: version
+        run: |
+          python3 -m pip install --quiet "setuptools-scm>=8.0"
+          version="$(python3 -m setuptools_scm)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse a non-clean version
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          # A clean release is exactly 3.<minor>.<patch> with nothing
+          # else attached. Anything with .dev/.post/+ means the tag
+          # didn't land cleanly on this commit (e.g. tagged before
+          # merging, not after) - fail loudly instead of publishing it.
+          if ! [[ "$version" =~ ^3\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Refusing to publish a non-clean version: $version"
+            echo "::error::Expected an exact vX.Y.Z tag on this commit. See doc/building.rst, 'publishing to production', for the correct tag-after-merge order."
+            exit 1
+          fi
+          echo "Publishing clean version: $version"
+
+      - name: Build sdist and wheel
+        run: |
+          python3 -m pip install --quiet build
+          python3 -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  bump-dev-version:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out ghini-3.1-dev
+        run: |
+          git fetch origin ghini-3.1-dev:ghini-3.1-dev
+          git checkout ghini-3.1-dev
+
+      - name: Bump version files to the next patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          tmpfile=$(mktemp)
+          scripts/bump_version.py + | tee "$tmpfile"
+          # bump_version.py's own last line of output is a ready-to-run
+          # `git commit -m "bumping_to_X.Y.Z" ...` - reuse it verbatim so
+          # the commit message stays exactly the same shape it always has.
+          eval "$(tail -n 1 "$tmpfile")"
+          git push origin ghini-3.1-dev
