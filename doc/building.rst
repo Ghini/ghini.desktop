@@ -992,6 +992,68 @@ steps for a normal Windows :ref:`installation`.
 
             ``C`` = select MS Visual C runtime
 
+distributing via Docker
+--------------------------
+
+Unlike the Windows installer, the Docker release image is built and
+published automatically — there is no local build step for you to run.
+
+Two Docker images exist for very different purposes:
+
+* ``Dockerfile.dev`` builds the **development** image: it bind-mounts your
+  local checkout into the container, so source edits on the host take
+  effect immediately without rebuilding. Use it via ``scripts/docker-dev``.
+  It includes the full GUI-testing stack (``xvfb``, ``dogtail``, etc.) and
+  is never published anywhere; it only ever exists on your own machine.
+
+* ``Dockerfile`` (at the repository root) builds the **release** image: the
+  application and all its runtime dependencies are baked in at a pinned
+  version, and it is the one distributed to end users. Only configuration
+  and the SQLite database file are expected to live on the host,
+  bind-mounted in.
+
+The release image is built and pushed by the ``docker-release`` GitHub
+Action, triggered by pushing a ``v3.1.<patch>`` tag — not by merging or
+pushing a branch. This matters: the tag must be created *after* merging
+the development line into the production line, on the resulting merge
+commit, not before. Tagging the pre-merge commit on ``ghini-3.1-dev`` and
+merging afterwards produces a version string like ``3.1.10.post8+g...``
+instead of a clean ``3.1.10``, since the tag no longer points at the
+commit that actually reaches ``ghini-3.1``.
+
+In short, publishing a new Docker release means::
+
+    git checkout ghini-3.1-dev
+    # ... bump versions, commit, push, as in "publishing to production" above
+
+    git checkout ghini-3.1
+    git merge ghini-3.1-dev
+    git push origin ghini-3.1
+
+    git tag v3.1.<patch>
+    git push origin v3.1.<patch>
+
+Only that last push triggers the build. The image is published to GitHub's
+own registry, not Docker Hub, as
+``ghcr.io/ghini/ghini.desktop:3.1.<patch>`` (and additionally tagged
+``latest``). The very first time this runs, a maintainer with admin rights
+on the repository needs to visit the package's settings on GitHub
+(:menuselection:`Packages --> ghini.desktop --> Package settings`) and set
+its visibility to public — packages pushed via the workflow's own token are
+private by default even on a public repository. This is a one-off step;
+later pushes stay public automatically.
+
+To run the published image::
+
+    docker run --rm -it \
+        -e DISPLAY=$DISPLAY \
+        -v /tmp/.X11-unix:/tmp/.X11-unix \
+        -v $HOME/.bauble/3.1:/home/ghini/.bauble/3.1 \
+        ghcr.io/ghini/ghini.desktop:3.1.<patch>
+
+See the comment block at the top of ``Dockerfile`` itself for the
+equivalent manual ``docker buildx build`` invocation, useful when testing a
+change to the image locally before it's tagged and released.
 
 Importing SQLAlchemy exceptions
 -------------------------------------------------------------
