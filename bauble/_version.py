@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 _PACKAGE_NAME = "ghini-desktop"
-_BASE_VERSION = "3.1.9" #:bump
+_BASE_VERSION = "3.1.10" #:bump
 _FALLBACK_VERSION = f"{_BASE_VERSION}+unknown"
 _SUPPORTED_MAJOR = 3
 _VERSION_TAG_PATTERN = "v3.*"
