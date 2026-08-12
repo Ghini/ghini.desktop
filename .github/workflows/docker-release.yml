@@ -2,12 +2,10 @@ name: Docker release image
 
 on:
   push:
-    branches: [ "ghini-3.1" ]
-    # tags: [ "v3.*" ]
-    # Not yet decided whether releases will be triggered by merging into
-    # "ghini-3.1" (current model, matches the NSIS/PyPI release trigger) or
-    # by pushing an annotated release tag instead. If the tag-based model is
-    # chosen, comment out "branches" above and uncomment "tags".
+    # branches: [ "ghini-3.1" ]
+    tags: [ "v3.*" ]
+    # Tag push means the workflow only ever runs against the exact
+    # commit the release tag points to. 
 
 permissions:
   contents: read
@@ -31,6 +29,10 @@ jobs:
           version="$(python3 -m setuptools_scm)"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
+      - name: Lowercase image name
+        id: image
+        run: echo "name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -50,5 +52,5 @@ jobs:
           build-args: |
             GHINI_VERSION=${{ steps.version.outputs.version }}
           tags: |
-            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ steps.image.outputs.name }}:${{ steps.version.outputs.version }}
+            ghcr.io/${{ steps.image.outputs.name }}:latest          
