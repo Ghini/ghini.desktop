@@ -812,9 +812,11 @@ section is keyed off (just not yet — 2026-08-12).
 
 Please use the ``publish.sh`` script, in the ``scripts`` directory.
 This one merges ``ghini-x.y-dev`` into ``ghini-x.y``, tags the result,
-and pushes the tag - with recognizable, consistent commit and tag
-messages, and in the right order.  Once the script finishes, you're
-done; each artifact's own workflow takes it from there.
+pushes the tag, and then bumps ``ghini-x.y-dev``'s version files
+forward to prepare for the *next* publish - with recognizable,
+consistent commit and tag messages, and in the right order.  Once the
+script finishes, you're done; each artifact's own workflow takes it
+from there.
 
 You can also do this by hand:
 
@@ -838,6 +840,16 @@ You can also do this by hand:
   ``x.y.z.postN+g<hash>`` version instead of a clean release.  Tag the
   merge commit itself, once it's already on ``ghini-x.y``.
 
+* once the tag is pushed, prepare ``ghini-x.y-dev`` for the next
+  release::
+
+      git checkout ghini-3.1-dev
+      scripts/bump_version.py +
+      git push
+
+  don't skip this - without it, ``PUBLISHING`` (and the tag you'd push
+  next time) stays stuck on the version you just released.
+
 Either way, neither the script nor the by-hand steps build or upload
 anything, all is programmed as automatic GitHub Actions.  These are
 documented in the corresponding section in this documentation page.
@@ -849,17 +861,12 @@ to do.  Currently that means:
   that isn't a clean ``x.y.z`` version, builds the sdist and wheel, and
   publishes to PyPI using `Trusted Publishing
   <https://docs.pypi.org/trusted-publishers/>`_ (no PyPI token is stored
-  anywhere - PyPI verifies the GitHub Actions run directly).  Once the
-  publish succeeds, the same workflow checks out ``ghini-x.y-dev`` and
-  runs ``scripts/bump_version.py +`` to advance the version files to the
-  next patch, committing and pushing that on your behalf - so
-  ``ghini-x.y-dev`` is always left ready for the *next* release. this
-  part is genuinely "nice to know" rather than something you need to run
-  yourself.  A one-time setup step, done by whoever administers the PyPI
-  project: add a Trusted Publisher entry on the project's PyPI
-  "Publishing" settings page, pointing at this repo, the
-  ``publish-pypi.yml`` workflow file, and the ``pypi`` environment name
-  used in that workflow.
+  anywhere - PyPI verifies the GitHub Actions run directly).  A
+  one-time setup step, done by whoever administers the PyPI project:
+  add a Trusted Publisher entry on the project's PyPI "Publishing"
+  settings page, pointing at this repo, the ``publish-pypi.yml``
+  workflow file, and the ``pypi`` environment name used in that
+  workflow.
 * ``.github/workflows/docker-release.yml``: builds and pushes the
   release Docker image (see "distributing via Docker" below).
 * A Windows installer via NSIS is not yet (2026-08-12) wired to the

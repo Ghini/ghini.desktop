@@ -39,6 +39,18 @@ git push origin "v$PUBLISHING"
 
 echo "pushed v$PUBLISHING to $LINE - Actions will take it from here."
 
-# now back to work.
+# back to the corresponding dev branch.
 git checkout "$LINE-dev"
-./scripts/bump_version.sh +
+
+# prepare for the next publish: bump ghini-3.1-dev's version files
+# forward. this belongs here, not in publish-pypi.yml - it's part of
+# "publish", not part of any of the triggered publishing action, and
+# doesn't depend on any one downstream artifact's success or failure.
+tmpfile=$(mktemp)
+scripts/bump_version.py + | tee "$tmpfile"
+# bump_version.py's own last line of output is a ready-to-run
+# `git commit -m "bumping_to_X.Y.Z" ...` - reuse it verbatim so the
+# commit message stays exactly the same shape it always has.
+eval "$(tail -n 1 "$tmpfile")"
+git push
+ 
