@@ -185,8 +185,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            clause = utils.ilike(Genus.genus, f"{text}%")
-            stmt = select(Genus).where(clause).order_by(Genus.genus)
+            clause = utils.ilike(Genus.epithet, f"{text}%")
+            stmt = select(Genus).where(clause).order_by(Genus.epithet)
 
             logger.debug(
                 "Genus completion query: %s",
@@ -195,7 +195,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
             result = self.session.scalars(stmt).all()
             logger.debug(
-                "Genus completion query returned: %s", [g.genus for g in result]
+                "Genus completion query returned: %s", [g.epithet for g in result]
             )
             return result
 
@@ -357,7 +357,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             logger.debug(f"on select: {value}")
             if isinstance(value, str):
                 value = self.session.scalars(
-                    select(Genus).where(Genus.genus == value)
+                    select(Genus).where(Genus.epithet == value)
                 ).first()
 
             while self.genus_check_messages:
@@ -1262,9 +1262,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                 self.session.execute(
                     select(Species)
                     .join(Genus, Species.genus_id == Genus.id)
-                    .where(utils.ilike(Genus.genus, f"{text}%"))
+                    .where(utils.ilike(Genus.epithet, f"{text}%"))
                     .where(Species.id != self.model.id)
-                    .order_by(Genus.genus, Species.epithet)
+                    .order_by(Genus.epithet, Species.epithet)
                 )
             ).scalars()
             return iterable
@@ -1447,7 +1447,7 @@ class SpeciesEditorView(editor.GenericEditorView):
     @staticmethod
     def genus_match_func(completion, key, iter, data: Optional[Any] = None):
         """
-        match against both str(genus) and str(genus.genus) so that we
+        match against both str(genus) and str(genus.epithet) so that we
         catch the genera with hybrid flags in their name when only
         entering the genus name
         """
