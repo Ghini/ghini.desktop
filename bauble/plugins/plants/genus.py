@@ -97,7 +97,8 @@ def add_species_callback(genera):
     from bauble.plugins.plants.species import SpeciesEditor
     from bauble.plugins.plants.species_model import Species
 
-    e = SpeciesEditor(model=Species(genus=genus))
+    e = SpeciesEditor(model=Species(genus_id=genus.id))
+    e.set_field("sp_genus_entry", genus.epithet)
     # session creates unbound object.  editor decides what to do with it.
     return e.start() is not None
 
@@ -1020,6 +1021,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
     RESPONSE_OK_AND_ADD: int = 11
     RESPONSE_NEXT: int = 22
     ok_responses: Any = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
+    model_class = Genus
 
     def __init__(
         self, model: Optional[Any] = None, parent: Optional[Any] = None
@@ -1028,8 +1030,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         :param model: Genus instance or None
         :param parent: None
         """
-        if model is None:
-            model = Genus()
         super().__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
@@ -1092,10 +1092,10 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = GenusEditor(Genus(family=next_family), parent=self.parent)
+            e = GenusEditor(Genus(family_id=next_family.id), parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            sp = Species(genus=self.model)
+            sp = Species(genus_id=self.model.id)
             edit_species = get_species_editor()
             more_committed = edit_species(model=sp, parent_view=self.parent)
 

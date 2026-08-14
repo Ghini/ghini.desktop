@@ -184,7 +184,7 @@ def add_plants_callback(accessions):
     from bauble.plugins.garden import PlantEditor
     from bauble.plugins.garden.models import Plant
 
-    e = PlantEditor(model=Plant(accession=accessions[0]))
+    e = PlantEditor(model=Plant(accession_id=accessions[0].id))
     return e.start() is not None
 
 
@@ -2326,6 +2326,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
     RESPONSE_OK_AND_ADD: int = 11
     RESPONSE_NEXT: int = 22
     ok_responses: Any = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
+    model_class = Accession
 
     def __init__(
         self, model: Optional[Any] = None, parent: Optional[Any] = None
@@ -2334,9 +2335,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         :param model: Accession instance or None
         :param parent: the parent widget
         """
-        if model is None:
-            model = Accession()
-
         super().__init__(model, parent)
         self._committed = []
 
@@ -2399,13 +2397,13 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = AccessionEditor(Accession(species=next_species), parent=self.parent)
+            e = AccessionEditor(Accession(species_id=next_species.id), parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden import PlantEditor
             from bauble.plugins.garden.models import Plant
 
-            e = PlantEditor(Plant(accession=self.model), self.parent)
+            e = PlantEditor(Plant(accession_id=self.model.id), self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

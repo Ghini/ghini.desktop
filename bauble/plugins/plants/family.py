@@ -81,13 +81,9 @@ def add_genera_callback(families):
     """
     Callback to add a genus to the first family in the provided list.
     """
-    genus_instance = get_genus_class()
+    genus_class = get_genus_class()
     genus_editor = get_genus_editor()
-    with db.TempSession() as session:
-        family = session.merge(families[0])
-        genus = genus_instance(family=family)
-    # family and genus are now detached; PlantEditor.merge will re-attach them
-    e = genus_editor(model=genus)
+    e = genus_editor(model=genus_class(family_id=families[0].id))
     return e.start() is not None
 
 
@@ -902,6 +898,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
     RESPONSE_OK_AND_ADD: int = 11
     RESPONSE_NEXT: int = 22
     ok_responses: Any = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
+    model_class = Family
 
     def __init__(
         self, model: Optional[Any] = None, parent: Optional[Any] = None
@@ -910,8 +907,6 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
         :param model: Family instance or None
         :param parent: the parent window or None
         """
-        if model is None:
-            model = Family()
         super().__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window

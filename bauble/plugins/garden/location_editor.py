@@ -390,12 +390,11 @@ class LocationEditor(GenericModelViewPresenterEditor):
         :param parent: the parent widget or None
         """
         from bauble.plugins.garden.models import Location
+        self.model_class = Location
 
         # view and presenter are created in self.start()
         self.view = None
         self.presenter = None
-        if model is None:
-            model = Location()
         super().__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
@@ -453,7 +452,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
             from bauble.plugins.garden import PlantEditor
             from bauble.plugins.garden.models import Plant
 
-            e = PlantEditor(Plant(location=self.model), self.parent)
+            e = PlantEditor(Plant(location_id=self.model.id), self.parent)
             more_committed = e.start()
         if more_committed is not None:
             if isinstance(more_committed, list):

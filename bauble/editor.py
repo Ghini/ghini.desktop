@@ -27,7 +27,7 @@ import os
 import weakref
 from gettext import gettext as _
 from random import random
-from typing import Any, Optional
+from typing import Any, Optional, ClassVar
 
 import bauble
 import bauble.paths as paths
@@ -2164,39 +2164,37 @@ class GenericModelViewPresenterEditor:
     :param parent: the parent windows for the view or None
     """
 
+    model_class: ClassVar[type] = None   # ogni sottoclasse lo sovrascrive
     session: Any
     model: Any
     ok_responses: Any = ()
+    view: Any = None
+    presenter: Any = None
 
     def __init__(
-        self, model, parent: Optional[Any] = None, prefs: Optional[Any] = None
+            self, model, parent: Optional[Any] = None, prefs: Optional[Any] = None,
+            session: Any = None
     ) -> None:
-        self.session = db.TempSession()
-        self.model = self.session.merge(model)
+        if model is None:
+            model = self.model_class()
+        if session is None:
+            session = db.TempSession()
+        self.session = session
+        self.model = self._attach_locally(self.session, model)
         self.parent = parent
         self.prefs = prefs
 
-        # Non-persistent objects may have been auto-linked into back_populates
-        # collections. Purge those references to avoid flushing phantom rows.
-        if not sa_inspect(model).persistent:
-            self._purge_phantom_backrefs(model)
+    @staticmethod
+    def _attach_locally(session, model):
+        state = sa_inspect(model)
+        if state.persistent or state.detached:
+            pk = sa_inspect(type(model)).mapper.primary_key_from_instance(model)
+            return session.get(type(model), pk)
+        session.add(model)
+        return model
 
-    def _purge_phantom_backrefs(self, model):
-        mapper = sa_inspect(type(model)).mapper
-        if sa_inspect(model).persistent:
-            logger.warning("called _purge_phantom_backrefs on a persistent object; ignoring the call.")
-            return
-        for rel in mapper.relationships:
-            if rel.back_populates is None:
-                continue
-            related = getattr(model, rel.key, None)
-            if related is None:
-                continue
-            targets = related if isinstance(related, list) else [related]
-            for target in targets:
-                collection = getattr(target, rel.back_populates, None)
-                if isinstance(collection, list) and model in collection:
-                    collection.remove(model)
+    def set_field(self, name: str, value) -> None:
+        self.presenter.view.widget_set_value(name, value)
 
     def commit_changes(self):
         """

@@ -758,20 +758,24 @@ class PlantEditor(GenericModelViewPresenterEditor):
         parent: Optional[Any] = None,
         branch_mode: bool = False,
     ) -> None:
-        """
-        :param model: Plant instance or None
-        :param parent: None
-        :param branch_mode:
-        """
         if model is None:
             raise CheckConditionError("PlantEditor requires a model")
+        from bauble.plugins.garden import Plant
+        self.model_class = Plant
+
+        session = db.TempSession()
+        local_model = self._attach_locally(session, model)   # per id, niente grafo
+
         if branch_mode:
-            self.branched_plant, model = model, model.duplicate(code=None)
+            self.branched_plant = local_model
+            model = local_model.duplicate(code=None, session=session)
             model.quantity = 1
         else:
             self.branched_plant = None
+            model = local_model
 
-        super().__init__(model, parent)
+        super().__init__(model, parent, session=session)  # riusa la sessione già creata
+
         logger.debug(f"[DEBUG __init__] "
                      f"branch_mode={branch_mode} branched_plant={self.branched_plant!r} "
                      f"self.model.id={self.model.id!r} self.model.quantity={self.model.quantity!r}")
@@ -932,7 +936,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = PlantEditor(Plant(accession=next_accession), parent=self.parent)
+            e = PlantEditor(Plant(accession_id=next_accession.id), parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

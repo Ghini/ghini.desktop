@@ -123,7 +123,7 @@ def add_accession_callback(values):
     species = values[0]
     if isinstance(species, VernacularName):
         species = species.species
-    e = AccessionEditor(model=Accession(species=species))
+    e = AccessionEditor(model=Accession(species_id=species.id))
     # session creates unbound object.  editor decides what to do with it.
     return e.start() is not None
 

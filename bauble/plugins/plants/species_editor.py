@@ -1531,6 +1531,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
     RESPONSE_OK_AND_ADD: int = 11
     RESPONSE_NEXT: int = 22
     ok_responses: Any = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
+    model_class = Species
 
     def __init__(
         self,
@@ -1542,8 +1543,6 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         :param model: a species instance or None
         :param parent: the parent window or None
         """
-        if model is None:
-            model = Species()
         super().__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
@@ -1611,7 +1610,8 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = SpeciesEditor(Species(genus=next_genus), self.parent)
+            e = SpeciesEditor(Species(genus_id=next_genus.id), self.parent)
+            e.set_field("sp_genus_entry", next_genus.epithet)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden.accession_editor import AccessionEditor
