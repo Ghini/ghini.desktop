@@ -1276,7 +1276,6 @@ class GenericEditorPresenter:
         self.is_committing_presenter = do_commit
         self.committing_results = committing_results
         self.running_threads = []
-        self.owns_session = False
         self.clipboard_presenters = []
         self.init_problem_style()
         if not hasattr(self.__class__, "clipboard"):
