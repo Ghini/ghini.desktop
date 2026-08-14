@@ -1241,23 +1241,18 @@ class GenericEditorPresenter:
     view: Any
     problems: Any
     _dirty: bool
-    is_committing_presenter: Any
+    is_committing_presenter: bool
     committing_results: Any
     running_threads: Any
-    owns_session: bool
     session: Any
     clipboard_presenters: Any
-    presenter: Any
     wrapped: Any
-    rgba: Any = Gdk.RGBA()
-    rgba.parse("#FFDCDF")
-    problem_color = rgba
 
-    widget_to_field_map: Any = {}
-    view_accept_buttons: Any = []
+    widget_to_field_map: dict[str, str] = {}
+    view_accept_buttons: list[str] = []
 
-    PROBLEM_DUPLICATE: Any = random()
-    PROBLEM_EMPTY: Any = random()
+    PROBLEM_DUPLICATE: float = random()
+    PROBLEM_EMPTY: float = random()
 
     def __init__(
         self,
