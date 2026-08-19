@@ -545,8 +545,6 @@ class CSVImporter(Importer):
         """
         configure_mappers()
         bind = session.connection()
-        #        print(str(table.compile(bind=bind)))
-        #        print([fk.column for fk in table.foreign_keys])
         table.create(bind=bind)
         if table.name not in created_tables:
             created_tables.append(table.name)

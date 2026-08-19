@@ -232,66 +232,6 @@ class CSVProcessor:
         else:
             self.batch_queue = None
             self.worker_thread = None
-
-    # @staticmethod
-    # def _toposort_file(filename, key_pairs):
-    #     """
-    #     filename: the csv file to sort
-
-    #     key_pairs: tuples of the form (parent, child) where for each
-    #     line in the file the line[parent] needs to be sorted before
-    #     any of the line[child].  parent is usually the name of the
-    #     foreign_key column and child is usually the column that the
-    #     foreign key points to, e.g ('parent_id', 'id')
-    #     """
-    #     print(f"Performing topological sorting for {filename} using key pairs: {key_pairs}")
-    #     f = open(filename)
-    #     reader = UnicodeReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
-
-    #     # create a dictionary of the lines mapped to the child field
-    #     bychild = {}
-    #     for line in reader:
-    #         for parent, child in key_pairs:
-    #             bychild[line[child]] = line
-    #     print(f"Initial unsorted rows: {list(bychild.values())[:5]}")  # Print first few rows
-    #     f.close()
-    #     fields = reader.reader.fieldnames
-    #     del reader
-
-    #     # create pairs from the values in the lines where pair[0]
-    #     # should come before pair[1] when the lines are sorted
-    #     pairs = []
-    #     for line in list(bychild.values()):
-    #         for parent, child in key_pairs:
-    #             if line[parent] and line[child]:
-    #                 pairs.append((line[parent], line[child]))
-
-    #     # sort the keys and flatten the lines back into a list
-    #     sorted_keys = utils.topological_sort(list(bychild.keys()), pairs)
-    #     print(f"Sorted order of keys: {sorted_keys[:10]}")  # Print first 10 sorted keys
-    #     sorted_lines = []
-    #     for key in sorted_keys:
-    #         sorted_lines.append(bychild[key])
-    #     # Check if sorting actually made a difference
-    #     if list(bychild.keys()) != sorted_keys:
-    #         print("Topological sort altered row order!")
-
-    #     # write a temporary file of the sorted lines
-    #     import tempfile
-
-    #     tmppath = tempfile.mkdtemp()
-    #     head, tail = os.path.split(filename)
-    #     filename = os.path.join(tmppath, tail)
-    #     tmpfile = open(filename, "w")
-    #     tmpfile.write("%s\n" % ",".join(fields))
-    #     writer = UnicodeWriter(
-    #         tmpfile, fields=fields, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE
-    #     )
-    #     writer.writerows(sorted_lines)
-    #     tmpfile.flush()
-    #     tmpfile.close()
-    #     del writer
-    #     return filename
     @staticmethod
     def _toposort_file(filename, key_pairs):
         """
