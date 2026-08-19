@@ -46,8 +46,8 @@ def test_genus_editor_next_preserves_family(db_session):
         next_editor.return_value.start.return_value = None
         result = editor.handle_response(editor.RESPONSE_NEXT)
         assert result is True
-        next_genus = next_editor.call_args.args[0]
-        assert next_genus.family.id == family.id
+        new_genus = next_editor.call_args.args[0]
+        assert new_genus.family.id == family.id
 
 
 def test_species_editor_next_preserves_genus(db_session):
@@ -65,8 +65,8 @@ def test_species_editor_next_preserves_genus(db_session):
         next_editor.return_value.start.return_value = None
         result = editor.handle_response(editor.RESPONSE_NEXT)
         assert result is True
-        next_species = next_editor.call_args.args[0]
-        assert next_species.genus.id == genus.id
+        new_species = next_editor.call_args.args[0]
+        assert new_species.genus.id == genus.id
 
 
 # RESPONSE_OK_AND_ADD (family-> genus-> species-> accession)
