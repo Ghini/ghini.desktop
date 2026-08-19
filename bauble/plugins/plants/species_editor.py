@@ -1543,7 +1543,14 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         :param model: a species instance or None
         :param parent: the parent window or None
         """
-        super().__init__(model, parent)
+        session = None
+        # only a transient model can carry a foreign-session genus;
+        # a persistent one is reloaded by PK in _attach_locally regardless
+        if model is not None and sa_inspect(model).transient and model.genus is not None:
+            from bauble import db
+            session = db.TempSession()
+            model.genus = self._attach_locally(session, model.genus)
+        super().__init__(model, parent, session=session)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
@@ -1610,16 +1617,13 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = SpeciesEditor(Species(genus_id=next_genus.id), self.parent)
-            e.set_field("sp_genus_entry", next_genus.epithet)
+            e = SpeciesEditor(Species(genus=next_genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden.accession_editor import AccessionEditor
             from bauble.plugins.garden.models import Accession
 
-            state = sa_inspect(self.model)
-            species_id = state.identity[0] if state.identity else self.model.id
-            e = AccessionEditor(Accession(species_id=species_id), parent=self.parent)
+            e = AccessionEditor(Accession(species=self.model), parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

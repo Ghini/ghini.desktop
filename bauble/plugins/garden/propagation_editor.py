@@ -781,7 +781,7 @@ class SourcePropagationPresenter(PropagationPresenter):
 
     def set_model_attr(self, attr, value, validator: Optional[Any] = None) -> None:
         logger.debug(f"set_model_attr({attr}, {value})")
-        super().set_model_attr(attr, value)
+        super().set_model_attr(attr, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
 

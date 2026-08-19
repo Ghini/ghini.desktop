@@ -724,6 +724,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 return obj
             italicize = escape = _identity
 
+        #if epithet is None:
+        #    epithet = "sp."
+
         author = None
         if authors and self.author:
             author = escape(self.author)

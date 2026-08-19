@@ -58,6 +58,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import sessionmaker
 
+from bauble.plugins.plants.species_editor import SpeciesEditor
 
 @pytest.fixture
 def setup_plant_data(request, session) -> Generator[None, None, None]:
@@ -2199,6 +2200,66 @@ class TestConservationStatus:
 @pytest.mark.usefixtures("setup_plant_data")
 class TestPresenter:
     def test_can_reedit_object(self, session) -> None:
+        species0 = Species.retrieve_or_create(
+            session,
+            {
+                "object": "taxon",
+                "ht-rank": "genus",
+                "ht-epithet": "Paphiopedilum",
+                "rank": "species",
+                "epithet": "adductum",
+            },
+            create=False,
+            update=False,
+        )
+        assert species0 is not None
+        species = (session.query(Species).join(Species.genus)
+                    .where(Genus.epithet=="Paphiopedilum",
+                           Species.epithet=="adductum")).one()
+        assert species is species0
+        editor = SpeciesEditor(species)
+        species.author = "wrong"
+        editor.commit_changes()
+        species.author = "Asher"
+        editor.commit_changes()
+        assert species.author == "Asher"
+
+    def test_species_editor_survives_genus_cleared_then_reset(self, session):
+        """Clear then reassign genus — must not silently expunge the model.
+
+        Regression test: assigning ``None`` to a delete-orphan relationship
+        expunges a still-pending object; reassigning afterwards must
+        re-attach it before commit.
+        """
+        family = session.query(Family).filter_by(epithet="Solanaceae").one()
+        genus_a = Genus(family=family, epithet="Solanum")
+        genus_b = Genus(family=family, epithet="Capsicum")
+        session.add_all([genus_a, genus_b])
+        session.commit()
+
+        editor = SpeciesEditor(model=Species(genus=genus_a), parent=None)
+        presenter = editor.presenter
+
+        assert editor.model in editor.session
+
+        # now clear the genus, then select different Genus
+        genus_b_loc = editor.session.query(Genus).where(Genus.epithet=="Capsicum").one()
+
+        presenter.set_model_attr("genus", None)
+        presenter.set_model_attr("genus", genus_b_loc)
+        presenter.set_model_attr("epithet", "viridis")
+
+        assert editor.model in editor.session
+        editor.session.commit()  # must not raise SAWarning
+
+        result = (
+            session.query(Species)
+            .filter_by(epithet="viridis")
+            .one()
+        )
+        assert result.genus.epithet == "Capsicum"
+
+    def test_can_change_genus_entry(self, session) -> None:
         species = Species.retrieve_or_create(
             session,
             {
@@ -2211,13 +2272,12 @@ class TestPresenter:
             create=False,
             update=False,
         )
-        presenter = GenericModelViewPresenterEditor(species, MockView())
-        species.author = "wrong"
-        presenter.commit_changes()
-        species.author = "Asher"
-        presenter.commit_changes()
-        assert species.author == "Asher"
-
+        assert species is not None
+        editor = SpeciesEditor(species)
+        editor.view.widget_set_value("sp_genus_entry", "")
+        editor.view.widget_set_value("sp_genus_entry", "Nicotiana")
+        
+        
     @pytest.mark.xfail(reason="Not implemented: Presenter uses view internals", strict=True)
     def test_cant_insert_same_twice(self, session) -> None:
         model = Species.retrieve_or_create(

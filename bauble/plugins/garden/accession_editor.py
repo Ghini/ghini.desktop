@@ -184,7 +184,7 @@ def add_plants_callback(accessions):
     from bauble.plugins.garden import PlantEditor
     from bauble.plugins.garden.models import Plant
 
-    e = PlantEditor(model=Plant(accession_id=accessions[0].id))
+    e = PlantEditor(model=Plant(accession=accessions[0]))
     return e.start() is not None
 
 
@@ -880,7 +880,7 @@ class VerificationBox:
 
     def set_model_attr(self, attr, value) -> None:
         """Set the model attribute and handle side effects."""
-        setattr(self.model, attr, value)
+        super().set_model_attr(attr, value)
         if attr != "date" and not self.model.date:
             tmp = self.date_entry.get_text()
             self.date_entry.set_text("")
@@ -2335,7 +2335,14 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         :param model: Accession instance or None
         :param parent: the parent widget
         """
-        super().__init__(model, parent)
+        session = None
+        # only a transient model can carry a foreign-session genus;
+        # a persistent one is reloaded by PK in _attach_locally regardless
+        if model is not None and sa_inspect(model).transient and model.species is not None:
+            from bauble import db
+            session = db.TempSession()
+            model.species = self._attach_locally(session, model.species)
+        super().__init__(model, parent, session=session)
         self._committed = []
 
         self.view = view = AccessionEditorView(parent=parent)
@@ -2397,13 +2404,13 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = AccessionEditor(Accession(species_id=next_species.id), parent=self.parent)
+            e = AccessionEditor(Accession(species=next_species), parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden import PlantEditor
             from bauble.plugins.garden.models import Plant
 
-            e = PlantEditor(Plant(accession_id=self.model.id), self.parent)
+            e = PlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

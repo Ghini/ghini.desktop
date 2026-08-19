@@ -53,7 +53,7 @@ logger.setLevel(logging.INFO)
 
 
 def edit_callback(locations):
-    e = LocationEditor(model=locations[0])
+    e = LocationEditor(locations[0])
     return e.start() is not None
 
 
@@ -64,7 +64,7 @@ def add_plants_callback(locations):
         from bauble.plugins.garden.models import Plant
         plant = Plant(location=loc)
     # loc and plant are now detached; PlantEditor.merge will re-attach them
-    e = PlantEditor(model=plant)
+    e = PlantEditor(plant)
     return e.start() is not None
 
 
@@ -452,7 +452,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
             from bauble.plugins.garden import PlantEditor
             from bauble.plugins.garden.models import Plant
 
-            e = PlantEditor(Plant(location_id=self.model.id), self.parent)
+            e = PlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()
         if more_committed is not None:
             if isinstance(more_committed, list):

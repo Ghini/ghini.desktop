@@ -764,15 +764,22 @@ class PlantEditor(GenericModelViewPresenterEditor):
         self.model_class = Plant
 
         session = db.TempSession()
-        local_model = self._attach_locally(session, model)   # per id, niente grafo
+
+        from sqlalchemy import inspect as sa_inspect
+
+        if sa_inspect(model).transient:
+            if model.accession is not None:
+                model.accession = self._attach_locally(session, model.accession)
+            if model.location is not None:
+                model.location = self._attach_locally(session, model.location)
+
+        model = self._attach_locally(session, model)
 
         if branch_mode:
-            self.branched_plant = local_model
-            model = local_model.duplicate(code=None, session=session)
+            self.branched_plant = model.duplicate(code=None, session=session)
             model.quantity = 1
         else:
             self.branched_plant = None
-            model = local_model
 
         super().__init__(model, parent, session=session)  # riusa la sessione già creata
 
@@ -897,7 +904,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
                          [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
             for obj in [self.model] + self.model.notes:
                 self.session.expunge(obj)
-                self._purge_phantom_backrefs(obj)
             logger.debug("session.new after expunge: %s",
                          [(obj, getattr(obj, 'code', '?')) for obj in self.session.new])
             super().commit_changes()
@@ -936,7 +942,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = PlantEditor(Plant(accession_id=next_accession.id), parent=self.parent)
+            e = PlantEditor(Plant(accession=next_accession), parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

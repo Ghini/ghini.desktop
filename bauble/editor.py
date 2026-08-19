@@ -1806,6 +1806,7 @@ class GenericEditorPresenter:
         :param validator: validates the value before setting it
         """
         logger.debug(f"editor.set_model_attr({attr}, {value})")
+        assert self.model in self.session
         if validator:
             try:
                 # Safely retrieve the 'wrapped' attribute if it exists
@@ -1829,6 +1830,8 @@ class GenericEditorPresenter:
                 setattr(self.model, attr, value)
         else:
             setattr(self.model, attr, value)
+        self.session.add(self.model)
+
 
     def assign_simple_handler(
         self, widget_name, model_attr, validator: Optional[Any] = None
@@ -2164,7 +2167,7 @@ class GenericModelViewPresenterEditor:
     :param parent: the parent windows for the view or None
     """
 
-    model_class: ClassVar[type] = None   # ogni sottoclasse lo sovrascrive
+    model_class: ClassVar[type] = None   # subclasses will override
     session: Any
     model: Any
     ok_responses: Any = ()
@@ -2430,7 +2433,13 @@ class NoteBox:
 
     def set_model_attr(self, attr, value) -> None:
         """Set a model attribute and trigger updates."""
+        try:
+            session = object_session(self.model)
+        except:
+            session = None
         setattr(self.model, attr, value)
+        if session:
+            session.add(self.model)
         self.presenter._dirty = True
 
         if self.model not in self.presenter.notes and any(

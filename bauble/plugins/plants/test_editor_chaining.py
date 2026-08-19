@@ -138,5 +138,5 @@ def test_species_editor_ok_and_add_uses_species(db_session):
                    .first())
         assert species is not None
         new_accession = next_editor.call_args.args[0]
-        assert new_accession.species_id == species.id
+        assert new_accession.species.id == species.id
         

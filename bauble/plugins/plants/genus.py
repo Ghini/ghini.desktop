@@ -97,9 +97,7 @@ def add_species_callback(genera):
     from bauble.plugins.plants.species import SpeciesEditor
     from bauble.plugins.plants.species_model import Species
 
-    e = SpeciesEditor(model=Species(genus_id=genus.id))
-    e.set_field("sp_genus_entry", genus.epithet)
-    # session creates unbound object.  editor decides what to do with it.
+    e = SpeciesEditor(model=Species(genus=genus))
     return e.start() is not None
 
 
@@ -1030,7 +1028,15 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         :param model: Genus instance or None
         :param parent: None
         """
-        super().__init__(model, parent)
+        from sqlalchemy import func, inspect as sa_inspect, select
+        session = None
+        # only a transient model can carry a foreign-session genus;
+        # a persistent one is reloaded by PK in _attach_locally regardless
+        if model is not None and sa_inspect(model).transient and model.family is not None:
+            from bauble import db
+            session = db.TempSession()
+            model.family = self._attach_locally(session, model.family)
+        super().__init__(model, parent, session=session)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
@@ -1092,10 +1098,10 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = GenusEditor(Genus(family_id=next_family.id), parent=self.parent)
+            e = GenusEditor(Genus(family=next_family), parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            sp = Species(genus_id=self.model.id)
+            sp = Species(genus=self.model)
             edit_species = get_species_editor()
             more_committed = edit_species(model=sp, parent_view=self.parent)
 

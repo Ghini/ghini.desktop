@@ -2049,7 +2049,7 @@ def test_accession_editor_from_species_id_populates_taxon_and_commits(session):
     session.commit()
     species_id = species.id
 
-    accession_editor = AccessionEditor(Accession(species_id=species_id))
+    accession_editor = AccessionEditor(Accession(species=species))
     try:
         species_text = accession_editor.presenter.view.widget_get_value(
             "acc_species_entry"
@@ -2070,33 +2070,34 @@ def test_accession_editor_from_species_id_populates_taxon_and_commits(session):
         accession_editor.session.close()
 
 
-def test_accession_species_completion_waits_for_full_species_text(
-    session, accession_editor_view
-):
+def test_accession_species_completion_waits_for_full_species_text(session):
     family = Family(epithet="Arecaceae", qualifier="")
     genus = Genus(family=family, epithet="Cocos", author="L.")
     species = Species(genus=genus, epithet="nucifera", author="L.", hybrid=False)
     session.add_all([family, genus, species])
     session.commit()
-    accession = Accession(code="2026.001", quantity_recvd=1, recvd_type="PLNT")
 
-    presenter = AccessionEditorPresenter(
-        accession, accession_editor_view, session=session
+    editor = AccessionEditor(
+        model=Accession(code="2026.001", quantity_recvd=1, recvd_type="PLNT"),
+        parent=None,
     )
-    entry = accession_editor_view.widgets.acc_species_entry
+    entry = editor.view.widgets.acc_species_entry
 
     entry.set_text("Cocos")
     drain_gtk_events()
 
-    assert accession.species is None
-    assert not accession_editor_view.widgets.acc_ok_button.get_sensitive()
+    assert editor.model.species is None
+    assert not editor.view.widgets.acc_ok_button.get_sensitive()
 
     entry.set_text("Cocos nucifera")
     drain_gtk_events()
 
-    assert accession.species is species
-    assert not presenter.has_problems(entry)
-    assert accession_editor_view.widgets.acc_ok_button.get_sensitive()
+    assert editor.model.species is not None
+    assert editor.model.species.epithet == "nucifera"
+    assert editor.model.species.genus.epithet == "Cocos"
+
+    assert not editor.presenter.has_problems(entry)
+    assert editor.view.widgets.acc_ok_button.get_sensitive()
 
 
 def test_contact_editor_blocks_overlong_source_name(session, contact_editor_view):
