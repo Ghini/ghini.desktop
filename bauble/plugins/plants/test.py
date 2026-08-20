@@ -2329,8 +2329,8 @@ class TestPresenter:
         editor = SpeciesEditor(species)
         editor.view.widget_set_value("sp_genus_entry", "")
         editor.view.widget_set_value("sp_genus_entry", "Nicotiana")
-        
-        
+
+
     @pytest.mark.xfail(reason="Not implemented: Presenter uses view internals", strict=True)
     def test_cant_insert_same_twice(self, session) -> None:
         model = Species.retrieve_or_create(
