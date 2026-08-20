@@ -1375,11 +1375,15 @@ class TestFromAndToDict:
         sol = Family.retrieve_or_create(
             session, {"rank": "family", "epithet": "Solanaceae"}
         )
+        cuc = Family.retrieve_or_create(
+            session, {"rank": "family", "epithet": "Cucurbitaceae"}
+        )
         assert set(all_families) == {
             orc,
             pol,
             leg,
             sol,
+            cuc,
         }, "Mismatch in retrieved families."
 
     def test_grabbing_same_params_same_output_existing(self, session) -> None:
