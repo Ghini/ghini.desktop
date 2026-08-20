@@ -724,9 +724,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 return obj
             italicize = escape = _identity
 
-        #if epithet is None:
-        #    epithet = "sp."
-
         author = None
         if authors and self.author:
             author = escape(self.author)
@@ -760,6 +757,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 infrasp_parts.append(escape(iauthor))
         if self.cv_group and not group_added:
             infrasp_parts.append(_("%(group)s Group") % dict(group=self.cv_group))
+
+        if infrasp_parts == [] and epithet is None:
+            epithet = "sp."
 
         # create the binomial part
         binomial = [genus, self.hybrid and self.hybrid_char, epithet, author]

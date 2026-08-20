@@ -92,6 +92,11 @@ def setup_plant_data(request, session) -> Generator[None, None, None]:
     laelia_lobata = Species(genus=laelia, epithet="lobata")
     laelia_grandiflora = Species(genus=laelia, epithet="grandiflora")
     paphiopedilum_adductum = Species(genus=paphiopedilum, epithet="adductum")
+    cucurbitaceae = Family(epithet="Cucurbitaceae")
+    cucurbita = Genus(family=cucurbitaceae, epithet="Cucurbita", author="L.")
+    cucurbita_pepo = Species(genus=cucurbita, epithet="pepo")
+    cucurbita_pepo_cylindrica = Species(genus=cucurbita, epithet="pepo",
+                                        infrasp1_rank="var.", infrasp1="cylindrica")
     session.add_all(
         [
             orchidaceae,
@@ -103,6 +108,7 @@ def setup_plant_data(request, session) -> Generator[None, None, None]:
             laelia,
             paphiopedilum,
             brugmansia,
+            cucurbitaceae, cucurbita, cucurbita_pepo, cucurbita_pepo_cylindrica,
             Species(id=1, genus=maxillaria, epithet="sp1"),
             Species(id=2, genus=maxillaria, epithet="sp2"),
             brugmansia_arborea,
@@ -137,8 +143,53 @@ def setup_bauble_data() -> None:
 
 
 @pytest.fixture
-def species_str_map():
-    return {}
+def species_str_map(request, session, setup_plant_data):
+    """Maps species_id -> (expected_str, expected_str_markup).
+
+    Reuses the data already seeded by setup_plant_data (this fixture's
+    class must be in setup_plant_data's seeded_classes set) and adds
+    the one JBQ genus-only case not otherwise represented.
+    """
+    maxillaria_sp1 = (
+        session.query(Species)
+        .join(Species.genus)
+        .filter(Genus.epithet == "Maxillaria", Species.epithet == "sp1")
+        .one()
+    )
+    laelia_lobata = (
+        session.query(Species)
+        .join(Species.genus)
+        .filter(Genus.epithet == "Laelia", Species.epithet == "lobata")
+        .one()
+    )
+    zucchina = (
+        session.query(Species)
+        .join(Species.genus)
+        .filter(Genus.epithet == "Cucurbita", Species.infrasp1 == "cylindrica")
+        .one()
+    )
+
+    # JBQ practice: identified at genus rank only (doc/use_cases-jbq.rst) —
+    # species is not part of setup_plant_data, added here.
+    laelia = (session.query(Genus)
+              .filter(Genus.epithet == "Laelia")).one()
+    jbq_species_explicit = Species(
+        genus=laelia, epithet=None, infrasp1_rank=None, infrasp1="sp."
+    )
+    jbq_species_implicit = Species(
+        genus=laelia, epithet=None
+    )
+    session.add(jbq_species_explicit)
+    session.add(jbq_species_implicit)
+    session.flush()
+
+    return {
+        maxillaria_sp1.id: ("Maxillaria sp1", "<i>Maxillaria</i> <i>sp1</i>"),
+        laelia_lobata.id: ("Laelia lobata", "<i>Laelia</i> <i>lobata</i>"),
+        jbq_species_explicit.id: ("Laelia sp.", "<i>Laelia</i> sp."),
+        jbq_species_implicit.id: ("Laelia sp.", "<i>Laelia</i> sp."),
+        zucchina.id: ("Cucurbita pepo var. cylindrica", "<i>Cucurbita</i> <i>pepo</i> var. <i>cylindrica</i>"),
+    }
 
 
 @pytest.fixture
@@ -633,20 +684,22 @@ class TestSpecies:
             species = session.get(Species, species_id)
             return species.str(**kwargs)
 
-        for species_id, expected_string in species_str_map.items():
+        for species_id, (expected_plain, expected_markup) in species_str_map.items():
             species = session.get(Species, species_id)
 
             # Verify basic string output
             printable_name = remove_zws(str(species))
-            assert (
-                printable_name == expected_string
-            ), f"Mismatch in string representation for species ID {species_id}."
+            assert printable_name == expected_plain, (
+                f"species {species_id}: got {printable_name!r}, want {expected_plain!r}")
 
             # Verify helper function output
             species_string = get_species_string(species_id)
-            assert (
-                remove_zws(species_string) == expected_string
-            ), f"Helper function string mismatch for species ID {species_id}."
+            assert remove_zws(species_string) == expected_plain, (
+                f"species {species_id} (via helper): got {species_string!r}, want {expected_plain!r}")
+
+            markup_string = get_species_string(species_id, markup=True)
+            assert remove_zws(markup_string) == expected_markup, (
+                f"species {species_id} (markup): got {markup_string!r}, want {expected_markup!r}")
 
     def test_species_string_with_authors(self, session, species_str_authors_map):
         """

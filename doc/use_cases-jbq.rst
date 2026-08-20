@@ -370,7 +370,7 @@ Taxonomy
 
          If an accession is identified at rank genus, we add a fictive
          species in that genus, we don't specify its species epithet (we
-         don't know that) and we add an unranked epithet in the
+         don't know that) and we add an unranked 'sp.' epithet in the
          infraspecific information section, like this:
 
          .. figure:: images/genus_sp-editing.png
@@ -453,7 +453,7 @@ Taxonomy
 
          Scenario one describes the identification of a single accession,
          which had been associated to a "generic", placeholder species,
-         something like “*Zzz* sp” or “*Vanda* sp”;
+         something like “*Zzz* sp.” or “*Vanda* sp.”;
 
          In this case, when the plant species becomes known, we change the
          association in the accession, selecting a different species.
@@ -934,7 +934,7 @@ Let the database fit the garden
          the database says.  We update the database information.
 
          For example, the plant belonging to accession “012142”, species “*Acineta*
-         sp”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
+         sp.”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
 
          All we do is find the Plant in the database and update its information.  We
          do not change anything in the initial Accession information, just the current
