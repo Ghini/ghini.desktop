@@ -36,9 +36,14 @@ jobs:
 
       # windows-latest already ships Visual Studio 2022 Build Tools, which is
       # what gvsbuild needs - no separate VS install step required.
-      - name: Cache GTK3 stack (gvsbuild)
+      # actions/cache (the combined action) only saves on job SUCCESS by
+      # default. Since a later step can still fail after gvsbuild's ~35
+      # minute build, we split restore/save so the cache is kept even when
+      # something downstream breaks - otherwise every failed run throws
+      # the GTK3 build away and starts over from zero.
+      - name: Restore GTK3 stack (gvsbuild) from cache
         id: gtk-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: C:\gtk-build
           key: gvsbuild-gtk3-py313-v1
@@ -48,6 +53,13 @@ jobs:
         run: |
           pip install gvsbuild
           gvsbuild build --enable-gi --py-wheel gtk3 pygobject pycairo adwaita-icon-theme gdk-pixbuf librsvg
+
+      - name: Save GTK3 stack to cache
+        if: always() && steps.gtk-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: C:\gtk-build
+          key: gvsbuild-gtk3-py313-v1
 
       - name: Put GTK3 on PATH and install its Python wheels
         run: |
