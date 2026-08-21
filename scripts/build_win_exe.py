@@ -21,6 +21,13 @@ import sys
 if sys.platform != "win32":
     sys.exit("freeze_win.py must be run on Windows")
 
+# py2exe's modulefinder scans the filesystem statically; it can't follow the
+# import hooks that a modern (PEP 660) `pip install -e .` sets up, so it fails
+# to find "bauble" even though it imports fine in a normal interpreter.
+# Sidestep that entirely by putting the repo root - where the bauble/ package
+# lives as a plain directory - on sys.path ourselves.
+sys.path.insert(0, ".")
+
 from py2exe import freeze
 
 freeze(
