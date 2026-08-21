@@ -69,7 +69,7 @@ jobs:
       - name: Freeze with py2exe
         run: |
           pip install --upgrade py2exe
-          python scripts\freeze_win.py
+          python scripts\build_win_exe.py
 
       - name: Upload frozen build for inspection
         uses: actions/upload-artifact@v4
