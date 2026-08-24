@@ -51,18 +51,39 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: C:\gtk-build
-          # v4: v3 was built with gvsbuild's new default configuration
-          # (debug-optimized), but we now pass --configuration release
-          # explicitly to match the ...\release\... paths used everywhere
-          # else in this workflow. v3's cached tree is the wrong shape for
-          # that, so it needs a fresh key to force a real rebuild.
+          # v5: v4's cache turned out to be a ~96MB partial build (from an
+          # early failed attempt) rather than the ~full GTK3+PyGObject
+          # stack. "cache-hit: true" only means *something* was saved
+          # under that key, not that it's complete - see the check step
+          # right below, which we now added so this class of problem
+          # self-heals instead of needing another manual key bump next
+          # time. Bumping to v5 here just gets us off today's bad v4 cache.
+
           # Cache keys are immutable, so a new key is the only way to force
           # a genuinely clean rebuild instead of silently reusing that
           # partial state.
           key: gvsbuild-gtk3-py313-v5
 
+      - name: Check whether the cached GTK3 stack is actually complete
+        id: gtk-check
+        shell: pwsh
+        run: |
+          # Don't trust cache-hit alone: it only tells us *something* was
+          # saved under this key, not that the build inside it finished.
+          # A run that failed partway through still gets its (always())
+          # save step, so a "hit" can be a small, useless partial tree.
+          # Checking for the actual wheel files is the real signal.
+          $wheels = Get-ChildItem C:\gtk-build\build\x64\release\*\dist\*.whl -ErrorAction SilentlyContinue
+          if ($wheels) {
+            Write-Host "Found $($wheels.Count) wheel(s) under C:\gtk-build - treating cache as complete."
+            echo "complete=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          } else {
+            Write-Host "No wheels found under C:\gtk-build - cache is missing or incomplete, will (re)build."
+            echo "complete=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          }
+
       - name: Pre-fetch pixman from a more reliable mirror
-        if: steps.gtk-cache.outputs.cache-hit != 'true'
+        if: steps.gtk-check.outputs.complete != 'true'
         shell: pwsh
         run: |
           # gvsbuild's pixman.py hardcodes a single source, the small and
@@ -96,7 +117,7 @@ jobs:
           }
 
       - name: Build GTK3 + PyGObject with gvsbuild
-        if: steps.gtk-cache.outputs.cache-hit != 'true'
+        if: steps.gtk-check.outputs.complete != 'true'
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
@@ -119,7 +140,7 @@ jobs:
           }
 
       - name: Save GTK3 stack to cache
-        if: always() && steps.gtk-cache.outputs.cache-hit != 'true'
+        if: always() && steps.gtk-check.outputs.complete != 'true'
         uses: actions/cache/save@v4
         with:
           path: C:\gtk-build
