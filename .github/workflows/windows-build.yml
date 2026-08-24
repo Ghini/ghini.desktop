@@ -82,38 +82,58 @@ jobs:
             echo "complete=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           }
 
-      - name: Pre-fetch pixman from a more reliable mirror
+      - name: Pre-fetch fragile-mirror sources (pixman, cairo)
         if: steps.gtk-check.outputs.complete != 'true'
         shell: pwsh
         run: |
-          # gvsbuild's pixman.py hardcodes a single source, the small and
-          # occasionally-unreliable http://cairographics.org/releases/.
-          # Debian's source package repackages the exact same upstream
-          # tarball unmodified (verified: identical sha256 below), and
-          # deb.debian.org is much sturdier infrastructure. gvsbuild skips
-          # its own download if the file already exists (by name) in its
-          # default archives dir (C:\gtk-build\src) with a matching hash,
-          # so pre-placing it here lets us dodge the flaky mirror entirely.
-          $version = "0.46.4"
-          $expectedHash = "d09c44ebc3bd5bee7021c79f922fe8fb2fb57f7320f55e97ff9914d2346a591c"
-          $destDir = "C:\gtk-build\src"
-          $destFile = Join-Path $destDir "pixman-$version.tar.gz"
+          # gvsbuild pulls several projects from cairographics.org, a small
+          # server that times out occasionally (we've now hit it for both
+          # pixman and cairo). Debian's source packages repackage the exact
+          # same upstream tarballs unmodified (verified: identical sha256
+          # below), and deb.debian.org is much sturdier infrastructure.
+          # gvsbuild skips its own download if the file already exists (by
+          # name) in its default archives dir (C:\gtk-build\src) with a
+          # matching hash, so pre-placing these here dodges the flaky
+          # mirror entirely. Add more rows here if another project turns
+          # out to share the same source.
+          $sources = @(
+            @{
+              Name         = "pixman"
+              DestFile     = "pixman-0.46.4.tar.gz"
+              Url          = "https://deb.debian.org/debian/pool/main/p/pixman/pixman_0.46.4.orig.tar.gz"
+              ExpectedHash = "d09c44ebc3bd5bee7021c79f922fe8fb2fb57f7320f55e97ff9914d2346a591c"
+            },
+            @{
+              Name         = "cairo"
+              DestFile     = "cairo-1.18.4.tar.xz"
+              Url          = "https://deb.debian.org/debian/pool/main/c/cairo/cairo_1.18.4.orig.tar.xz"
+              ExpectedHash = "445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb"
+            }
+          )
 
+          $destDir = "C:\gtk-build\src"
           New-Item -ItemType Directory -Force -Path $destDir | Out-Null
 
-          if (Test-Path $destFile) {
-            Write-Host "pixman-$version.tar.gz already present (likely from cache), skipping pre-fetch."
-          } else {
-            $url = "https://deb.debian.org/debian/pool/main/p/pixman/pixman_$version.orig.tar.gz"
-            Write-Host "Fetching $url"
-            Invoke-WebRequest -Uri $url -OutFile $destFile -TimeoutSec 60
-
-            $actualHash = (Get-FileHash -Path $destFile -Algorithm SHA256).Hash.ToLower()
-            if ($actualHash -ne $expectedHash) {
-              Remove-Item $destFile -Force
-              throw "Hash mismatch on pre-fetched pixman tarball: got $actualHash, expected $expectedHash. Refusing to use it - falling back to gvsbuild's own download."
+          foreach ($src in $sources) {
+            $destFile = Join-Path $destDir $src.DestFile
+            if (Test-Path $destFile) {
+              Write-Host "$($src.DestFile) already present (likely from cache), skipping pre-fetch."
+              continue
             }
-            Write-Host "Hash verified OK."
+            Write-Host "Fetching $($src.Url)"
+            try {
+              Invoke-WebRequest -Uri $src.Url -OutFile $destFile -TimeoutSec 60
+
+              $actualHash = (Get-FileHash -Path $destFile -Algorithm SHA256).Hash.ToLower()
+              if ($actualHash -ne $src.ExpectedHash) {
+                Remove-Item $destFile -Force
+                Write-Host "Hash mismatch on $($src.Name): got $actualHash, expected $($src.ExpectedHash). Skipping pre-fetch, gvsbuild will try its own download."
+              } else {
+                Write-Host "$($src.Name): hash verified OK."
+              }
+            } catch {
+              Write-Host "Pre-fetch of $($src.Name) failed ($_), gvsbuild will try its own download."
+            }
           }
 
       - name: Build GTK3 + PyGObject with gvsbuild
