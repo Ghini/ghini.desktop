@@ -108,6 +108,12 @@ jobs:
               DestFile     = "cairo-1.18.4.tar.xz"
               Url          = "https://deb.debian.org/debian/pool/main/c/cairo/cairo_1.18.4.orig.tar.xz"
               ExpectedHash = "445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb"
+            },
+            @{
+              Name         = "hicolor-icon-theme"
+              DestFile     = "hicolor-icon-theme-0.18.tar.xz"
+              Url          = "https://deb.debian.org/debian/pool/main/h/hicolor-icon-theme/hicolor-icon-theme_0.18.orig.tar.xz"
+              ExpectedHash = "db0e50a80aa3bf64bb45cbca5cf9f75efd9348cf2ac690b907435238c3cf81d7"
             }
           )
 
