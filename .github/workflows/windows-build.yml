@@ -59,7 +59,7 @@ jobs:
           # Cache keys are immutable, so a new key is the only way to force
           # a genuinely clean rebuild instead of silently reusing that
           # partial state.
-          key: gvsbuild-gtk3-py313-v4
+          key: gvsbuild-gtk3-py313-v5
 
       - name: Pre-fetch pixman from a more reliable mirror
         if: steps.gtk-cache.outputs.cache-hit != 'true'
@@ -123,7 +123,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: C:\gtk-build
-          key: gvsbuild-gtk3-py313-v4
+          key: gvsbuild-gtk3-py313-v5
 
       - name: Put GTK3 on PATH and install its Python wheels
         shell: pwsh
