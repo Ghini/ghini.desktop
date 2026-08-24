@@ -51,13 +51,15 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: C:\gtk-build
-          # v1 and v2 runs timed out at 90 min, likely mid-build, and
-          # the always() save step may have cached a partial
-          # C:\gtk-build (gtk3 done, pygobject missing/incomplete).
+          # v4: v3 was built with gvsbuild's new default configuration
+          # (debug-optimized), but we now pass --configuration release
+          # explicitly to match the ...\release\... paths used everywhere
+          # else in this workflow. v3's cached tree is the wrong shape for
+          # that, so it needs a fresh key to force a real rebuild.
           # Cache keys are immutable, so a new key is the only way to force
           # a genuinely clean rebuild instead of silently reusing that
           # partial state.
-          key: gvsbuild-gtk3-py313-v3
+          key: gvsbuild-gtk3-py313-v4
 
       - name: Build GTK3 + PyGObject with gvsbuild
         if: steps.gtk-cache.outputs.cache-hit != 'true'
@@ -73,7 +75,7 @@ jobs:
           $maxAttempts = 3
           for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
             Write-Host "gvsbuild attempt $attempt of $maxAttempts"
-            gvsbuild build --enable-gi --py-wheel gtk3 pygobject pycairo adwaita-icon-theme gdk-pixbuf librsvg
+            gvsbuild build --configuration release --enable-gi --py-wheel gtk3 pygobject pycairo adwaita-icon-theme gdk-pixbuf librsvg
             if ($LASTEXITCODE -eq 0) { break }
             if ($attempt -eq $maxAttempts) {
               throw "gvsbuild failed after $maxAttempts attempts"
@@ -87,7 +89,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: C:\gtk-build
-          key: gvsbuild-gtk3-py313-v3
+          key: gvsbuild-gtk3-py313-v4
 
       - name: Put GTK3 on PATH and install its Python wheels
         shell: pwsh
