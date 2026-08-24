@@ -61,6 +61,40 @@ jobs:
           # partial state.
           key: gvsbuild-gtk3-py313-v4
 
+      - name: Pre-fetch pixman from a more reliable mirror
+        if: steps.gtk-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          # gvsbuild's pixman.py hardcodes a single source, the small and
+          # occasionally-unreliable http://cairographics.org/releases/.
+          # Debian's source package repackages the exact same upstream
+          # tarball unmodified (verified: identical sha256 below), and
+          # deb.debian.org is much sturdier infrastructure. gvsbuild skips
+          # its own download if the file already exists (by name) in its
+          # default archives dir (C:\gtk-build\src) with a matching hash,
+          # so pre-placing it here lets us dodge the flaky mirror entirely.
+          $version = "0.46.4"
+          $expectedHash = "d09c44ebc3bd5bee7021c79f922fe8fb2fb57f7320f55e97ff9914d2346a591c"
+          $destDir = "C:\gtk-build\src"
+          $destFile = Join-Path $destDir "pixman-$version.tar.gz"
+
+          New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+
+          if (Test-Path $destFile) {
+            Write-Host "pixman-$version.tar.gz already present (likely from cache), skipping pre-fetch."
+          } else {
+            $url = "https://deb.debian.org/debian/pool/main/p/pixman/pixman_$version.orig.tar.gz"
+            Write-Host "Fetching $url"
+            Invoke-WebRequest -Uri $url -OutFile $destFile -TimeoutSec 60
+
+            $actualHash = (Get-FileHash -Path $destFile -Algorithm SHA256).Hash.ToLower()
+            if ($actualHash -ne $expectedHash) {
+              Remove-Item $destFile -Force
+              throw "Hash mismatch on pre-fetched pixman tarball: got $actualHash, expected $expectedHash. Refusing to use it - falling back to gvsbuild's own download."
+            }
+            Write-Host "Hash verified OK."
+          }
+
       - name: Build GTK3 + PyGObject with gvsbuild
         if: steps.gtk-cache.outputs.cache-hit != 'true'
         shell: pwsh
