@@ -87,7 +87,7 @@ import io
 import faulthandler
 try:
     faulthandler.enable()
-except (ValueError, io.UnsupportedOperation):
+except (ValueError, io.UnsupportedOperation, AttributeError):
     logger.debug("faulthandler.enable() failed: no usable fileno on stderr")
     pass
 
