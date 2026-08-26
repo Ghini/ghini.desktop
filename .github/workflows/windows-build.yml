@@ -210,6 +210,10 @@ jobs:
           python -m pip install --upgrade py2exe
           python scripts\build_win_exe.py
 
+      - name: Debug session (temporary)
+        if: always()
+        uses: mxschmitt/action-tmate@v3
+
       - name: Upload frozen build for inspection
         uses: actions/upload-artifact@v4
         with:
