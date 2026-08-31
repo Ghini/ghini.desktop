@@ -325,7 +325,7 @@ class _prefs(dict):
                 logger.error(msg)
 
 
-prefs: Any = _prefs()
+prefs: dict[str, Any] = _prefs()
 
 
 class PrefsView(pluginmgr.View):
@@ -387,5 +387,3 @@ class PrefsCommandHandler(pluginmgr.CommandHandler):
 
 
 pluginmgr.register_command(PrefsCommandHandler)
-
-# prefs = _prefs()

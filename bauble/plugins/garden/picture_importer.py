@@ -559,8 +559,8 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
 
 class PictureImporterTool(pluginmgr.Tool):
-    category: Any = _("Import")
-    label: Any = _("Picture Collection")
+    category: str = _("Import")
+    label: str = _("Picture Collection")
     icon_name: str = "emblem-photos"
     model: Any = type(
         "Model",

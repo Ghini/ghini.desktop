@@ -20,40 +20,40 @@
 from gettext import gettext as _
 from typing import Any
 
-prop_type_values: Any = {
+prop_type_values: dict[Optional[str], str] = {
     "Seed": _("Seed"),
     "UnrootedCutting": _("Unrooted cutting"),
     "Unknown": _("Unknown"),  
 }
 
-prop_type_results: Any = {
+prop_type_results: dict[Optional[str], str] = {
     "Seed": "SEDL",
     "UnrootedCutting": "RCUT",
 }
 
-cutting_type_values: Any = {
+cutting_type_values: dict[Optional[str], str] = {
     "Nodal": _("Nodal"),
     "InterNodal": _("Internodal"),
     "Other": _("Other"),
 }
 
-tip_values: Any = {
+tip_values: dict[Optional[str], str] = {
     "Intact": _("Intact"),
     "Removed": _("Removed"),
     "None": _("None"),
     None: "",
 }
 
-leaves_values: Any = {
+leaves_values: dict[Optional[str], str] = {
     "Intact": _("Intact"),
     "Removed": _("Removed"),
     "None": _("None"),
     None: "",
 }
 
-flower_buds_values: Any = {"Removed": _("Removed"), "None": _("None"), None: ""}
+flower_buds_values: dict[Optional[str], str] = {"Removed": _("Removed"), "None": _("None"), None: ""}
 
-wound_values: Any = {
+wound_values: dict[Optional[str], str] = {
     "No": _("No"),
     "Single": _("Singled"),
     "Double": _("Double"),
@@ -61,15 +61,15 @@ wound_values: Any = {
     None: "",
 }
 
-hormone_values: Any = {"Liquid": _("Liquid"), "Powder": _("Powder"), "No": _("No")}
+hormone_values: dict[Optional[str], str] = {"Liquid": _("Liquid"), "Powder": _("Powder"), "No": _("No")}
 
-bottom_heat_unit_values: Any = {"F": _("°F"), "C": _("°C"), None: ""}
+bottom_heat_unit_values: dict[Optional[str], str] = {"F": _("°F"), "C": _("°C"), None: ""}
 
-length_unit_values: Any = {"mm": _("mm"), "cm": _("cm"), "in": _("in"), None: ""}
+length_unit_values: dict[Optional[str], str] = {"mm": _("mm"), "cm": _("cm"), "in": _("in"), None: ""}
 
 
 # TODO: some of these reasons are specific to UBC and could probably be culled.
-change_reasons: Any = {
+change_reasons: dict[Optional[str], str] = {
     "DEAD": _("Dead"),
     "DISC": _("Discarded"),
     "DISW": _("Discarded, weedy"),
@@ -95,9 +95,9 @@ change_reasons: Any = {
 
 # TODO: should sex be recorded at the species, accession or plant
 # level or just as part of a check since sex can change in some species
-sex_values: Any = {"Female": _("Female"), "Male": _("Male"), "Both": ""}
+sex_values: dict[Optional[str], str] = {"Female": _("Female"), "Male": _("Male"), "Both": ""}
 
-acc_type_values: Any = {
+acc_type_values: dict[Optional[str], str] = {
     "Plant": _("Planting"),
     "Seed": _("Seed/Spore"),
     "Vegetative": _("Vegetative Part"),
