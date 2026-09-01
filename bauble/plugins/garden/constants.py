@@ -18,7 +18,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 from gettext import gettext as _
-from typing import Any
+from typing import Any, Optional
 
 prop_type_values: dict[Optional[str], str] = {
     "Seed": _("Seed"),

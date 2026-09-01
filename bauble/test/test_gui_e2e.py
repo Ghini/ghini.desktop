@@ -4,6 +4,7 @@ import signal
 import sqlite3
 import subprocess
 import time
+from typing import Any, Optional
 
 import pytest
 

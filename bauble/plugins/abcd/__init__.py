@@ -429,8 +429,8 @@ class ABCDExporter:
 
 
 class ABCDExportTool(pluginmgr.Tool):
-    category: Any = _("Export")
-    label: Any = _("ABCD")
+    category: str = _("Export")
+    label: str = _("ABCD")
     icon_name: str = "new-abcd.png"
 
     @classmethod
