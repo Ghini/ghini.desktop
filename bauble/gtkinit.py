@@ -1,19 +1,13 @@
 # bauble/gtkinit.py
 import sys
 from gettext import gettext as _
-
 import gi
+import logging
 
-gi.require_version("Gdk", "3.0")
-gi.require_version("GdkPixbuf", "2.0")
-gi.require_version("Gtk", "3.0")
-gi.require_version("GLib", "2.0")
-gi.require_version("Gtk", "3.0")
-gi.require_version("Champlain", "0.12")
-gi.require_version("GtkChamplain", "0.12")
-gi.require_version("GtkClutter", "1.0")
+logger = logging.getLogger(__name__)
 
 __all__ = [
+    "HAS_MAP",
     "Champlain",
     "Clutter",
     "Gdk",
@@ -27,18 +21,19 @@ __all__ = [
     "Pango",
 ]
 
+gi.require_version("Gdk", "3.0")
+gi.require_version("GdkPixbuf", "2.0")
+gi.require_version("Gtk", "3.0")
+gi.require_version("GLib", "2.0")
+
 try:
     from gi.repository import (  # Ensures compatibility
-        Champlain,
-        Clutter,
         Gdk,
         GdkPixbuf,
         Gio,
         GLib,
         GObject,
         Gtk,
-        GtkChamplain,
-        GtkClutter,
         Pango,
     )
 except ImportError as e:
@@ -49,9 +44,18 @@ except ImportError as e:
     sys.exit(1)
 
 
-import logging
+try:
+    gi.require_version("Champlain", "0.12")
+    gi.require_version("GtkChamplain", "0.12")
+    gi.require_version("GtkClutter", "1.0")
+    from gi.repository import Champlain, Clutter, GtkChamplain, GtkClutter
 
-logger = logging.getLogger(__name__)
+    HAS_MAP = True
+except (ValueError, ImportError) as e:
+    logger.debug("map widget (Champlain/Clutter) not available: %s", e)
+    Champlain = Clutter = GtkChamplain = GtkClutter = None
+    HAS_MAP = False
+
 
 # Known-noisy, harmless GTK/GLib messages we choose not to show on the
 # console. GLib.log_set_handler has no effect once structured logging is

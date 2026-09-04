@@ -43,6 +43,7 @@ from bauble import search as search
 from bauble import utils as utils
 from bauble.error import BaubleError, check
 from bauble.gtkinit import (
+    HAS_MAP,
     Champlain,
     Clutter,
     Gdk,
@@ -309,6 +310,19 @@ class MapInfoExpander(InfoExpander):
     def __init__(self, get_points: Optional[Any] = None) -> None:
         super().__init__(_("Location on map"))
 
+        if not HAS_MAP:
+            # No Champlain/Clutter on this platform (e.g. the Windows
+            # build - gvsbuild has no libchamplain recipe). Nothing to
+            # show or update; hide the expander entirely rather than
+            # leaving an empty, permanently-collapsed box in the UI.
+            self.map_widget = None
+            self.clutter_view = None
+            self.get_points = None
+            self.layer = None
+            self.set_no_show_all(True)
+            self.hide()
+            return
+
         self.map_widget = GtkChamplain.Embed()
         self.map_widget.set_size_request(230, 230)
         self.vbox.pack_start(self.map_widget, False, False, 0)
@@ -324,10 +338,14 @@ class MapInfoExpander(InfoExpander):
     def on_expanded(self, *args) -> None:
         """Toggle visibility based on expander state."""
         super().on_expanded(*args)
+        if not HAS_MAP:
+            return
         self.map_widget.set_visible(self.get_expanded())
 
     def update(self, row) -> None:
         """Update the map with points from the row."""
+        if not HAS_MAP:
+            return
         self.map_widget.set_visible(self.get_expanded())
 
         black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7F)
