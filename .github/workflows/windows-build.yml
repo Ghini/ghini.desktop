@@ -164,6 +164,40 @@ jobs:
           python -m pip install --upgrade py2exe
           python scripts\build_win_exe.py
 
+      - name: Bundle GTK3 runtime files that modulefinder can't see
+        shell: pwsh
+        run: |
+          # py2exe's modulefinder only follows Python imports. It has no
+          # way to know that _gi.pyd (PyGObject's C extension) links against
+          # GTK/GLib/GObject DLLs at the native level, so none of gvsbuild's
+          # non-Python output ends up in dist\ on its own. Each piece below
+          # is a separate runtime need; if one is still missing after this,
+          # the resulting error names which (DLL name, typelib namespace,
+          # icon, or schema), so add just that piece rather than re-guessing
+          # the whole list.
+          $gtkRoot = "C:\gtk-build\gtk\x64\release"
+
+          # Native DLLs _gi.pyd and friends dlopen at import time.
+          Copy-Item "$gtkRoot\bin\*.dll" -Destination "dist\" -Force
+
+          # Typelibs: tell gi.require_version()/gi.repository the ABI of
+          # each namespace (Gtk, Gdk, GLib, Pango, ...).
+          New-Item -ItemType Directory -Force -Path "dist\lib\girepository-1.0" | Out-Null
+          Copy-Item "$gtkRoot\lib\girepository-1.0\*" -Destination "dist\lib\girepository-1.0\" -Force
+
+          # gdk-pixbuf loaders: decode PNG/SVG for icons and images.
+          New-Item -ItemType Directory -Force -Path "dist\lib\gdk-pixbuf-2.0" | Out-Null
+          Copy-Item "$gtkRoot\lib\gdk-pixbuf-2.0\*" -Destination "dist\lib\gdk-pixbuf-2.0\" -Recurse -Force
+
+          # Compiled GSettings schemas that GTK itself reads.
+          New-Item -ItemType Directory -Force -Path "dist\share\glib-2.0\schemas" | Out-Null
+          Copy-Item "$gtkRoot\share\glib-2.0\schemas\*" -Destination "dist\share\glib-2.0\schemas\" -Force
+
+          # Icon themes (Adwaita, hicolor) so stock icons resolve instead
+          # of showing broken-image placeholders.
+          New-Item -ItemType Directory -Force -Path "dist\share\icons" | Out-Null
+          Copy-Item "$gtkRoot\share\icons\*" -Destination "dist\share\icons\" -Recurse -Force
+
       - name: Upload frozen build for inspection
         uses: actions/upload-artifact@v4
         with:
