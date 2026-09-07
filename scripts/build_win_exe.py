@@ -54,7 +54,13 @@ freeze(
         "bundle_files": 3,
         "compressed": True,
         "packages": ["bauble", "gi"],
-        "includes": ["cairo", "psycopg2", "sqlalchemy"],
+        "includes": [
+            "cairo",
+            "psycopg2",
+            "sqlalchemy",
+            # imported internally, at the compiled-C level:
+            "lxml._elementpath",
+        ],
         # GI typelibs and GTK's own data files (icons, schemas, pixbuf
         # loaders) are not picked up by modulefinder at all - they need to
         # be copied into dist/ separately, the way the old win_gtk.bat did
