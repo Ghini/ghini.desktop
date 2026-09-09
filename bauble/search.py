@@ -2042,7 +2042,8 @@ class SchemaBrowser:
         it = combo.get_active_iter()
         domain = combo.props.model[it][0]
         mapper = inspect(self.domain_map[domain])
-        model = Gtk.TreeStore(str, object)
+        model = Gtk.TreeStore()
+        model.set_column_types((str, object,))
         root = model.get_iter_root()
         self._insert_props(mapper, model, root)
         self.prop_tree.set_property("model", model)

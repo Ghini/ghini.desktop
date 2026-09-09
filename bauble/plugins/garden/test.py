@@ -680,7 +680,8 @@ def test_source_accessible_plants_suppresses_autoflush(db_session, plant_data) -
     db_session.add(source)
     db_session.autoflush = True
 
-    result_store = Gtk.ListStore(str, int)
+    result_store = Gtk.ListStore()
+    result_store.set_column_types((str, int,))
     try:
         _populate_accessible_plant_store(
             db_session,

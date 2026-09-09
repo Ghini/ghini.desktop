@@ -65,7 +65,8 @@ def test_search_tree_model() -> None:
 
     from bauble.gtkinit import Gtk
 
-    model = Gtk.TreeStore(str)
+    model = Gtk.TreeStore()
+    model.set_column_types((str,))
 
     # The rows that should be found
     to_find = []

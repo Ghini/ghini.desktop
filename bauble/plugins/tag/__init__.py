@@ -528,7 +528,8 @@ class TagItemGUI(editor.GenericEditorView):
             self.tag_tree.append_column(col)
 
         # create the model
-        model = Gtk.ListStore(bool, str, bool)
+        model = Gtk.ListStore()
+        model.set_column_types((bool, str, bool,))
         tag_all, tag_some, tag_none = get_tag_ids(self.values)
         session = db.Session()  # we need close it
         try:

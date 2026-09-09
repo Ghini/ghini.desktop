@@ -610,7 +610,8 @@ class GenericEditorView:
         self, widget, values: Optional[Any] = None, cell_data_func: Optional[Any] = None
     ) -> None:
         combo = self.__get_widget(widget)
-        model = Gtk.ListStore(str)
+        model = Gtk.ListStore()
+        model.set_column_types((str,))
         combo.clear()
         combo.set_model(model)
         renderer = Gtk.CellRendererText()
@@ -832,7 +833,8 @@ class GenericEditorView:
             combo = self.widgets[combo]
         combo.clear()
         # using 'object' avoids SA unicode warning
-        model = Gtk.ListStore(object, str)
+        model = Gtk.ListStore()
+        model.set_column_types((object, str,))
         if isinstance(translations, dict):
             translations = sorted(
                 list(translations.items()), key=lambda x: (x[1] is not None, x[1])
@@ -1967,7 +1969,8 @@ class GenericEditorPresenter:
             def idle_callback(values):
                 completion = widget.get_completion()
                 utils.clear_model(completion)
-                completion_model = Gtk.ListStore(object)
+                completion_model = Gtk.ListStore()
+                completion_model.set_column_types((object,))
                 for v in values:
                     completion_model.append([v])
                 completion.set_model(completion_model)

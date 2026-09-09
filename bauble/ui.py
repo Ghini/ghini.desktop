@@ -403,7 +403,8 @@ class GUI:
         self.create_main_menu()
 
         combo = self.widgets.main_comboentry
-        model = Gtk.ListStore(str)
+        model = Gtk.ListStore()
+        model.set_column_types((str,))
         combo.set_model(model)
         self.populate_main_entry()
 
@@ -620,7 +621,8 @@ class GUI:
         main_combo = self.widgets.main_comboentry
         model = main_combo.get_model()
         if model is None:
-            model = Gtk.ListStore(str)
+            model = Gtk.ListStore()
+            model.set_column_types((str,))
             main_combo.set_model(model)
             main_combo.set_entry_text_column(0)
         model.clear()
@@ -629,12 +631,14 @@ class GUI:
         if completion is None:
             completion = Gtk.EntryCompletion()
             main_entry.set_completion(completion)
-            compl_model = Gtk.ListStore(str)
+            compl_model = Gtk.ListStore()
+            compl_model.set_column_types((str,))
             completion.set_model(compl_model)
         else:
             compl_model = completion.get_model()
             if compl_model is None:
-                compl_model = Gtk.ListStore(str)
+                compl_model = Gtk.ListStore()
+                compl_model.set_column_types((str,))
                 completion.set_model(compl_model)
 
         completion.set_text_column(0)

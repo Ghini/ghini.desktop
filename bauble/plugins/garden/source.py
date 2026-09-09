@@ -612,7 +612,8 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                 treeview.set_sensitive = False
                 return
             utils.clear_model(treeview)
-            model = Gtk.ListStore(object)
+            model = Gtk.ListStore()
+            model.set_column_types((object,))
             for propagation in plant.propagations:
                 if propagation.accessible_quantity == 0:
                     continue
@@ -640,7 +641,8 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             treeview.set_sensitive = False
             return
         utils.clear_model(treeview)
-        model = Gtk.ListStore(object)
+        model = Gtk.ListStore()
+        model.set_column_types((object,))
         for propagation in parent_plant.propagations:
             model.append([propagation])
         treeview.set_model(model)

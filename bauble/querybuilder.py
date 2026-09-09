@@ -292,7 +292,8 @@ class ExpressionRow:
             cell = Gtk.CellRendererText()
             self.value_widget.pack_start(cell, True)
             self.value_widget.add_attribute(cell, "text", 1)
-            model = Gtk.ListStore(str, str)
+            model = Gtk.ListStore()
+            model.set_column_types((str, str,))
             if prop.columns[0].type.translations:
                 trans = dict(prop.columns[0].type.translations)
                 prop_values = [

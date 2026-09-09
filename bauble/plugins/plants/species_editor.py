@@ -148,7 +148,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             safe_set_text(cell, str(model[treeiter][0]))
 
         combo = self.view.widgets.sp_habit_comboentry
-        model = Gtk.ListStore(str, object)
+        model = Gtk.ListStore()
+        model.set_column_types((str, object,))
         list(
             [
                 model.append(p)
@@ -1204,7 +1205,8 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         utils.clear_model(self.treeview)
 
         # add the vernacular names to the tree
-        tree_model = Gtk.ListStore(object)
+        tree_model = Gtk.ListStore()
+        tree_model.set_column_types((object,))
         for vn in model:
             tree_model.append([vn])
         self.treeview.set_model(tree_model)
@@ -1310,7 +1312,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         col.set_cell_data_func(self.view.widgets.syn_cell, _syn_data_func)
 
         utils.clear_model(self.treeview)
-        tree_model = Gtk.ListStore(object)
+        tree_model = Gtk.ListStore()
+        tree_model.set_column_types((object,))
         for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)

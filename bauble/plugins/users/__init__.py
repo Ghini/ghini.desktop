@@ -585,7 +585,8 @@ class UsersEditor(editor.GenericEditorView):
         """
         tree = self.widgets.users_tree
         utils.clear_model(tree)
-        model = Gtk.ListStore(str)
+        model = Gtk.ListStore()
+        model.set_column_types((str,))
         for user in get_users():
             if only_bauble and has_privileges(user, "read"):
                 model.append([user])

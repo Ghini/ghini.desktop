@@ -359,7 +359,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         # the liststore for rooted cuttings contains PropCuttingRooted
         # objects, not just their fields, so we cannot define it in the
         # glade file.
-        rooted_liststore = Gtk.ListStore(object)
+        rooted_liststore = Gtk.ListStore()
+        rooted_liststore.set_column_types((object,))
         self.view.widgets.rooted_treeview.set_model(rooted_liststore)
 
         from functools import partial

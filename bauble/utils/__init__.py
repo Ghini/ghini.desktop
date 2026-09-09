@@ -1079,7 +1079,8 @@ def setup_text_combobox(
     if isinstance(values, Gtk.ListStore):
         model = values
     else:
-        model = Gtk.ListStore(str)
+        model = Gtk.ListStore()
+        model.set_column_types((str,))
         seen = set()
         for v in values or []:
             s = to_unicode(v)  # ensure str

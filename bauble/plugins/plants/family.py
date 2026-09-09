@@ -803,7 +803,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         col.set_cell_data_func(cell, _syn_data_func)
         self.treeview.append_column(col)
 
-        tree_model = Gtk.ListStore(object)
+        tree_model = Gtk.ListStore()
+        tree_model.set_column_types((object,))
         for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)

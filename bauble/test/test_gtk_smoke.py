@@ -89,6 +89,12 @@ prefs.testing = True
 LIB_DIR = Path(paths.lib_dir())
 
 
+def _new_list_store(*column_types):
+    store = Gtk.ListStore()
+    store.set_column_types(column_types)
+    return store
+
+
 def drain_gtk_events() -> None:
     while Gtk.events_pending():
         Gtk.main_iteration_do(False)
@@ -625,7 +631,8 @@ def test_result_expand_keeps_retry_child_for_empty_rows(session):
     search_view.row_meta = view.SearchView.ViewMeta()
     search_view.row_meta[Family].set(children=lambda _row: [])
 
-    model = Gtk.TreeStore(object)
+    model = Gtk.TreeStore()
+    model.set_column_types((object,))
     parent = model.append(None, [family])
     model.append(parent, ["-"])
     tree = SimpleNamespace(get_model=lambda: model)
@@ -722,7 +729,7 @@ def test_main_search_history_completion_shows_popup(monkeypatch):
         "species where genus.epithet=Guidedgenus",
     ]
     combo = Gtk.ComboBoxText.new_with_entry()
-    combo.set_model(Gtk.ListStore(str))
+    combo.set_model(_new_list_store(str))
     gui = SimpleNamespace(
         entry_history_pref="bauble.history",
         widgets=SimpleNamespace(main_comboentry=combo),
@@ -750,9 +757,9 @@ def test_main_search_history_completion_shows_popup(monkeypatch):
 def test_main_search_completion_configures_glade_completion(monkeypatch):
     history = ["species where genus.epithet=Tulipa"]
     combo = Gtk.ComboBoxText.new_with_entry()
-    combo.set_model(Gtk.ListStore(str))
+    combo.set_model(_new_list_store(str))
     completion = Gtk.EntryCompletion()
-    completion.set_model(Gtk.ListStore(str))
+    completion.set_model(_new_list_store(str))
     combo.get_child().set_completion(completion)
     gui = SimpleNamespace(
         entry_history_pref="bauble.history",
@@ -819,7 +826,7 @@ def test_main_search_database_completion_values_uses_seeded_records(session):
 def test_main_search_changed_refreshes_database_completion(monkeypatch):
     requested_text = []
     combo = Gtk.ComboBoxText.new_with_entry()
-    combo.set_model(Gtk.ListStore(str))
+    combo.set_model(_new_list_store(str))
     gui = SimpleNamespace(
         entry_history_pref="bauble.history",
         widgets=SimpleNamespace(main_comboentry=combo),
@@ -879,7 +886,7 @@ def test_generic_entry_completion_enables_inline_and_popup_behavior():
 def test_dynamic_completion_refreshes_at_minimum_key_length():
     entry = Gtk.Entry()
     completion = Gtk.EntryCompletion()
-    completion.set_model(Gtk.ListStore(object))
+    completion.set_model(_new_list_store(object))
     completion.set_minimum_key_length(2)
     entry.set_completion(completion)
     requested_prefixes = []
@@ -915,7 +922,7 @@ def test_dynamic_completion_refreshes_at_minimum_key_length():
 def test_dynamic_completion_keeps_partial_prefix_match_pending():
     entry = Gtk.Entry()
     completion = Gtk.EntryCompletion()
-    completion.set_model(Gtk.ListStore(object))
+    completion.set_model(_new_list_store(object))
     completion.set_minimum_key_length(2)
     entry.set_completion(completion)
     selected_values = []
@@ -957,7 +964,7 @@ def test_dynamic_completion_keeps_partial_prefix_match_pending():
 def test_dynamic_completion_exact_match_ignores_zero_width_space():
     entry = Gtk.Entry()
     completion = Gtk.EntryCompletion()
-    completion.set_model(Gtk.ListStore(object))
+    completion.set_model(_new_list_store(object))
     completion.set_minimum_key_length(2)
     entry.set_completion(completion)
     selected_values = []

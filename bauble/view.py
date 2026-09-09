@@ -1239,7 +1239,8 @@ class SearchView(pluginmgr.View):
 
         # Handle the case when no results are found
         if not results:
-            model = Gtk.ListStore(str)
+            model = Gtk.ListStore()
+            model.set_column_types((str,))
             msg = bold % html.escape(
                 _('Couldn\'t find anything for search: "%s"') % text
             )
@@ -1263,7 +1264,8 @@ class SearchView(pluginmgr.View):
         )
 
         # Initialize a tree model for results
-        model = Gtk.TreeStore(object)
+        model = Gtk.TreeStore()
+        model.set_column_types((object,))
 
         def sortable(obj):
             try:

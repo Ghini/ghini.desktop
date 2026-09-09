@@ -352,7 +352,8 @@ class AccessionEditorView(editor.GenericEditorView):
             match_func=self.datum_match,
             text_column=0,
         )
-        model = Gtk.ListStore(str)
+        model = Gtk.ListStore()
+        model.set_column_types((str,))
         for abbr in sorted(datums.keys()):
             # TODO: should create a marked up string with the datum description
             model.append([abbr])
@@ -497,7 +498,8 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         # intialize vouchers treeview
         treeview = self.view.widgets.voucher_treeview
         utils.clear_model(treeview)
-        model = Gtk.ListStore(object)
+        model = Gtk.ListStore()
+        model.set_column_types((object,))
         for voucher in self.model.vouchers:
             if not voucher.parent_material:
                 model.append([voucher])
@@ -506,7 +508,8 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         # initialize parent vouchers treeview
         treeview = self.view.widgets.parent_voucher_treeview
         utils.clear_model(treeview)
-        model = Gtk.ListStore(object)
+        model = Gtk.ListStore()
+        model.set_column_types((object,))
         for voucher in self.model.vouchers:
             if voucher.parent_material:
                 model.append([voucher])
@@ -777,7 +780,8 @@ class VerificationBox:
             cell.set_property("markup", f"<b>{level}</b>  :  {descr}")
 
         combo.set_cell_data_func(renderer, cell_data_func)
-        model = Gtk.ListStore(int, str)
+        model = Gtk.ListStore()
+        model.set_column_types((int, str,))
         for level, descr in list(ver_level_descriptions.items()):
             model.append([level, descr])
         combo.set_model(model)
@@ -1295,7 +1299,8 @@ class SourcePresenter(editor.GenericEditorPresenter):
             if treeiter:
                 active = combo.get_model()[treeiter][0]
         combo.set_model(None)
-        model = Gtk.ListStore(object)
+        model = Gtk.ListStore()
+        model.set_column_types((object,))
         none_iter = model.append([""])
         model.append([self.garden_prop_str])
         contacts = list(
@@ -1685,7 +1690,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 if response:
                     completion = self.view.widgets.acc_species_entry.get_completion()
                     utils.clear_model(completion)
-                    model = Gtk.ListStore(object)
+                    model = Gtk.ListStore()
+                    model.set_column_types((object,))
                     model.append([syn.species])
                     completion.set_model(model)
                     safe_set_text(
@@ -1704,7 +1710,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             comp = Gtk.EntryCompletion()
             species_entry.set_completion(comp)
         if comp.get_model() is None:
-            comp.set_model(Gtk.ListStore(object))
+            comp_model = Gtk.ListStore()
+            comp_model.set_column_types((object,))
+            comp.set_model(comp_model)
         # helpful UX flags (don’t fight your view’s match_func)
         try:
             comp.set_popup_completion(True)
@@ -1923,7 +1931,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         species = self._species_for_id_qual_rank()
         if not species:
             return
-        model = Gtk.ListStore(str, str)
+        model = Gtk.ListStore()
+        model.set_column_types((str, str,))
         it = model.append([str(species.genus), "genus"])
         active = None
         if self.model.id_qual_rank == "genus":
