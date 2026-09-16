@@ -78,7 +78,7 @@ if HAS_MAP:
     GtkClutter.init([])  # GtkClutter first
     Clutter.init([])  # Then Clutter
 
-css: bytes = b"""
+css = b"""
 #history_tv row:nth-child(even) {
     background: #F0F0F0; /* Light grey background for even rows */
 }
