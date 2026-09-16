@@ -497,7 +497,7 @@ def do_bauble(filename):
 
 
 def do_location(filename):
-    from bauble.plugins.garden.models Location
+    from bauble.plugins.garden.models import Location
 
     reader = UnicodeReader(open(filename))
 
