@@ -60,6 +60,20 @@ freeze(
             "sqlalchemy",
             # imported internally, at the compiled-C level:
             "lxml._elementpath",
+            # PyGObject's Gtk/Gdk/etc. convenience API (positional
+            # Gtk.ListStore(str), ListStore.append([...]), and more) only
+            # exists through these override modules, dynamically imported
+            # by gi/overrides/__init__.py via importlib.import_module()
+            # with a computed name - invisible to modulefinder, same as
+            # lxml._elementpath above. Long-documented gotcha across
+            # py2exe/cx_Freeze/PyInstaller alike when freezing PyGObject
+            # apps (e.g. sourceforge.net/p/pygobjectwin32/tickets/40).
+            "gi.overrides.Gtk",
+            "gi.overrides.Gdk",
+            "gi.overrides.GLib",
+            "gi.overrides.GObject",
+            "gi.overrides.Gio",
+            "gi.overrides.Pango",
         ],
         # GI typelibs and GTK's own data files (icons, schemas, pixbuf
         # loaders) are not picked up by modulefinder at all - they need to
