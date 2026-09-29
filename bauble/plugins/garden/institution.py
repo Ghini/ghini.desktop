@@ -36,7 +36,7 @@ import bauble.meta as meta
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
-from bauble.gtkinit import Champlain, Clutter, Gdk, Gtk, GtkChamplain, GtkClutter
+from bauble.gtkinit import Champlain, Clutter, Gdk, Gtk, GtkChamplain, GtkClutter, HAS_MAP
 from sqlalchemy import insert, select, update
 from sqlalchemy.orm import sessionmaker
 
@@ -46,12 +46,13 @@ display: Any = Gdk.Display.get_default()
 if not display:
     raise RuntimeError("GDK Display could not be initialized.")
 
-# Explicitly set Clutter's GDK display before initializing Clutter
-Clutter.set_windowing_backend("x11")  # Use "x11" explicitly if running in X11
+if HAS_MAP:
+    # Explicitly set Clutter's GDK display before initializing Clutter
+    Clutter.set_windowing_backend("x11")  # Use "x11" explicitly if running in X11
 
-# Now initialize Clutter and GtkClutter
-GtkClutter.init([])  # GtkClutter first
-Clutter.init([])  # Then Clutter
+    # Now initialize Clutter and GtkClutter
+    GtkClutter.init([])  # GtkClutter first
+    Clutter.init([])  # Then Clutter
 
 
 logger = logging.getLogger(__name__)
@@ -105,6 +106,8 @@ class MapViewer:
             title, parent, *args, **kwargs
         )  # Use composition instead of subclassing
         self.result = None
+        if not HAS_MAP:
+            return
 
         # Connect key press event
         self.dialog.connect("key-press-event", self.on_key_press)
@@ -604,6 +607,8 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             return SentryHandler(sentry_client)
 
     def on_select_map_clicked(self, *args, **kwargs) -> None:
+        if not HAS_MAP:
+            return
         map = MapViewer(_("Zoom to garden"), self.view.get_window())
         lat_str, lon_str, diam_str = (
             self.model.geo_latitude,
