@@ -74,6 +74,21 @@ freeze(
             "gi.overrides.GObject",
             "gi.overrides.Gio",
             "gi.overrides.Pango",
+            # SQLAlchemy resolves a dialect name from the connection URL
+            # (e.g. "sqlite", "postgresql", "mysql") via its own
+            # PluginLoader, which does
+            # __import__("sqlalchemy.dialects.<name>") with a computed
+            # string - same invisible-to-modulefinder pattern as above.
+            # Only the backends we actually ship a driver for: sqlite
+            # (stdlib, always available), postgresql (psycopg2), and
+            # mysql/mariadb (PyMySQL - pure Python, no extra DLLs to
+            # bundle, unlike mysqlclient's C extension).
+            "sqlalchemy.dialects.sqlite",
+            "sqlalchemy.dialects.sqlite.pysqlite",
+            "sqlalchemy.dialects.postgresql",
+            "sqlalchemy.dialects.postgresql.psycopg2",
+            "sqlalchemy.dialects.mysql",
+            "sqlalchemy.dialects.mysql.pymysql",
         ],
         # GI typelibs and GTK's own data files (icons, schemas, pixbuf
         # loaders) are not picked up by modulefinder at all - they need to
