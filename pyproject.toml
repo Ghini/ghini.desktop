@@ -22,7 +22,7 @@ keywords = [
 license = "GPL-2.0-or-later"
 requires-python = ">=3.9,<4.0"
 dependencies = [
-    "certifi==2026.4.22",
+    "certifi==2026.10.18",
     "chardet==7.4.3",
     "ecdsa==0.19.2",
     "fibra==0.0.21",
